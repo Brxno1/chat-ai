@@ -1,7 +1,6 @@
 {
   "extends": [
-    "@rocketseat/eslint-config/next",
-    "next/core-web-vitals"
+    "@rocketseat/eslint-config/next"
   ],
   "plugins": [
     "simple-import-sort"

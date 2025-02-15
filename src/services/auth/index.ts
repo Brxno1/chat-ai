@@ -29,13 +29,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       sendVerificationRequest: async ({
         identifier: email,
         url,
-        token,
-        baseUrl,
-        provider,
-        expires,
-        theme,
-        request,
-      }: any) => {
+        // token,
+        // baseUrl,
+        // provider,
+        // expires,
+        // theme,
+        // request,
+      }: {
+        identifier: string
+        url: string
+      }) => {
         const transporter = nodemailer.createTransport({
           host: process.env.MAILTRAP_HOST,
           port: 587,
