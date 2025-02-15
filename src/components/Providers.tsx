@@ -1,13 +1,23 @@
 'use client'
 
 import { SessionProvider } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
 
 import { ThemeProvider } from './theme-provider'
 import { SidebarProvider } from './ui/sidebar'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const sidebarState = window.localStorage.getItem('sidebar_state')
+  const [sidebarState, setSidebarState] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const storedState = window.localStorage.getItem('sidebar_state')
+    setSidebarState(storedState === 'true')
+  }, [])
+
+  if (sidebarState === null) {
+    return null
+  }
 
   return (
     <ThemeProvider
@@ -16,7 +26,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <SidebarProvider defaultOpen={sidebarState === 'true'}>
+      <SidebarProvider defaultOpen={sidebarState}>
         <SessionProvider>{children}</SessionProvider>
       </SidebarProvider>
       <Toaster
