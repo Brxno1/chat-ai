@@ -80,7 +80,7 @@ export function AuthForm() {
           </Button>
         ),
       })
-      console.log(err)
+      console.log(err, 'que erro ta vindo')
     }
   }
   return (

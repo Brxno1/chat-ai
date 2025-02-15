@@ -23,7 +23,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     EmailProvider({
       server: {
-        host: 'smtp.mailtrap.io',
+        host: process.env.MAILTRAP_HOST,
         port: 587,
         auth: {
           user: process.env.MAILTRAP_USERNAME,
@@ -34,7 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       sendVerificationRequest: async ({
         identifier: email,
         url,
-        // token,
+        // token, 
         // baseUrl,
         // provider,
         // expires,
@@ -44,6 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         identifier: string
         url: string
       }) => {
+        console.log(`Enviando email de verificação para: ${email}`);
         const transporter = nodemailer.createTransport({
           host: process.env.MAILTRAP_HOST,
           port: 587,
@@ -53,22 +54,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         })
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email,
-          },
-        })
+        try {
+          const user = await prisma.user.findUnique({
+            where: {
+              email,
+            },
+          })
 
-        const emailHtml = await render(Email({ url, user }))
+          if (!user) {
+            console.error(`Usuário não encontrado para o email: ${email}`);
+            return;
+          }
 
-        const options = {
-          from: process.env.EMAIL_FROM,
-          to: email,
-          subject: `Olá, ${user?.name}`,
-          html: emailHtml,
+          const emailHtml = await render(Email({ url, user }))
+
+          const options = {
+            from: process.env.EMAIL_FROM,
+            to: email,
+            subject: `Olá, ${user?.name}`,
+            html: emailHtml,
+          }
+
+          await transporter.sendMail(options)
+          console.log(`Email enviado para: ${email}`);
+        } catch (error) {
+          if (error instanceof Error) {
+            console.error(`Erro ao enviar email: ${error.message}`);
+          } else {
+            console.error(`Erro ao enviar email: ${String(error)}`);
+          }
         }
-
-        await transporter.sendMail(options)
       },
     }),
   ],
