@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 export default function NotFound() {
   const [counter, setCounter] = useState(5)
-  const [redirecting, setRedirecting] = useState(false)
+  const [, setRedirecting] = useState(false)
 
   useEffect(() => {
     if (counter === 0) {

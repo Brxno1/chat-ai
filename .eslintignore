@@ -2,3 +2,6 @@ node_modules
 .next
 build
 dist 
+src/components/ui
+src/services/auth/index.ts
+@types/next-auth.d.ts
