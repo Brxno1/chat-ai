@@ -15,6 +15,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
+        },
+      },
     }),
     EmailProvider({
       server: {
