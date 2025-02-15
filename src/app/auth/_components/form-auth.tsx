@@ -51,6 +51,7 @@ export function AuthForm() {
       await signIn('email', { email, redirect: false, redirectTo: '/app' })
 
       toast('Link mágico enviado para: ', {
+        duration: 10000,
         action: (
           <span
             onClick={() =>

@@ -45,6 +45,7 @@ export function LoginUserForm() {
       await signIn('email', { email, redirect: false, callbackUrl: '/app' })
 
       toast('Link mágico enviado para: ', {
+        duration: 10000,
         action: (
           <span
             onClick={() =>
