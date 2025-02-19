@@ -21,16 +21,7 @@ function Sidebar({ className, children }: SidebarGenericProps) {
 }
 
 function SidebarHeader({ className, children }: SidebarGenericProps) {
-  return (
-    <header
-      className={cn([
-        'flex h-14 items-center border-b border-border px-6 py-3',
-        className,
-      ])}
-    >
-      {children}
-    </header>
-  )
+  return <header className={cn(['', className])}>{children}</header>
 }
 
 function SidebarHeaderTitle({ className, children }: SidebarGenericProps) {
@@ -63,7 +54,7 @@ function SidebarNavHeaderTitle({ className, children }: SidebarGenericProps) {
 }
 
 function SidebarNavMain({ className, children }: SidebarGenericProps) {
-  return <main className={cn(['flex flex-col', className])}>{children}</main>
+  return <main className={cn(['', className])}>{children}</main>
 }
 
 type DashboardSidebarNavLinkProps = {

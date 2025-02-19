@@ -31,6 +31,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
       },
       from: process.env.EMAIL_FROM,
+      id: 'magiclink',
+      maxAge: 60 * 60 * 24, // 24 hours
       sendVerificationRequest: async ({
         identifier: email,
         url,

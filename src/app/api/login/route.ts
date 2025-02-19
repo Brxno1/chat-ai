@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { prisma } from '@/services/database/prisma'
+import { loginWithMagicLink } from '@/app/api/login/actions/login'
+
+import { getUsers } from './actions/users'
 
 const schema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -9,37 +11,24 @@ const schema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json()
-    const { name, email } = schema.parse(body)
+  const body = await req.json()
+  const { name, email } = schema.parse(body)
 
-    const userExists = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    })
+  const response = await loginWithMagicLink({ name, email })
 
-    if (userExists) {
-      return NextResponse.json(
-        { message: 'User already exists' },
-        { status: 400 },
-      )
-    }
-
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-      },
-    })
-    return NextResponse.json(
-      { message: 'User created successfully' },
-      { status: 201 },
-    )
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 },
-    )
+  if (response.error) {
+    return NextResponse.json({ error: response.error }, { status: 500 })
   }
+
+  return NextResponse.json(response)
+}
+
+export async function GET() {
+  const response = await getUsers()
+
+  if (response.error) {
+    return NextResponse.json({ error: response.error }, { status: 404 })
+  }
+
+  return NextResponse.json({ users: response.users }, { status: 200 })
 }

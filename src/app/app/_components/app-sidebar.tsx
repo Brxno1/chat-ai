@@ -36,7 +36,7 @@ export function AppSidebar({ user }: UserProps) {
   return (
     <Sidebar>
       <SidebarContent className="bg-background">
-        <SidebarHeader className="border-b border-border py-3">
+        <SidebarHeader className="h-13 flex border-b border-border py-3">
           <SidebarHeaderTitle className="mx-4">
             <Logo />
           </SidebarHeaderTitle>

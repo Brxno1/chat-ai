@@ -5,18 +5,21 @@ import {
   DashboardPageMain,
 } from '@/components/dashboard/page'
 import { ToggleTheme } from '@/components/toggle-theme'
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { auth } from '@/services/auth'
 
-import TodoCreateForm from './_components/todo-create-form'
-import { TodoDataTable } from './_components/todo-data-table'
+import { SidebarTriggerComponent } from './_components/sidebar-trigger'
+import TodoCreateForm from './_components/todo/todo-create-form'
+import { TodoDataTable } from './_components/todo/todo-data-table'
 
 export default async function Page() {
+  const session = await auth()
+
   return (
     <DashboardPage>
       <DashboardPageHeader>
-        <SidebarTrigger />
+        <SidebarTriggerComponent />
         <Container className="mr-5 flex items-center gap-4">
-          <TodoCreateForm />
+          <TodoCreateForm user={session!.user} />
           <ToggleTheme />
         </Container>
       </DashboardPageHeader>

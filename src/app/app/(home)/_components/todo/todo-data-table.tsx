@@ -1,5 +1,7 @@
+/* eslint-disable prettier/prettier */
 'use client'
 
+import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,7 +16,10 @@ import {
 } from '@tanstack/react-table'
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react'
 import * as React from 'react'
+import { toast } from 'sonner'
 
+import { deleteTodo } from '@/app/http/delete-todo'
+import { getTodos } from '@/app/http/get-todos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -23,7 +28,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
@@ -35,48 +44,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatDistanceToNow } from '@/lib/format-distance-to-now'
+import { formatDistanceToNow } from '@/lib/format'
+import { queryClient } from '@/lib/query-client'
 
-import { Todo } from '../types-todo'
-import { BadgeStatus } from './badge-status'
-
-const data: Todo[] = [
-  {
-    id: '550e8400-e29b-41d4-a716-446655440001',
-    status: 'finished',
-    title: 'Aprender React',
-    createdAt: new Date('2025-01-01'),
-    updatedAt: new Date('2025-01-02'),
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440002',
-    status: 'pending',
-    title: 'Estudar Next.js',
-    createdAt: new Date('2025-02-01'),
-    updatedAt: new Date('2025-02-02'),
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440003',
-    status: 'cancelled',
-    title: 'Estudar Tailwind CSS',
-    createdAt: new Date('2024-07-01'),
-    updatedAt: new Date('2025-01-02'),
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440004',
-    status: 'pending',
-    title: 'Estudar TypeScript',
-    createdAt: new Date('2024-11-01'),
-    updatedAt: new Date('2024-11-02'),
-  },
-  {
-    id: '550e8400-e29b-41d4-a716-446655440005',
-    status: 'cancelled',
-    title: 'Estudar Node.js',
-    createdAt: new Date('2024-09-01'),
-    updatedAt: new Date('2024-09-02'),
-  },
-]
+import { Todo } from '../../types-todo'
+import { BadgeStatus } from '../badge-status'
+import { ActionsForTodo } from './actions.for-todo'
 
 export const columns: ColumnDef<Todo>[] = [
   {
@@ -108,22 +81,30 @@ export const columns: ColumnDef<Todo>[] = [
     enableHiding: false,
   },
   {
-    id: 'status',
+    id: 'doneAt',
+    accessorKey: 'doneAt',
     header: () => <div className="text-center">Status</div>,
     cell: ({ row }) => {
-      const { status } = row.original
+      const { doneAt } = row.original
 
       return (
         <div className="flex items-center justify-center">
-          <BadgeStatus status={status} />
+          <BadgeStatus status={doneAt ? 'finished' : 'pending'} />
         </div>
       )
     },
     sortingFn: (rowA, rowB) => {
-      const statusOrder = { finished: 1, pending: 2, cancelled: 3 }
-      return (
-        statusOrder[rowA.original.status] - statusOrder[rowB.original.status]
-      )
+      const statusOrder: Record<'finished' | 'pending' | 'cancelled', number> =
+      {
+        finished: 1,
+        pending: 2,
+        cancelled: 3,
+      }
+
+      const statusA = rowA.original.doneAt ? 'finished' : 'pending'
+      const statusB = rowB.original.doneAt ? 'finished' : 'pending'
+
+      return statusOrder[statusA] - statusOrder[statusB]
     },
     enableSorting: true,
   },
@@ -160,10 +141,9 @@ export const columns: ColumnDef<Todo>[] = [
     },
     cell: ({ row }) => {
       const createdAt = row.getValue('createdAt') as Date
-
       return (
         <div className="ml-4 text-left font-medium">
-          {new Intl.DateTimeFormat('pt-BR').format(createdAt)}
+          {formatDistanceToNow(createdAt)}
         </div>
       )
     },
@@ -186,42 +166,19 @@ export const columns: ColumnDef<Todo>[] = [
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
-      const todo = row.original
+      const todo = row.original as Todo
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações para o Todo</DropdownMenuLabel>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => navigator.clipboard.writeText(todo.id)}
-            >
-              Copiar ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              Marcar como finalizado
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer hover:dark:bg-destructive">
-              Excluir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+      return <ActionsForTodo todo={todo} />
     },
   },
 ]
 
 export function TodoDataTable() {
+  const { data: todos } = useQuery({
+    queryKey: ['todos'],
+    queryFn: getTodos,
+  })
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -231,8 +188,8 @@ export function TodoDataTable() {
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
-    data,
     columns,
+    data: todos ?? [],
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -298,9 +255,9 @@ export function TodoDataTable() {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   )
                 })}

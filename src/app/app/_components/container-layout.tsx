@@ -6,7 +6,8 @@ import { PropsWithChildren } from 'react'
 import { useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 
-import { AppSidebar } from './main-sidebar'
+import { AppClosedSidebar } from './app-closed-sidebar'
+import { AppSidebar } from './app-sidebar'
 
 export function ContainerLayout({ children }: PropsWithChildren) {
   const { data: session } = useSession()
@@ -16,11 +17,12 @@ export function ContainerLayout({ children }: PropsWithChildren) {
     <div
       className={cn('', {
         'grid h-screen grid-cols-[16rem_1fr]': open,
-        'grid h-screen grid-cols-[0_80%] items-center justify-center':
+        'grid h-screen grid-cols-[4rem_1fr] items-center justify-center':
           !open && !isMobile,
       })}
     >
-      {session && <AppSidebar user={session.user} />}
+      {session && !!open && <AppSidebar user={session.user} />}
+      {session && !open && <AppClosedSidebar user={session.user} />}
       <main className="flex flex-col">{children}</main>
     </div>
   )
