@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { RiGoogleFill } from '@remixicon/react'
 import { ArrowRight, RotateCw } from 'lucide-react'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
@@ -8,7 +9,6 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
-import { GoogleComponentIcon } from '@/components/google-svg'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -18,10 +18,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Form, FormField, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { api } from '@/lib/axios'
+import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
   email: z.string().email('Por favor, insira um email válido'),
@@ -31,27 +32,24 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 export function AuthForm() {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting, errors },
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
       name: '',
     },
   })
-
   async function handleSentMagicLink(data: FormValues) {
     const { name, email } = data
     try {
-      await api.post('/login', { name, email })
-      await signIn('email', { email, redirect: false, redirectTo: '/app' })
-
+      const response = await api.post('/login', { name, email })
+      await signIn('email', {
+        email: response.data.email,
+        redirect: false,
+        redirectTo: '/app',
+      })
       toast('Link mágico enviado para: ', {
-        duration: 10000,
+        duration: 5000,
         action: (
           <span
             onClick={() =>
@@ -66,8 +64,9 @@ export function AuthForm() {
           </span>
         ),
       })
-      reset()
+      form.reset()
     } catch (err) {
+      console.log(err)
       toast.error('Erro ao enviar email, tente novamente', {
         action: (
           <Button
@@ -91,62 +90,83 @@ export function AuthForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form
-          id="form-auth"
-          onSubmit={handleSubmit(handleSentMagicLink)}
-          className="space-y-4"
-        >
-          <div className="space-y-2">
-            <Label htmlFor="email">Name</Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="seu nome aqui"
-              {...register('name')}
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              {...register('email')}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
-          </div>
-          <Button
-            type="submit"
-            className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
-            disabled={isSubmitting}
+        <Form {...form}>
+          <form
+            id="form-auth"
+            onSubmit={form.handleSubmit(handleSentMagicLink)}
+            className="space-y-4"
           >
-            {isSubmitting ? (
-              'Enviando...'
-            ) : (
-              <span>
-                Enviar link
-                <ArrowRight className="ml-1 inline-block font-semibold" />
-              </span>
-            )}
-          </Button>
-        </form>
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <div className="space-y-2">
+                  <FormLabel
+                    className={cn('', {
+                      'text-red-500': fieldState.error,
+                    })}
+                  >
+                    Nome
+                  </FormLabel>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="seu nome aqui"
+                    {...field}
+                  />
+                  <FormMessage className="text-red-500" />
+                </div>
+              )}
+            />
+            <div className="space-y-2">
+              <FormField
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <FormLabel
+                      className={cn('', {
+                        'text-red-500': fieldState.error,
+                      })}
+                    >
+                      Email
+                    </FormLabel>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="usuario@example.com"
+                      {...field}
+                    />
+                    <FormMessage className="text-red-500" />
+                  </div>
+                )}
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                'Enviando...'
+              ) : (
+                <span>
+                  Enviar link
+                  <ArrowRight className="ml-1 inline-block font-semibold" />
+                </span>
+              )}
+            </Button>
+          </form>
+        </Form>
         <Separator className="my-4" />
         <CardFooter className="flex flex-col space-y-2 p-4">
-          <div className="flex items-center justify-center">
-            <span className="text-sm text-zinc-600 dark:text-zinc-300">
-              ou faça login com o Google
-            </span>
-          </div>
           <Button
+            variant="outline"
+            className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
             onClick={() => signIn('google', { redirectTo: '/app' })}
-            className="flex w-full items-center justify-center bg-zinc-50 hover:bg-zinc-100"
           >
-            <GoogleComponentIcon className="ml-2 h-5 w-5" />
+            <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
+            Login com Google
           </Button>
           <div className="mb-auto text-center">
             <Link

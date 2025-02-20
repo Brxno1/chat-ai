@@ -2,13 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Separator } from '@radix-ui/react-dropdown-menu'
+import { RiGoogleFill } from '@remixicon/react'
 import { ArrowRight, RotateCw } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
-import { GoogleComponentIcon } from '@/components/google-svg'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -83,7 +83,7 @@ export function LoginUserForm() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-center text-2xl">Login</CardTitle>
           <CardDescription className="text-center">
-            Enter your email below to login to your account
+            Insira seu email abaixo para fazer login na sua conta
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -121,10 +121,12 @@ export function LoginUserForm() {
           </form>
           <Separator className="my-6" />
           <Button
+            variant="outline"
+            className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
             onClick={() => signIn('google', { redirectTo: '/app' })}
-            className="flex w-full items-center justify-center bg-zinc-50 hover:bg-zinc-100"
           >
-            <GoogleComponentIcon className="ml-2 h-5 w-5" />
+            <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
+            Login com Google
           </Button>
         </CardContent>
       </Card>

@@ -17,7 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
-          redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,          
+          redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
         },
       },
     }),
@@ -31,31 +31,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
       },
       from: process.env.EMAIL_FROM,
-      id: 'magiclink',
       maxAge: 60 * 60 * 24, // 24 hours
       sendVerificationRequest: async ({
         identifier: email,
         url,
-        // token,
-        // baseUrl,
-        // provider,
-        // expires,
-        // theme,
-        // request,
-      }: {
-        identifier: string
-        url: string
       }) => {
-        console.log(`Enviando email de verificação para: ${email}`);
-        const transporter = nodemailer.createTransport({
-          host: process.env.MAILTRAP_HOST,
-          port: 587,
-          auth: {
-            user: process.env.MAILTRAP_USERNAME,
-            pass: process.env.MAILTRAP_PASSWORD,
-          },
-        })
-
         try {
           const user = await prisma.user.findUnique({
             where: {
@@ -64,11 +44,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           })
 
           if (!user) {
-            console.error(`Usuário não encontrado para o email: ${email}`);
-            return;
+            return
           }
 
           const emailHtml = await render(Email({ url, user }))
+
+          const transporter = nodemailer.createTransport({
+            host: process.env.MAILTRAP_HOST,
+            port: 587,
+            auth: {
+              user: process.env.MAILTRAP_USERNAME,
+              pass: process.env.MAILTRAP_PASSWORD,
+            },
+          })
 
           const options = {
             from: process.env.EMAIL_FROM,
@@ -87,7 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         }
       },
-    }),
+    })
   ],
   pages: {
     error: '/auth',

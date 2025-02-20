@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateTodo } from '@/app/http/update-todo'
+import { updateTodo } from '@/app/(http)/update-todo'
 import { Button } from '@/components/ui/button'
 import {
   Form,

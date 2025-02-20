@@ -6,7 +6,7 @@ import { MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteTodo } from '@/app/http/delete-todo'
+import { deleteTodo } from '@/app/(http)/delete-todo'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,

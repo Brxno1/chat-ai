@@ -18,7 +18,7 @@ import {
 import { ArrowUpDown, ChevronDown } from 'lucide-react'
 import * as React from 'react'
 
-import { getTodos } from '@/app/http/get-todos'
+import { getTodos } from '@/app/(http)/get-todos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {

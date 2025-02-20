@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: response.error }, { status: 500 })
   }
 
-  return NextResponse.json(response)
+  return NextResponse.json(response.user, { status: 200 })
 }
 
 export async function GET() {
