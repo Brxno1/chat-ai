@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 'use client'
 
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { Todo } from '@prisma/client'
+import { useQuery } from '@tanstack/react-query'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,28 +15,19 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table'
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react'
+import { ArrowUpDown, ChevronDown } from 'lucide-react'
 import * as React from 'react'
-import { toast } from 'sonner'
 
-import { deleteTodo } from '@/app/http/delete-todo'
 import { getTodos } from '@/app/http/get-todos'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
+  DropdownMenuContent, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -45,11 +37,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { formatDistanceToNow } from '@/lib/format'
-import { queryClient } from '@/lib/query-client'
 
-import { Todo } from '../../types-todo'
 import { BadgeStatus } from '../badge-status'
-import { ActionsForTodo } from './actions.for-todo'
+import { ActionsForTodo } from './actions-for-todo'
 
 export const columns: ColumnDef<Todo>[] = [
   {
@@ -166,7 +156,7 @@ export const columns: ColumnDef<Todo>[] = [
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
-      const todo = row.original as Todo
+      const todo = row.original
 
       return <ActionsForTodo todo={todo} />
     },
@@ -180,11 +170,8 @@ export function TodoDataTable() {
   })
 
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  )
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
@@ -205,6 +192,15 @@ export function TodoDataTable() {
       rowSelection,
     },
   })
+
+  const skeletonSizes = [
+    'h-5 w-6',
+    'h-5 w-24',
+    'h-5 w-24',
+    'h-5 w-40',
+    'h-5 w-40 ml-auto',
+    'h-5 w-6',
+  ];
 
   return (
     <div className="mt-4 rounded-lg border border-border px-3 py-4">
@@ -227,69 +223,59 @@ export function TodoDataTable() {
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) =>
+                    column.toggleVisibility(!!value)
+                  }
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
       <div>
-        <Table>
-          <TableHeader className="">
+        <Table className="rounded-lg">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header, headerIndex) => (
+                  <TableHead key={header.id}>
+                    {!todos ? (
+                      <Skeleton className={skeletonSizes[headerIndex % skeletonSizes.length]} />
+                    ) : (
+                      flexRender(header.column.columnDef.header, header.getContext())
+                    )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="">
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+          <TableBody>
+            {!todos &&
+              Array.from({ length: 10 }).map((_, rowIndex) => (
+                <TableRow key={`skeleton-row-${rowIndex}`} className='h-12'>
+                  {table.getHeaderGroups()[0].headers.map((_, cellIndex) => (
+                    <TableCell key={`skeleton-cell-${cellIndex}`}>
+                      <Skeleton className={skeletonSizes[cellIndex % skeletonSizes.length]} />
                     </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Nenhum resultado encontrado.
-                </TableCell>
-              </TableRow>
+              ))}
+            {todos && (
+              table
+                .getRowModel()
+                .rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    ))}
+                  </TableRow>
+                ))
             )}
           </TableBody>
         </Table>

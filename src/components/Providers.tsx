@@ -40,6 +40,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         closeButton
         position="top-right"
         theme="system"
+        pauseWhenPageIsHidden
+        visibleToasts={2}
       />
     </ThemeProvider>
   )

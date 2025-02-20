@@ -17,7 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
-          redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
+          redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,          
         },
       },
     }),
@@ -36,7 +36,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       sendVerificationRequest: async ({
         identifier: email,
         url,
-        // token, 
+        // token,
         // baseUrl,
         // provider,
         // expires,
