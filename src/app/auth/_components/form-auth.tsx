@@ -2,9 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiGoogleFill } from '@remixicon/react'
-import { ArrowRight, RotateCw } from 'lucide-react'
+import { ArrowRight, CircleUserRoundIcon, RotateCw } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
+import { useCallback, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
@@ -27,42 +29,57 @@ import { cn } from '@/lib/utils'
 const formSchema = z.object({
   email: z.string().email('Por favor, insira um email válido'),
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  file: z
+    .instanceof(File, { message: 'Por favor, selecione um arquivo' })
+    .refine(
+      (file) => file.size <= 10 * 1024 * 1024,
+      'O arquivo deve ter no máximo 10MB',
+    ),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
 export function AuthForm() {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [fileName, setFileName] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
       name: '',
+      file: undefined,
     },
   })
+
   async function handleSentMagicLink(data: FormValues) {
-    const { name, email } = data
+    const formData = new FormData()
+
+    formData.append('name', data.name)
+    formData.append('email', data.email)
+    formData.append('file', data.file || '')
+
     try {
-      const response = await api.post('/login', { name, email })
+      const response = await api.post('/login', formData)
+
       await signIn('email', {
         email: response.data.email,
         redirect: false,
         redirectTo: '/app',
       })
+
+      sessionStorage.setItem('name', response.data.name)
       toast('Link mágico enviado para: ', {
-        duration: 5000,
         action: (
           <span
-            onClick={() =>
-              window.open(
-                'https://mailtrap.io/inboxes/3449582/messages',
-                '_blank',
-              )
-            }
+            onClick={() => window.open('http://localhost:8025', '_blank')}
             className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
           >
-            {data.email}
+            {data.name}
           </span>
         ),
+        duration: 5000,
       })
       form.reset()
     } catch (err) {
@@ -81,6 +98,30 @@ export function AuthForm() {
       })
     }
   }
+
+  const truncateText = (text: string, maxLength: number) =>
+    text.length > maxLength ? text.substring(0, maxLength) + '...' : text
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleRemove = useCallback(() => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+    }
+    setPreviewUrl(null)
+    setFileName(null)
+    if (previewUrl) {
+      setPreviewUrl(null)
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }, [previewUrl])
+
   return (
     <Card className="mx-auto w-full max-w-sm">
       <CardHeader className="space-y-1">
@@ -118,30 +159,115 @@ export function AuthForm() {
                 </div>
               )}
             />
-            <div className="space-y-2">
-              <FormField
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <div className="space-y-2">
-                    <FormLabel
-                      className={cn('', {
-                        'text-red-500': fieldState.error,
-                      })}
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <div className="space-y-2">
+                  <FormLabel
+                    className={cn('', {
+                      'text-red-500': fieldState.error,
+                    })}
+                  >
+                    Email
+                  </FormLabel>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="usuario@example.com"
+                    {...field}
+                  />
+                  <FormMessage className="text-red-500" />
+                </div>
+              )}
+            />
+            <FormField
+              name="file"
+              control={form.control}
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              render={({ field: { value, ref, onChange, ...rest } }) => (
+                <div>
+                  <div className="inline-flex w-full items-center justify-between align-top">
+                    <div
+                      className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
+                      aria-label={
+                        previewUrl
+                          ? 'Preview of uploaded image'
+                          : 'Default user avatar'
+                      }
                     >
-                      Email
-                    </FormLabel>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="usuario@example.com"
-                      {...field}
-                    />
-                    <FormMessage className="text-red-500" />
+                      {previewUrl ? (
+                        <Image
+                          className="h-full w-full object-cover"
+                          src={previewUrl}
+                          alt="Preview of uploaded image"
+                          width={32}
+                          height={32}
+                        />
+                      ) : (
+                        <div aria-hidden="true">
+                          <CircleUserRoundIcon
+                            className="opacity-60"
+                            size={16}
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="relative inline-block">
+                      <Button
+                        onClick={handleButtonClick}
+                        aria-haspopup="dialog"
+                        type="button"
+                        className="font-semibold"
+                        variant={'secondary'}
+                      >
+                        {fileName ? 'Alterar imagem' : 'Selecionar imagem'}
+                      </Button>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        className="hidden"
+                        multiple={false}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          const url = URL.createObjectURL(file!)
+                          setPreviewUrl(url)
+                          setFileName(file!.name)
+                          onChange(file)
+                        }}
+                        {...rest}
+                      />
+                    </div>
                   </div>
-                )}
-              />
-            </div>
+                  {fileName && (
+                    <div className="mt-2">
+                      <div className="inline-flex gap-2 text-xs">
+                        <p
+                          className="truncate text-muted-foreground"
+                          aria-live="polite"
+                        >
+                          {truncateText(fileName, 20)}
+                        </p>
+                        {'-'}
+                        <button
+                          onClick={handleRemove}
+                          className="font-medium text-red-500 hover:underline"
+                          aria-label={`Remove ${fileName}`}
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <div className="sr-only" aria-live="polite" role="status">
+                    {previewUrl
+                      ? 'Image uploaded and preview available'
+                      : 'No image uploaded'}
+                  </div>
+                </div>
+              )}
+            />
             <Button
               type="submit"
               className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
@@ -161,8 +287,8 @@ export function AuthForm() {
         <Separator className="my-4" />
         <CardFooter className="flex flex-col space-y-2 p-4">
           <Button
-            variant="outline"
-            className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
+            variant="default"
+            className="w-full font-semibold"
             onClick={() => signIn('google', { redirectTo: '/app' })}
           >
             <RiGoogleFill className="me-1" size={16} aria-hidden="true" />

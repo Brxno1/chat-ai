@@ -48,13 +48,13 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
     mutationKey: ['delete-todo'],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
-      toast.success(`"${todo.title}" deletado com sucesso`, {
+      toast.success(`"${todo.title}" excluído com sucesso`, {
         duration: 2000,
         position: 'top-center',
       })
     },
     onError: () => {
-      toast.warning(`Erro ao deletar "${todo.title}"`, {
+      toast.warning(`Erro ao excluir "${todo.title}"`, {
         duration: 2000,
         position: 'top-center',
       })

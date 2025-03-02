@@ -6,9 +6,13 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('authjs.session-token')
   const pathname = request.nextUrl.pathname
 
-  // if (pathname.includes('/api/auth') || pathname.includes('/auth/')) {
-  //   return NextResponse.next()
-  // }
+  if (pathname === '/' && !token) {
+    return NextResponse.redirect(new URL(getUrl('/auth')))
+  }
+
+  if (pathname.includes('/api/auth') || pathname.includes('/auth/')) {
+    return NextResponse.next()
+  }
 
   if (pathname === '/auth' && token) {
     return NextResponse.redirect(new URL(getUrl('/app')))

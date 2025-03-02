@@ -34,7 +34,7 @@ export function AppSidebar({ user }: UserProps) {
     return pathname === path
   }
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarContent className="bg-background">
         <SidebarHeader className="h-13 flex border-b border-border py-3">
           <SidebarHeaderTitle className="mx-4">

@@ -23,12 +23,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     EmailProvider({
       server: {
-        host: process.env.MAILTRAP_HOST,
-        port: 587,
-        auth: {
-          user: process.env.MAILTRAP_USERNAME,
-          pass: process.env.MAILTRAP_PASSWORD,
-        },
+        host: process.env.MAILHOG_HOST || "localhost",
+        port: parseInt(process.env.MAILHOG_PORT || "1025"),
+        auth: undefined,
       },
       from: process.env.EMAIL_FROM,
       maxAge: 60 * 60 * 24, // 24 hours
@@ -41,31 +38,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: {
               email,
             },
-          })
+          });
 
           if (!user) {
-            return
+            return;
           }
 
-          const emailHtml = await render(Email({ url, user }))
+          const emailHtml = await render(Email({ url, user }));
 
           const transporter = nodemailer.createTransport({
-            host: process.env.MAILTRAP_HOST,
-            port: 587,
-            auth: {
-              user: process.env.MAILTRAP_USERNAME,
-              pass: process.env.MAILTRAP_PASSWORD,
-            },
-          })
+            host: process.env.MAILHOG_HOST || "localhost",
+            port: parseInt(process.env.MAILHOG_PORT || "1025"),
+            auth: undefined,
+          });
 
           const options = {
             from: process.env.EMAIL_FROM,
             to: email,
-            subject: `Olá, ${user?.name}`,
+            subject: `Olá, ${user.name}`,
             html: emailHtml,
-          }
+          };
 
-          await transporter.sendMail(options)
+          await transporter.sendMail(options);
           console.log(`Email enviado para: ${email}`);
         } catch (error) {
           if (error instanceof Error) {

@@ -23,9 +23,15 @@ export function UserDropdown({ user }: UserProps) {
   const handleSignOut = () => {
     try {
       signOut({ redirectTo: '/login' })
-      toast('Deslogado com sucesso!')
+      toast.success('Deslogado com sucesso!', {
+        duration: 1000,
+        position: 'top-center',
+      })
     } catch (error) {
-      toast.error('Erro ao deslogar!')
+      toast.error('Erro ao deslogar!', {
+        duration: 1000,
+        position: 'top-center',
+      })
     }
   }
 
@@ -36,9 +42,9 @@ export function UserDropdown({ user }: UserProps) {
           variant="ghost"
           className="!b-0 relative ml-2 flex w-full items-center justify-between space-x-2 rounded-full !px-0 hover:bg-transparent"
         >
-          <Avatar className="h-8 w-8 border border-purple-700">
+          <Avatar className="h-8 w-8 cursor-grab rounded-none">
             <AvatarImage src={user.image as string} alt="user avatar" />
-            <AvatarFallback>
+            <AvatarFallback className="rounded-none">
               {user.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -60,7 +66,7 @@ export function UserDropdown({ user }: UserProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup className="group">
+        <DropdownMenuGroup>
           <DropdownMenuItem>
             Configurações
             <Settings2 className="ml-auto h-4 w-4" />
