@@ -29,7 +29,7 @@ export function SidebarTriggerComponent() {
             align="end"
             className="bg-background text-sm text-foreground"
           >
-            <p>Fechar barra lateral</p>
+            <p>Fechar</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

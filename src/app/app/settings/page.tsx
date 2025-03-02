@@ -4,7 +4,7 @@ import {
   DashboardPageHeader,
   DashboardPageMain,
 } from '@/components/dashboard/page'
-import { ToggleTheme } from '@/components/toggle-theme'
+import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 
 export default async function Settings() {

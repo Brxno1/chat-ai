@@ -7,28 +7,31 @@ type BadgeStatusProps = {
 
 export function BadgeStatus({ status }: BadgeStatusProps) {
   let displayStatus: string
-  let badgeColor: string
+  let statusColor: string
 
   switch (status) {
     case 'finished':
       displayStatus = 'Finalizado'
-      badgeColor =
-        'bg-green-600 hover:bg-green-600/90 dark:bg-green-600 hover:dark:bg-green-600/90'
+      statusColor = 'before:bg-green-500'
       break
     case 'pending':
       displayStatus = 'Pendente'
-      badgeColor =
-        'bg-yellow-600 hover:bg-yellow-600/90 dark:bg-yellow-600 hover:dark:bg-yellow-600/90'
+      statusColor = 'before:bg-yellow-500'
       break
     case 'cancelled':
       displayStatus = 'Cancelado'
-      badgeColor =
-        'bg-red-600 hover:bg-red-600/90 dark:bg-red-600 hover:dark:bg-red-600/90'
+      statusColor = 'before:bg-red-500'
       break
   }
 
   return (
-    <Badge className={cn('ml-4 capitalize text-white', badgeColor)}>
+    <Badge
+      variant={'outline'}
+      className={cn(
+        'ml-4 p-2 capitalize before:mr-2 before:inline-block before:h-2 before:w-2 before:rounded-full',
+        statusColor,
+      )}
+    >
       {displayStatus}
     </Badge>
   )

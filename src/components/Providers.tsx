@@ -7,7 +7,7 @@ import { Toaster } from 'sonner'
 
 import { queryClient } from '@/lib/query-client'
 
-import { ThemeProvider } from './theme-provider'
+import { ThemeProvider } from './theme/theme-provider'
 import { SidebarProvider } from './ui/sidebar'
 
 export default function Providers({ children }: { children: React.ReactNode }) {

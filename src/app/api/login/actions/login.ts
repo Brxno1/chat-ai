@@ -2,11 +2,13 @@
 
 import { User } from '@prisma/client'
 
+import { supabase } from '@/lib/supabase'
 import { prisma } from '@/services/database/prisma'
 
 type LoginData = {
   name: string
   email: string
+  file: File | null
 }
 
 type LoginResponse = {
@@ -19,6 +21,8 @@ export async function loginWithMagicLink(
   data: LoginData,
 ): Promise<LoginResponse> {
   try {
+    console.log('Dados recebidos:', data)
+
     const userExists = await prisma.user.findUnique({
       where: { email: data.email },
     })
@@ -27,22 +31,47 @@ export async function loginWithMagicLink(
       return { error: 'User already exists', message: null, user: null }
     }
 
-    const createdUser = await prisma.user.create({ data })
+    let avatarUrl = null
+    if (data.file) {
+      const avatarName = `${new Date().getTime()}-${data.file.name.replace(/[^a-zA-Z0-9.]/g, '-')}`
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(avatarName, data.file, {
+          contentType: data.file.type || 'image/jpeg',
+        })
+
+      if (error) {
+        console.error('Erro ao fazer upload:', error.message)
+        return { error: 'Error uploading avatar', message: null, user: null }
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(avatarName)
+      avatarUrl = urlData.publicUrl
+      console.log('URL do avatar:', avatarUrl)
+    }
+
+    const createdUser = await prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        image: avatarUrl || null,
+      },
+    })
+
+    console.log('Usuário criado:', createdUser)
 
     return {
       message: 'User created successfully',
-      user: {
-        email: createdUser.email,
-        name: createdUser.name,
-        id: createdUser.id,
-        image: createdUser.image,
-        createdAt: createdUser.createdAt,
-        updatedAt: createdUser.updatedAt,
-        emailVerified: createdUser.emailVerified,
-      },
+      user: createdUser,
       error: null,
     }
   } catch (error) {
+    console.error('Erro no servidor:', error)
+    if (error instanceof Error) {
+      return { error: error.message, message: null, user: null }
+    }
     return { error: 'Internal Server Error', message: null, user: null }
   }
 }

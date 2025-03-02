@@ -17,8 +17,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
   email: z.string().email('Por favor, insira um email válido'),
@@ -27,12 +34,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 export function LoginUserForm() {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting, errors },
-  } = useForm<FormValues>({
+  const name = sessionStorage.getItem('name')
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
@@ -44,23 +47,18 @@ export function LoginUserForm() {
     try {
       await signIn('email', { email, redirect: false, callbackUrl: '/app' })
 
-      toast('Link mágico enviado para: ', {
-        duration: 10000,
+      toast('Seu link foi enviado, ', {
+        duration: 5000,
         action: (
           <span
-            onClick={() =>
-              window.open(
-                'https://mailtrap.io/inboxes/3449582/messages',
-                '_blank',
-              )
-            }
+            onClick={() => window.open('http://localhost:8025', '_blank')}
             className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
           >
-            {data.email}
+            {name || data.email}
           </span>
         ),
       })
-      reset()
+      form.reset()
     } catch (err) {
       toast.error('Erro ao enviar email, tente novamente', {
         action: (
@@ -87,38 +85,53 @@ export function LoginUserForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            id="form-auth"
-            onSubmit={handleSubmit(handleSentMagicLink)}
-            className="space-y-4"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                {...register('email')}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
-              )}
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
-              disabled={isSubmitting}
+          <Form {...form}>
+            <form
+              id="form-auth"
+              onSubmit={form.handleSubmit(handleSentMagicLink)}
+              className="space-y-4"
             >
-              {isSubmitting ? (
-                'Enviando...'
-              ) : (
-                <span>
-                  Send magic link
-                  <ArrowRight className="ml-1 inline-block font-semibold" />
-                </span>
-              )}
-            </Button>
-          </form>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <FormLabel
+                      className={cn(
+                        form.formState.errors.email && 'text-red-500',
+                      )}
+                    >
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="m@example.com"
+                        {...field}
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-500" />
+                  </div>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  'Enviando...'
+                ) : (
+                  <span>
+                    Send magic link
+                    <ArrowRight className="ml-1 inline-block font-semibold" />
+                  </span>
+                )}
+              </Button>
+            </form>
+          </Form>
           <Separator className="my-6" />
           <Button
             variant="outline"
