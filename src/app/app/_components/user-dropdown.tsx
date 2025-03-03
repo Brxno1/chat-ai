@@ -22,7 +22,7 @@ type UserProps = {
 export function UserDropdown({ user }: UserProps) {
   const handleSignOut = () => {
     try {
-      signOut({ redirectTo: '/login' })
+      signOut({ redirectTo: '/auth' })
       toast.success('Deslogado com sucesso!', {
         duration: 1000,
         position: 'top-center',

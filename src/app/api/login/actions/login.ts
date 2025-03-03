@@ -8,13 +8,14 @@ import { prisma } from '@/services/database/prisma'
 type LoginData = {
   name: string
   email: string
-  file: File | null
+  file?: File | null
 }
 
 type LoginResponse = {
   error: string | null
   message: string | null
   user: User | null
+  userExists?: boolean
 }
 
 export async function loginWithMagicLink(
@@ -28,28 +29,33 @@ export async function loginWithMagicLink(
     })
 
     if (userExists) {
-      return { error: 'User already exists', message: null, user: null }
+      return {
+        error: 'Usuário já existente',
+        message: null,
+        user: null,
+        userExists: true,
+      }
     }
 
     let avatarUrl = null
     if (data.file) {
-      const avatarName = `${new Date().getTime()}-${data.file.name.replace(/[^a-zA-Z0-9.]/g, '-')}`
+      const avatarName = `${new Date().getTime()}-${data.file.name.replace(/[^a-zA-Z0-9.]/g, '-')}` // Regex para remover caracteres não-alfanuméricos
+
       const { error } = await supabase.storage
         .from('avatars')
         .upload(avatarName, data.file, {
-          contentType: data.file.type || 'image/jpeg',
+          contentType: data.file.type || 'image/png',
         })
 
       if (error) {
         console.error('Erro ao fazer upload:', error.message)
-        return { error: 'Error uploading avatar', message: null, user: null }
+        return { error: error.message, message: null, user: null }
       }
 
       const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(avatarName)
       avatarUrl = urlData.publicUrl
-      console.log('URL do avatar:', avatarUrl)
     }
 
     const createdUser = await prisma.user.create({

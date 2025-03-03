@@ -2,8 +2,8 @@ import fs from 'fs/promises'
 import path from 'path'
 
 export async function uploadAndDeleteFile(
-  file: File | null,
-  timer: number = 300000,
+  file: File | null | undefined,
+  timer: number = 60 * 5, // 5 minutes
 ) {
   try {
     // Primeiro, faz o upload do arquivo
@@ -16,7 +16,7 @@ export async function uploadAndDeleteFile(
       // Escreve o arquivo
       await fs.writeFile(filePath, buffer)
 
-      // Configura a exclusão após 5 minutos (300000 milissegundos)
+      // Configura a exclusão após 5 minutos
       setTimeout(async () => {
         try {
           // Verifica se o arquivo existe usando fs.access
