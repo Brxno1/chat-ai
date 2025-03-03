@@ -7,18 +7,14 @@ import { uploadAndDeleteFile } from '@/lib/upload-and-remove'
 import { getUserByEmail } from './actions/users'
 
 const schema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().email(),
   name: z.string(),
   file: z
-    .instanceof(File)
-    .refine(
-      (file) => file.size <= 10 * 1024 * 1024,
-      'O arquivo deve ter no máximo 10MB',
-    )
-    .refine(
-      (file) => file.type.startsWith('image/'),
-      'O arquivo deve ser uma imagem válida',
-    ),
+    .union([
+      z.instanceof(File).refine((file) => file.size <= 10 * 1024 * 1024),
+      z.undefined(),
+    ])
+    .optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -26,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   const name = formData.get('name') as string
   const email = formData.get('email') as string
-  const file = formData.get('file') as File | null
+  const file = (formData.get('file') as File | null) ?? undefined
 
   const parsedData = schema.safeParse({ name, email, file })
 
@@ -34,9 +30,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsedData.error }, { status: 400 })
   }
 
-  await uploadAndDeleteFile(file, 300000) // 5 min default
+  await uploadAndDeleteFile(file, 60 * 5) // 5 minutes
 
   const response = await loginWithMagicLink({ name, email, file })
+
+  if (response.userExists) {
+    return NextResponse.json({ error: response.error }, { status: 400 })
+  }
 
   if (response.error) {
     return NextResponse.json({ error: response.error }, { status: 500 })
