@@ -22,8 +22,6 @@ export async function loginWithMagicLink(
   data: LoginData,
 ): Promise<LoginResponse> {
   try {
-    console.log('Dados recebidos:', data)
-
     const userExists = await prisma.user.findUnique({
       where: { email: data.email },
     })
@@ -65,8 +63,6 @@ export async function loginWithMagicLink(
         image: avatarUrl || null,
       },
     })
-
-    console.log('Usuário criado:', createdUser)
 
     return {
       message: 'User created successfully',

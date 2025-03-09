@@ -169,6 +169,8 @@ export function TodoDataTable() {
     queryFn: getTodos,
   })
 
+  console.log(todos)
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -205,6 +207,8 @@ export function TodoDataTable() {
   return (
     <div className="mt-4 rounded-lg border border-border px-3 py-4">
       <div className="flex items-center py-4">
+        <div>
+        </div>
         <Input
           placeholder="Filtrar Todos..."
           value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
