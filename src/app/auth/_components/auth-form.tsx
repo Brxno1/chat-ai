@@ -1,8 +1,9 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { User } from '@prisma/client'
 import { RiGoogleFill } from '@remixicon/react'
-import { AxiosError } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import {
   ArrowRight,
   ArrowRightLeft,
@@ -11,6 +12,7 @@ import {
   RotateCw,
 } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 import { useCallback, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -34,7 +36,10 @@ import { api } from '@/lib/axios'
 import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
-  name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  name: z
+    .string()
+    .nonempty('O nome não pode estar vazio')
+    .min(3, 'Nome deve ter no mínimo 3 caracteres'),
   email: z
     .string()
     .nonempty('O email não pode estar vazio')
@@ -42,7 +47,7 @@ const formSchema = z.object({
   file: z
     .union([
       z
-        .instanceof(File, { message: 'Por favor, selecione um arquivo' })
+        .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
         .refine(
           (file) => file.size <= 10 * 1024 * 1024,
           'O arquivo deve ter no máximo 10MB',
@@ -61,12 +66,12 @@ export function NewFormAuth() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
       email: '',
       name: '',
       file: undefined,
     },
-    mode: 'onBlur',
   })
 
   async function handleSentMagicLink(data: FormValues) {
@@ -79,30 +84,32 @@ export function NewFormAuth() {
     }
 
     try {
-      const response = await api.post('/login', formData)
+      const {
+        data: { email, name },
+      } = await api.post<FormValues, AxiosResponse<User>>('/login', formData)
 
       await signIn('email', {
-        email: response.data.email,
+        email,
         redirect: false,
         redirectTo: '/app',
       })
 
       toast('Link mágico enviado para: ', {
         action: (
-          <span
-            onClick={() => window.open('http://localhost:8025', '_blank')}
+          <Link
+            href={'http://localhost:8025'}
+            target="_blank"
             className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
           >
-            {data.name}
-          </span>
+            {name}
+          </Link>
         ),
-        duration: 5000,
+        duration: 7000,
       })
       handleRemove()
       form.reset()
     } catch (err) {
       if (err instanceof AxiosError) {
-        console.log(err.response?.data)
         toast.error(err.response?.data.error, {
           action: (
             <Button
@@ -120,7 +127,7 @@ export function NewFormAuth() {
   }
 
   const truncateText = (text: string, maxLength: number) =>
-    text.length > maxLength ? text.substring(0, maxLength) + '...' : text
+    text.length > maxLength ? `${text.substring(0, maxLength)}...` : text
 
   const handleSelectFileWithButton = () => {
     if (fileInputRef.current) {
@@ -165,7 +172,7 @@ export function NewFormAuth() {
                   name="name"
                   control={form.control}
                   render={({ field, fieldState }) => (
-                    <>
+                    <div className="mb-4">
                       <div className="group relative mb-4 space-y-2">
                         <FormLabel
                           className={cn(
@@ -191,7 +198,7 @@ export function NewFormAuth() {
                         />
                       </div>
                       <FormMessage className="text-red-500" />
-                    </>
+                    </div>
                   )}
                 />
                 <FormField
@@ -230,7 +237,7 @@ export function NewFormAuth() {
                     <div>
                       <div className="mt-4 inline-flex w-full items-center justify-between align-top">
                         <div
-                          className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
+                          className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
                           aria-label={
                             previewUrl
                               ? 'Preview of uploaded image'
@@ -246,10 +253,13 @@ export function NewFormAuth() {
                               height={32}
                             />
                           ) : (
-                            <div aria-hidden="true">
+                            <div
+                              aria-hidden="true"
+                              className="flex h-full w-full items-center justify-center"
+                            >
                               <CircleUserRoundIcon
                                 className="opacity-60"
-                                size={16}
+                                size={24}
                               />
                             </div>
                           )}
@@ -284,9 +294,9 @@ export function NewFormAuth() {
                             onChange={(e) => {
                               const file = e.target.files?.[0]
                               const url = URL.createObjectURL(file!)
+                              onChange(file)
                               setPreviewUrl(url)
                               setFileName(file!.name)
-                              onChange(file)
                             }}
                             {...rest}
                           />

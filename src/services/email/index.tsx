@@ -22,11 +22,22 @@ export function Email({ url, user }: User) {
           fontFamily: 'Arial, sans-serif',
           padding: '20px',
           backgroundColor: '#121212',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         <h1 style={{ color: '#c084fc', fontSize: '24px', textAlign: 'center' }}>
           Bem-vindo ao nosso serviço
         </h1>
+        <div>
+          <img
+            src={user?.image || ''}
+            alt="Imagem de perfil"
+            width={32}
+            height={32}
+          />
+        </div>
         <p
           style={{
             fontSize: '16px',
@@ -36,7 +47,7 @@ export function Email({ url, user }: User) {
           }}
         >
           Obrigado por se inscrever,{' '}
-          <span style={{ color: '#c084fc', font: 'bold' }}>{user?.name}</span>!
+          <span style={{ color: '#c084fc', font: 'bold' }}>{user?.name}</span> !
           Para começar, clique no botão abaixo para confirmar o seu endereço de
           e-mail.
         </p>

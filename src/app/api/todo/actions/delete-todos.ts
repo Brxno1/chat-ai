@@ -14,7 +14,6 @@ export async function actionDeleteTodos(id: string) {
 
     return {
       message: 'Todo deleted successfully',
-      data: null,
       error: null,
     }
   } catch (error) {
@@ -22,14 +21,12 @@ export async function actionDeleteTodos(id: string) {
       return {
         error: 'Error deleting todo',
         message: error.message,
-        data: null,
       }
     }
 
     return {
       error: 'Error deleting todo',
       message: 'An unknown error occurred',
-      data: null,
     }
   }
 }

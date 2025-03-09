@@ -16,7 +16,7 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
       break
     case 'pending':
       displayStatus = 'Pendente'
-      statusColor = 'before:bg-yellow-500'
+      statusColor = 'before:bg-yellow-500 border border-yellow'
       break
     case 'cancelled':
       displayStatus = 'Cancelado'

@@ -1,3 +1,4 @@
+import { getTodos } from '@/app/(http)/get-todos'
 import Container from '@/components/container'
 import {
   DashboardPage,
@@ -13,6 +14,7 @@ import { TodoDataTable } from './_components/todo/todo-data-table'
 
 export default async function Page() {
   const session = await auth()
+  const initialData = await getTodos()
 
   return (
     <DashboardPage>

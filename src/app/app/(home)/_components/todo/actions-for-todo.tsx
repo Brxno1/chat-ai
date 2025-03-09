@@ -49,13 +49,13 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
       toast.success(`"${todo.title}" excluído com sucesso`, {
-        duration: 2000,
+        duration: 1500,
         position: 'top-center',
       })
     },
     onError: () => {
       toast.warning(`Erro ao excluir "${todo.title}"`, {
-        duration: 2000,
+        duration: 1500,
         position: 'top-center',
       })
     },
