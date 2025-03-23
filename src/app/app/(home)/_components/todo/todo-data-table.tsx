@@ -16,9 +16,11 @@ import {
   VisibilityState,
 } from '@tanstack/react-table'
 import { ArrowUpDown, ChevronDown } from 'lucide-react'
+import { User } from 'next-auth'
 import * as React from 'react'
 
 import { getTodos } from '@/app/(http)/get-todos'
+import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -38,8 +40,8 @@ import {
 } from '@/components/ui/table'
 import { formatDistanceToNow } from '@/lib/format'
 
-import { BadgeStatus } from '../badge-status'
 import { ActionsForTodo } from './actions-for-todo'
+import { BadgeStatus } from './badge-status'
 
 export const columns: ColumnDef<Todo>[] = [
   {
@@ -73,14 +75,18 @@ export const columns: ColumnDef<Todo>[] = [
   {
     id: 'doneAt',
     accessorKey: 'doneAt',
-    header: () => <div className="text-center">Status</div>,
+    header: () => <div className="text-center">
+      <Button variant="ghost" className="hover:bg-transparent cursor-default">
+        Status
+      </Button>
+    </div>,
     cell: ({ row }) => {
       const { doneAt } = row.original
 
       return (
-        <div className="flex items-center justify-center">
+        <ContainerWrapper className="flex items-center justify-center">
           <BadgeStatus status={doneAt ? 'finished' : 'pending'} />
-        </div>
+        </ContainerWrapper>
       )
     },
     sortingFn: (rowA, rowB) => {
@@ -104,6 +110,7 @@ export const columns: ColumnDef<Todo>[] = [
       return (
         <Button
           variant="ghost"
+          className="hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Título
@@ -122,6 +129,7 @@ export const columns: ColumnDef<Todo>[] = [
       return (
         <Button
           variant="ghost"
+          className="hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Criado em
@@ -131,6 +139,7 @@ export const columns: ColumnDef<Todo>[] = [
     },
     cell: ({ row }) => {
       const createdAt = row.getValue('createdAt') as Date
+
       return (
         <div className="ml-4 text-left font-medium">
           {formatDistanceToNow(createdAt)}
@@ -141,20 +150,33 @@ export const columns: ColumnDef<Todo>[] = [
   },
   {
     accessorKey: 'updatedAt',
-    header: () => <div className="mr-5 text-right">Atualizado em</div>,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="hover:bg-transparent"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Atualizado em
+          <ArrowUpDown />
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const updatedAt = row.getValue('updatedAt') as Date
 
       return (
-        <div className="text-right font-medium">
+        <div className="ml-4 text-left font-medium">
           {formatDistanceToNow(updatedAt)}
         </div>
       )
     },
+    enableSorting: true,
   },
   {
     id: 'actions',
     enableHiding: false,
+    header: () => <Button variant="ghost" className="hover:bg-transparent cursor-default">Ações</Button>,
     cell: ({ row }) => {
       const todo = row.original
 
@@ -163,13 +185,20 @@ export const columns: ColumnDef<Todo>[] = [
   },
 ]
 
-export function TodoDataTable() {
+interface TodoDataTableProps {
+  initialData: Todo[]
+  user: User
+}
+
+export function TodoDataTable({ initialData, user }: TodoDataTableProps) {
   const { data: todos } = useQuery({
     queryKey: ['todos'],
-    queryFn: getTodos,
+    queryFn: () => getTodos({ id: user.id! }),
+    staleTime: Infinity,
+    refetchOnReconnect: true,
+    refetchOnWindowFocus: true,
+    initialData,
   })
-
-  console.log(todos)
 
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -243,7 +272,7 @@ export function TodoDataTable() {
         </DropdownMenu>
       </div>
       <div>
-        <Table className="rounded-lg">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
