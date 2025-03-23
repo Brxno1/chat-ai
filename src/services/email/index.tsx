@@ -1,19 +1,12 @@
+import { User } from '@prisma/client'
 import { Button, Html } from '@react-email/components'
 
-interface User {
-  user: {
-    id: string
-    image: string | null
-    createdAt: Date
-    updatedAt: Date
-    name: string
-    email: string
-    emailVerified: Date | null
-  } | null
+interface EmailProps {
   url: string
+  user: User | null
 }
 
-export function Email({ url, user }: User) {
+export function Email({ url, user }: EmailProps) {
   return (
     <Html lang="pt-BR">
       <div
@@ -34,8 +27,8 @@ export function Email({ url, user }: User) {
           <img
             src={user?.image || ''}
             alt="Imagem de perfil"
-            width={32}
-            height={32}
+            width={44}
+            height={44}
           />
         </div>
         <p

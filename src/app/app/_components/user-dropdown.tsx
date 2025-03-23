@@ -16,13 +16,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 type UserProps = {
-  user: Session['user']
+  user: Session['user'] | undefined
 }
 
 export function UserDropdown({ user }: UserProps) {
   const handleSignOut = () => {
     try {
-      signOut({ redirectTo: '/auth' })
+      signOut({ redirectTo: '/auth?mode=login' })
       toast.success('Deslogado com sucesso!', {
         duration: 1000,
         position: 'top-center',
@@ -35,6 +35,16 @@ export function UserDropdown({ user }: UserProps) {
     }
   }
 
+  if (!user) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">Login</Button>
+        </DropdownMenuTrigger>
+      </DropdownMenu>
+    )
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,7 +52,7 @@ export function UserDropdown({ user }: UserProps) {
           variant="ghost"
           className="!b-0 relative ml-2 flex w-full items-center justify-between space-x-2 rounded-full !px-0 hover:bg-transparent"
         >
-          <Avatar className="h-8 w-8 cursor-grab rounded-none">
+          <Avatar className="h-8 w-8 cursor-grab rounded-sm">
             <AvatarImage src={user.image as string} alt="user avatar" />
             <AvatarFallback className="rounded-none">
               {user.name?.slice(0, 2).toUpperCase()}
@@ -67,11 +77,11 @@ export function UserDropdown({ user }: UserProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">
             Configurações
             <Settings2 className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer hover:bg-gradient-to-r hover:from-purple-500 hover:to-teal-400 hover:shadow-sm hover:shadow-purple-500">
+          <DropdownMenuItem className="cursor-pointer hover:bg-gradient-to-r hover:hover:from-purple-600 hover:hover:to-teal-400 hover:hover:shadow-sm hover:hover:shadow-purple-500">
             Upgrade
             <Rocket className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
