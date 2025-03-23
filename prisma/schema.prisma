@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -21,16 +21,43 @@ model User {
   sessions      Session[]
   authenticator Authenticator[]
   todos         Todo[]
+  chats         Chat[]
+  messages      Message[]
 
   @@map("users")
+}
+
+model Chat {
+  id        String    @id @default(cuid())
+  title     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  messages  Message[]
+
+  @@map("chats")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  role      String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+
+  @@map("messages")
 }
 
 model Todo {
   id    String @id @default(cuid())
   title String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   doneAt    DateTime?
 
   userId String
