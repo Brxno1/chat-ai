@@ -1,16 +1,17 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function NotFound() {
+  const router = useRouter()
   const [counter, setCounter] = useState(5)
-  const [, setRedirecting] = useState(false)
 
   useEffect(() => {
-    if (counter === 0) {
-      setRedirecting(true)
-      window.location.href = '/app'
+    if (counter <= 0) {
+      router.push('/app')
     }
+
     const timer = setInterval(() => {
       setCounter((prev) => prev - 1)
     }, 1000)
