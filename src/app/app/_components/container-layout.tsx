@@ -15,8 +15,8 @@ export function ContainerLayout({ children }: PropsWithChildren) {
 
   return (
     <div
-      className={cn('', {
-        'grid h-screen grid-cols-[16rem_1fr]': open,
+      className={cn({
+        'grid h-screen grid-cols-[16rem_1fr]': open && !isMobile,
         'grid h-screen grid-cols-[4rem_1fr] items-center justify-center':
           !open && !isMobile,
       })}
