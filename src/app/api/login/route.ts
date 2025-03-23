@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { loginWithMagicLink } from '@/app/api/login/actions/login'
-import { uploadAndDeleteFile } from '@/lib/upload-and-remove'
 
-import { getUserByEmail } from './actions/users'
+// import { uploadAndDeleteFile } from '@/lib/upload-and-remove'
+import { getUserByEmail } from './actions/get-user-by-email'
 
 const schema = z.object({
   email: z.string().email(),
@@ -30,13 +30,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsedData.error }, { status: 400 })
   }
 
-  await uploadAndDeleteFile(file, 60 * 5) // 5 minutes
-
   const response = await loginWithMagicLink({ name, email, file })
 
-  if (response.userExists) {
-    return NextResponse.json({ error: response.error }, { status: 400 })
-  }
+  // await uploadAndDeleteFile({ file, timer: 180000 }) // 3 minutes in milliseconds
 
   if (response.error) {
     return NextResponse.json({ error: response.error }, { status: 500 })
@@ -53,11 +49,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 })
   }
 
-  const response = await getUserByEmail({ email })
+  const { user, error } = await getUserByEmail({ email })
 
-  if (response.error) {
-    return NextResponse.json({ error: response.error }, { status: 404 })
+  if (error) {
+    return NextResponse.json({ error }, { status: 404 })
   }
 
-  return NextResponse.json({ user: response.data }, { status: 200 })
+  return NextResponse.json({ user }, { status: 200 })
 }

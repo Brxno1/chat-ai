@@ -28,6 +28,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { queryClient } from '@/lib/query-client'
+import { cn } from '@/lib/utils'
 
 const schema = z.object({
   title: z.string().min(1, { message: 'Você precisa informar o título' }),
@@ -45,7 +46,7 @@ type CreateTodoResponse = {
   }
 }
 
-type UserProps = {
+export type UserProps = {
   user: Session['user']
 }
 
@@ -54,17 +55,17 @@ const TodoCreateForm = ({ user }: UserProps) => {
 
   const form = useForm<TodoFormData>({
     resolver: zodResolver(schema),
+    mode: 'onBlur',
     defaultValues: {
       title: '',
     },
   })
-  const { handleSubmit, setFocus, reset, control } = form
 
   useEffect(() => {
     if (open) {
-      setFocus('title')
+      form.setFocus('title')
     }
-  }, [open, setFocus])
+  }, [open, form])
 
   const { mutateAsync: createTodoFn, isPending } = useMutation({
     mutationFn: createTodo,
@@ -74,10 +75,14 @@ const TodoCreateForm = ({ user }: UserProps) => {
       setOpen(false)
       toast.success(`Tarefa "${data?.todo.title}" criada com sucesso!`, {
         position: 'top-center',
+        duration: 2000,
       })
     },
     onError: () => {
-      toast.error('Erro ao criar a tarefa')
+      toast.error('Erro ao criar a tarefa', {
+        position: 'top-center',
+        duration: 2000,
+      })
     },
   })
 
@@ -86,7 +91,7 @@ const TodoCreateForm = ({ user }: UserProps) => {
       await createTodoFn({ title: data.title })
     } catch (err) {
     } finally {
-      reset()
+      form.reset()
     }
   }
 
@@ -107,19 +112,35 @@ const TodoCreateForm = ({ user }: UserProps) => {
         </SheetHeader>
         <Form {...form}>
           <form
-            onSubmit={handleSubmit(handleCreateTodo)}
+            onSubmit={form.handleSubmit(handleCreateTodo)}
             className="flex flex-col gap-4 py-6"
           >
             <FormField
-              control={control}
+              control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Título</FormLabel>
+                  <FormLabel
+                    className={cn(
+                      'text-sm font-medium',
+                      form.formState.errors.title && 'text-red-600',
+                    )}
+                  >
+                    Título
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      className={cn(
+                        form.formState.errors.title && 'border-red-600',
+                      )}
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage
+                    className={cn(
+                      form.formState.errors.title && 'text-red-600',
+                    )}
+                  />
                 </FormItem>
               )}
             />

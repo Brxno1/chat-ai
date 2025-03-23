@@ -16,7 +16,7 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
       break
     case 'pending':
       displayStatus = 'Pendente'
-      statusColor = 'before:bg-yellow-500 border border-yellow'
+      statusColor = 'before:bg-yellow-500'
       break
     case 'cancelled':
       displayStatus = 'Cancelado'
@@ -28,11 +28,11 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
     <Badge
       variant={'outline'}
       className={cn(
-        'ml-4 p-2 capitalize before:mr-2 before:inline-block before:h-2 before:w-2 before:rounded-full',
+        'p-2 capitalize before:mr-2 before:h-2 before:w-2 before:rounded-full',
         statusColor,
       )}
     >
-      {displayStatus}
+      <span>{displayStatus}</span>
     </Badge>
   )
 }

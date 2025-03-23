@@ -1,17 +1,16 @@
-import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
-export async function actionGetTodos() {
-  const session = await auth()
-
+export async function actionGetTodos({ id }: { id: string }) {
   const todos = await prisma.todo.findMany({
-    where: { userId: session?.user.id },
+    where: {
+      userId: id,
+    },
     orderBy: {
       createdAt: 'desc',
     },
   })
 
-  if (!todos) {
+  if (todos.length === 0) {
     return {
       error: 'No todos found',
       message: 'No todos found',

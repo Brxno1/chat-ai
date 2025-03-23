@@ -1,7 +1,9 @@
-export function getUrl(path?: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL!
+import { env } from './env'
 
-  const normalizedPath =
-    path && path.startsWith('/') ? `${path}` : `/${path}` || ''
-  return `${baseUrl}${normalizedPath}`
+type Path = '/app' | '/auth' | '/'
+
+export function getUrl(path: Path) {
+  const baseUrl = env.NEXT_PUBLIC_APP_URL!
+
+  return `${baseUrl}${path}`
 }

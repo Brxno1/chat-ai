@@ -28,7 +28,7 @@ export async function loginWithMagicLink(
 
     if (userExists) {
       return {
-        error: 'Usuário já existente',
+        error: 'Occurred an error',
         message: null,
         user: null,
         userExists: true,
@@ -70,8 +70,8 @@ export async function loginWithMagicLink(
       error: null,
     }
   } catch (error) {
-    console.error('Erro no servidor:', error)
     if (error instanceof Error) {
+      console.error('Error in server:', error.message)
       return { error: error.message, message: null, user: null }
     }
     return { error: 'Internal Server Error', message: null, user: null }

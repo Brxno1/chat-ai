@@ -29,15 +29,15 @@ type TodoFormData = z.infer<typeof schema>
 interface TodoUpdateFormProps {
   todo: Todo
   openDialog: boolean
-  handleCloseDialog: () => void
-  handleCloseDropdown: () => void
+  onCloseDialog: () => void
+  onCloseDropdown: () => void
 }
 
 export function TodoUpdateForm({
   todo,
   openDialog,
-  handleCloseDialog,
-  handleCloseDropdown,
+  onCloseDialog,
+  onCloseDropdown,
 }: TodoUpdateFormProps) {
   const form = useForm<TodoFormData>({
     resolver: zodResolver(schema),
@@ -56,13 +56,13 @@ export function TodoUpdateForm({
     mutationFn: updateTodo,
     mutationKey: ['update-todo'],
     onSuccess: () => {
-      toast.success(`"${todo.title}" atualizado com sucesso`, {
+      toast.success(`Tarefa "${todo.title}" atualizada com sucesso`, {
         duration: 2000,
         position: 'top-center',
       })
       form.reset()
-      handleCloseDialog()
-      handleCloseDropdown()
+      onCloseDialog()
+      onCloseDropdown()
     },
     onError: () => {
       toast.warning(`Erro ao atualizar "${todo.title}"`, {
@@ -123,7 +123,7 @@ export function TodoUpdateForm({
                   className="w-[6rem] text-center font-bold text-red-500 hover:text-red-600"
                   type="button"
                   variant={'outline'}
-                  onClick={handleCloseDialog}
+                  onClick={onCloseDialog}
                 >
                   Cancelar
                 </Button>

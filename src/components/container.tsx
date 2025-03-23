@@ -5,7 +5,7 @@ type ContainerGenericProps<T = unknown> = {
   className?: string
 } & T
 
-export default function Container({
+export function ContainerWrapper({
   children,
   className,
 }: ContainerGenericProps) {

@@ -7,38 +7,36 @@ import nodemailer from 'nodemailer'
 
 import { prisma } from '@/services/database/prisma'
 
-import { Email } from '../email/index'
+import { Email } from '../email/'
+import { env } from '@/lib/env'
+import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
-          redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
+          redirect_uri: env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
         },
       },
     }),
     EmailProvider({
       server: {
-        host: process.env.MAILHOG_HOST || "localhost",
-        port: parseInt(process.env.MAILHOG_PORT || "1025"),
+        host: env.MAILHOG_HOST,
+        port: parseInt(env.MAILHOG_PORT),
         auth: undefined,
       },
-      from: process.env.EMAIL_FROM,
+      from: env.EMAIL_FROM,
       maxAge: 60 * 60 * 24, // 24 hours
       sendVerificationRequest: async ({
         identifier: email,
         url,
       }) => {
         try {
-          const user = await prisma.user.findUnique({
-            where: {
-              email,
-            },
-          });
+          const { user } = await getUserByEmail({ email })
 
           if (!user) {
             return;
@@ -47,20 +45,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const emailHtml = await render(Email({ url, user }));
 
           const transporter = nodemailer.createTransport({
-            host: process.env.MAILHOG_HOST || "localhost",
-            port: parseInt(process.env.MAILHOG_PORT || "1025"),
+            host: env.MAILHOG_HOST,
+            port: parseInt(env.MAILHOG_PORT),
             auth: undefined,
           });
 
           const options = {
-            from: process.env.EMAIL_FROM,
+            from: env.EMAIL_FROM,
             to: email,
             subject: `Olá, ${user.name}`,
             html: emailHtml,
           };
 
           await transporter.sendMail(options);
-          console.log(`Email enviado para: ${email}`);
         } catch (error) {
           if (error instanceof Error) {
             console.error(`Erro ao enviar email: ${error.message}`);
@@ -76,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verifyRequest: '/auth',
     newUser: '/app',
   },
-  secret: process.env.AUTH_SECRET,
+  secret: env.AUTH_SECRET,
   session: {
     strategy: 'jwt',
   },
@@ -89,8 +86,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token
     },
 
-    async signIn({ user }: { user: any }) {
-      return user
+    async signIn() {
+      return true
     },
 
     async session({ session, token }: { session: any; token: any }) {

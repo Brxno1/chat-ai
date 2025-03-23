@@ -1,9 +1,9 @@
-import { NewFormAuth } from './_components/auth-form'
+import { FormAuth } from './_components'
 
 export default function AuthPage() {
   return (
     <div className="flex h-screen items-center justify-center">
-      <NewFormAuth />
+      <FormAuth />
     </div>
   )
 }

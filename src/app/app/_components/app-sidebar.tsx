@@ -21,6 +21,7 @@ import {
   SidebarMenu,
 } from '@/components/ui/sidebar'
 
+import { SidebarTriggerComponent } from './sidebar-trigger'
 import { UserDropdown } from './user-dropdown'
 
 type UserProps = {
@@ -33,12 +34,14 @@ export function AppSidebar({ user }: UserProps) {
   const isActive = (path: string) => {
     return pathname === path
   }
+
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="bg-background">
-        <SidebarHeader className="h-13 flex border-b border-border py-3">
-          <SidebarHeaderTitle className="mx-4">
+        <SidebarHeader className="h-13 border-b border-border p-3">
+          <SidebarHeaderTitle className="flex items-center justify-between">
             <Logo />
+            <SidebarTriggerComponent />
           </SidebarHeaderTitle>
         </SidebarHeader>
         <SidebarGroup className="flex flex-grow flex-col !p-0">
@@ -72,7 +75,7 @@ export function AppSidebar({ user }: UserProps) {
               </SidebarNavLink>
             </SidebarNavMain>
           </SidebarMenu>
-          <SidebarFooter className="rounded-t-lg border-t border-border py-3">
+          <SidebarFooter className="rounded-t-lg border-t border-border py-4">
             <UserDropdown user={user} />
           </SidebarFooter>
         </SidebarGroup>

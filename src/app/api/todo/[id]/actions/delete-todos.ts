@@ -19,14 +19,14 @@ export async function actionDeleteTodos(id: string) {
   } catch (error) {
     if (error instanceof Error) {
       return {
-        error: 'Error deleting todo',
-        message: error.message,
+        error: error.message,
+        message: 'Error deleting todo',
       }
     }
 
     return {
-      error: 'Error deleting todo',
-      message: 'An unknown error occurred',
+      error: 'An unknown error occurred',
+      message: 'Error deleting todo',
     }
   }
 }
