@@ -19,7 +19,12 @@ export async function actionCreateTodo({
 }: TodoData): Promise<CreateTodoResponse> {
   try {
     const todo = await prisma.todo.create({
-      data: { title, userId: id },
+      data: {
+        title,
+        user: {
+          connect: { id },
+        },
+      },
     })
 
     if (!todo) {
