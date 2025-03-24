@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { PropsWithChildren } from 'react'
 
 import { useSidebar } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 import { AppClosedSidebar } from './app-closed-sidebar'
 import { AppSidebar } from './app-sidebar'

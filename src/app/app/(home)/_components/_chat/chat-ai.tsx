@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 import { MessageChat } from './message'
 
@@ -92,7 +92,7 @@ export function Chat({
     >
       <div className="flex h-fit items-center justify-end border-b border-border p-3">
         {!user && (
-          <Link href="/auth?mode=login">
+          <Link href="/auth">
             <UserPlus className="h-5 w-5" />
           </Link>
         )}

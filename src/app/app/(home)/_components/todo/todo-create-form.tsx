@@ -28,7 +28,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { queryClient } from '@/lib/query-client'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 const schema = z.object({
   title: z.string().min(1, { message: 'Você precisa informar o título' }),

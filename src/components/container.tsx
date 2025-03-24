@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 type ContainerGenericProps<T = unknown> = {
   children: React.ReactNode
@@ -9,5 +9,5 @@ export function ContainerWrapper({
   children,
   className,
 }: ContainerGenericProps) {
-  return <div className={cn(['', className])}>{children}</div>
+  return <div className={cn(className)}>{children}</div>
 }

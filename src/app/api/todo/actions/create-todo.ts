@@ -9,8 +9,7 @@ type TodoData = {
 
 type CreateTodoResponse = {
   todo: Todo | null
-  error: string | null
-  message: string | null
+  error: Error | null
 }
 
 export async function actionCreateTodo({
@@ -30,21 +29,18 @@ export async function actionCreateTodo({
     if (!todo) {
       return {
         todo: null,
-        error: 'Todo not created',
-        message: 'Todo not created',
+        error: new Error('Todo not created'),
       }
     }
 
     return {
       todo,
       error: null,
-      message: 'Todo created successfully',
     }
   } catch (error) {
     return {
       todo: null,
-      error: 'Internal server error',
-      message: 'Internal server error',
+      error: new Error('Internal server error'),
     }
   }
 }

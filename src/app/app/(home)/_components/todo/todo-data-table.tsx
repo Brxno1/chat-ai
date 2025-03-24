@@ -38,7 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatDistanceToNow } from '@/lib/format'
+import { formatDistanceToNow } from '@/utils/format'
 
 import { ActionsForTodo } from './actions-for-todo'
 import { BadgeStatus } from './badge-status'

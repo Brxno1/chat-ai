@@ -12,10 +12,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { clipboardWriteText } from '@/lib/clipboard-write-text'
-import { formatTextWithStrong } from '@/lib/format-text-strong'
-import { truncateText } from '@/lib/truncate-text'
-import { cn } from '@/lib/utils'
+import { clipboardWriteText } from '@/utils/clipboard-write-text'
+import { formatTextWithStrong } from '@/utils/format-text-strong'
+import { truncateText } from '@/utils/truncate-text'
+import { cn } from '@/utils/utils'
 
 interface MessageChatProps {
   message: Message

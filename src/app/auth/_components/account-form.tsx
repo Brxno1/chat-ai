@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { ContainerWrapper } from '@/components/container'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { Button } from '@/components/ui/button'
 import {
@@ -29,11 +30,18 @@ import {
   CardFooter,
   CardHeader,
 } from '@/components/ui/card'
-import { Form, FormField, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { api } from '@/lib/axios'
-import { truncateText } from '@/lib/truncate-text'
-import { cn } from '@/lib/utils'
+import { env } from '@/lib/env'
+import { truncateText } from '@/utils/truncate-text'
+import { cn } from '@/utils/utils'
 
 const formSchema = z.object({
   name: z
@@ -52,7 +60,7 @@ const formSchema = z.object({
           (file) => file.size <= 10 * 1024 * 1024,
           'O arquivo deve ter no máximo 10MB',
         ),
-      z.undefined(),
+      z.null(),
     ])
     .optional(),
 })
@@ -62,8 +70,6 @@ type FormValues = z.infer<typeof formSchema>
 export function AccountForm() {
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
   const [fileName, setFileName] = React.useState<string | null>(null)
-
-  const { theme } = useTheme()
 
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const form = useForm<FormValues>({
@@ -76,30 +82,26 @@ export function AccountForm() {
     },
   })
 
-  async function handleCreateAccount(data: FormValues) {
+  const { theme } = useTheme()
+
+  async function handleCreateAccount({ name, email, file }: FormValues) {
     const formData = new FormData()
 
-    formData.append('name', data.name)
-    formData.append('email', data.email)
-    if (data.file) {
-      formData.append('file', data.file)
+    formData.append('name', name)
+    formData.append('email', email)
+    if (file) {
+      formData.append('file', file)
     }
 
     try {
       const {
-        data: { email, name },
+        data: { name },
       } = await api.post<FormValues, AxiosResponse<User>>('/login', formData)
-
-      await signIn('email', {
-        email,
-        redirect: false,
-        redirectTo: '/app',
-      })
 
       toast('Link mágico enviado para: ', {
         action: (
           <Link
-            href={'http://localhost:8025'}
+            href={env.MAILHOG_UI}
             target="_blank"
             className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
           >
@@ -108,10 +110,12 @@ export function AccountForm() {
         ),
         duration: 7000,
       })
-      handleRemove()
+      handleRemoveAvatarFile()
       form.reset()
     } catch (err) {
       if (err instanceof AxiosError) {
+        console.log(err.message)
+
         toast.error('Erro ao logar com o link mágico', {
           action: (
             <Button
@@ -134,7 +138,7 @@ export function AccountForm() {
     }
   }
 
-  const handleRemove = useCallback(() => {
+  const handleRemoveAvatarFile = useCallback(() => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
     }
@@ -149,11 +153,11 @@ export function AccountForm() {
   return (
     <Card className="relative overflow-hidden">
       <ShineBorder
-        shineColor={theme === 'dark' ? '#ffffff' : '#000000'}
+        shineColor={theme === 'dark' ? '#FEFEFE' : '#121212'}
         borderWidth={1}
       />
       <Form {...form}>
-        <form id="form-auth" onSubmit={form.handleSubmit(handleCreateAccount)}>
+        <form onSubmit={form.handleSubmit(handleCreateAccount)} id="form-auth">
           <CardHeader>
             <CardDescription>
               Insira seu e-mail e nome abaixo para criar uma conta.
@@ -164,8 +168,8 @@ export function AccountForm() {
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
-                <div className="mb-4">
-                  <div className="group relative mb-4 space-y-2">
+                <FormItem className="mb-4">
+                  <div className="group relative space-y-2">
                     <FormLabel
                       className={cn(
                         'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
@@ -185,14 +189,14 @@ export function AccountForm() {
                     <Input id="name" type="text" {...field} placeholder=" " />
                   </div>
                   <FormMessage className="text-red-500" />
-                </div>
+                </FormItem>
               )}
             />
             <FormField
               name="email"
               control={form.control}
               render={({ field, fieldState }) => (
-                <>
+                <FormItem>
                   <div className="group relative space-y-2">
                     <FormLabel
                       className={cn(
@@ -213,7 +217,7 @@ export function AccountForm() {
                     <Input type="email" {...field} placeholder=" " />
                   </div>
                   <FormMessage className="text-red-500" />
-                </>
+                </FormItem>
               )}
             />
             <FormField
@@ -221,7 +225,7 @@ export function AccountForm() {
               control={form.control}
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               render={({ field: { value, ref, onChange, ...rest } }) => (
-                <div>
+                <FormItem>
                   <div className="mt-4 inline-flex w-full items-center justify-between align-top">
                     <div
                       className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
@@ -232,13 +236,15 @@ export function AccountForm() {
                       }
                     >
                       {previewUrl ? (
-                        <Image
-                          className="h-full w-full object-cover"
-                          src={previewUrl}
-                          alt="Preview of uploaded image"
-                          width={32}
-                          height={32}
-                        />
+                        <ContainerWrapper className="h-full w-full">
+                          <Image
+                            className="h-full w-full object-cover"
+                            src={previewUrl}
+                            alt="Preview of uploaded image"
+                            width={32}
+                            height={32}
+                          />
+                        </ContainerWrapper>
                       ) : (
                         <div
                           aria-hidden="true"
@@ -303,7 +309,7 @@ export function AccountForm() {
                         </p>
                         {'-'}
                         <button
-                          onClick={handleRemove}
+                          onClick={handleRemoveAvatarFile}
                           className="font-medium text-red-600 hover:underline"
                           aria-label={`Remove ${fileName}`}
                         >
@@ -317,7 +323,7 @@ export function AccountForm() {
                       ? 'Image uploaded and preview available'
                       : 'No image uploaded'}
                   </div>
-                </div>
+                </FormItem>
               )}
             />
           </CardContent>

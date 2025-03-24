@@ -3,6 +3,7 @@
 import { User } from '@prisma/client'
 
 import { supabase } from '@/lib/supabase'
+import { signIn } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
 type LoginData = {
@@ -12,8 +13,7 @@ type LoginData = {
 }
 
 type LoginResponse = {
-  error: string | null
-  message: string | null
+  error: Error | null
   user: User | null
   userExists?: boolean
 }
@@ -28,15 +28,14 @@ export async function loginWithMagicLink(
 
     if (userExists) {
       return {
-        error: 'Occurred an error',
-        message: null,
+        error: new Error('Occurred an error'),
         user: null,
         userExists: true,
       }
     }
 
     let avatarUrl = null
-    if (data.file) {
+    if (data.file && data.file.size > 0) {
       const avatarName = `${new Date().getTime()}-${data.file.name.replace(/[^a-zA-Z0-9.]/g, '-')}` // Regex para remover caracteres não-alfanuméricos
 
       const { error } = await supabase.storage
@@ -47,7 +46,7 @@ export async function loginWithMagicLink(
 
       if (error) {
         console.error('Erro ao fazer upload:', error.message)
-        return { error: error.message, message: null, user: null }
+        return { error: new Error(error.message), user: null }
       }
 
       const { data: urlData } = supabase.storage
@@ -64,16 +63,20 @@ export async function loginWithMagicLink(
       },
     })
 
+    await signIn('email', {
+      email: createdUser.email,
+      redirect: false,
+      redirectTo: '/app',
+    })
+
     return {
-      message: 'User created successfully',
       user: createdUser,
       error: null,
     }
   } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error in server:', error.message)
-      return { error: error.message, message: null, user: null }
+    return {
+      error: new Error('Internal Server Error'),
+      user: null,
     }
-    return { error: 'Internal Server Error', message: null, user: null }
   }
 }

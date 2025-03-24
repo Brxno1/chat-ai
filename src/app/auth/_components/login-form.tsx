@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { RiGoogleFill } from '@remixicon/react'
 import { LoaderCircle, RotateCw } from 'lucide-react'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
@@ -19,9 +20,15 @@ import {
   CardFooter,
   CardHeader,
 } from '@/components/ui/card'
-import { Form, FormField, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 const formSchema = z.object({
   email: z
@@ -45,21 +52,17 @@ export function LoginForm() {
 
   async function handleSentMagicLink({ email }: FormValue) {
     try {
-      const response = await getUserByEmail({ email })
+      const { error, user } = await getUserByEmail({ email })
 
-      if (response.error) {
-        throw new Error(response.error)
+      if (error) {
+        throw new Error(error.message)
       }
 
-      const result = await signIn('email', {
+      await signIn('email', {
         email,
         redirect: false,
         redirectTo: '/app',
       })
-
-      if (result?.error) {
-        throw new Error(result.error)
-      }
 
       toast('Link mágico enviado para: ', {
         action: (
@@ -68,26 +71,25 @@ export function LoginForm() {
             target="_blank"
             className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
           >
-            {response.user?.name}
+            {user!.name}
           </Link>
         ),
         duration: 7000,
       })
       form.reset()
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message, {
-          action: (
-            <Button
-              variant={'ghost'}
-              type="submit"
-              className="ml-auto transition-all hover:bg-red-950/40"
-            >
-              <RotateCw className="h-4 w-4 text-rose-300" />
-            </Button>
-          ),
-        })
-      }
+      toast.error('Ocorreu um erro ao enviar o link mágico.', {
+        action: (
+          <Button
+            className="ml-auto transition-all hover:bg-red-950/40"
+            variant={'ghost'}
+            type="submit"
+            form="login-form"
+          >
+            <RotateCw className="h-4 w-4 text-rose-300" />
+          </Button>
+        ),
+      })
     }
   }
 
@@ -98,18 +100,18 @@ export function LoginForm() {
         borderWidth={1}
       />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSentMagicLink)}>
+        <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
           <CardHeader>
             <CardDescription>
               Insira seu e-mail abaixo para receber seu link de acesso.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-4">
             <FormField
               name="email"
               control={form.control}
               render={({ field, fieldState }) => (
-                <>
+                <FormItem>
                   <div className="group relative space-y-2">
                     <FormLabel
                       className={cn(
@@ -130,14 +132,14 @@ export function LoginForm() {
                     <Input type="email" {...field} placeholder=" " />
                   </div>
                   <FormMessage className="text-red-500" />
-                </>
+                </FormItem>
               )}
             />
           </CardContent>
-          <CardFooter className="flex justify-center">
+          <CardFooter className="mt-2 flex justify-center">
             <Button
               type="submit"
-              className="font-semibold"
+              className="w-full font-semibold"
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? (
@@ -151,6 +153,26 @@ export function LoginForm() {
             </Button>
           </CardFooter>
         </form>
+        <div className="relative mt-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Ou entre com
+            </span>
+          </div>
+        </div>
+        <div className="mb-6 mt-3 flex justify-center">
+          <Button
+            variant="default"
+            className="font-semibold"
+            onClick={() => signIn('google', { redirectTo: '/app' })}
+          >
+            <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
+            Google
+          </Button>
+        </div>
       </Form>
     </Card>
   )

@@ -25,7 +25,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 const formSchema = z.object({
   email: z.string().email('Por favor, insira um email válido'),

@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { queryClient } from '@/lib/query-client'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 import { TodoUpdateForm } from './todo-update.form'
 

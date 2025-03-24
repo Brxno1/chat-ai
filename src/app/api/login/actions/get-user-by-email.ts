@@ -5,7 +5,7 @@ import { User } from '@prisma/client'
 import { prisma } from '@/services/database/prisma'
 
 interface GetUserByEmailResponse {
-  error: string | null
+  error: Error | null
   message: string | null
   user: User | null
 }
@@ -25,9 +25,9 @@ export async function getUserByEmail({
 
   if (!user) {
     return {
-      error: 'Usuário não encontrado',
+      error: new Error('User not found'),
       user: null,
-      message: 'Usuário não encontrado',
+      message: null,
     }
   }
 

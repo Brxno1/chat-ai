@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 
 export type DashboardPageGenericProps<T = unknown> = {
   children: React.ReactNode
