@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { ContainerWrapper } from '@/components/container'
+import { CopyTextComponent } from '@/components/copy-text-component'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,6 +39,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { useEmailStore } from '@/hooks/use-email-store'
 import { api } from '@/lib/axios'
 import { env } from '@/lib/env'
 import { truncateText } from '@/utils/truncate-text'
@@ -68,23 +70,26 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 export function AccountForm() {
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
+  const email = useEmailStore((state) => state.user.email)
+
+  const [previewUrl, setPreviewUrlImage] = React.useState<string | null>(null)
   const [fileName, setFileName] = React.useState<string | null>(null)
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const inputFileRef = React.useRef<HTMLInputElement>(null)
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
-      email: '',
       name: '',
+      email: email || '',
       file: undefined,
     },
   })
 
   const { theme } = useTheme()
 
-  async function handleCreateAccount({ name, email, file }: FormValues) {
+  async function onCreateAccount({ name, email, file }: FormValues) {
     const formData = new FormData()
 
     formData.append('name', name)
@@ -92,6 +97,15 @@ export function AccountForm() {
     if (file) {
       formData.append('file', file)
     }
+
+    console.log(
+      'File:',
+      file && {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      },
+    )
 
     try {
       const {
@@ -133,8 +147,8 @@ export function AccountForm() {
   }
 
   const handleSelectFile = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
+    if (inputFileRef.current) {
+      inputFileRef.current.click()
     }
   }
 
@@ -142,11 +156,11 @@ export function AccountForm() {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
     }
-    setPreviewUrl(null)
+    setPreviewUrlImage(null)
     setFileName(null)
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+    if (inputFileRef.current) {
+      inputFileRef.current.value = ''
     }
   }, [previewUrl])
 
@@ -157,7 +171,7 @@ export function AccountForm() {
         borderWidth={1}
       />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleCreateAccount)} id="form-auth">
+        <form onSubmit={form.handleSubmit(onCreateAccount)} id="form-auth">
           <CardHeader>
             <CardDescription>
               Insira seu e-mail e nome abaixo para criar uma conta.
@@ -168,7 +182,7 @@ export function AccountForm() {
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-5">
                   <div className="group relative space-y-2">
                     <FormLabel
                       className={cn(
@@ -226,7 +240,7 @@ export function AccountForm() {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               render={({ field: { value, ref, onChange, ...rest } }) => (
                 <FormItem>
-                  <div className="mt-4 inline-flex w-full items-center justify-between align-top">
+                  <div className="my-4 inline-flex w-full items-center justify-between align-top">
                     <div
                       className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
                       aria-label={
@@ -235,7 +249,7 @@ export function AccountForm() {
                           : 'Default user avatar'
                       }
                     >
-                      {previewUrl ? (
+                      {previewUrl && (
                         <ContainerWrapper className="h-full w-full">
                           <Image
                             className="h-full w-full object-cover"
@@ -245,8 +259,9 @@ export function AccountForm() {
                             height={32}
                           />
                         </ContainerWrapper>
-                      ) : (
-                        <div
+                      )}
+                      {!previewUrl && (
+                        <ContainerWrapper
                           aria-hidden="true"
                           className="flex h-full w-full items-center justify-center"
                         >
@@ -254,7 +269,7 @@ export function AccountForm() {
                             className="opacity-60"
                             size={24}
                           />
-                        </div>
+                        </ContainerWrapper>
                       )}
                     </div>
                     <div className="relative inline-block">
@@ -281,41 +296,38 @@ export function AccountForm() {
                       <Input
                         type="file"
                         accept="image/*"
-                        ref={fileInputRef}
+                        ref={inputFileRef}
+                        {...rest}
                         className="hidden"
                         multiple={false}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
+                        onChange={(ev) => {
+                          const file = ev.target.files?.[0]
                           const url = URL.createObjectURL(file!)
                           onChange(file)
-                          setPreviewUrl(url)
+                          setPreviewUrlImage(url)
                           setFileName(file!.name)
                         }}
-                        {...rest}
                       />
                     </div>
                   </div>
                   {fileName && (
-                    <div className="mt-2">
-                      <div className="inline-flex gap-2 text-xs">
+                    <div className="inline-flex gap-2 text-xs">
+                      <CopyTextComponent text={fileName}>
                         <p
-                          className="truncate text-muted-foreground hover:cursor-pointer"
+                          className="truncate text-muted-foreground"
                           aria-live="polite"
-                          onClick={() =>
-                            navigator.clipboard.writeText(fileName)
-                          }
                         >
-                          {truncateText(fileName, 20)}
+                          {truncateText({ text: fileName, maxLength: 20 })}
                         </p>
-                        {'-'}
-                        <button
-                          onClick={handleRemoveAvatarFile}
-                          className="font-medium text-red-600 hover:underline"
-                          aria-label={`Remove ${fileName}`}
-                        >
-                          Remover
-                        </button>
-                      </div>
+                      </CopyTextComponent>
+                      {'-'}
+                      <button
+                        onClick={handleRemoveAvatarFile}
+                        className="font-medium text-red-600 hover:underline"
+                        aria-label={`Remove ${fileName}`}
+                      >
+                        Remover
+                      </button>
                     </div>
                   )}
                   <div className="sr-only" aria-live="polite" role="status">
@@ -331,7 +343,7 @@ export function AccountForm() {
             <Button
               type="submit"
               className="flex w-full items-center justify-center font-semibold"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || !form.formState.isValid}
             >
               {form.formState.isSubmitting ? (
                 <span className="flex items-center gap-2">
@@ -339,23 +351,18 @@ export function AccountForm() {
                   <LoaderCircle className="ml-1 animate-spin font-semibold" />
                 </span>
               ) : (
-                <span className="flex items-center gap-4">Enviar link</span>
+                <span className="flex items-center gap-4">
+                  Criar e enviar link
+                </span>
               )}
             </Button>
           </CardFooter>
         </form>
       </Form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Ou continue com
-          </span>
-        </div>
+      <div className="my-4 flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+        <span className="text-xs text-muted-foreground">OU CRIE COM</span>
       </div>
-      <div className="mb-6 mt-3 flex justify-center">
+      <div className="mb-6 flex justify-center">
         <Button
           variant="default"
           className="font-semibold"

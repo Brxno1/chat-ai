@@ -1,4 +1,9 @@
-export const truncateText = (text: string, maxLength: number = 20) => {
+interface TruncateTextProps {
+  text: string
+  maxLength?: number
+}
+
+export const truncateText = ({ text, maxLength = 20 }: TruncateTextProps) => {
   if (text.length < maxLength) {
     return text
   }

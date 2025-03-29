@@ -5,6 +5,6 @@ export const metadata: Metadata = {
   title: 'Configurações',
 }
 
-export default function RootLayout({ children }: PropsWithChildren) {
+export default async function RootLayout({ children }: PropsWithChildren) {
   return <main className="flex h-screen flex-col">{children}</main>
 }

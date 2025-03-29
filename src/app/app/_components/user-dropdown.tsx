@@ -1,8 +1,10 @@
 import { LogOut, Rocket, Settings2 } from 'lucide-react'
 import { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
+import React from 'react'
 import { toast } from 'sonner'
 
+import EditProfile from '@/app/app/_components/edit-profile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,7 +12,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -20,17 +21,19 @@ type UserProps = {
 }
 
 export function UserDropdown({ user }: UserProps) {
+  const [openDropdown, setOpenDropdown] = React.useState(false)
+
   const handleSignOut = () => {
     try {
       signOut({ redirectTo: '/auth?mode=login' })
-      toast.success('Deslogado com sucesso!', {
+      toast('Deslogado com sucesso!', {
         duration: 1000,
-        position: 'top-center',
+        position: 'bottom-left',
       })
     } catch (error) {
       toast.error('Erro ao deslogar!', {
         duration: 1000,
-        position: 'top-center',
+        position: 'bottom-left',
       })
     }
   }
@@ -46,11 +49,11 @@ export function UserDropdown({ user }: UserProps) {
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="!b-0 relative ml-2 flex w-full items-center justify-between space-x-2 rounded-full !px-0 hover:bg-transparent"
+          className="relative ml-2 flex w-full items-center justify-between space-x-2 rounded-full !px-0 hover:bg-transparent"
         >
           <Avatar className="h-8 w-8 cursor-grab rounded-sm">
             <AvatarImage src={user.image as string} alt="user avatar" />
@@ -67,21 +70,24 @@ export function UserDropdown({ user }: UserProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start" forceMount>
-        <DropdownMenuLabel className="font-normal">
+        <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
           <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <span className="text-sm font-medium leading-none">
+              {user.name}
+            </span>
+            <span className="text-xs leading-none text-muted-foreground">
               {user.email}
-            </p>
+            </span>
           </div>
-        </DropdownMenuLabel>
+          <EditProfile />
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem className="cursor-pointer">
             Configurações
             <Settings2 className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer hover:bg-gradient-to-r hover:hover:from-purple-600 hover:hover:to-teal-400 hover:hover:shadow-sm hover:hover:shadow-purple-500">
+          <DropdownMenuItem className="cursor-pointer">
             Upgrade
             <Rocket className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
@@ -98,3 +104,5 @@ export function UserDropdown({ user }: UserProps) {
     </DropdownMenu>
   )
 }
+
+//  hover:bg-gradient-to-r hover:hover:from-purple-600 hover:hover:to-teal-400 hover:hover:shadow-sm hover:hover:shadow-purple-500

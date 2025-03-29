@@ -1,25 +1,27 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React from 'react'
 
 interface UseImageUploadProps {
   onUpload?: (url: string) => void
 }
 
 export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
-  const previewRef = useRef<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [fileName, setFileName] = useState<string | null>(null)
+  const previewRef = React.useRef<string | null>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
+  const [fileName, setFileName] = React.useState<string | null>(null)
+  const [file, setFile] = React.useState<File | null>(null)
 
-  const handleThumbnailClick = useCallback(() => {
+  const handleThumbnailClick = React.useCallback(() => {
     fileInputRef.current?.click()
   }, [])
 
-  const handleFileChange = useCallback(
+  const handleFileChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0]
       if (file) {
+        setFile(file)
         setFileName(file.name)
         const url = URL.createObjectURL(file)
         setPreviewUrl(url)
@@ -30,7 +32,7 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
     [onUpload],
   )
 
-  const handleRemove = useCallback(() => {
+  const handleRemove = React.useCallback(() => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
     }
@@ -42,7 +44,7 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
     }
   }, [previewUrl])
 
-  useEffect(() => {
+  React.useEffect(() => {
     return () => {
       if (previewRef.current) {
         URL.revokeObjectURL(previewRef.current)
@@ -57,5 +59,6 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
     handleThumbnailClick,
     handleFileChange,
     handleRemove,
+    file,
   }
 }

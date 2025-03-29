@@ -40,7 +40,7 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
     mutationKey: ['delete-todo'],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
-      toast.success(`Tarefa "${todo.title}" deletada com sucesso`, {
+      toast(`Tarefa "${todo.title}" deletada com sucesso`, {
         position: 'top-center',
         duration: 2000,
       })
@@ -53,11 +53,11 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
     },
   })
 
-  function handleCloseDialog() {
+  function handleCloseDialogForUpdate() {
     setOpenDialog(false)
   }
 
-  function handleCloseDropdown() {
+  function handleCloseDropdownByActions() {
     setOpenDropdown(false)
   }
 
@@ -111,19 +111,18 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
         </DropdownMenuItem>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
-            <DropdownMenuItem className="cursor-pointer">
+            <span className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:hover:bg-muted [&>svg]:size-4 [&>svg]:shrink-0">
               Editar
-            </DropdownMenuItem>
+            </span>
           </DialogTrigger>
-          <DialogContent className="flex w-full flex-col">
-            <DialogHeader className="flex w-full flex-row items-center justify-center">
+          <DialogContent className="flex flex-col">
+            <DialogHeader className="flex flex-row items-center justify-center">
               <DialogTitle>Editar Todo</DialogTitle>
             </DialogHeader>
             <TodoUpdateForm
               todo={todo}
-              openDialog={openDialog}
-              onCloseDialog={handleCloseDialog}
-              onCloseDropdown={handleCloseDropdown}
+              onCloseDialog={handleCloseDialogForUpdate}
+              onCloseDropdown={handleCloseDropdownByActions}
             />
           </DialogContent>
         </Dialog>

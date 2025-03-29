@@ -1,10 +1,11 @@
 'use client'
 
 import { Message } from 'ai'
-import { CheckIcon, ChevronDown, CopyIcon, Trash } from 'lucide-react'
+import { ChevronDown, Trash } from 'lucide-react'
 import { Session } from 'next-auth'
 import { useState } from 'react'
 
+import { CopyTextComponent } from '@/components/copy-text-component'
 import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
@@ -12,7 +13,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { clipboardWriteText } from '@/utils/clipboard-write-text'
 import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
@@ -33,24 +33,8 @@ export function MessageChat({
   const [open, setOpen] = useState(false)
 
   const [state, setState] = useState({
-    hasCopied: false,
     isDeleting: false,
   })
-
-  function handleCopyTextChat(
-    ev: React.MouseEvent<HTMLDivElement>,
-    text: string,
-  ) {
-    ev.preventDefault()
-
-    clipboardWriteText(text)
-    setState((prev) => ({ ...prev, hasCopied: true }))
-
-    setTimeout(() => {
-      setState((prev) => ({ ...prev, hasCopied: false }))
-      setOpen(false)
-    }, 1000)
-  }
 
   function handleDeleteMessageChat(
     ev: React.MouseEvent<HTMLDivElement>,
@@ -77,7 +61,7 @@ export function MessageChat({
           'mb-1 flex w-fit max-w-md items-center justify-center gap-2 rounded-md',
           {
             'ml-auto': message.role === 'user',
-            'mr-auto': message.role === 'system',
+            'mr-auto': message.role === 'assistant',
           },
         )}
       >
@@ -98,7 +82,7 @@ export function MessageChat({
                     'flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-1 dark:bg-foreground',
                     {
                       'ml-auto': message.role === 'user',
-                      'mr-auto': message.role === 'system',
+                      'mr-auto': message.role === 'assistant',
                     },
                   )}
                 >
@@ -114,35 +98,11 @@ export function MessageChat({
                       className="mt-2 flex flex-col items-center"
                       side="bottom"
                     >
-                      <DropdownMenuItem
-                        onClick={(ev) => handleCopyTextChat(ev, part.text)}
-                        className="cursor-pointer"
-                        disabled={state.hasCopied}
-                      >
-                        <div
-                          className={cn(
-                            'transition-all duration-300',
-                            state.hasCopied
-                              ? 'scale-100 opacity-100'
-                              : 'scale-0 opacity-0',
-                          )}
-                        >
-                          <CheckIcon
-                            className="stroke-emerald-500"
-                            size={16}
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <div
-                          className={cn(
-                            'absolute transition-all duration-300',
-                            state.hasCopied
-                              ? 'scale-0 opacity-0'
-                              : 'scale-100 opacity-100',
-                          )}
-                        >
-                          <CopyIcon size={16} aria-hidden="true" />
-                        </div>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <CopyTextComponent
+                          text={part.text}
+                          onCloseComponent={() => setOpen(false)}
+                        />
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         disabled={state.isDeleting}

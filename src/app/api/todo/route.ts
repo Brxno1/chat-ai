@@ -23,13 +23,10 @@ export async function POST(request: NextRequest) {
 
   if (response.error) {
     return NextResponse.json(
-      { error: response.error, message: response.message },
+      { error: response.error, message: response.error.message },
       { status: 400 },
     )
   }
 
-  return NextResponse.json(
-    { message: response.message, todo: response.todo },
-    { status: 200 },
-  )
+  return NextResponse.json({ todo: response.todo }, { status: 200 })
 }

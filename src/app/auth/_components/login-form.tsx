@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiGoogleFill } from '@remixicon/react'
-import { LoaderCircle, RotateCw } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 import { useTheme } from 'next-themes'
@@ -28,6 +28,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { env } from '@/lib/env'
 import { cn } from '@/utils/utils'
 
 const formSchema = z.object({
@@ -39,7 +40,11 @@ const formSchema = z.object({
 
 type FormValue = z.infer<typeof formSchema>
 
-export function LoginForm() {
+interface LoginFormProps {
+  onChangeMode: (email: string) => void
+}
+
+export function LoginForm({ onChangeMode }: LoginFormProps) {
   const form = useForm<FormValue>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -67,7 +72,7 @@ export function LoginForm() {
       toast('Link mágico enviado para: ', {
         action: (
           <Link
-            href={'http://localhost:8025'}
+            href={env.MAILHOG_UI}
             target="_blank"
             className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
           >
@@ -78,18 +83,8 @@ export function LoginForm() {
       })
       form.reset()
     } catch (error) {
-      toast.error('Ocorreu um erro ao enviar o link mágico.', {
-        action: (
-          <Button
-            className="ml-auto transition-all hover:bg-red-950/40"
-            variant={'ghost'}
-            type="submit"
-            form="login-form"
-          >
-            <RotateCw className="h-4 w-4 text-rose-300" />
-          </Button>
-        ),
-      })
+      toast.error('Entre com uma conta existente ou crie uma nova conta.')
+      onChangeMode(email)
     }
   }
 
@@ -140,7 +135,7 @@ export function LoginForm() {
             <Button
               type="submit"
               className="w-full font-semibold"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || !form.formState.isValid}
             >
               {form.formState.isSubmitting ? (
                 <span className="flex items-center gap-2">
@@ -153,15 +148,8 @@ export function LoginForm() {
             </Button>
           </CardFooter>
         </form>
-        <div className="relative mt-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Ou entre com
-            </span>
-          </div>
+        <div className="my-4 flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+          <span className="text-xs text-muted-foreground">OU ENTRE COM</span>
         </div>
         <div className="mb-6 mt-3 flex justify-center">
           <Button

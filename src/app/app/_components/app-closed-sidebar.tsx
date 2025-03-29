@@ -11,6 +11,7 @@ import { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 
+import EditProfile from '@/app/app/_components/edit-profile'
 import { Sidebar, SidebarNavLink } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -20,7 +21,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -40,7 +40,7 @@ export function UserDropdown({ user }: UserProps) {
   const handleSignOut = () => {
     try {
       signOut({ redirectTo: '/auth?mode=login' })
-      toast.success('Deslogado com sucesso!', {
+      toast('Deslogado com sucesso!', {
         duration: 1000,
         position: 'top-center',
       })
@@ -68,21 +68,22 @@ export function UserDropdown({ user }: UserProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
+        <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
           <div className="flex flex-col space-y-2">
             <p className="text-sm font-medium leading-none">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
           </div>
-        </DropdownMenuLabel>
+          <EditProfile />
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem className="cursor-pointer">
             Configurações
             <Settings2 className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer hover:bg-gradient-to-r hover:from-purple-500 hover:to-teal-400 hover:shadow-sm hover:shadow-purple-500">
+          <DropdownMenuItem className="cursor-pointer">
             Upgrade
             <Rocket className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
@@ -129,7 +130,7 @@ export function AppClosedSidebar({ user }: UserProps) {
           <SidebarNavLink href="/" active={isActive('/')}>
             <House className="h-6 w-6" />
           </SidebarNavLink>
-          {state === 'collapsed' && (
+          {['collapsed'].includes(state) && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

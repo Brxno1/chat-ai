@@ -1,3 +1,5 @@
+'use client'
+
 import { ContainerWrapper } from '@/components/container'
 import {
   DashboardPage,
@@ -6,7 +8,7 @@ import {
 } from '@/components/dashboard'
 import { ToggleTheme } from '@/components/theme/toggle-theme'
 
-export default async function Settings() {
+export default function Settings() {
   return (
     <DashboardPage>
       <DashboardPageHeader>

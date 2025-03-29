@@ -55,7 +55,7 @@ const TodoCreateForm = ({ user }: UserProps) => {
 
   const form = useForm<TodoFormData>({
     resolver: zodResolver(schema),
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: {
       title: '',
     },
@@ -73,7 +73,7 @@ const TodoCreateForm = ({ user }: UserProps) => {
     onSuccess: (data: CreateTodoResponse) => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
       setOpen(false)
-      toast.success(`Tarefa "${data?.todo.title}" criada com sucesso!`, {
+      toast(`Tarefa "${data?.todo.title}" criada com sucesso!`, {
         position: 'top-center',
         duration: 2000,
       })
@@ -86,17 +86,34 @@ const TodoCreateForm = ({ user }: UserProps) => {
     },
   })
 
+  useEffect(() => {
+    if (!open) {
+      form.reset()
+    }
+  }, [open])
+
   async function handleCreateTodo(data: TodoFormData) {
     try {
       await createTodoFn({ title: data.title })
-    } catch (err) {
-    } finally {
       form.reset()
+    } catch (err) {
+      toast.error('Erro ao criar a tarefa', {
+        position: 'top-center',
+        duration: 2000,
+      })
     }
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(prevOpen) => {
+        setOpen(prevOpen)
+        if (!prevOpen) {
+          form.reset()
+        }
+      }}
+    >
       <SheetTrigger asChild>
         <Button variant="outline">
           <Plus className="h-4 w-4" />

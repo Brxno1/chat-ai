@@ -68,15 +68,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     })
   ],
+
   pages: {
     error: '/auth',
     verifyRequest: '/auth',
     newUser: '/app',
   },
-  secret: env.AUTH_SECRET,
+
   session: {
     strategy: 'jwt',
   },
+
+  secret: env.AUTH_SECRET,
+
   callbacks: {
     async jwt({ token, user }: { token: any; user?: any }) {
       if (user) {

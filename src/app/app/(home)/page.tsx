@@ -25,9 +25,7 @@ export default async function Page() {
         </ContainerWrapper>
       </DashboardPageHeader>
       <DashboardPageMain>
-        {session && (
-          <TodoDataTable initialData={initialData} user={session.user} />
-        )}
+        <TodoDataTable initialData={initialData} user={session!.user} />
       </DashboardPageMain>
     </DashboardPage>
   )

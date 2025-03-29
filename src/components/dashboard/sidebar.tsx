@@ -54,7 +54,7 @@ function SidebarNavHeaderTitle({ className, children }: SidebarGenericProps) {
 }
 
 function SidebarNavMain({ className, children }: SidebarGenericProps) {
-  return <main className={cn(['', className])}>{children}</main>
+  return <main className={cn(['space-y-2', className])}>{children}</main>
 }
 
 type DashboardSidebarNavLinkProps = {
@@ -71,11 +71,14 @@ function SidebarNavLink({
   return (
     <Link
       href={href}
-      className={cn([
-        'flex items-center rounded-md px-3 py-2 text-xs hover:bg-muted',
-        active && 'cursor-default bg-muted',
-        className,
-      ])}
+      className={cn(
+        'flex items-center rounded-md px-3 py-2 text-sm transition-all hover:bg-secondary/60',
+        {
+          'cursor-default bg-primary text-primary-foreground hover:bg-primary':
+            active,
+          className,
+        },
+      )}
     >
       {children}
     </Link>

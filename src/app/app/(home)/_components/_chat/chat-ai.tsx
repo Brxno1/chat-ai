@@ -83,14 +83,14 @@ export function Chat({
   return (
     <div
       className={cn(
-        'mx-auto grid h-full w-full max-w-2xl flex-col border border-border px-1',
+        'grid h-full w-full max-w-xl flex-col border border-border',
         {
           'grid-rows-[3rem_2rem__1fr_auto]': !closeInfoMessage,
           'grid-rows-[3rem_1fr_auto]': closeInfoMessage,
         },
       )}
     >
-      <div className="flex h-fit items-center justify-end border-b border-border p-3">
+      <div className="sticky top-0 flex h-fit items-center justify-end border-b border-border bg-background p-3">
         {!user && (
           <Link href="/auth">
             <UserPlus className="h-5 w-5" />
@@ -121,6 +121,7 @@ export function Chat({
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem className="flex items-center justify-center">
                   <ComponentSwitchTheme />
                 </DropdownMenuItem>
@@ -145,7 +146,7 @@ export function Chat({
       </div>
       <div
         ref={containerRef}
-        className="flex flex-col gap-4 overflow-y-auto px-4 py-6"
+        className="flex flex-col gap-3 overflow-y-auto p-4"
       >
         {messages.map((message) => (
           <MessageChat

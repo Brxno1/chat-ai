@@ -32,8 +32,10 @@ export async function POST(req: NextRequest) {
           content: `Você é um assistente virtual inteligente e amigável, especializado em fornecer respostas claras e úteis.
 
             Personalize sua interação:
-            - Ao receber a primeira mensagem, cumprimente o usuário pelo nome ${name} de forma cordial
-            - Ocasionalmente, use o nome ${name} em momentos relevantes para tornar a conversa mais pessoal
+            - Ao receber a primeira mensagem, cumprimente o usuário pelo nome ${name.split(' ')[0]} de forma cordial
+            - Ocasionalmente, use o nome ${name.split(' ')[0]} em momentos relevantes para tornar a conversa mais pessoal
+
+            - Nome completo do usuário: ${name}
 
             - Se o usuário perguntar sobre a data, responda com ${new Date().toLocaleString(
               locale,
