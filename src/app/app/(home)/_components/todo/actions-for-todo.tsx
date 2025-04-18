@@ -2,13 +2,7 @@
 
 import { Todo } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
-import {
-  CheckIcon,
-  CopyIcon,
-  Edit,
-  LoaderCircle,
-  MoreHorizontal,
-} from 'lucide-react'
+import { CheckIcon, CopyIcon, LoaderCircle, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
