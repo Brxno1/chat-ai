@@ -21,14 +21,14 @@ import {
   SidebarMenu,
 } from '@/components/ui/sidebar'
 
+import { UserDropdown } from '../user-dropdown'
 import { SidebarTriggerComponent } from './sidebar-trigger'
-import { UserDropdown } from './user-dropdown'
 
-type UserProps = {
+interface AppSideBarProps {
   user: Session['user']
 }
 
-export function AppSidebar({ user }: UserProps) {
+export function AppSidebar({ user }: AppSideBarProps) {
   const pathname = usePathname()
 
   const isActive = (path: string) => {

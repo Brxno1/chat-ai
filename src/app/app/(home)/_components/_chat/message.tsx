@@ -18,20 +18,19 @@ import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
 interface MessageChatProps {
+  user: Session['user'] | null
   message: Message
   modelName: string
-  user: Session['user'] | undefined
   onDeleteMessageChat: (id: string) => void
 }
 
 export function MessageChat({
-  message,
   user,
+  message,
   modelName,
   onDeleteMessageChat,
 }: MessageChatProps) {
   const [open, setOpen] = useState(false)
-
   const [state, setState] = useState({
     isDeleting: false,
   })
@@ -67,7 +66,7 @@ export function MessageChat({
       >
         <Badge className="bg-transparent text-sm font-semibold text-foreground hover:bg-transparent">
           {['user'].includes(message.role)
-            ? truncateText(user?.name ?? '', 15)
+            ? truncateText({ text: user?.name ?? '', maxLength: 15 })
             : modelName}
         </Badge>
       </div>
@@ -100,7 +99,7 @@ export function MessageChat({
                     >
                       <DropdownMenuItem className="cursor-pointer">
                         <CopyTextComponent
-                          text={part.text}
+                          textForCopy={part.text}
                           onCloseComponent={() => setOpen(false)}
                         />
                       </DropdownMenuItem>

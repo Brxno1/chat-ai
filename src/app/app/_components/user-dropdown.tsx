@@ -4,7 +4,7 @@ import { signOut } from 'next-auth/react'
 import React from 'react'
 import { toast } from 'sonner'
 
-import EditProfile from '@/app/app/_components/edit-profile'
+import EditProfile from '@/app/app/_components/profile/edit-profile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,16 +16,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-type UserProps = {
-  user: Session['user'] | undefined
+interface UserDropdownProps {
+  user: Session['user']
 }
 
-export function UserDropdown({ user }: UserProps) {
+export function UserDropdown({ user }: UserDropdownProps) {
   const [openDropdown, setOpenDropdown] = React.useState(false)
 
   const handleSignOut = () => {
     try {
-      signOut({ redirectTo: '/auth?mode=login' })
+      signOut({ redirectTo: `/auth?mode=login&name=${user.name}` })
       toast('Deslogado com sucesso!', {
         duration: 1000,
         position: 'bottom-left',
@@ -79,7 +79,7 @@ export function UserDropdown({ user }: UserProps) {
               {user.email}
             </span>
           </div>
-          <EditProfile />
+          <EditProfile user={user} />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -95,7 +95,7 @@ export function UserDropdown({ user }: UserProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
-          className="cursor-pointer hover:hover:bg-destructive/90 hover:hover:text-destructive-foreground"
+          className="cursor-pointer hover:hover:bg-destructive hover:hover:text-destructive-foreground"
         >
           Sair
           <LogOut className="ml-auto h-4 w-4" />

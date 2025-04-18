@@ -23,6 +23,8 @@ export async function POST(req: NextRequest) {
   const email = formData.get('email') as string
   const file = formData.get('file') as File | null
 
+  console.log(email)
+
   const parsedData = schema.safeParse({ name, email, file })
 
   if (parsedData.error) {

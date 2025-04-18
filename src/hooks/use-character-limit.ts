@@ -1,24 +1,24 @@
-"use client"
+'use client'
 
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useState } from 'react'
 
 type UseCharacterLimitProps = {
-  maxLength: number
+  maxLengthForBio: number
   initialValue?: string
 }
 
 export function useCharacterLimit({
-  maxLength,
-  initialValue = "",
+  maxLengthForBio,
+  initialValue = '',
 }: UseCharacterLimitProps) {
   const [value, setValue] = useState(initialValue)
   const [characterCount, setCharacterCount] = useState(initialValue.length)
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ev: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const newValue = e.target.value
-    if (newValue.length <= maxLength) {
+    const newValue = ev.target.value
+    if (newValue.length <= maxLengthForBio) {
       setValue(newValue)
       setCharacterCount(newValue.length)
     }
@@ -28,6 +28,6 @@ export function useCharacterLimit({
     value,
     characterCount,
     handleChange,
-    maxLength,
+    maxLengthForBio,
   }
 }

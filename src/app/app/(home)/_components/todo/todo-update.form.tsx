@@ -1,5 +1,3 @@
-import { todo } from 'node:test'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Todo } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
@@ -9,9 +7,12 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { updateTodo } from '@/app/(http)/update-todo'
+import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
+import { DialogClose } from '@/components/ui/dialog'
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -23,14 +24,21 @@ import { cn } from '@/utils/utils'
 const schema = z.object({
   title: z
     .string()
-    .nonempty({ message: 'Você precisa informar o título' })
-    .min(5, { message: 'Seu título deve conter pelo menos 5 caracteres' })
-    .max(50, { message: 'Seu título deve conter no máximo 50 caracteres' })
+    .min(5, { message: 'O título deve conter pelo menos 5 carácteres' })
+    .max(50, { message: 'O título deve conter no máximo 50 carácteres' })
+    .nonempty({ message: 'Você precisa informar um título' })
     .refine((title) => !/^\d+$/.test(title), {
       message: 'O título não pode conter apenas números',
     })
-    .refine((title) => !/^\s+$/.test(title), {
-      message: 'O título não pode conter apenas espaços',
+    .superRefine((title, ctx) => {
+      if (title.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'O título não pode conter apenas espaços',
+        })
+        return false
+      }
+      return true
     }),
 })
 
@@ -38,15 +46,10 @@ type TodoFormData = z.infer<typeof schema>
 
 interface TodoUpdateFormProps {
   todo: Todo
-  onCloseDialog: () => void
   onCloseDropdown: () => void
 }
 
-export function TodoUpdateForm({
-  todo,
-  onCloseDialog,
-  onCloseDropdown,
-}: TodoUpdateFormProps) {
+export function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateFormProps) {
   const form = useForm<TodoFormData>({
     resolver: zodResolver(schema),
     mode: 'onChange',
@@ -55,7 +58,7 @@ export function TodoUpdateForm({
     },
   })
 
-  const { mutate: updateTodoFn, isPending: isUpdating } = useMutation({
+  const { mutateAsync: updateTodoFn, isPending: isUpdating } = useMutation({
     mutationFn: updateTodo,
     mutationKey: ['update-todo'],
     onSuccess: () => {
@@ -64,7 +67,6 @@ export function TodoUpdateForm({
         position: 'top-center',
       })
       form.reset()
-      onCloseDialog()
       onCloseDropdown()
     },
     onError: () => {
@@ -79,7 +81,7 @@ export function TodoUpdateForm({
   })
 
   async function onUpdateTodo(data: TodoFormData) {
-    updateTodoFn(data.title)
+    await updateTodoFn(data.title)
   }
 
   return (
@@ -89,7 +91,7 @@ export function TodoUpdateForm({
           name="title"
           control={form.control}
           render={({ field, fieldState }) => (
-            <>
+            <ContainerWrapper>
               <FormItem className="mb-5">
                 <div className="group relative space-y-2">
                   <FormLabel
@@ -108,17 +110,19 @@ export function TodoUpdateForm({
                       Título
                     </span>
                   </FormLabel>
-                  <Input
-                    id="title"
-                    type="text"
-                    className="rounded-md"
-                    placeholder=" "
-                    {...field}
-                  />
+                  <FormControl>
+                    <Input
+                      id="title"
+                      type="text"
+                      className="rounded-md"
+                      placeholder=" "
+                      {...field}
+                    />
+                  </FormControl>
                 </div>
-                <FormMessage className="text-red-500" />
+                <FormMessage className="ml-2 text-red-500" />
               </FormItem>
-              <footer className="mt-4 flex flex-row justify-between gap-2">
+              <footer className="mt-4 flex flex-row justify-around gap-2">
                 <Button
                   type="submit"
                   className="w-[6rem] text-center font-bold"
@@ -135,16 +139,17 @@ export function TodoUpdateForm({
                     'Atualizar'
                   )}
                 </Button>
-                <Button
-                  className="w-[6rem] text-center font-bold text-red-500 hover:text-red-600"
-                  type="button"
-                  variant={'outline'}
-                  onClick={onCloseDialog}
-                >
-                  Cancelar
-                </Button>
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600"
+                  >
+                    Cancelar
+                  </Button>
+                </DialogClose>
               </footer>
-            </>
+            </ContainerWrapper>
           )}
         />
       </form>

@@ -5,14 +5,14 @@ import { clipboardWriteText } from '@/utils/clipboard-write-text'
 import { cn } from '@/utils/utils'
 
 interface CopyTextComponentProps {
-  text: string
+  textForCopy: string
   className?: string
   children?: React.ReactNode
   onCloseComponent?: () => void
 }
 
 export function CopyTextComponent({
-  text,
+  textForCopy,
   className,
   children,
   onCloseComponent,
@@ -22,7 +22,7 @@ export function CopyTextComponent({
   function handleCopy(ev: React.MouseEvent<HTMLDivElement>) {
     ev.preventDefault()
 
-    clipboardWriteText(text)
+    clipboardWriteText(textForCopy)
     setHasCopied(true)
     setTimeout(() => {
       setHasCopied(false)

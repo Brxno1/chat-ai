@@ -1,21 +1,25 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 
 export default function NotFound() {
+  const session = useSession()
   const router = useRouter()
+
   const [counter, setCounter] = useState(5)
 
   useEffect(() => {
     if (counter <= 0) {
-      router.push('/app')
+      router.push(session.data?.user ? '/app' : '/auth')
     }
 
     const timer = setInterval(() => {
-      setCounter((prev) => prev - 1)
+      setCounter((prev) => (prev > 0 ? prev - 1 : 0))
     }, 1000)
 
+    document.title = `Página não encontrada`
     return () => clearInterval(timer)
   }, [counter])
 
@@ -24,7 +28,7 @@ export default function NotFound() {
       <h1 className="text-center text-4xl font-bold">Página não encontrada</h1>
       <p>
         Você será redirecionado em{' '}
-        <span className="font-bold text-purple-400">{counter}</span> segundos...
+        <span className="font-bold text-purple-500">{counter}</span> segundos...
       </p>
     </div>
   )

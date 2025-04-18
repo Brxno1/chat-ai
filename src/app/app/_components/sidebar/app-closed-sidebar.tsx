@@ -11,7 +11,7 @@ import { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 
-import EditProfile from '@/app/app/_components/edit-profile'
+import EditProfile from '@/app/app/_components/profile/edit-profile'
 import { Sidebar, SidebarNavLink } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -75,7 +75,7 @@ export function UserDropdown({ user }: UserProps) {
               {user.email}
             </p>
           </div>
-          <EditProfile />
+          <EditProfile user={user} />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -91,7 +91,7 @@ export function UserDropdown({ user }: UserProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
-          className="cursor-pointer hover:hover:bg-destructive/90 hover:hover:text-destructive-foreground"
+          className="cursor-pointer hover:hover:bg-destructive hover:hover:text-destructive-foreground"
         >
           Sair
           <LogOut className="ml-auto h-4 w-4" />

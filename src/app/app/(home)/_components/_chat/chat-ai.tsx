@@ -22,14 +22,14 @@ import { cn } from '@/utils/utils'
 import { MessageChat } from './message'
 
 interface ChatProps {
+  user: Session['user'] | null
   modelName: string
   placeholder?: string
-  user: Session['user'] | undefined
 }
 
 export function Chat({
-  modelName,
   user,
+  modelName,
   placeholder = 'Digite sua mensagem...',
 }: ChatProps) {
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
@@ -151,9 +151,9 @@ export function Chat({
         {messages.map((message) => (
           <MessageChat
             key={message.id}
+            user={user}
             message={message}
             modelName={modelName}
-            user={user}
             onDeleteMessageChat={onDeleteMessageChat}
           />
         ))}

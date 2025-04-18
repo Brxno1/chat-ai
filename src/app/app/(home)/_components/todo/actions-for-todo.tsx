@@ -2,11 +2,18 @@
 
 import { Todo } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
-import { CheckIcon, CopyIcon, MoreHorizontal } from 'lucide-react'
+import {
+  CheckIcon,
+  CopyIcon,
+  Edit,
+  LoaderCircle,
+  MoreHorizontal,
+} from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteTodo } from '@/app/(http)/delete-todo'
+import { markTodoAsDone } from '@/app/api/todo/actions/done-at'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -35,7 +42,27 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
   const [openDropdown, setOpenDropdown] = useState(false)
   const [hasCopied, setHasCopied] = useState(false)
 
-  const { mutate: deleteTodoFn, isPending: isDeleting } = useMutation({
+  const { mutateAsync: markTodoAsDoneFn, isPending: isMarkingAsDone } =
+    useMutation({
+      mutationFn: markTodoAsDone,
+      mutationKey: ['mark-todo-done'],
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['todos'] })
+        toast(`Tarefa "${todo.title}" marcada como finalizado`, {
+          position: 'top-center',
+          duration: 2000,
+        })
+        setOpenDropdown(false)
+      },
+      onError: () => {
+        toast.warning(`Erro ao marcar "${todo.title}" como finalizado`, {
+          position: 'top-center',
+          duration: 2000,
+        })
+      },
+    })
+
+  const { mutateAsync: deleteTodoFn, isPending: isDeleting } = useMutation({
     mutationFn: deleteTodo,
     mutationKey: ['delete-todo'],
     onSuccess: () => {
@@ -53,10 +80,6 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
     },
   })
 
-  function handleCloseDialogForUpdate() {
-    setOpenDialog(false)
-  }
-
   function handleCloseDropdownByActions() {
     setOpenDropdown(false)
   }
@@ -71,8 +94,27 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
     }, 800)
   }
 
+  const handleMarkAsDone = async (ev: React.MouseEvent<HTMLDivElement>) => {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    try {
+      await markTodoAsDoneFn(todo.id)
+      setOpenDropdown(false)
+    } catch (error) {
+      console.error('Error marking todo as done:', error)
+    }
+  }
+
   return (
-    <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
+    <DropdownMenu
+      open={openDropdown}
+      onOpenChange={(open) => {
+        if (!isMarkingAsDone) {
+          setOpenDropdown(open)
+        }
+      }}
+    >
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="ml-4 h-8 w-8 p-0">
           <span className="sr-only">Abrir menu</span>
@@ -106,8 +148,19 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
           </div>
           Copiar título
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
-          Marcar como finalizado
+        <DropdownMenuItem
+          className="cursor-pointer"
+          disabled={todo.doneAt !== null}
+          onMouseDown={handleMarkAsDone}
+        >
+          {isMarkingAsDone ? (
+            <span className="flex items-center justify-center gap-2">
+              <LoaderCircle size={16} className="animate-spin font-semibold" />
+              Finalizando...
+            </span>
+          ) : (
+            'Marcar como finalizado'
+          )}
         </DropdownMenuItem>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
@@ -121,14 +174,13 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
             </DialogHeader>
             <TodoUpdateForm
               todo={todo}
-              onCloseDialog={handleCloseDialogForUpdate}
               onCloseDropdown={handleCloseDropdownByActions}
             />
           </DialogContent>
         </Dialog>
         <DropdownMenuItem
-          onClick={() => deleteTodoFn(todo.id)}
-          className="cursor-pointer hover:hover:bg-destructive/90 hover:hover:text-destructive-foreground"
+          onClick={async () => await deleteTodoFn(todo.id)}
+          className="cursor-pointer hover:hover:bg-destructive hover:hover:text-destructive-foreground"
           disabled={isDeleting}
         >
           {isDeleting ? 'Excluindo...' : 'Excluir'}

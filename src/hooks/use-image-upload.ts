@@ -36,9 +36,11 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
     }
+
     setPreviewUrl(null)
     setFileName(null)
     previewRef.current = null
+
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -53,12 +55,12 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
   }, [])
 
   return {
+    file,
     previewUrl,
     fileName,
     fileInputRef,
     handleThumbnailClick,
     handleFileChange,
     handleRemove,
-    file,
   }
 }

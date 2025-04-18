@@ -19,9 +19,11 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
+  CardTitle,
 } from '@/components/ui/card'
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -41,10 +43,11 @@ const formSchema = z.object({
 type FormValue = z.infer<typeof formSchema>
 
 interface LoginFormProps {
+  name: string
   onChangeMode: (email: string) => void
 }
 
-export function LoginForm({ onChangeMode }: LoginFormProps) {
+export function LoginForm({ name, onChangeMode }: LoginFormProps) {
   const form = useForm<FormValue>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -91,14 +94,22 @@ export function LoginForm({ onChangeMode }: LoginFormProps) {
   return (
     <Card className="relative overflow-hidden">
       <ShineBorder
-        shineColor={theme === 'dark' ? '#ffffff' : '#000000'}
+        shineColor={theme === 'dark' ? '#FEFEFE' : '#121212'}
         borderWidth={1}
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
-          <CardHeader>
+          <CardHeader className="text-center">
+            <CardTitle>
+              {name && (
+                <p>
+                  Bem-vindo de volta,{' '}
+                  <span className="text-purple-500">{name}</span>!
+                </p>
+              )}
+            </CardTitle>
             <CardDescription>
-              Insira seu e-mail abaixo para receber seu link de acesso.
+              Entre com seu e-mail para receber seu link de acesso.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -124,9 +135,11 @@ export function LoginForm({ onChangeMode }: LoginFormProps) {
                         Email
                       </span>
                     </FormLabel>
-                    <Input type="email" {...field} placeholder=" " />
+                    <FormControl>
+                      <Input type="email" {...field} placeholder=" " />
+                    </FormControl>
                   </div>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="ml-2 text-red-500" />
                 </FormItem>
               )}
             />
