@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/utils/utils'
 
 type BadgeStatusProps = {
-  status: 'pending' | 'finished' | 'cancelled'
+  status: 'PENDING' | 'FINISHED' | 'CANCELLED'
 }
 
 export function BadgeStatus({ status }: BadgeStatusProps) {
@@ -10,17 +10,17 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
   let statusColor: string
 
   switch (status) {
-    case 'finished':
+    case 'FINISHED':
       displayStatus = 'Finalizado'
-      statusColor = 'before:bg-green-500'
+      statusColor = 'before:bg-green-500 hover:border-green-500'
       break
-    case 'pending':
+    case 'PENDING':
       displayStatus = 'Pendente'
-      statusColor = 'before:bg-yellow-500'
+      statusColor = 'before:bg-yellow-500 hover:border-yellow-500'
       break
-    case 'cancelled':
+    case 'CANCELLED':
       displayStatus = 'Cancelado'
-      statusColor = 'before:bg-red-500'
+      statusColor = 'before:bg-red-500 hover:border-red-500'
       break
   }
 
@@ -28,7 +28,7 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
     <Badge
       variant={'outline'}
       className={cn(
-        'p-2 capitalize before:mr-2 before:h-2 before:w-2 before:rounded-full',
+        'flex min-w-[6rem] items-center justify-center gap-2 p-2 capitalize before:h-2 before:w-2 before:rounded-full',
         statusColor,
       )}
     >

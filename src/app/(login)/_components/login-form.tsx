@@ -112,7 +112,7 @@ export function LoginUserForm() {
                         value={field.value}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-500" />
+                    <FormMessage className="ml-2 text-red-500" />
                   </div>
                 )}
               />

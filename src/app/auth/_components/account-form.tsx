@@ -15,7 +15,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 import { useTheme } from 'next-themes'
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/card'
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -40,42 +41,40 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useEmailStore } from '@/hooks/use-email-store'
+import { useImageUpload } from '@/hooks/use-image-upload'
 import { api } from '@/lib/axios'
 import { env } from '@/lib/env'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
+const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+
 const formSchema = z.object({
   name: z
     .string()
     .nonempty('O nome não pode estar vazio')
-    .min(3, 'Nome deve ter no mínimo 3 caracteres'),
+    .min(3, 'Nome deve ter no mínimo 3 carácteres'),
   email: z
     .string()
     .nonempty('O email não pode estar vazio')
     .email('Insira um email válido'),
-  file: z
-    .union([
-      z
-        .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
-        .refine(
-          (file) => file.size <= 10 * 1024 * 1024,
-          'O arquivo deve ter no máximo 10MB',
-        ),
-      z.null(),
-    ])
-    .optional(),
+  avatar: z.union([
+    z
+      .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
+      .refine(
+        (file) => file.size <= MAX_SIZE,
+        `O avatar deve ter no máximo 10MB`,
+      ),
+    z.null(),
+    z.undefined(),
+  ]),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
 export function AccountForm() {
+  const { theme } = useTheme()
   const email = useEmailStore((state) => state.user.email)
-
-  const [previewUrl, setPreviewUrlImage] = React.useState<string | null>(null)
-  const [fileName, setFileName] = React.useState<string | null>(null)
-
-  const inputFileRef = React.useRef<HTMLInputElement>(null)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -83,29 +82,32 @@ export function AccountForm() {
     defaultValues: {
       name: '',
       email: email || '',
-      file: undefined,
+      avatar: null,
     },
   })
 
-  const { theme } = useTheme()
+  const {
+    fileName,
+    previewUrl,
+    fileInputRef,
+    handleThumbnailClick,
+    handleFileChange,
+    handleRemove,
+  } = useImageUpload()
 
-  async function onCreateAccount({ name, email, file }: FormValues) {
+  const handleRemoveFile = () => {
+    handleRemove()
+    form.setValue('avatar', null)
+  }
+
+  async function onCreateAccount({ name, email, avatar }: FormValues) {
     const formData = new FormData()
 
     formData.append('name', name)
     formData.append('email', email)
-    if (file) {
-      formData.append('file', file)
+    if (avatar) {
+      formData.append('avatar', avatar)
     }
-
-    console.log(
-      'File:',
-      file && {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      },
-    )
 
     try {
       const {
@@ -124,12 +126,10 @@ export function AccountForm() {
         ),
         duration: 7000,
       })
-      handleRemoveAvatarFile()
+      handleRemove()
       form.reset()
     } catch (err) {
       if (err instanceof AxiosError) {
-        console.log(err.message)
-
         toast.error('Erro ao logar com o link mágico', {
           action: (
             <Button
@@ -145,24 +145,6 @@ export function AccountForm() {
       }
     }
   }
-
-  const handleSelectFile = () => {
-    if (inputFileRef.current) {
-      inputFileRef.current.click()
-    }
-  }
-
-  const handleRemoveAvatarFile = useCallback(() => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl)
-    }
-    setPreviewUrlImage(null)
-    setFileName(null)
-
-    if (inputFileRef.current) {
-      inputFileRef.current.value = ''
-    }
-  }, [previewUrl])
 
   return (
     <Card className="relative overflow-hidden">
@@ -200,9 +182,11 @@ export function AccountForm() {
                         Nome
                       </span>
                     </FormLabel>
-                    <Input id="name" type="text" {...field} placeholder=" " />
+                    <FormControl>
+                      <Input id="name" type="text" {...field} placeholder=" " />
+                    </FormControl>
                   </div>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="ml-2 text-red-500" />
                 </FormItem>
               )}
             />
@@ -228,14 +212,16 @@ export function AccountForm() {
                         Email
                       </span>
                     </FormLabel>
-                    <Input type="email" {...field} placeholder=" " />
+                    <FormControl>
+                      <Input type="email" {...field} placeholder=" " />
+                    </FormControl>
                   </div>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="ml-2 text-red-500" />
                 </FormItem>
               )}
             />
             <FormField
-              name="file"
+              name="avatar"
               control={form.control}
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               render={({ field: { value, ref, onChange, ...rest } }) => (
@@ -274,7 +260,7 @@ export function AccountForm() {
                     </div>
                     <div className="relative inline-block">
                       <Button
-                        onClick={handleSelectFile}
+                        onClick={handleThumbnailClick}
                         aria-haspopup="dialog"
                         type="button"
                         className="font-semibold"
@@ -283,36 +269,38 @@ export function AccountForm() {
                         {fileName && (
                           <>
                             <ArrowRightLeft className="h-4 w-4" />
-                            <span>Alterar foto</span>
+                            Alterar foto
                           </>
                         )}
                         {!fileName && (
                           <>
                             <ImagePlus className="h-4 w-4" />
-                            <span>Selecionar foto</span>
+                            Selecionar foto
                           </>
                         )}
                       </Button>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        ref={inputFileRef}
-                        {...rest}
-                        className="hidden"
-                        multiple={false}
-                        onChange={(ev) => {
-                          const file = ev.target.files?.[0]
-                          const url = URL.createObjectURL(file!)
-                          onChange(file)
-                          setPreviewUrlImage(url)
-                          setFileName(file!.name)
-                        }}
-                      />
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          ref={fileInputRef}
+                          className="hidden"
+                          multiple={false}
+                          {...rest}
+                          onChange={(ev) => {
+                            handleFileChange(ev)
+                            form.setValue('avatar', ev.target.files?.[0])
+                          }}
+                        />
+                      </FormControl>
                     </div>
                   </div>
                   {fileName && (
                     <div className="inline-flex gap-2 text-xs">
-                      <CopyTextComponent text={fileName}>
+                      <CopyTextComponent
+                        textForCopy={fileName}
+                        className="text-muted-foreground"
+                      >
                         <p
                           className="truncate text-muted-foreground"
                           aria-live="polite"
@@ -322,7 +310,7 @@ export function AccountForm() {
                       </CopyTextComponent>
                       {'-'}
                       <button
-                        onClick={handleRemoveAvatarFile}
+                        onClick={handleRemoveFile}
                         className="font-medium text-red-600 hover:underline"
                         aria-label={`Remove ${fileName}`}
                       >

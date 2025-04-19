@@ -39,7 +39,7 @@ export function UploadAvatar() {
           )}
         </div>
         <div className="relative inline-block">
-          <Button onClick={handleButtonClick} aria-haspopup="dialog">
+          <Button onClick={handleButtonClick} type="button">
             {fileName ? 'Change image' : 'Upload image'}
           </Button>
           <input

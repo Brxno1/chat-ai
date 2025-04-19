@@ -1,10 +1,18 @@
+import { Todo } from '@prisma/client'
+
 import { api } from '@/lib/axios'
 
 type CreateTodoProps = {
   title: string
 }
 
-export async function createTodo({ title }: CreateTodoProps) {
+type CreateTodoResponse = {
+  todo: Todo
+}
+
+export async function createTodo({
+  title,
+}: CreateTodoProps): Promise<CreateTodoResponse> {
   const response = await api.post('/todo', { title })
 
   return response.data

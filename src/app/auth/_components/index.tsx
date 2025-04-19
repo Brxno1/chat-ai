@@ -11,6 +11,7 @@ import { LoginForm } from './login-form'
 
 export function FormAuth() {
   const mode = useSearchParams().get('mode') || 'account'
+  const name = useSearchParams().get('name') || ''
 
   const { setEmail } = useEmailStore()
 
@@ -33,7 +34,7 @@ export function FormAuth() {
         <AccountForm />
       </TabsContent>
       <TabsContent value="login">
-        <LoginForm onChangeMode={handleChangeModeToAccount} />
+        <LoginForm name={name} onChangeMode={handleChangeModeToAccount} />
       </TabsContent>
     </Tabs>
   )

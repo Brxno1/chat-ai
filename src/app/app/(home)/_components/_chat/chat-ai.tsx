@@ -3,7 +3,6 @@
 import { useChat } from '@ai-sdk/react'
 import { ArrowRight, ArrowUp, CircleStop, UserPlus, X } from 'lucide-react'
 import Link from 'next/link'
-import { Session } from 'next-auth'
 import * as React from 'react'
 
 import { ComponentSwitchTheme } from '@/components/switch-theme'
@@ -17,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
 import { MessageChat } from './message'
@@ -24,12 +24,10 @@ import { MessageChat } from './message'
 interface ChatProps {
   modelName: string
   placeholder?: string
-  user: Session['user'] | undefined
 }
 
 export function Chat({
   modelName,
-  user,
   placeholder = 'Digite sua mensagem...',
 }: ChatProps) {
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
@@ -37,6 +35,7 @@ export function Chat({
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   const [open, setOpen] = React.useState(false)
+  const user = useSessionStore((state) => state.user)
 
   const [closeInfoMessage, setCloseInfoMessage] = React.useState<boolean>(
     () => {
@@ -103,7 +102,7 @@ export function Chat({
                 <Avatar className="h-8 w-8 cursor-grab rounded-sm">
                   <AvatarImage src={user.image as string} alt="user avatar" />
                   <AvatarFallback className="rounded-none">
-                    {user?.name?.slice(0, 2).toUpperCase()}
+                    {user.name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -153,7 +152,6 @@ export function Chat({
             key={message.id}
             message={message}
             modelName={modelName}
-            user={user}
             onDeleteMessageChat={onDeleteMessageChat}
           />
         ))}

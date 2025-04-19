@@ -16,7 +16,6 @@ import {
   VisibilityState,
 } from '@tanstack/react-table'
 import { ArrowUpDown, ChevronDown } from 'lucide-react'
-import { User } from 'next-auth'
 import * as React from 'react'
 
 import { getTodos } from '@/app/(http)/get-todos'
@@ -38,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useSessionStore } from '@/store/user-store'
 import { formatDistanceToNow } from '@/utils/format'
 
 import { ActionsForTodo } from './actions-for-todo'
@@ -73,32 +73,32 @@ export const columns: ColumnDef<Todo>[] = [
     enableHiding: false,
   },
   {
-    id: 'doneAt',
-    accessorKey: 'doneAt',
+    id: 'status',
+    accessorKey: 'status',
     header: () => <div className="text-center">
       <Button variant="ghost" className="hover:bg-transparent cursor-default">
         Status
       </Button>
     </div>,
     cell: ({ row }) => {
-      const { doneAt } = row.original
+      const { status } = row.original
 
       return (
         <ContainerWrapper className="flex items-center justify-center">
-          <BadgeStatus status={doneAt ? 'finished' : 'pending'} />
+          <BadgeStatus status={status} />
         </ContainerWrapper>
       )
     },
+
     sortingFn: (rowA, rowB) => {
-      const statusOrder: Record<'finished' | 'pending' | 'cancelled', number> =
-      {
+      const statusOrder: Record<'finished' | 'pending' | 'cancelled', number> = {
         finished: 1,
         pending: 2,
         cancelled: 3,
       }
 
-      const statusA = rowA.original.doneAt ? 'finished' : 'pending'
-      const statusB = rowB.original.doneAt ? 'finished' : 'pending'
+      const statusA = rowA.original.status.toLowerCase() as 'finished' | 'pending' | 'cancelled'
+      const statusB = rowB.original.status.toLowerCase() as 'finished' | 'pending' | 'cancelled'
 
       return statusOrder[statusA] - statusOrder[statusB]
     },
@@ -187,13 +187,14 @@ export const columns: ColumnDef<Todo>[] = [
 
 interface TodoDataTableProps {
   initialData: Todo[]
-  user: User
 }
 
-export function TodoDataTable({ initialData, user }: TodoDataTableProps) {
+export function TodoDataTable({ initialData }: TodoDataTableProps) {
+  const user = useSessionStore((state) => state.user)
+
   const { data: todos } = useQuery({
     queryKey: ['todos'],
-    queryFn: () => getTodos({ id: user.id! }),
+    queryFn: () => getTodos({ id: user!.id! }),
     staleTime: Infinity,
     refetchOnReconnect: true,
     refetchOnWindowFocus: true,
@@ -316,7 +317,7 @@ export function TodoDataTable({ initialData, user }: TodoDataTableProps) {
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} de{' '}
-          {table.getFilteredRowModel().rows.length} linha(s) selecionada(s).
+          {table.getFilteredRowModel().rows.length} {table.getFilteredRowModel().rows.length <= 1 ? 'Todo selecionado' : 'Todos selecionados'}.
         </div>
         <div className="space-x-2">
           <Button
