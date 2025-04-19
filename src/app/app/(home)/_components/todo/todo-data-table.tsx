@@ -16,7 +16,6 @@ import {
   VisibilityState,
 } from '@tanstack/react-table'
 import { ArrowUpDown, ChevronDown } from 'lucide-react'
-import { User } from 'next-auth'
 import * as React from 'react'
 
 import { getTodos } from '@/app/(http)/get-todos'
@@ -38,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useSessionStore } from '@/store/user-store'
 import { formatDistanceToNow } from '@/utils/format'
 
 import { ActionsForTodo } from './actions-for-todo'
@@ -187,13 +187,14 @@ export const columns: ColumnDef<Todo>[] = [
 
 interface TodoDataTableProps {
   initialData: Todo[]
-  user: User
 }
 
-export function TodoDataTable({ initialData, user }: TodoDataTableProps) {
+export function TodoDataTable({ initialData }: TodoDataTableProps) {
+  const user = useSessionStore((state) => state.user)
+
   const { data: todos } = useQuery({
     queryKey: ['todos'],
-    queryFn: () => getTodos({ id: user.id! }),
+    queryFn: () => getTodos({ id: user!.id! }),
     staleTime: Infinity,
     refetchOnReconnect: true,
     refetchOnWindowFocus: true,

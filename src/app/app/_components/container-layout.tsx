@@ -1,6 +1,5 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import { PropsWithChildren } from 'react'
 
 import { useSidebar } from '@/components/ui/sidebar'
@@ -10,7 +9,6 @@ import { AppClosedSidebar } from './sidebar/app-closed-sidebar'
 import { AppSidebar } from './sidebar/app-sidebar'
 
 export function ContainerLayout({ children }: PropsWithChildren) {
-  const { data: session } = useSession()
   const { open, isMobile } = useSidebar()
 
   return (
@@ -21,8 +19,8 @@ export function ContainerLayout({ children }: PropsWithChildren) {
           !open && !isMobile,
       })}
     >
-      {session && !!open && <AppSidebar user={session.user} />}
-      {session && !open && <AppClosedSidebar user={session.user} />}
+      {!!open && <AppSidebar />}
+      {!open && <AppClosedSidebar />}
       <main className="flex flex-col">{children}</main>
     </div>
   )

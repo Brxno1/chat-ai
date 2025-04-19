@@ -28,6 +28,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { queryClient } from '@/lib/query-client'
+import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({
@@ -36,21 +37,8 @@ const schema = z.object({
 
 type TodoFormData = z.infer<typeof schema>
 
-type CreateTodoResponse = {
-  todo: {
-    title: string
-    id: string
-    createdAt: Date
-    updatedAt: Date
-    userId: string
-  }
-}
-
-export type UserProps = {
-  user: Session['user']
-}
-
-const TodoCreateForm = ({ user }: UserProps) => {
+const TodoCreateForm = () => {
+  const user = useSessionStore((state) => state.user)
   const [open, setOpen] = useState(false)
 
   const form = useForm<TodoFormData>({
@@ -70,16 +58,17 @@ const TodoCreateForm = ({ user }: UserProps) => {
   const { mutateAsync: createTodoFn, isPending } = useMutation({
     mutationFn: createTodo,
     mutationKey: ['create-todo'],
-    onSuccess: (data: CreateTodoResponse) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['todos'] })
       setOpen(false)
-      toast(`Tarefa "${data?.todo.title}" criada com sucesso!`, {
+      toast.success(`Tarefa "${variables.title}" criada com sucesso`, {
         position: 'top-center',
         duration: 2000,
       })
+      form.reset()
     },
-    onError: () => {
-      toast.error('Erro ao criar a tarefa', {
+    onError: (_error, variables) => {
+      toast.error(`Erro ao criar a tarefa "${variables.title}"`, {
         position: 'top-center',
         duration: 2000,
       })
@@ -95,12 +84,8 @@ const TodoCreateForm = ({ user }: UserProps) => {
   async function handleCreateTodo(data: TodoFormData) {
     try {
       await createTodoFn({ title: data.title })
-      form.reset()
     } catch (err) {
-      toast.error('Erro ao criar a tarefa', {
-        position: 'top-center',
-        duration: 2000,
-      })
+      form.reset()
     }
   }
 
@@ -123,7 +108,7 @@ const TodoCreateForm = ({ user }: UserProps) => {
       <SheetContent side={'right'}>
         <SheetHeader className="flex flex-col gap-1">
           <SheetTitle>
-            Olá, <span className="font-bold text-purple-500">{user.name}</span>
+            Olá, <span className="font-bold text-purple-500">{user?.name}</span>
           </SheetTitle>
           <SheetDescription>Qual será a tarefa de hoje?</SheetDescription>
         </SheetHeader>

@@ -32,6 +32,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
+import { useSessionStore } from '@/store/user-store'
 import { sleep } from '@/utils/sleep'
 import { cn } from '@/utils/utils'
 
@@ -70,12 +71,13 @@ const formSchema = z.object({
 
 type FileFieldName = 'avatar' | 'background'
 
-type EditProfileProps = {
-  user: Session['user']
-}
-
-export default function EditProfile({ user }: EditProfileProps) {
+export default function EditProfile() {
   const { update } = useSession()
+  const user = useSessionStore((state) => state.user)
+
+  if (!user) {
+    return null
+  }
 
   const id = React.useId()
   const [open, setOpen] = React.useState(false)
@@ -84,15 +86,15 @@ export default function EditProfile({ user }: EditProfileProps) {
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
-      name: user?.name || '',
-      bio: user?.bio || '',
-      avatar: user?.image ? new File([], user.image) : null,
-      background: user?.background ? new File([], user.background) : null,
+      name: user.name || '',
+      bio: user.bio || '',
+      avatar: user.image ? new File([], user.image) : null,
+      background: user.background ? new File([], user.background) : null,
     },
   })
 
   const { mutateAsync: updateProfileFn } = useMutation({
-    mutationFn: async (formData: FormData) => updateProfile(formData),
+    mutationFn: updateProfile,
     onSuccess: async ({ name, bio, image, background }) => {
       await update({
         trigger: 'update',
@@ -135,7 +137,7 @@ export default function EditProfile({ user }: EditProfileProps) {
 
   const { characterCount, handleChange } = useCharacterLimit({
     maxLengthForBio,
-    initialValue: user!.bio || '',
+    initialValue: user.bio || '',
   })
 
   const onUpdateProfile = async ({
@@ -210,11 +212,11 @@ export default function EditProfile({ user }: EditProfileProps) {
           >
             <div className="overflow-y-auto">
               <ProfileBackground
-                user={user as Session['user']}
+                user={user}
                 onFileChange={onFileChange('background')}
               />
               <ProfileAvatar
-                user={user as Session['user']}
+                user={user}
                 onFileChange={onFileChange('avatar')}
               />
               <div className="px-6 pb-6 pt-4">

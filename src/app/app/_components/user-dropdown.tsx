@@ -1,5 +1,4 @@
 import { LogOut, Rocket, Settings2 } from 'lucide-react'
-import { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import React from 'react'
 import { toast } from 'sonner'
@@ -15,17 +14,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useSessionStore } from '@/store/user-store'
 
-interface UserDropdownProps {
-  user: Session['user']
-}
+export function UserDropdown() {
+  const user = useSessionStore((state) => state.user)
 
-export function UserDropdown({ user }: UserDropdownProps) {
   const [openDropdown, setOpenDropdown] = React.useState(false)
 
   const handleSignOut = () => {
     try {
-      signOut({ redirectTo: `/auth?mode=login&name=${user.name}` })
+      signOut({ redirectTo: `/auth?mode=login&name=${user?.name}` })
       toast('Deslogado com sucesso!', {
         duration: 1000,
         position: 'bottom-left',
@@ -79,7 +77,7 @@ export function UserDropdown({ user }: UserDropdownProps) {
               {user.email}
             </span>
           </div>
-          <EditProfile user={user} />
+          <EditProfile />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

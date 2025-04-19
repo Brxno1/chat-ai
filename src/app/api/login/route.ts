@@ -8,9 +8,9 @@ import { loginWithMagicLink } from '@/app/api/login/actions/login'
 const schema = z.object({
   email: z.string().email(),
   name: z.string(),
-  file: z
+  avatar: z
     .union([
-      z.instanceof(File).refine((file) => file.size <= 10 * 1024 * 1024),
+      z.instanceof(File).refine((avatar) => avatar.size <= 10 * 1024 * 1024),
       z.null(),
     ])
     .optional(),
@@ -21,11 +21,11 @@ export async function POST(req: NextRequest) {
 
   const name = formData.get('name') as string
   const email = formData.get('email') as string
-  const file = formData.get('file') as File | null
+  const avatar = formData.get('avatar') as File | null
 
   console.log(email)
 
-  const parsedData = schema.safeParse({ name, email, file })
+  const parsedData = schema.safeParse({ name, email, avatar })
 
   if (parsedData.error) {
     return NextResponse.json({ error: parsedData.error }, { status: 400 })
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   const { user, error, userExists } = await loginWithMagicLink({
     name,
     email,
-    file,
+    avatar,
   })
 
   if (userExists) {

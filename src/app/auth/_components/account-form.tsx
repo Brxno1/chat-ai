@@ -47,6 +47,8 @@ import { env } from '@/lib/env'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
+const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+
 const formSchema = z.object({
   name: z
     .string()
@@ -56,17 +58,16 @@ const formSchema = z.object({
     .string()
     .nonempty('O email não pode estar vazio')
     .email('Insira um email válido'),
-  file: z
-    .union([
-      z
-        .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
-        .refine(
-          (file) => file.size <= 10 * 1024 * 1024,
-          'O arquivo deve ter no máximo 10MB',
-        ),
-      z.null(),
-    ])
-    .optional(),
+  avatar: z.union([
+    z
+      .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
+      .refine(
+        (file) => file.size <= MAX_SIZE,
+        `O avatar deve ter no máximo 10MB`,
+      ),
+    z.null(),
+    z.undefined(),
+  ]),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -81,7 +82,7 @@ export function AccountForm() {
     defaultValues: {
       name: '',
       email: email || '',
-      file: undefined,
+      avatar: null,
     },
   })
 
@@ -96,16 +97,16 @@ export function AccountForm() {
 
   const handleRemoveFile = () => {
     handleRemove()
-    form.setValue('file', undefined)
+    form.setValue('avatar', null)
   }
 
-  async function onCreateAccount({ name, email, file }: FormValues) {
+  async function onCreateAccount({ name, email, avatar }: FormValues) {
     const formData = new FormData()
 
     formData.append('name', name)
     formData.append('email', email)
-    if (file) {
-      formData.append('file', file)
+    if (avatar) {
+      formData.append('avatar', avatar)
     }
 
     try {
@@ -220,7 +221,7 @@ export function AccountForm() {
               )}
             />
             <FormField
-              name="file"
+              name="avatar"
               control={form.control}
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               render={({ field: { value, ref, onChange, ...rest } }) => (
@@ -268,13 +269,13 @@ export function AccountForm() {
                         {fileName && (
                           <>
                             <ArrowRightLeft className="h-4 w-4" />
-                            <span>Alterar foto</span>
+                            Alterar foto
                           </>
                         )}
                         {!fileName && (
                           <>
                             <ImagePlus className="h-4 w-4" />
-                            <span>Selecionar foto</span>
+                            Selecionar foto
                           </>
                         )}
                       </Button>
@@ -288,7 +289,7 @@ export function AccountForm() {
                           {...rest}
                           onChange={(ev) => {
                             handleFileChange(ev)
-                            form.setValue('file', ev.target.files?.[0])
+                            form.setValue('avatar', ev.target.files?.[0])
                           }}
                         />
                       </FormControl>

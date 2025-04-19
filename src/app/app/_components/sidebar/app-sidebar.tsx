@@ -2,7 +2,6 @@
 
 import { House, ListTodo, Settings2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { Session } from 'next-auth'
 
 import {
   SidebarHeaderTitle,
@@ -24,11 +23,7 @@ import {
 import { UserDropdown } from '../user-dropdown'
 import { SidebarTriggerComponent } from './sidebar-trigger'
 
-interface AppSideBarProps {
-  user: Session['user']
-}
-
-export function AppSidebar({ user }: AppSideBarProps) {
+export function AppSidebar() {
   const pathname = usePathname()
 
   const isActive = (path: string) => {
@@ -76,7 +71,7 @@ export function AppSidebar({ user }: AppSideBarProps) {
             </SidebarNavMain>
           </SidebarMenu>
           <SidebarFooter className="rounded-t-lg border-t border-border py-4">
-            <UserDropdown user={user} />
+            <UserDropdown />
           </SidebarFooter>
         </SidebarGroup>
       </SidebarContent>

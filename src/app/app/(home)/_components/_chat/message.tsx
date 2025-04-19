@@ -2,7 +2,6 @@
 
 import { Message } from 'ai'
 import { ChevronDown, Trash } from 'lucide-react'
-import { Session } from 'next-auth'
 import { useState } from 'react'
 
 import { CopyTextComponent } from '@/components/copy-text-component'
@@ -13,26 +12,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useSessionStore } from '@/store/user-store'
 import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
 interface MessageChatProps {
-  user: Session['user'] | null
   message: Message
   modelName: string
   onDeleteMessageChat: (id: string) => void
 }
 
 export function MessageChat({
-  user,
   message,
   modelName,
   onDeleteMessageChat,
 }: MessageChatProps) {
-  const [open, setOpen] = useState(false)
+  const user = useSessionStore((state) => state.user)
+
   const [state, setState] = useState({
     isDeleting: false,
+    openDropdown: false,
   })
 
   function handleDeleteMessageChat(
@@ -44,9 +44,8 @@ export function MessageChat({
     setState((prev) => ({ ...prev, isDeleting: true }))
 
     setTimeout(() => {
-      setOpen(false)
-      onDeleteMessageChat(id)
       setState((prev) => ({ ...prev, isDeleting: false }))
+      onDeleteMessageChat(id)
     }, 1000)
   }
 
@@ -66,7 +65,7 @@ export function MessageChat({
       >
         <Badge className="bg-transparent text-sm font-semibold text-foreground hover:bg-transparent">
           {['user'].includes(message.role)
-            ? truncateText({ text: user?.name ?? '', maxLength: 15 })
+            ? truncateText({ text: user!.name ?? '', maxLength: 15 })
             : modelName}
         </Badge>
       </div>
@@ -88,7 +87,12 @@ export function MessageChat({
                   <p className="h-fit w-fit max-w-md text-wrap rounded-md px-2 text-base font-thin text-background">
                     {formatTextWithStrong(part.text)}
                   </p>
-                  <DropdownMenu open={open} onOpenChange={setOpen}>
+                  <DropdownMenu
+                    open={state.openDropdown}
+                    onOpenChange={() =>
+                      setState({ ...state, openDropdown: !state.openDropdown })
+                    }
+                  >
                     <DropdownMenuTrigger asChild>
                       <ChevronDown className="mb-auto h-4 w-4 cursor-pointer text-background opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     </DropdownMenuTrigger>
@@ -100,7 +104,9 @@ export function MessageChat({
                       <DropdownMenuItem className="cursor-pointer">
                         <CopyTextComponent
                           textForCopy={part.text}
-                          onCloseComponent={() => setOpen(false)}
+                          onCloseComponent={() =>
+                            setState({ ...state, openDropdown: false })
+                          }
                         />
                       </DropdownMenuItem>
                       <DropdownMenuItem

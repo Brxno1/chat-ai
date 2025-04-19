@@ -7,7 +7,6 @@ import {
   Settings2,
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 
@@ -31,15 +30,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useSessionStore } from '@/store/user-store'
 
-type UserProps = {
-  user: Session['user']
-}
+export function UserDropdown() {
+  const user = useSessionStore((state) => state.user)
 
-export function UserDropdown({ user }: UserProps) {
   const handleSignOut = () => {
     try {
-      signOut({ redirectTo: '/auth?mode=login' })
+      signOut({ redirectTo: `/auth?mode=login&name=${user?.name}` })
       toast('Deslogado com sucesso!', {
         duration: 1000,
         position: 'top-center',
@@ -60,9 +58,9 @@ export function UserDropdown({ user }: UserProps) {
           className="!b-0 relative ml-4 flex w-full items-center justify-between space-x-2 rounded-full !px-0 hover:bg-transparent"
         >
           <Avatar className="h-8 w-8 cursor-grab rounded-sm">
-            <AvatarImage src={user.image as string} alt="user avatar" />
+            <AvatarImage src={user?.image || ''} alt="user avatar" />
             <AvatarFallback className="rounded-none">
-              {user.name?.slice(0, 2).toUpperCase()}
+              {user?.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -70,12 +68,12 @@ export function UserDropdown({ user }: UserProps) {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
           <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{user?.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              {user?.email}
             </p>
           </div>
-          <EditProfile user={user} />
+          <EditProfile />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -101,7 +99,7 @@ export function UserDropdown({ user }: UserProps) {
   )
 }
 
-export function AppClosedSidebar({ user }: UserProps) {
+export function AppClosedSidebar() {
   const pathname = usePathname()
   const { state, toggleSidebar } = useSidebar()
 
@@ -153,7 +151,7 @@ export function AppClosedSidebar({ user }: UserProps) {
         </nav>
       </main>
       <footer className="mt-auto flex w-full items-center justify-center border-t border-border py-4">
-        <UserDropdown user={user} />
+        <UserDropdown />
       </footer>
     </Sidebar>
   )

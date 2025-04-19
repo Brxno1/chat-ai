@@ -1,20 +1,22 @@
 'use client'
 
-import { Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 import * as React from 'react'
 
-import { useSessionUserStore } from './user-store'
+import { useSessionStore } from './user-store'
 
 type UserSetterProps = {
-  user: Session['user'] | null
+  session: ReturnType<typeof useSession>
 }
 
-export const UserStoreProvider = ({ user }: UserSetterProps) => {
-  const setUser = useSessionUserStore((state) => state.setUser)
+export const UserStoreProvider = ({ session }: UserSetterProps) => {
+  const syncUser = useSessionStore((state) => state.syncUser)
 
   React.useEffect(() => {
-    setUser(user)
-  }, [user])
+    if (session.status === 'authenticated' && session.data?.user) {
+      syncUser(session.data.user)
+    }
+  }, [session.status, session.data?.user, syncUser])
 
   return null
 }

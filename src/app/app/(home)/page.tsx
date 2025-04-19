@@ -20,12 +20,12 @@ export default async function Page() {
     <DashboardPage>
       <DashboardPageHeader className="justify-end">
         <ContainerWrapper className="mr-6 flex items-center gap-4">
-          <TodoCreateForm user={session!.user} />
+          <TodoCreateForm />
           <ToggleTheme />
         </ContainerWrapper>
       </DashboardPageHeader>
       <DashboardPageMain>
-        <TodoDataTable initialData={initialData} user={session!.user} />
+        <TodoDataTable initialData={initialData} />
       </DashboardPageMain>
     </DashboardPage>
   )

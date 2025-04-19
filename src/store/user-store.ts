@@ -3,10 +3,10 @@ import { create } from 'zustand'
 
 type UserState = {
   user: Session['user'] | null
-  setUser: (user: Session['user'] | null) => void
+  syncUser: (user: Session['user'] | null) => void
 }
 
-export const useSessionUserStore = create<UserState>((set) => ({
+export const useSessionStore = create<UserState>((set) => ({
   user: null,
-  setUser: (user) => set({ user }),
+  syncUser: (user) => set({ user }),
 }))

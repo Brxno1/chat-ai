@@ -11,7 +11,7 @@ import { getUserByEmail } from './get-user-by-email'
 type LoginData = {
   name: string
   email: string
-  file?: File | null
+  avatar?: File | null
 }
 
 type LoginResponse = {
@@ -38,19 +38,19 @@ export async function loginWithMagicLink(
       },
     })
 
-    if (data.file && data.file.size > 0) {
+    if (data.avatar && data.avatar.size > 0) {
       const userId = user.id
       const timestamp = new Date().getTime()
 
-      const extension = data.file.name.substring(
-        data.file.name.lastIndexOf('.'),
+      const extension = data.avatar.name.substring(
+        data.avatar.name.lastIndexOf('.'),
       )
       const filePath = `users/${userId}/avatar/${timestamp}${extension}`
 
       const { error } = await supabase.storage
         .from('avatars')
-        .upload(filePath, data.file, {
-          contentType: data.file.type || 'image/png',
+        .upload(filePath, data.avatar, {
+          contentType: data.avatar.type || 'image/png',
         })
 
       if (error) {

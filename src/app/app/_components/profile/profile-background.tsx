@@ -25,7 +25,7 @@ export function ProfileBackground({ user, onFileChange }: FileUploadProps) {
     onFileChange(file)
   }, [file])
 
-  const currentBackground = previewUrl || user.background
+  const currentBackground = previewUrl || (user && user.background) || ''
 
   const handleImageRemove = () => {
     handleRemove()
