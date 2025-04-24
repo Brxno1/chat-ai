@@ -21,10 +21,10 @@ export async function markTodoAsDone(id: string) {
       },
     })
 
-    revalidatePath('/app')
+    revalidatePath('/dashboard')
     return { success: true, todo: updatedTodo }
   } catch (error) {
     console.error('Error marking todo as done:', error)
-    return { success: false, error: 'Falha ao marcar todo como concluído' }
+    return { success: false, error: 'Failed to mark todo as completed' }
   }
 }

@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User } from '@prisma/client'
 import { RiGoogleFill } from '@remixicon/react'
+import { useMutation } from '@tanstack/react-query'
 import { AxiosError, AxiosResponse } from 'axios'
 import {
   ArrowRightLeft,
@@ -40,44 +41,22 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useEmailStore } from '@/hooks/use-email-store'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { api } from '@/lib/axios'
 import { env } from '@/lib/env'
+import { accountSchema } from '@/schemas'
+import { useSessionStore } from '@/store/user-store'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
-const MAX_SIZE = 10 * 1024 * 1024 // 10MB
-
-const formSchema = z.object({
-  name: z
-    .string()
-    .nonempty('O nome não pode estar vazio')
-    .min(3, 'Nome deve ter no mínimo 3 carácteres'),
-  email: z
-    .string()
-    .nonempty('O email não pode estar vazio')
-    .email('Insira um email válido'),
-  avatar: z.union([
-    z
-      .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
-      .refine(
-        (file) => file.size <= MAX_SIZE,
-        `O avatar deve ter no máximo 10MB`,
-      ),
-    z.null(),
-    z.undefined(),
-  ]),
-})
-
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof accountSchema>
 
 export function AccountForm() {
   const { theme } = useTheme()
-  const email = useEmailStore((state) => state.user.email)
+  const { email } = useSessionStore()
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(accountSchema),
     mode: 'onChange',
     defaultValues: {
       name: '',
@@ -91,7 +70,7 @@ export function AccountForm() {
     previewUrl,
     fileInputRef,
     handleThumbnailClick,
-    handleFileChange,
+    handleFileChange: onFileChange,
     handleRemove,
   } = useImageUpload()
 
@@ -100,26 +79,21 @@ export function AccountForm() {
     form.setValue('avatar', null)
   }
 
-  async function onCreateAccount({ name, email, avatar }: FormValues) {
-    const formData = new FormData()
+  const handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    onFileChange(ev)
+    form.setValue('avatar', ev.target.files?.[0])
+  }
 
-    formData.append('name', name)
-    formData.append('email', email)
-    if (avatar) {
-      formData.append('avatar', avatar)
-    }
-
-    try {
-      const {
-        data: { name },
-      } = await api.post<FormValues, AxiosResponse<User>>('/login', formData)
-
+  const { mutateAsync } = useMutation({
+    mutationFn: (formData: FormData) =>
+      api.post<FormValues, AxiosResponse<User>>('/login', formData),
+    onSuccess: ({ data: { name } }) => {
       toast('Link mágico enviado para: ', {
         action: (
           <Link
             href={env.MAILHOG_UI}
             target="_blank"
-            className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
+            className="cursor-pointer font-bold text-purple-500 hover:underline"
           >
             {name}
           </Link>
@@ -128,7 +102,8 @@ export function AccountForm() {
       })
       handleRemove()
       form.reset()
-    } catch (err) {
+    },
+    onError: (err) => {
       if (err instanceof AxiosError) {
         toast.error('Erro ao logar com o link mágico', {
           action: (
@@ -143,7 +118,19 @@ export function AccountForm() {
           ),
         })
       }
+    },
+  })
+
+  const onCreateAccount = async ({ name, email, avatar }: FormValues) => {
+    const formData = new FormData()
+
+    formData.append('name', name)
+    formData.append('email', email)
+    if (avatar) {
+      formData.append('avatar', avatar)
     }
+
+    await mutateAsync(formData)
   }
 
   return (
@@ -183,7 +170,7 @@ export function AccountForm() {
                       </span>
                     </FormLabel>
                     <FormControl>
-                      <Input id="name" type="text" {...field} placeholder=" " />
+                      <Input type="text" {...field} placeholder=" " />
                     </FormControl>
                   </div>
                   <FormMessage className="ml-2 text-red-500" />
@@ -287,10 +274,7 @@ export function AccountForm() {
                           className="hidden"
                           multiple={false}
                           {...rest}
-                          onChange={(ev) => {
-                            handleFileChange(ev)
-                            form.setValue('avatar', ev.target.files?.[0])
-                          }}
+                          onChange={handleFileChange}
                         />
                       </FormControl>
                     </div>
@@ -311,7 +295,7 @@ export function AccountForm() {
                       {'-'}
                       <button
                         onClick={handleRemoveFile}
-                        className="font-medium text-red-600 hover:underline"
+                        className="font-medium text-red-500 hover:underline"
                         aria-label={`Remove ${fileName}`}
                       >
                         Remover
@@ -354,7 +338,7 @@ export function AccountForm() {
         <Button
           variant="default"
           className="font-semibold"
-          onClick={() => signIn('google', { redirectTo: '/app' })}
+          onClick={() => signIn('google', { redirectTo: '/dashboard' })}
         >
           <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
           Google

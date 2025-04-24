@@ -1,13 +1,19 @@
 import { cn } from '@/utils/utils'
 
-type ContainerGenericProps<T = unknown> = {
+type ContainerWrapperProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode
-  className?: string
-} & T
+  ref?: React.RefObject<HTMLDivElement>
+}
 
 export function ContainerWrapper({
   children,
   className,
-}: ContainerGenericProps) {
-  return <div className={cn(className)}>{children}</div>
+  ref,
+  ...props
+}: ContainerWrapperProps) {
+  return (
+    <div className={cn(className)} ref={ref} {...props}>
+      {children}
+    </div>
+  )
 }
