@@ -57,9 +57,10 @@ function SidebarNavMain({ className, children }: SidebarGenericProps) {
   return <main className={cn(['space-y-2', className])}>{children}</main>
 }
 
-type DashboardSidebarNavLinkProps = {
+type SidebarNavLinkProps = {
   href: string
   active?: boolean
+  onClick?: () => void
 }
 
 function SidebarNavLink({
@@ -67,10 +68,12 @@ function SidebarNavLink({
   children,
   href,
   active,
-}: SidebarGenericProps<DashboardSidebarNavLinkProps>) {
+  onClick,
+}: SidebarGenericProps<SidebarNavLinkProps>) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         'flex items-center rounded-md px-3 py-2 text-sm transition-all hover:bg-secondary/60',
         {

@@ -45,14 +45,18 @@ export function LoginUserForm() {
   async function handleSentMagicLink(data: FormValues) {
     const { email } = data
     try {
-      await signIn('email', { email, redirect: false, callbackUrl: '/app' })
+      await signIn('email', {
+        email,
+        redirect: false,
+        callbackUrl: '/dashboard',
+      })
 
       toast('Seu link foi enviado, ', {
         duration: 5000,
         action: (
           <span
             onClick={() => window.open('http://localhost:8025', '_blank')}
-            className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
+            className="cursor-pointer font-bold text-purple-500 hover:underline"
           >
             {name || data.email}
           </span>
@@ -136,7 +140,7 @@ export function LoginUserForm() {
           <Button
             variant="outline"
             className="w-full bg-zinc-950 font-semibold hover:bg-black/90 dark:bg-zinc-100 dark:text-background"
-            onClick={() => signIn('google', { redirectTo: '/app' })}
+            onClick={() => signIn('google', { redirectTo: '/dashboard' })}
           >
             <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
             Login com Google

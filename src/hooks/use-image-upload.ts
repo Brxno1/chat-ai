@@ -9,8 +9,10 @@ interface UseImageUploadProps {
 export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
   const previewRef = React.useRef<string | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
   const [fileName, setFileName] = React.useState<string | null>(null)
+  const [fileSize, setFileSize] = React.useState<number | null>(null)
   const [file, setFile] = React.useState<File | null>(null)
 
   const handleThumbnailClick = React.useCallback(() => {
@@ -23,7 +25,9 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
       if (file) {
         setFile(file)
         setFileName(file.name)
+        setFileSize(file.size)
         const url = URL.createObjectURL(file)
+
         setPreviewUrl(url)
         previewRef.current = url
         onUpload?.(url)
@@ -58,6 +62,7 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
     file,
     previewUrl,
     fileName,
+    fileSize,
     fileInputRef,
     handleThumbnailClick,
     handleFileChange,

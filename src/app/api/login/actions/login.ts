@@ -15,8 +15,8 @@ type LoginData = {
 }
 
 type LoginResponse = {
-  error: Error | null
   user?: User | null
+  error: string | null
   userExists?: boolean
 }
 
@@ -30,7 +30,7 @@ export async function loginWithMagicLink(
       return { error: null, userExists: true }
     }
 
-    const user = await prisma.user.create({
+    const createdUser = await prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
@@ -39,7 +39,7 @@ export async function loginWithMagicLink(
     })
 
     if (data.avatar && data.avatar.size > 0) {
-      const userId = user.id
+      const userId = createdUser.id
       const timestamp = new Date().getTime()
 
       const extension = data.avatar.name.substring(
@@ -54,33 +54,32 @@ export async function loginWithMagicLink(
         })
 
       if (error) {
-        console.error('Erro ao fazer upload:', error.message)
-        return { error: new Error(error.message) }
+        return { error: error.message }
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: get } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath)
 
       await prisma.user.update({
-        where: { id: user.id },
-        data: { image: urlData.publicUrl },
+        where: { id: createdUser.id },
+        data: { image: get.publicUrl },
       })
     }
 
     await signIn('email', {
-      email: user.email,
+      email: createdUser.email,
       redirect: false,
-      redirectTo: '/app',
+      redirectTo: '/dashboard',
     })
 
     return {
-      user,
+      user: createdUser,
       error: null,
     }
   } catch (error) {
     return {
-      error: new Error('Internal Server Error'),
+      error: 'Internal Server Error',
     }
   }
 }

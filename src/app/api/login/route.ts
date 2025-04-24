@@ -1,20 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 
 import { loginWithMagicLink } from '@/app/api/login/actions/login'
-
+import { accountSchema } from '@/schemas'
 // import { uploadAndDeleteFile } from '@/lib/upload-and-remove'
-
-const schema = z.object({
-  email: z.string().email(),
-  name: z.string(),
-  avatar: z
-    .union([
-      z.instanceof(File).refine((avatar) => avatar.size <= 10 * 1024 * 1024),
-      z.null(),
-    ])
-    .optional(),
-})
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData()
@@ -25,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   console.log(email)
 
-  const parsedData = schema.safeParse({ name, email, avatar })
+  const parsedData = accountSchema.safeParse({ name, email, avatar })
 
   if (parsedData.error) {
     return NextResponse.json({ error: parsedData.error }, { status: 400 })

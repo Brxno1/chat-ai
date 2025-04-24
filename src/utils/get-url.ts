@@ -1,6 +1,6 @@
 import { env } from '../lib/env'
 
-type Path = '/app' | '/auth' | '/'
+type Path = '/dashboard' | '/auth' | '/'
 
 export function getUrl(path: Path) {
   const baseUrl = env.NEXT_PUBLIC_APP_URL!

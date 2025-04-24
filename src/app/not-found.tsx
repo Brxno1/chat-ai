@@ -12,7 +12,7 @@ export default function NotFound() {
 
   useEffect(() => {
     if (counter <= 0) {
-      router.push(session.data?.user ? '/app' : '/auth')
+      router.push(session.data?.user ? '/dashboard' : '/auth')
     }
 
     const timer = setInterval(() => {

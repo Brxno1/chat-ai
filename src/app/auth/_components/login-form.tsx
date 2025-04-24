@@ -31,16 +31,9 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { env } from '@/lib/env'
+import { loginSchema } from '@/schemas'
 import { cn } from '@/utils/utils'
-
-const formSchema = z.object({
-  email: z
-    .string()
-    .nonempty('O email não pode estar vazio')
-    .email('Insira um email válido'),
-})
-
-type FormValue = z.infer<typeof formSchema>
+type FormValue = z.infer<typeof loginSchema>
 
 interface LoginFormProps {
   name: string
@@ -48,15 +41,14 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ name, onChangeMode }: LoginFormProps) {
+  const { theme } = useTheme()
   const form = useForm<FormValue>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(loginSchema),
     mode: 'onChange',
     defaultValues: {
       email: '',
     },
   })
-
-  const { theme } = useTheme()
 
   async function handleSentMagicLink({ email }: FormValue) {
     try {
@@ -69,7 +61,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
       await signIn('email', {
         email,
         redirect: false,
-        redirectTo: '/app',
+        redirectTo: '/dashboard',
       })
 
       toast('Link mágico enviado para: ', {
@@ -77,7 +69,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
           <Link
             href={env.MAILHOG_UI}
             target="_blank"
-            className="cursor-pointer font-bold text-purple-400 hover:text-purple-500"
+            className="cursor-pointer font-bold text-purple-500 hover:underline"
           >
             {user!.name}
           </Link>
@@ -99,7 +91,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
-          <CardHeader className="text-center">
+          <CardHeader className="gap-1 text-center">
             <CardTitle>
               {name && (
                 <p>
@@ -168,7 +160,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
           <Button
             variant="default"
             className="font-semibold"
-            onClick={() => signIn('google', { redirectTo: '/app' })}
+            onClick={() => signIn('google', { redirectTo: '/dashboard' })}
           >
             <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
             Google

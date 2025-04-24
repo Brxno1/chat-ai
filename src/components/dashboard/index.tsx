@@ -9,7 +9,11 @@ export function DashboardPage({
   className,
   children,
 }: DashboardPageGenericProps) {
-  return <section className={cn(['h-screen', className])}>{children}</section>
+  return (
+    <section className={cn(['flex h-screen flex-col', className])}>
+      {children}
+    </section>
+  )
 }
 
 export function DashboardPageHeader({
@@ -19,7 +23,7 @@ export function DashboardPageHeader({
   return (
     <header
       className={cn([
-        'flex justify-between border-b border-border py-2',
+        'flex justify-between border-b border-border bg-background py-2',
         className,
       ])}
     >
@@ -50,5 +54,9 @@ export function DashboardPageMain({
   className,
   children,
 }: DashboardPageGenericProps) {
-  return <main className={cn(['p-6', className])}>{children}</main>
+  return (
+    <main className={cn(['flex-1 overflow-auto p-6', className])}>
+      {children}
+    </main>
+  )
 }

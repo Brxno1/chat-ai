@@ -9,7 +9,7 @@ declare module 'next-auth' {
       image?: string | null
       background?: string | null
       bio?: string | null
-      createdAt?: Date | null
+      createdAt: Date
       updatedAt?: Date | null
     }
   }
@@ -17,7 +17,7 @@ declare module 'next-auth' {
   interface User {
     background?: string | null
     bio?: string | null
-    createdAt?: Date | null
+    createdAt: Date
     updatedAt?: Date | null
   }
 
@@ -25,7 +25,7 @@ declare module 'next-auth' {
     id: string
     background?: string | null
     bio?: string | null
-    createdAt?: Date | null
+    createdAt: Date
     updatedAt?: Date | null
   }
 }
