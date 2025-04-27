@@ -12,15 +12,15 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
   switch (status) {
     case 'FINISHED':
       displayStatus = 'Finalizado'
-      statusColor = 'before:bg-green-500 hover:border-green-500'
+      statusColor = 'before:bg-green-500'
       break
     case 'PENDING':
       displayStatus = 'Pendente'
-      statusColor = 'before:bg-yellow-500 hover:border-yellow-500'
+      statusColor = 'before:bg-yellow-500'
       break
     case 'CANCELLED':
       displayStatus = 'Cancelado'
-      statusColor = 'before:bg-red-500 hover:border-red-500'
+      statusColor = 'before:bg-red-500'
       break
   }
 

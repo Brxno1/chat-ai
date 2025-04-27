@@ -2,6 +2,7 @@
 
 import { PropsWithChildren } from 'react'
 
+import { ContainerWrapper } from '@/components/container'
 import { useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/utils/utils'
 
@@ -13,17 +14,19 @@ export function ContainerLayout({ children }: PropsWithChildren) {
 
   return (
     <div
-      className={cn({
-        'grid h-screen grid-cols-[16rem_1fr]': open && !isMobile,
-        'grid h-screen grid-cols-[4rem_1fr] items-start justify-center':
-          !open && !isMobile,
+      className={cn('grid h-screen w-full', {
+        'grid-cols-[auto_1fr]': !isMobile,
+        'grid-cols-1': isMobile,
       })}
     >
-      <div className="sticky top-0 h-screen">
-        {!!open && <AppSidebar />}
-        {!open && <AppClosedSidebar />}
-      </div>
-      <main className="flex flex-col overflow-hidden">{children}</main>
+      {!isMobile && (
+        <ContainerWrapper className="sticky top-0 z-10 h-screen">
+          {open ? <AppSidebar /> : <AppClosedSidebar />}
+        </ContainerWrapper>
+      )}
+      <main className="flex flex-col overflow-auto bg-background">
+        {children}
+      </main>
     </div>
   )
 }

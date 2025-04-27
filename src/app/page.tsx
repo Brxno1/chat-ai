@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 
-import { Chat } from './dashboard/(main)/_components/_chat/chat-ai'
+import { Chat } from './dashboard/(main)/_components/ai/chat'
 
 export default async function Home() {
   const cookieStore = await cookies()

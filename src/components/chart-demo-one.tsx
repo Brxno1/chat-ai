@@ -17,6 +17,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
+
+import { NumberTicker } from './magicui/number-ticker'
 const chartData = [
   { month: 'January', desktop: 186, mobile: 80 },
   { month: 'February', desktop: 305, mobile: 200 },
@@ -39,7 +41,7 @@ const chartConfig = {
 
 export function ChartDemoOne() {
   return (
-    <Card>
+    <Card className="drop-shadow-md">
       <CardHeader>
         <CardTitle>Bar Chart - Multiple</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
@@ -48,34 +50,33 @@ export function ChartDemoOne() {
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
+            <YAxis
+              dataKey="desktop"
+              tickMargin={8}
+              axisLine={false}
+              tickFormatter={(value) => value.toLocaleString()}
+            />
             <XAxis
               dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={true}
+              tickMargin={8}
+              axisLine={false}
               tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <YAxis
-              tickLine={false}
-              tickMargin={10}
-              axisLine={true}
-              tickFormatter={(value) => value.toLocaleString()}
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
             />
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={3} />
+            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={3} />
           </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="mt-[-10px] flex-col items-start gap-1 text-sm text-muted-foreground">
-        <div className="flex gap-1 leading-none">
-          Trending up by 5.2% this month{' '}
-          <TrendingUp className="h-4 w-4 text-green-500" />
+        <div className="flex gap-1">
+          Trending up by <NumberTicker value={5.2} decimalPlaces={1} />% this
+          month <TrendingUp className="h-4 w-4 text-green-500" />
         </div>
-        <div className="text-[14px] leading-none text-muted-foreground/70">
+        <div className="text-[14px] text-xs leading-none text-muted-foreground/70">
           Showing total visitors for the last 6 months
         </div>
       </CardFooter>

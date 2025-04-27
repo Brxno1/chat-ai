@@ -1,7 +1,6 @@
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { render } from '@react-email/components'
 import NextAuth, { Session } from 'next-auth'
-import EmailProvider from 'next-auth/providers/email'
 import GoogleProvider from 'next-auth/providers/google'
 import nodemailer from 'nodemailer'
 import { JWT } from 'next-auth/jwt'
@@ -14,7 +13,8 @@ import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
 import { User } from 'next-auth'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
+  trustHost: true,
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
@@ -25,7 +25,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
       },
     }),
-    EmailProvider({
+    {
+      id: "email",
+      type: "email",
+      name: "Email",
       server: {
         host: env.MAILHOG_HOST,
         port: parseInt(env.MAILHOG_PORT),
@@ -33,6 +36,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       from: env.EMAIL_FROM,
       maxAge: 60 * 60 * 24, // 24 hours
+
       sendVerificationRequest: async ({
         identifier: email,
         url,
@@ -61,14 +65,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           await transporter.sendMail(options);
         } catch (error) {
-          if (error instanceof Error) {
-            console.error(`Erro ao enviar email: ${error.message}`);
-          } else {
-            console.error(`Erro ao enviar email: ${String(error)}`);
-          }
         }
       },
-    })
+    }
   ],
 
   pages: {
@@ -133,8 +132,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           bio: token.bio as string | null,
           image: token.image as string | null,
           background: token.background as string | null,
-          createdAt: token.createdAt as Date | null,
-          updatedAt: token.updatedAt as Date | null
+          createdAt: token.createdAt as Date,
+          updatedAt: token.updatedAt as Date
         }
       }
       return session

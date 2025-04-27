@@ -35,7 +35,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { queryClient } from '@/lib/query-client'
 
-import { TodoUpdateForm } from './todo-update.form'
+import { TodoUpdateForm } from './update.form'
 
 interface ActionsForTodoProps {
   todo: Todo

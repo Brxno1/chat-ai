@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_SIZE = 1 * 1024 * 1024 // 10MB
 
 export const editProfileSchema = z.object({
   name: z

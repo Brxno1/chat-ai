@@ -5,20 +5,32 @@ import * as React from 'react'
 
 import { useSessionStore } from './user-store'
 
-type UserSetterProps = {
-  session: ReturnType<typeof useSession>
+type UserProviderProps = {
+  children: React.ReactNode
 }
 
-export const UserStoreProvider = ({ session }: UserSetterProps) => {
+export const UserStoreProvider = ({ children }: UserProviderProps) => {
+  const session = useSession()
+
   const syncUser = useSessionStore((state) => state.syncUser)
   const syncStatus = useSessionStore((state) => state.syncStatus)
+  const syncLocale = useSessionStore((state) => state.syncLocale)
 
   React.useEffect(() => {
-    if (session.status === 'authenticated' && session.data?.user) {
-      syncUser(session.data.user)
-      syncStatus(session.status)
+    if (session?.status === 'authenticated' && session.data?.user) {
+      try {
+        syncUser(session.data.user)
+        syncStatus(session.status)
+        syncLocale(
+          typeof navigator !== 'undefined' ? navigator.language : 'pt-BR',
+        )
+      } catch (error) {
+        console.error('Erro ao sincronizar dados do usuário:', error)
+      }
+    } else if (session?.status === 'unauthenticated') {
+      syncStatus('unauthenticated')
     }
-  }, [session.status, session.data?.user, syncUser])
+  }, [session, syncUser, syncStatus, syncLocale])
 
-  return null
+  return <>{children}</>
 }

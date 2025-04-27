@@ -11,7 +11,9 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
+import { InteractiveHoverButton } from '@/components/magicui/interactive-hover-button'
 import { ShineBorder } from '@/components/magicui/shine-border'
+import { TypingAnimation } from '@/components/magicui/typing-animation'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -92,14 +94,12 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
           <CardHeader className="gap-1 text-center">
-            <CardTitle>
-              {name && (
-                <p>
-                  Bem-vindo de volta,{' '}
-                  <span className="text-purple-500">{name}</span>!
-                </p>
-              )}
-            </CardTitle>
+            {name && (
+              <CardTitle className="flex items-center justify-center">
+                <span className="mr-2">Bem-vindo de volta,</span>
+                <TypingAnimation>{name}</TypingAnimation>
+              </CardTitle>
+            )}
             <CardDescription>
               Entre com seu e-mail para receber seu link de acesso.
             </CardDescription>
@@ -120,9 +120,12 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
                       )}
                     >
                       <span
-                        className={cn('inline-flex bg-background px-2', {
-                          'text-red-500': fieldState.error,
-                        })}
+                        className={cn(
+                          'inline-flex bg-muted px-2 dark:bg-background',
+                          {
+                            'text-red-500': fieldState.error,
+                          },
+                        )}
                       >
                         Email
                       </span>
@@ -137,20 +140,19 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
             />
           </CardContent>
           <CardFooter className="mt-2 flex justify-center">
-            <Button
+            <InteractiveHoverButton
               type="submit"
-              className="w-full font-semibold"
               disabled={form.formState.isSubmitting || !form.formState.isValid}
             >
               {form.formState.isSubmitting ? (
                 <span className="flex items-center gap-2">
                   Enviando
-                  <LoaderCircle className="ml-1 animate-spin font-semibold" />
+                  <LoaderCircle className="ml-1 size-4 animate-spin font-semibold" />
                 </span>
               ) : (
-                <span className="flex items-center gap-4">Enviar link</span>
+                <>Enviar link</>
               )}
-            </Button>
+            </InteractiveHoverButton>
           </CardFooter>
         </form>
         <div className="my-4 flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">

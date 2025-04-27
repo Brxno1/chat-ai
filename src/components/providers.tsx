@@ -6,13 +6,13 @@ import { useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
 
 import { queryClient } from '@/lib/query-client'
+import { UserStoreProvider } from '@/store/user-provider'
 
-import { SessionStoreProvider } from './session-store-provider'
 import { ThemeProvider } from './theme/theme-provider'
 import { SidebarProvider } from './ui/sidebar'
 import { TooltipProvider } from './ui/tooltip'
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: React.ReactNode }) {
   const [sidebarState, setSidebarState] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <NextAuthSessionProvider>
             <TooltipProvider>
-              <SessionStoreProvider>{children}</SessionStoreProvider>
+              <UserStoreProvider>{children}</UserStoreProvider>
             </TooltipProvider>
           </NextAuthSessionProvider>
         </QueryClientProvider>
