@@ -1,7 +1,7 @@
 import { format, formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-export function formatDate(date: Date): string {
+export function formatDataToLocale(date: Date): string {
   return format(date, 'dd/MM/yyyy', { locale: ptBR })
 }
 
@@ -19,5 +19,5 @@ export function formatFileSize(bytes: number): string {
   const size = bytes / Math.pow(k, i)
   const formattedSize = size >= 10 ? size.toFixed(0) : size.toFixed(1)
 
-  return `${formattedSize}${units[i]}`
+  return `${formattedSize} ${units[i]}`
 }

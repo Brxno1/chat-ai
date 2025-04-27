@@ -6,9 +6,12 @@ import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useImageUpload } from '@/hooks/use-image-upload'
-
-type FileFieldName = 'avatar' | 'background'
 
 interface FileUploadProps {
   Background?: string | null
@@ -16,15 +19,12 @@ interface FileUploadProps {
     name,
     file,
   }: {
-    name: FileFieldName
+    name: 'background'
     file: File | null
   }) => void
 }
 
-export function ProfileBackground({
-  Background,
-  onFileChange,
-}: FileUploadProps) {
+function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
   const {
     file,
     previewUrl,
@@ -40,7 +40,7 @@ export function ProfileBackground({
 
   const currentBackground = previewUrl || Background
 
-  const handleImageRemove = () => {
+  const handleRemoveImage = () => {
     handleRemove()
     onFileChange({ name: 'background', file: null })
   }
@@ -53,25 +53,21 @@ export function ProfileBackground({
   return (
     <ContainerWrapper className="h-32">
       <ContainerWrapper className="group relative size-full items-center justify-center overflow-hidden border-b">
-        {currentBackground ? (
+        {currentBackground && (
           <Image
-            className="size-full object-cover"
             src={currentBackground}
-            alt={''}
+            className="size-full object-cover"
             width={512}
             height={96}
+            alt="Imagem de fundo"
           />
-        ) : (
-          <Skeleton className="size-full" />
         )}
         <ContainerWrapper className="absolute inset-0 flex items-center justify-center gap-2">
           <Button
             type="button"
             className="z-50 hidden size-10 cursor-pointer items-center justify-center rounded-full bg-muted text-primary outline-none transition-[color,box-shadow] hover:bg-muted/90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 group-hover:flex"
             onClick={handleThumbnailClick}
-            aria-label={
-              currentBackground ? 'Alterar imagem' : 'Carregar imagem'
-            }
+            aria-label={currentBackground ? 'Alterar fundo' : 'Carregar fundo'}
           >
             <ImagePlusIcon size={16} aria-hidden="true" />
           </Button>
@@ -79,8 +75,8 @@ export function ProfileBackground({
             <Button
               type="button"
               className="z-50 hidden size-10 cursor-pointer items-center justify-center rounded-full bg-muted text-primary outline-none transition-[color,box-shadow] hover:bg-muted/90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 group-hover:flex"
-              onClick={handleImageRemove}
-              aria-label="Remover imagem"
+              onClick={handleRemoveImage}
+              aria-label="Remover fundo"
             >
               <XIcon size={16} aria-hidden="true" />
             </Button>
@@ -98,3 +94,22 @@ export function ProfileBackground({
     </ContainerWrapper>
   )
 }
+
+function BackgroundProfileFallback() {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="h-32">
+          <div className="group relative size-full items-center justify-center overflow-hidden border-b">
+            <Skeleton className="size-full" />
+          </div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent align="center">
+        <p className="text-xs font-semibold">Carregando imagem de fundo...</p>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+export { BackgroundProfile, BackgroundProfileFallback }

@@ -1,9 +1,10 @@
 import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
 import Image from 'next/image'
+import { User } from 'next-auth'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   HoverCard,
   HoverCardContent,
@@ -11,26 +12,16 @@ import {
 } from '@/components/ui/hover-card'
 import { Input } from '@/components/ui/input'
 import { useImageUpload } from '@/hooks/use-image-upload'
-import { formatDate, formatFileSize } from '@/utils/format'
+import { formatDataToLocale, formatFileSize } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'
 
-type FileFieldName = 'avatar' | 'background'
-
 interface AvatarProps {
-  user: {
-    image: string | null | undefined
-    name: string
-  }
-  onFileChange: ({
-    name,
-    file,
-  }: {
-    name: FileFieldName
-    file: File | null
-  }) => void
+  user: User
+  error?: string
+  onFileChange: ({ name, file }: { name: 'avatar'; file: File | null }) => void
 }
 
-export function ProfileAvatar({ user, onFileChange }: AvatarProps) {
+function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
   const {
     file,
     fileName,
@@ -48,15 +39,15 @@ export function ProfileAvatar({ user, onFileChange }: AvatarProps) {
 
   const currentImage = previewUrl || user.image
 
-  const handleImageRemove = () => {
+  const handleRemoveImage = () => {
     handleRemove()
     onFileChange({ name: 'avatar', file: null })
   }
 
   return (
     <ContainerWrapper className="-mt-10 flex items-center px-6">
-      <ContainerWrapper className="shadow-xs group relative flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
-        {currentImage ? (
+      <div className="shadow-xs group relative flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
+        {currentImage && (
           <HoverCard>
             <HoverCardTrigger asChild>
               <Image
@@ -68,7 +59,7 @@ export function ProfileAvatar({ user, onFileChange }: AvatarProps) {
               />
             </HoverCardTrigger>
             {previewUrl && (
-              <HoverCardContent className="flex flex-col gap-1">
+              <HoverCardContent className="flex w-[13rem] flex-col items-start gap-1">
                 <p className="text-sm">
                   Nome:{' '}
                   <span className="text-muted-foreground">
@@ -91,19 +82,12 @@ export function ProfileAvatar({ user, onFileChange }: AvatarProps) {
                 <p className="text-sm">
                   Modificado em:{' '}
                   <span className="text-muted-foreground">
-                    {formatDate(new Date(file!.lastModified))}
+                    {formatDataToLocale(new Date(file!.lastModified))}
                   </span>
                 </p>
               </HoverCardContent>
             )}
           </HoverCard>
-        ) : (
-          <Avatar className="size-full">
-            <AvatarImage src={''} alt="Imagem de perfil" />
-            <AvatarFallback className="rounded-sm font-semibold">
-              {user.name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
         )}
         <button
           type="button"
@@ -128,17 +112,36 @@ export function ProfileAvatar({ user, onFileChange }: AvatarProps) {
             onFileChange({ name: 'avatar', file: ev.target.files?.[0] || null })
           }}
         />
-      </ContainerWrapper>
+      </div>
       {previewUrl && (
         <button
           type="button"
           className="mt-10 flex size-6 cursor-pointer items-center justify-center rounded-full bg-muted text-primary outline-none transition-all hover:border hover:border-border focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          onClick={handleImageRemove}
+          onClick={handleRemoveImage}
           aria-label="Remover imagem"
         >
           <XIcon size={16} aria-hidden="true" />
         </button>
       )}
+      {error && (
+        <span className="ml-auto mt-10 text-xs text-red-600">{error}</span>
+      )}
     </ContainerWrapper>
   )
 }
+
+function AvatarProfileFallback({ user }: { user: User }) {
+  return (
+    <div className="-mt-10 flex items-center px-6">
+      <div className="shadow-xs flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
+        <Avatar className="size-20">
+          <AvatarFallback className="rounded-sm font-semibold">
+            {user.name!.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      </div>
+    </div>
+  )
+}
+
+export { AvatarProfile, AvatarProfileFallback }

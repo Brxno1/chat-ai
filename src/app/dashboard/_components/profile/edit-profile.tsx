@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Edit, LoaderCircle } from 'lucide-react'
 import { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
-import React from 'react'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -34,11 +34,13 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
 import { editProfileSchema } from '@/schemas'
-import { sleep } from '@/utils/sleep'
 import { cn } from '@/utils/utils'
 
-import { ProfileAvatar } from './profile-avatar'
-import { ProfileBackground } from './profile-background'
+import {
+  BackgroundProfile,
+  BackgroundProfileFallback,
+} from './avatar-background'
+import { AvatarProfile, AvatarProfileFallback } from './avatar-profile'
 
 type FileChange = {
   name: 'avatar' | 'background'
@@ -46,10 +48,10 @@ type FileChange = {
 }
 
 export default function EditProfile({ user }: { user: Session['user'] }) {
-  const { update } = useSession()
+  const id = React.useId()
   const [open, setOpen] = React.useState(false)
 
-  const id = React.useId()
+  const { update } = useSession()
 
   const form = useForm<z.infer<typeof editProfileSchema>>({
     resolver: zodResolver(editProfileSchema),
@@ -64,18 +66,11 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
 
   const { mutateAsync: updateProfileFn, isPending: isUpdating } = useMutation({
     mutationFn: updateProfile,
-    onSuccess: async ({ name, bio, image, background }) => {
+    onSuccess: async (data) => {
       await update({
         trigger: 'update',
-        data: {
-          name,
-          bio,
-          image,
-          background,
-        },
+        data,
       })
-
-      await sleep(1000)
       toast('Perfil atualizado com sucesso!', {
         duration: 3000,
         position: 'top-center',
@@ -108,27 +103,6 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
     initialValue: user.bio || '',
   })
 
-  React.useEffect(() => {
-    const { avatar, background } = form.formState.errors
-
-    if (background && avatar) {
-      toast.error(`${background.message} | ${avatar.message}`, {
-        duration: 2000,
-        position: 'top-center',
-      })
-    } else if (background) {
-      toast.error(background.message, {
-        duration: 2000,
-        position: 'top-center',
-      })
-    } else if (avatar) {
-      toast.error(avatar.message, {
-        duration: 2000,
-        position: 'top-center',
-      })
-    }
-  }, [form.formState.errors])
-
   const handleUpdateProfile = async ({
     name,
     bio,
@@ -152,44 +126,55 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        setOpen(!open)
+        form.reset()
+      }}
+    >
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" size="icon">
           <Edit className={cn('h-3 w-3 cursor-pointer')} />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="flex flex-col gap-0 overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3.5"
+        className="flex max-h-[75vh] flex-col gap-0 overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3.5"
         onPointerDownOutside={(ev) => {
           ev.preventDefault()
         }}
       >
-        <DialogHeader className="contents space-y-0 text-left">
-          <DialogTitle className="border-b px-6 py-4 text-base">
-            Editar perfil
-          </DialogTitle>
+        <DialogHeader className="flex flex-row items-center justify-between gap-2 p-5">
+          <DialogTitle>Editar perfil</DialogTitle>
+          {form.formState.errors.background && (
+            <span className="text-xs text-red-600">
+              {form.formState.errors.background?.message}
+            </span>
+          )}
+          <DialogDescription className="sr-only">
+            Faça alterações no seu perfil aqui. Você pode alterar seu nome,
+            fotos e biografia.
+          </DialogDescription>
         </DialogHeader>
-        <DialogDescription className="sr-only">
-          Faça alterações no seu perfil aqui. Você pode alterar seu nome, fotos
-          e biografia.
-        </DialogDescription>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleUpdateProfile)}
             id="update-profile-form"
           >
-            <ContainerWrapper className="overflow-y-auto">
-              <ProfileBackground
-                Background={user.background}
-                onFileChange={onFileChange}
-              />
-              <ProfileAvatar
-                user={{
-                  image: user.image,
-                  name: user.name,
-                }}
-                onFileChange={onFileChange}
-              />
+            <ContainerWrapper>
+              <React.Suspense fallback={<BackgroundProfileFallback />}>
+                <BackgroundProfile
+                  Background={user.background}
+                  onFileChange={onFileChange}
+                />
+              </React.Suspense>
+              <React.Suspense fallback={<AvatarProfileFallback user={user} />}>
+                <AvatarProfile
+                  onFileChange={onFileChange}
+                  user={user}
+                  error={form.formState.errors.avatar?.message}
+                />
+              </React.Suspense>
               <div className="px-6 pb-6 pt-4">
                 <FormField
                   name="name"
@@ -206,9 +191,12 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
                           )}
                         >
                           <span
-                            className={cn('inline-flex bg-background px-2', {
-                              'text-red-500': fieldState.error,
-                            })}
+                            className={cn(
+                              'inline-flex bg-muted px-2 dark:bg-background',
+                              {
+                                'text-red-500': fieldState.error,
+                              },
+                            )}
                           >
                             Nome
                           </span>
@@ -226,29 +214,33 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
                   control={form.control}
                   render={({ field: { onChange, ...rest }, fieldState }) => (
                     <FormItem>
-                      <div className="group">
+                      <div className="group space-y-2">
                         <FormLabel
-                          className={cn('', {
+                          className={cn({
                             'text-red-500': fieldState.error,
                           })}
                         >
                           <span
-                            className={cn('inline-flex bg-background px-2', {
-                              'text-red-500': fieldState.error,
-                            })}
+                            className={cn(
+                              'inline-flex bg-muted px-2 dark:bg-background',
+                              {
+                                'text-red-500': fieldState.error,
+                              },
+                            )}
                           >
                             Biografia
                           </span>
                         </FormLabel>
                         <FormControl>
                           <Textarea
+                            className="max-h-36"
                             placeholder="Escreva uma biografia para o seu perfil"
                             aria-describedby={`${id}-description`}
+                            {...rest}
                             onChange={(ev) => {
                               onChange(ev)
                               handleChange(ev)
                             }}
-                            {...rest}
                           />
                         </FormControl>
                       </div>
@@ -281,7 +273,11 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
           <Button
             type="submit"
             className="min-w-[150px] font-semibold"
-            disabled={form.formState.isSubmitting || isUpdating}
+            disabled={
+              form.formState.isSubmitting ||
+              isUpdating ||
+              !form.formState.isValid
+            }
             form="update-profile-form"
           >
             {form.formState.isSubmitting ? (

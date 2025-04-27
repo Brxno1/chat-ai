@@ -184,17 +184,16 @@ export function Chat({
           onChange={handleInputChange}
           ref={inputRef}
         />
-        {status === 'streaming' && (
+        {status === 'streaming' ? (
           <Button
             type="button"
             size={'icon'}
-            onClick={stop}
-            className="flex items-center justify-center rounded-full"
+            onClick={() => stop()}
+            className="mx-auto flex items-center justify-center rounded-full drop-shadow-md"
           >
             <CircleStop className="h-4 w-4" />
           </Button>
-        )}
-        {status !== 'streaming' && (
+        ) : (
           <Button
             className="mx-auto flex items-center justify-center rounded-full bg-muted text-muted-foreground drop-shadow-md"
             type="submit"

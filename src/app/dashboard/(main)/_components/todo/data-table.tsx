@@ -16,10 +16,11 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table'
-import { ArrowUpDown, ChevronDown, RefreshCcw, X } from 'lucide-react'
+import { ArrowUpDown, ChevronDown, MoreHorizontal, RefreshCcw, X } from 'lucide-react'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
+import { NumberTicker } from '@/components/magicui/number-ticker'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -41,7 +42,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { formatDistanceToNow } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
-import { ActionsForTodo } from './actions-for-todo'
+import { ActionsForTodo } from './actions'
 import { BadgeStatus } from './badge-status'
 
 export const columns: ColumnDef<Todo>[] = [
@@ -219,7 +220,11 @@ function SelectionText({ table }: SelectionTextProps) {
     <p className="flex items-center gap-1 text-muted-foreground">
       <strong className="text-foreground">{selectedCount}</strong>
       de
-      <strong className="text-foreground">{totalCount}</strong>
+      <strong className="text-foreground">
+        <NumberTicker
+          value={totalCount}
+        />
+      </strong>
       {isSingular ? 'Todo selecionado.' : 'Todos selecionados.'}
     </p>
   )
@@ -230,7 +235,7 @@ interface TodoDataTableProps {
   refreshTodos: () => Promise<Todo[]>
 }
 
-export function TodoDataTable({ initialData, refreshTodos }: TodoDataTableProps) {
+function TodoDataTable({ initialData, refreshTodos }: TodoDataTableProps) {
   const containerRef = React.useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
 
   const { data: todos, isFetching, refetch } = useQuery({
@@ -286,7 +291,7 @@ export function TodoDataTable({ initialData, refreshTodos }: TodoDataTableProps)
   }, [scrollToBottom])
 
   return (
-    <ContainerWrapper className="rounded-lg border border-border px-3 py-4" ref={containerRef}>
+    <ContainerWrapper className="rounded-lg border border-border bg-muted dark:bg-background drop-shadow-md p-3" ref={containerRef}>
       {todos.length > 0 && (
         <ContainerWrapper className="flex items-center py-4">
           <div className="relative flex items-center justify-center max-w-sm gap-2">
@@ -352,17 +357,17 @@ export function TodoDataTable({ initialData, refreshTodos }: TodoDataTableProps)
             ))}
           </TableHeader>
           <TableBody>
-            {isFetching ? (              
+            {isFetching ? (
               Array.from({ length: todos.length > 10 ? 10 : todos.length }).map((_, rowIndex) => (
                 <TableRow key={`skeleton-row-${rowIndex}`} className='h-12'>
-                {table.getHeaderGroups()[0].headers.map((_, cellIndex) => (
-                  <TableCell key={`skeleton-cell-${cellIndex}`} className={"text-center"}>
+                  {table.getHeaderGroups()[0].headers.map((_, cellIndex) => (
+                    <TableCell key={`skeleton-cell-${cellIndex}`} className={"text-center"}>
                       <Skeleton className={cn(skeletonSizes[cellIndex % skeletonSizes.length])} />
                     </TableCell>
                   ))}
-                  </TableRow>
-                ))
-              ) : (
+                </TableRow>
+              ))
+            ) : (
               table
                 .getRowModel()
                 .rows.map((row) => (
@@ -417,4 +422,91 @@ export function TodoDataTable({ initialData, refreshTodos }: TodoDataTableProps)
       </div>
     </ContainerWrapper>
   )
+}
+
+function TodoDataTableFallback() {
+  const headers = [
+    { icon: null, text: '', component: <Checkbox disabled /> },
+    { icon: null, text: 'Status', component: null },
+    { icon: <ArrowUpDown />, text: 'Título', component: null },
+    { icon: <ArrowUpDown />, text: 'Criado em', component: null },
+    { icon: <ArrowUpDown />, text: 'Atualizado em', component: null },
+    { icon: null, text: 'Ações', component: null }
+  ]
+
+  return (
+    <ContainerWrapper className="rounded-lg border border-border bg-muted dark:bg-background drop-shadow-md p-3">
+      <ContainerWrapper className="flex items-center py-4">
+        <div className="relative flex items-center justify-center max-w-sm gap-2">
+          <Input placeholder="Filtrar Todos..." disabled className="w-full" />
+          <Button variant="outline" className="animate-pulse cursor-not-allowed">
+            <RefreshCcw size={16} className="animate-spin animate-duration-1000" /> Atualizando...
+          </Button>
+        </div>
+        <Button variant="outline" className="ml-auto" disabled>
+          Colunas <ChevronDown />
+        </Button>
+      </ContainerWrapper>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {headers.map((header, index) => (
+              <TableHead key={index} className="text-center">
+                {index === 0 ? (
+                  <div className="flex justify-center">
+                    <Checkbox disabled />
+                  </div>
+                ) : (
+                  <Button variant="ghost" className="hover:bg-transparent cursor-default" disabled>
+                    {header.text}
+                    {header.icon}
+                  </Button>
+                )}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 10 }).map((_, rowIndex) => (
+            <TableRow key={rowIndex} className="h-12">
+              <TableCell className="text-center">
+                <Checkbox disabled />
+              </TableCell>
+              <TableCell className="text-center">
+                <Skeleton className="h-5 w-28 mx-auto" />
+              </TableCell>
+              <TableCell className="text-center">
+                <Skeleton className="h-5 w-28 mx-auto" />
+              </TableCell>
+              <TableCell className="text-center">
+                <Skeleton className="h-5 w-28 mx-auto" />
+              </TableCell>
+              <TableCell className="text-center">
+                <Skeleton className="h-5 w-28 mx-auto" />
+              </TableCell>
+              <TableCell className="text-center">
+                <MoreHorizontal className="h-5 w-5 mx-auto text-muted-foreground" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <ContainerWrapper className="flex-1">
+          <Skeleton className="h-5 w-40" />
+        </ContainerWrapper>
+        <div className="space-x-2">
+          <Button variant="outline" size="sm" disabled>Anterior</Button>
+          <Button variant="outline" size="sm" disabled>Próximo</Button>
+        </div>
+      </div>
+    </ContainerWrapper>
+  )
+}
+
+export {
+  TodoDataTable,
+  TodoDataTableFallback
 }

@@ -5,6 +5,7 @@ import { Session } from 'next-auth'
 import { supabase } from '@/lib/supabase'
 import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
+import { processImage } from '@/utils/process-image'
 
 type LoginData = {
   name: string
@@ -30,16 +31,22 @@ export async function updateProfile(
 
     if (data.avatar) {
       const timestamp = new Date().getTime()
+      const originalExtension = data.avatar.name
+        .substring(data.avatar.name.lastIndexOf('.'))
+        .toLowerCase()
 
-      const extension = data.avatar.name.substring(
-        data.avatar.name.lastIndexOf('.'),
-      )
-      const avatarPath = `users/${user.id}/avatar/${timestamp}${extension}`
+      const isGif = originalExtension === '.gif'
+      const contentType = isGif ? 'image/gif' : 'image/webp'
+
+      const fileExtension = isGif ? '.gif' : '.webp'
+      const avatarPath = `users/${user.id}/avatar/${timestamp}${fileExtension}`
+
+      const processedImageBuffer = await processImage(data.avatar, isGif)
 
       const { error } = await supabase.storage
         .from('avatars')
-        .upload(avatarPath, data.avatar, {
-          contentType: data.avatar.type || 'image/png',
+        .upload(avatarPath, processedImageBuffer, {
+          contentType,
         })
 
       if (error) {
@@ -55,16 +62,21 @@ export async function updateProfile(
 
     if (data.background) {
       const timestamp = new Date().getTime()
-      const extension = data.background.name.substring(
-        data.background.name.lastIndexOf('.'),
-      )
+      const originalExtension = data.background.name
+        .substring(data.background.name.lastIndexOf('.'))
+        .toLowerCase()
 
-      const backgroundPath = `users/${user.id}/background/${timestamp}${extension}`
+      const isGif = originalExtension === '.gif'
+      const fileExtension = isGif ? '.gif' : '.webp'
+      const backgroundPath = `users/${user.id}/background/${timestamp}${fileExtension}`
+      const contentType = isGif ? 'image/gif' : 'image/webp'
+
+      const processedImageBuffer = await processImage(data.background, isGif)
 
       const { error } = await supabase.storage
         .from('avatars')
-        .upload(backgroundPath, data.background, {
-          contentType: data.background.type || 'image/png',
+        .upload(backgroundPath, processedImageBuffer, {
+          contentType,
         })
 
       if (error) {
@@ -101,6 +113,7 @@ export async function updateProfile(
       user,
     }
   } catch (error) {
+    console.error('Error in updateProfile:', error)
     return {
       error: new Error('Internal Server Error'),
       user,

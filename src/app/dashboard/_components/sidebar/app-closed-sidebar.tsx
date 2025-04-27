@@ -9,11 +9,12 @@ import {
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import { Suspense } from 'react'
 import { toast } from 'sonner'
 
 import EditProfile from '@/app/dashboard/_components/profile/edit-profile'
 import { ContainerWrapper } from '@/components/container'
-import { Sidebar, SidebarNavLink } from '@/components/dashboard/sidebar'
+import { SidebarNavLink } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -25,7 +26,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useSidebar } from '@/components/ui/sidebar'
+import { Separator } from '@/components/ui/separator'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  useSidebar,
+} from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Tooltip,
@@ -34,7 +42,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useSessionStore } from '@/store/user-store'
 
-export function UserDropdown() {
+function UserDropdown() {
   const user = useSessionStore((state) => state.user)
 
   const handleSignOut = () => {
@@ -52,25 +60,17 @@ export function UserDropdown() {
     }
   }
 
-  if (!user) {
-    return (
-      <ContainerWrapper className="flex w-full items-center justify-center px-2">
-        <Skeleton className="h-8 w-8 rounded-sm" />
-      </ContainerWrapper>
-    )
-  }
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="!b-0 relative ml-4 flex w-full items-center justify-between space-x-2 rounded-full !px-0 hover:bg-transparent"
+          className="!b-0 relative ml-2 flex w-full items-center justify-between rounded-full !px-0 hover:bg-transparent"
         >
-          <Avatar className="h-8 w-8 cursor-grab rounded-sm">
-            <AvatarImage src={user.image || ''} alt="user avatar" />
+          <Avatar className="size-7 cursor-grab rounded-sm">
+            <AvatarImage src={user?.image || ''} alt="user avatar" />
             <AvatarFallback className="rounded-none">
-              {user.name?.slice(0, 2).toUpperCase()}
+              {user?.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -78,38 +78,49 @@ export function UserDropdown() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
           <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{user?.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              {user?.email}
             </p>
           </div>
-          <EditProfile user={user} />
+          <EditProfile user={user!} />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem className="flex cursor-pointer items-center justify-between">
             Configurações
-            <Settings2 className="ml-auto h-4 w-4" />
+            <Settings2 className="mr-2 size-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem className="flex cursor-pointer items-center justify-between">
             Upgrade
-            <Rocket className="ml-auto h-4 w-4" />
+            <Rocket className="mr-2 size-4" />
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
-          className="cursor-pointer hover:hover:bg-destructive hover:hover:text-destructive-foreground"
+          className="flex cursor-pointer items-center justify-between hover:hover:bg-destructive hover:hover:text-destructive-foreground"
         >
           Sair
-          <LogOut className="ml-auto h-4 w-4" />
+          <LogOut className="mr-2 size-4" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-export function AppClosedSidebar() {
+function UserDropdownClosedSidebarSkeleton() {
+  return (
+    <Button
+      variant="ghost"
+      className="relative ml-2 flex w-full cursor-default items-center justify-between rounded-full !px-0 hover:bg-transparent"
+    >
+      <Skeleton className="size-7 rounded-sm" />
+    </Button>
+  )
+}
+
+function AppClosedSidebar() {
   const { toggleSidebar } = useSidebar()
 
   const pathname = usePathname()
@@ -125,38 +136,49 @@ export function AppClosedSidebar() {
     })
   }
   return (
-    <Sidebar className="flex flex-col items-center justify-center border-r border-border">
-      <header className="mb-auto flex w-full items-center justify-center border-b border-border py-3">
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="flex w-full items-center justify-center border-b border-border bg-muted py-4 dark:bg-background">
         <Logo />
-      </header>
-      <main className="flex h-full flex-grow flex-col">
-        <nav className="flex flex-grow flex-col gap-2 !p-0">
-          <SidebarNavLink href="/dashboard" active={isActiveLink('/dashboard')}>
-            <LayoutDashboard className="h-6 w-6" />
+      </SidebarHeader>
+      <SidebarContent className="flex flex-grow flex-col bg-muted dark:bg-background">
+        <nav className="flex flex-grow flex-col gap-2 !py-4">
+          <SidebarNavLink
+            href="/dashboard"
+            active={isActiveLink('/dashboard')}
+            className="justify-center"
+          >
+            <LayoutDashboard className="size-5" />
           </SidebarNavLink>
           <SidebarNavLink
             href="/dashboard/settings"
             active={isActiveLink('/dashboard/settings')}
+            className="justify-center"
           >
-            <Settings2 className="h-6 w-6" />
+            <Settings2 className="size-5" />
           </SidebarNavLink>
         </nav>
-        <nav className="mt-auto flex flex-col items-center justify-center space-y-3">
-          <SidebarNavLink href="/" active={isActiveLink('/')}>
-            <House className="h-6 w-6" />
+        <nav className="mt-auto flex w-full flex-col items-center justify-center space-y-3">
+          <SidebarNavLink
+            href="/"
+            active={isActiveLink('/')}
+            className="justify-center"
+          >
+            <House className="size-5" />
           </SidebarNavLink>
           <SidebarNavLink href="/auth" onClick={handleClickToNavigate}>
-            <Navigation className="h-6 w-6" />
+            <Navigation className="size-5" />
           </SidebarNavLink>
-          <Tooltip>
-            <ContainerWrapper className="flex w-full items-center justify-center border-t border-border">
+          <Tooltip disableHoverableContent>
+            <ContainerWrapper className="flex w-full items-center justify-center border-t border-border py-2">
               <TooltipTrigger asChild>
-                <button
-                  className="mt-4 flex cursor-pointer items-center justify-center"
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="flex cursor-pointer items-center justify-center"
                   onClick={() => toggleSidebar()}
                 >
-                  <PanelLeftOpen className="h-6 w-6" />
-                </button>
+                  <PanelLeftOpen className="size-5" />
+                </Button>
               </TooltipTrigger>
               <TooltipContent align="end" className="text-sm">
                 <span>Abrir</span>
@@ -164,10 +186,15 @@ export function AppClosedSidebar() {
             </ContainerWrapper>
           </Tooltip>
         </nav>
-      </main>
-      <footer className="flex w-full items-center justify-center border-t border-border py-4">
-        <UserDropdown />
-      </footer>
+      </SidebarContent>
+      <Separator className="w-full" />
+      <SidebarFooter className="flex w-full items-center justify-center bg-muted p-2 dark:bg-background">
+        <Suspense fallback={<UserDropdownClosedSidebarSkeleton />}>
+          <UserDropdown />
+        </Suspense>
+      </SidebarFooter>
     </Sidebar>
   )
 }
+
+export { AppClosedSidebar }

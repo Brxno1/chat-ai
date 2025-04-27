@@ -23,7 +23,7 @@ export function FormAuth() {
   }
 
   return (
-    <Tabs defaultValue={mode} className="w-[400px]">
+    <Tabs defaultValue={mode} className="w-[400px] rounded-sm pt-2">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="account" ref={triggerToAccountRef}>
           Criar conta

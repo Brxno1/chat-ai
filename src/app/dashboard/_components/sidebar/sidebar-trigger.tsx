@@ -2,6 +2,7 @@
 
 import { PanelLeftClose } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
 import {
   Tooltip,
@@ -10,18 +11,20 @@ import {
 } from '@/components/ui/tooltip'
 
 export function SidebarTriggerComponent() {
-  const { state, toggleSidebar } = useSidebar()
+  const { open, toggleSidebar } = useSidebar()
 
-  if (state === 'expanded') {
+  if (open) {
     return (
-      <Tooltip>
+      <Tooltip disableHoverableContent>
         <TooltipTrigger asChild>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             className="ml-2 flex cursor-pointer items-center justify-center"
             onClick={() => toggleSidebar()}
           >
-            <PanelLeftClose className="h-6 w-6" />
-          </button>
+            <PanelLeftClose className="size-5" />
+          </Button>
         </TooltipTrigger>
         <TooltipContent align="end" className="text-sm">
           <p>Fechar</p>

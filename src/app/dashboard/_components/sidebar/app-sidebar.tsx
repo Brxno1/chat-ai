@@ -2,31 +2,28 @@
 
 import { House, LayoutDashboard, Navigation, Settings2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import { Suspense } from 'react'
 import { toast } from 'sonner'
 
 import {
   SidebarHeaderTitle,
-  SidebarNavHeader,
-  SidebarNavHeaderTitle,
   SidebarNavLink,
-  SidebarNavMain,
 } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
-import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
 import { SidebarTriggerComponent } from './sidebar-trigger'
-import { UserDropdown } from './user-dropdown'
+import { UserDropdown, UserDropdownSkeleton } from './user-dropdown'
 
 export function AppSidebar() {
   const pathname = usePathname()
-
   const isActive = (path: string) => {
     return pathname === path
   }
@@ -39,52 +36,46 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent className="bg-background">
-        <SidebarHeader className="flex w-full border-b border-border py-3">
-          <SidebarHeaderTitle className="flex items-center justify-between">
-            <Logo className="ml-2" />
-            <SidebarTriggerComponent />
-          </SidebarHeaderTitle>
-        </SidebarHeader>
-        <SidebarGroup className="flex flex-grow flex-col !p-0">
-          <SidebarGroup className="p-2">
-            <SidebarNavMain>
-              <SidebarNavLink href="/dashboard" active={isActive('/dashboard')}>
-                <LayoutDashboard className="mr-3 size-4" />
-                Dashboard
-              </SidebarNavLink>
-              <SidebarNavLink
-                href="/dashboard/settings"
-                active={isActive('/dashboard/settings')}
-              >
-                <Settings2 className="mr-3 size-4" />
-                Configurações
-              </SidebarNavLink>
-            </SidebarNavMain>
-          </SidebarGroup>
+    <Sidebar>
+      <SidebarHeader className="w-full rounded-sm border-b border-border bg-muted dark:bg-background">
+        <SidebarHeaderTitle className="flex w-full items-center justify-between py-1">
+          <Logo className="ml-2" />
+          <SidebarTriggerComponent />
+        </SidebarHeaderTitle>
+      </SidebarHeader>
+      <SidebarContent className="flex flex-grow flex-col bg-muted !p-0 dark:bg-background">
+        <SidebarGroup className="space-y-2">
+          <SidebarNavLink href="/dashboard" active={isActive('/dashboard')}>
+            <LayoutDashboard className="mr-3 size-4" />
+            Dashboard
+          </SidebarNavLink>
+          <SidebarNavLink
+            href="/dashboard/settings"
+            active={isActive('/dashboard/settings')}
+          >
+            <Settings2 className="mr-3 size-4" />
+            Configurações
+          </SidebarNavLink>
+        </SidebarGroup>
 
-          <SidebarGroup className="mb-3 mt-auto p-2">
-            <SidebarNavHeader>
-              <SidebarNavHeaderTitle>Links extras</SidebarNavHeaderTitle>
-            </SidebarNavHeader>
-            <SidebarNavMain>
-              <SidebarNavLink href="/" active={isActive('/')}>
-                <House className="mr-3 size-4" />
-                Home
-              </SidebarNavLink>
-              <SidebarNavLink href="/auth" onClick={handleClickToNavigate}>
-                <Navigation className="mr-3 size-4" />
-                Site
-              </SidebarNavLink>
-            </SidebarNavMain>
-          </SidebarGroup>
-          <Separator className="w-full" />
-          <SidebarFooter className="py-4">
-            <UserDropdown />
-          </SidebarFooter>
+        <SidebarGroup className="mb-3 mt-auto">
+          <SidebarMenuItem className="space-y-2">
+            <SidebarNavLink href="/" active={isActive('/')}>
+              <House className="mr-3 size-4" />
+              Home
+            </SidebarNavLink>
+            <SidebarNavLink href="/auth" onClick={handleClickToNavigate}>
+              <Navigation className="mr-3 size-4" />
+              Site
+            </SidebarNavLink>
+          </SidebarMenuItem>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="flex w-full items-center justify-center rounded-sm border-t border-border bg-muted py-2 dark:bg-background">
+        <Suspense fallback={<UserDropdownSkeleton />}>
+          <UserDropdown />
+        </Suspense>
+      </SidebarFooter>
     </Sidebar>
   )
 }

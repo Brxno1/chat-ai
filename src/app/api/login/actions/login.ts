@@ -5,6 +5,7 @@ import { User } from '@prisma/client'
 import { supabase } from '@/lib/supabase'
 import { signIn } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
+import { processImage } from '@/utils/process-image'
 
 import { getUserByEmail } from './get-user-by-email'
 
@@ -38,19 +39,24 @@ export async function loginWithMagicLink(
       },
     })
 
-    if (data.avatar && data.avatar.size > 0) {
-      const userId = createdUser.id
+    if (data.avatar) {
       const timestamp = new Date().getTime()
+      const originalExtension = data.avatar.name
+        .substring(data.avatar.name.lastIndexOf('.'))
+        .toLowerCase()
 
-      const extension = data.avatar.name.substring(
-        data.avatar.name.lastIndexOf('.'),
-      )
-      const filePath = `users/${userId}/avatar/${timestamp}${extension}`
+      const isGif = originalExtension === '.gif'
+      const contentType = isGif ? 'image/gif' : 'image/webp'
+
+      const fileExtension = isGif ? '.gif' : '.webp'
+      const avatarPath = `users/${createdUser.id}/avatar/${timestamp}${fileExtension}`
+
+      const processedImageBuffer = await processImage(data.avatar, isGif)
 
       const { error } = await supabase.storage
         .from('avatars')
-        .upload(filePath, data.avatar, {
-          contentType: data.avatar.type || 'image/png',
+        .upload(avatarPath, processedImageBuffer, {
+          contentType,
         })
 
       if (error) {
@@ -59,7 +65,7 @@ export async function loginWithMagicLink(
 
       const { data: get } = supabase.storage
         .from('avatars')
-        .getPublicUrl(filePath)
+        .getPublicUrl(avatarPath)
 
       await prisma.user.update({
         where: { id: createdUser.id },
