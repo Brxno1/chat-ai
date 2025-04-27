@@ -4,6 +4,7 @@ import NextAuth, { Session } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import nodemailer from 'nodemailer'
 import { JWT } from 'next-auth/jwt'
+import sgMail from '@sendgrid/mail'
 
 import { prisma } from '@/services/database/prisma'
 
@@ -11,6 +12,8 @@ import { Email } from '../email/'
 import { env } from '@/lib/env'
 import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
 import { User } from 'next-auth'
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma) as any,
@@ -50,21 +53,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const html = await render(Email({ url, user }));
 
-          const transporter = nodemailer.createTransport({
-            host: env.MAILHOG_HOST,
-            port: parseInt(env.MAILHOG_PORT),
-            auth: undefined,
-          });
-
-          const options = {
-            from: env.EMAIL_FROM,
+          const msg = {
             to: email,
+            from: env.EMAIL_FROM || 'Bruno-bruno14dev@gmail.com',
             subject: `Olá, ${user.name}`,
             html,
           };
 
-          await transporter.sendMail(options);
+          await sgMail.send(msg);
         } catch (error) {
+          console.error('Erro ao enviar e-mail:', error);
         }
       },
     }
