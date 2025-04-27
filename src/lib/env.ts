@@ -18,6 +18,8 @@ const envSchema = z.object({
   MAILHOG_PORT: z.string().default('1025'),
   MAILHOG_UI: z.string().default('http://localhost:8025'),
   AUTH_SECRET: z.string().optional(),
+  SENDGRID_API_KEY: z.string().optional(),
+  SENDGRID_EMAIL_FROM: z.string().optional(),
 })
 
 export const env = envSchema.parse(process.env)
