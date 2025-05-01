@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/hover-card'
 import { Input } from '@/components/ui/input'
 import { useImageUpload } from '@/hooks/use-image-upload'
-import { formatDataToLocale, formatFileSize } from '@/utils/format'
+import { formatDateToLocale, formatFileSize } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'
 
 interface AvatarProps {
@@ -47,7 +47,7 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
   return (
     <ContainerWrapper className="-mt-10 flex items-center px-6">
       <div className="shadow-xs group relative flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
-        {currentImage && (
+        {currentImage ? (
           <HoverCard>
             <HoverCardTrigger asChild>
               <Image
@@ -82,12 +82,18 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
                 <p className="text-sm">
                   Modificado em:{' '}
                   <span className="text-muted-foreground">
-                    {formatDataToLocale(new Date(file!.lastModified))}
+                    {formatDateToLocale(new Date(file!.lastModified))}
                   </span>
                 </p>
               </HoverCardContent>
             )}
           </HoverCard>
+        ) : (
+          <Avatar className="size-20 rounded-sm font-semibold">
+            <AvatarFallback>
+              {user.name!.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         )}
         <button
           type="button"

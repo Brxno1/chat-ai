@@ -53,7 +53,7 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
   return (
     <ContainerWrapper className="h-32">
       <ContainerWrapper className="group relative size-full items-center justify-center overflow-hidden border-b">
-        {currentBackground && (
+        {currentBackground ? (
           <Image
             src={currentBackground}
             className="size-full object-cover"
@@ -61,6 +61,8 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
             height={96}
             alt="Imagem de fundo"
           />
+        ) : (
+          <div className="size-full" />
         )}
         <ContainerWrapper className="absolute inset-0 flex items-center justify-center gap-2">
           <Button

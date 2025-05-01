@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { loginWithMagicLink } from '@/app/api/login/actions/login'
-import { accountSchema } from '@/schemas'
+import { createUserAndSendMagicLink } from '@/app/api/login/actions/login'
+import { createAccountSchema } from '@/schemas'
 // import { uploadAndDeleteFile } from '@/lib/upload-and-remove'
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData()
 
-  const name = formData.get('name') as string
-  const email = formData.get('email') as string
-  const avatar = formData.get('avatar') as File | null
+  const { data, error: schemaError } = createAccountSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    avatar: formData.get('avatar'),
+  })
 
-  console.log(email)
+  console.log(data, 'data in POST')
 
-  const parsedData = accountSchema.safeParse({ name, email, avatar })
-
-  if (parsedData.error) {
-    return NextResponse.json({ error: parsedData.error }, { status: 400 })
+  if (schemaError) {
+    return NextResponse.json({ error: schemaError.message }, { status: 400 })
   }
 
-  const { user, error, userExists } = await loginWithMagicLink({
-    name,
-    email,
-    avatar,
+  const { user, error, userExists } = await createUserAndSendMagicLink({
+    name: data.name,
+    email: data.email,
+    avatar: data.avatar,
   })
 
   if (userExists) {

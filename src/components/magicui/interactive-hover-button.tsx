@@ -7,24 +7,29 @@ import { Button } from '../ui/button'
 
 interface InteractiveHoverButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  ref?: React.RefObject<HTMLButtonElement>
   disabled?: boolean
 }
 
-export const InteractiveHoverButton = React.forwardRef<
-  HTMLButtonElement,
-  InteractiveHoverButtonProps
->(({ children, className, ...props }, ref) => {
+export const InteractiveHoverButton = ({
+  ref,
+  children,
+  className,
+  disabled,
+  ...props
+}: InteractiveHoverButtonProps) => {
   return (
     <Button
       ref={ref}
+      disabled={disabled}
       variant="outline"
       className={cn(
-        'group relative w-[10rem] items-center overflow-hidden rounded-full px-6 py-2 font-semibold disabled:cursor-default disabled:text-muted-foreground',
+        'group relative items-center overflow-hidden px-6 py-2 font-semibold',
         className,
       )}
       {...props}
     >
-      {props.disabled ? (
+      {disabled ? (
         <div className="flex items-center justify-center gap-2">
           <div className="h-2 w-2 rounded-full bg-muted-foreground" />
           <span className="inline-block">{children}</span>
@@ -48,6 +53,6 @@ export const InteractiveHoverButton = React.forwardRef<
       )}
     </Button>
   )
-})
+}
 
 InteractiveHoverButton.displayName = 'InteractiveHoverButton'

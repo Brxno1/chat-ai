@@ -25,7 +25,7 @@ export function Email({ url, user }: EmailProps) {
         </h1>
         <div>
           <img
-            src={user?.image || ''}
+            src={user!.image || ''}
             alt="Imagem de perfil"
             width={44}
             height={44}

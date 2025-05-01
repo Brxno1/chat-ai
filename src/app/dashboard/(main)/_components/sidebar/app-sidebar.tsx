@@ -40,7 +40,7 @@ export function AppSidebar() {
       <SidebarHeader className="w-full rounded-sm border-b border-border bg-muted dark:bg-background">
         <SidebarHeaderTitle className="flex w-full items-center justify-between py-1">
           <Logo className="ml-2" />
-          <SidebarTriggerComponent />
+          <SidebarTriggerComponent text="Fechar" />
         </SidebarHeaderTitle>
       </SidebarHeader>
       <SidebarContent className="flex flex-grow flex-col bg-muted !p-0 dark:bg-background">

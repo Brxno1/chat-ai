@@ -6,25 +6,32 @@ interface PurposefulSuspenseProps {
   fallback: React.ReactNode
   children: React.ReactNode
   delay?: number
-  forceShow?: boolean
+  forcedSuspense?: boolean
 }
 
 export function PurposefulSuspense({
   children,
   fallback,
   delay = 0,
-  forceShow = false,
+  forcedSuspense = false,
 }: PurposefulSuspenseProps) {
-  const [show, setShow] = React.useState(false)
+  const [contentReady, setContentReady] = React.useState(false)
 
-  React.useEffect(() => {
-    if (!forceShow) {
-      const timer = setTimeout(() => setShow(true), delay)
+  const startTimer = React.useCallback(() => {
+    if (!forcedSuspense) {
+      const timer = setTimeout(() => setContentReady(true), delay)
+
       return () => clearTimeout(timer)
     }
-  }, [delay, forceShow])
 
-  if (forceShow || !show) {
+    return undefined
+  }, [delay, forcedSuspense])
+
+  React.useEffect(() => {
+    return startTimer()
+  }, [startTimer])
+
+  if (forcedSuspense || !contentReady) {
     return <>{fallback}</>
   }
 

@@ -14,7 +14,7 @@ import {
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteTodo } from '@/app/(http)/delete-todo'
+import { deleteTodo } from '@/app/(http)/todo/delete-todo'
 import { markTodoAsDone } from '@/app/api/todo/actions/done-at'
 import { CopyTextComponent } from '@/components/copy-text-component'
 import { Button } from '@/components/ui/button'

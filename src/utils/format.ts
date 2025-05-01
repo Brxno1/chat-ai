@@ -1,7 +1,7 @@
 import { format, formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-export function formatDataToLocale(date: Date): string {
+export function formatDateToLocale(date: Date): string {
   return format(date, 'dd/MM/yyyy', { locale: ptBR })
 }
 

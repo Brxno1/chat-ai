@@ -28,7 +28,7 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
     <Badge
       variant={'outline'}
       className={cn(
-        'flex min-w-[6rem] items-center justify-center gap-2 p-2 capitalize before:h-2 before:w-2 before:rounded-full',
+        'flex min-w-[6rem] items-center justify-center gap-2 bg-background p-2 capitalize before:h-2 before:w-2 before:rounded-full',
         statusColor,
       )}
     >

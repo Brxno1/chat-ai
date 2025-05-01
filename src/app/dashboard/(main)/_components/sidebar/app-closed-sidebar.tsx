@@ -1,18 +1,21 @@
+'use client'
+
+import { useMutation } from '@tanstack/react-query'
 import {
   House,
   LayoutDashboard,
+  Loader2,
   LogOut,
   Navigation,
-  PanelLeftOpen,
   Rocket,
   Settings2,
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { toast } from 'sonner'
 
-import EditProfile from '@/app/dashboard/_components/profile/edit-profile'
+import EditProfile from '@/app/dashboard/(main)/_components/profile/edit-profile'
 import { ContainerWrapper } from '@/components/container'
 import { SidebarNavLink } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
@@ -32,36 +35,50 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  useSidebar,
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { useSessionStore } from '@/store/user-store'
 
+import { SidebarTriggerComponent } from './sidebar-trigger'
+
 function UserDropdown() {
+  const [open, setOpen] = React.useState(false)
+
   const user = useSessionStore((state) => state.user)
 
-  const handleSignOut = () => {
-    try {
-      signOut({ redirectTo: `/auth?mode=login&name=${user?.name}` })
+  const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
+    mutationFn: async () => {
+      await signOut({ redirectTo: `/auth?mode=login&name=${user!.name}` })
+    },
+    onSuccess: () => {
       toast('Deslogado com sucesso!', {
         duration: 1000,
         position: 'top-center',
       })
-    } catch (error) {
+    },
+    onError: () => {
       toast.error('Erro ao deslogar!', {
         duration: 1000,
         position: 'top-center',
       })
+    },
+  })
+
+  const handleSignOut = async (ev: React.MouseEvent) => {
+    ev.preventDefault()
+
+    await signOutFn()
+  }
+
+  const onOpenChangeFn = (isOpen: boolean) => {
+    if (isSigningOut && !isOpen) {
+      return
     }
+    setOpen(isOpen)
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={onOpenChangeFn}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -99,10 +116,20 @@ function UserDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
+          disabled={isSigningOut}
           className="flex cursor-pointer items-center justify-between hover:hover:bg-destructive hover:hover:text-destructive-foreground"
         >
-          Sair
-          <LogOut className="mr-2 size-4" />
+          {isSigningOut ? (
+            <>
+              Saindo...
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            </>
+          ) : (
+            <>
+              Sair
+              <LogOut className="mr-2 size-4" />
+            </>
+          )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -121,8 +148,6 @@ function UserDropdownClosedSidebarSkeleton() {
 }
 
 function AppClosedSidebar() {
-  const { toggleSidebar } = useSidebar()
-
   const pathname = usePathname()
 
   const isActiveLink = (path: string) => {
@@ -168,23 +193,9 @@ function AppClosedSidebar() {
           <SidebarNavLink href="/auth" onClick={handleClickToNavigate}>
             <Navigation className="size-5" />
           </SidebarNavLink>
-          <Tooltip disableHoverableContent>
-            <ContainerWrapper className="flex w-full items-center justify-center border-t border-border py-2">
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="flex cursor-pointer items-center justify-center"
-                  onClick={() => toggleSidebar()}
-                >
-                  <PanelLeftOpen className="size-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent align="end" className="text-sm">
-                <span>Abrir</span>
-              </TooltipContent>
-            </ContainerWrapper>
-          </Tooltip>
+          <ContainerWrapper className="flex w-full items-center justify-center border-t border-border p-2">
+            <SidebarTriggerComponent text="Abrir" />
+          </ContainerWrapper>
         </nav>
       </SidebarContent>
       <Separator className="w-full" />

@@ -12,10 +12,8 @@ import {
 import { ToggleTheme } from '@/components/theme/toggle-theme'
 
 import TodoCreateForm from './_components/todo/create-form'
-import {
-  TodoDataTable,
-  TodoDataTableFallback,
-} from './_components/todo/data-table'
+import { TodoDataTable } from './_components/todo/data-table'
+import { TodoDataTableFallback } from './_components/todo/data-table-fallback'
 
 export default async function Page() {
   const initialData = await actionGetTodos()
@@ -37,7 +35,7 @@ export default async function Page() {
           <ChartDemoOne />
           <ChartDemoOne />
         </ContainerWrapper>
-        <ContainerWrapper className="mb-6 mt-20 py-2">
+        <ContainerWrapper className="mb-6 mt-20 py-4">
           <Suspense fallback={<TodoDataTableFallback />}>
             <TodoDataTable
               initialData={initialData}

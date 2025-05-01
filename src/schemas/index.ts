@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const MAX_SIZE = 1 * 1024 * 1024 // 10MB
+const MAX_SIZE_FOR_FILE = 10 * 1024 * 1024 // 10MB
 
 export const editProfileSchema = z.object({
   name: z
@@ -12,7 +12,7 @@ export const editProfileSchema = z.object({
     z
       .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
       .refine(
-        (file) => file.size <= MAX_SIZE,
+        (file) => file.size <= MAX_SIZE_FOR_FILE,
         `O avatar deve ter no máximo 10MB`,
       ),
     z.null(),
@@ -22,7 +22,7 @@ export const editProfileSchema = z.object({
     z
       .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
       .refine(
-        (file) => file.size <= MAX_SIZE,
+        (file) => file.size <= MAX_SIZE_FOR_FILE,
         `O fundo deve ter no máximo 10MB`,
       ),
     z.null(),
@@ -30,7 +30,7 @@ export const editProfileSchema = z.object({
   ]),
 })
 
-export const accountSchema = z.object({
+export const createAccountSchema = z.object({
   name: z
     .string()
     .nonempty('O nome não pode estar vazio')
@@ -43,7 +43,7 @@ export const accountSchema = z.object({
     z
       .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
       .refine(
-        (file) => file.size <= MAX_SIZE,
+        (file) => file.size <= MAX_SIZE_FOR_FILE,
         `O avatar deve ter no máximo 10MB`,
       ),
     z.null(),

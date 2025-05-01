@@ -23,6 +23,7 @@ import { z } from 'zod'
 
 import { ContainerWrapper } from '@/components/container'
 import { CopyTextComponent } from '@/components/copy-text-component'
+import { InteractiveHoverButton } from '@/components/magicui/interactive-hover-button'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { Button } from '@/components/ui/button'
 import {
@@ -44,19 +45,19 @@ import { Input } from '@/components/ui/input'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { api } from '@/lib/axios'
 import { env } from '@/lib/env'
-import { accountSchema } from '@/schemas'
+import { createAccountSchema } from '@/schemas'
 import { useSessionStore } from '@/store/user-store'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
-type FormValues = z.infer<typeof accountSchema>
+type FormValues = z.infer<typeof createAccountSchema>
 
-export function AccountForm() {
+export function CreateAccountForm() {
   const { theme } = useTheme()
   const { email } = useSessionStore()
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(accountSchema),
+    resolver: zodResolver(createAccountSchema),
     mode: 'onChange',
     defaultValues: {
       name: '',
@@ -254,10 +255,9 @@ export function AccountForm() {
                     <div className="relative inline-block">
                       <Button
                         onClick={handleThumbnailClick}
-                        aria-haspopup="dialog"
                         type="button"
                         className="font-semibold"
-                        variant={'secondary'}
+                        variant="ghost"
                       >
                         {fileName && (
                           <>
@@ -318,7 +318,7 @@ export function AccountForm() {
             />
           </CardContent>
           <CardFooter>
-            <Button
+            <InteractiveHoverButton
               type="submit"
               className="flex w-full items-center justify-center font-semibold"
               disabled={form.formState.isSubmitting || !form.formState.isValid}
@@ -329,11 +329,11 @@ export function AccountForm() {
                   <LoaderCircle className="ml-1 animate-spin font-semibold" />
                 </span>
               ) : (
-                <span className="flex items-center gap-4">
+                <span className="flex items-center gap-2">
                   Criar e enviar link
                 </span>
               )}
-            </Button>
+            </InteractiveHoverButton>
           </CardFooter>
         </form>
       </Form>

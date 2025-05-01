@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react'
 import React from 'react'
 import { toast } from 'sonner'
 
-import EditProfile from '@/app/dashboard/_components/profile/edit-profile'
+import EditProfile from '@/app/dashboard/(main)/_components/profile/edit-profile'
 import { ContainerWrapper } from '@/components/container'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -51,7 +51,7 @@ function UserDropdown() {
     await signOutFn()
   }
 
-  const handleOpenChange = (isOpen: boolean) => {
+  const onOpenChangeFn = (isOpen: boolean) => {
     if (isSigningOut && !isOpen) {
       return
     }
@@ -59,7 +59,7 @@ function UserDropdown() {
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+    <DropdownMenu open={open} onOpenChange={onOpenChangeFn}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
@@ -67,7 +67,7 @@ function UserDropdown() {
           className={cn('relative flex w-full items-center justify-start p-2')}
         >
           <ContainerWrapper className="flex items-center gap-3">
-            <Avatar className="h-8 w-8 cursor-grab rounded-sm">
+            <Avatar className="size-8 cursor-grab rounded-sm">
               <AvatarImage src={user?.image as string} alt="user avatar" />
               <AvatarFallback className="rounded-sm font-semibold">
                 {user?.name.slice(0, 2).toUpperCase()}
@@ -114,12 +114,12 @@ function UserDropdown() {
           {isSigningOut ? (
             <>
               Saindo...
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
             </>
           ) : (
             <>
               Sair
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-2 size-4" />
             </>
           )}
         </DropdownMenuItem>

@@ -1,43 +1,29 @@
 'use client'
 
 import { useChat } from '@ai-sdk/react'
-import { ArrowRight, ArrowUp, CircleStop, UserPlus, X } from 'lucide-react'
+import { ArrowUp, CircleStop, UserPlus, X } from 'lucide-react'
 import Link from 'next/link'
-import * as React from 'react'
+import React from 'react'
 
 import { ComponentSwitchTheme } from '@/components/switch-theme'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
+import { ChatHeader } from './header'
 import { MessageChat } from './message'
 
 interface ChatProps {
   modelName: string
-  placeholder?: string
 }
 
-export function Chat({
-  modelName,
-  placeholder = 'Digite sua mensagem...',
-}: ChatProps) {
+export function Chat({ modelName }: ChatProps) {
+  const { user } = useSessionStore()
+
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
-
-  const [open, setOpen] = React.useState(false)
-  const user = useSessionStore((state) => state.user)
-  const statusForUser = useSessionStore((state) => state.status)
 
   const [closeInfoMessage, setCloseInfoMessage] = React.useState<boolean>(
     () => {
@@ -91,8 +77,10 @@ export function Chat({
         },
       )}
     >
-      <div className="sticky top-0 flex h-fit items-center justify-end border-b border-border bg-background p-3">
-        {!user && statusForUser === 'unauthenticated' && (
+      <header className="sticky top-0 flex h-fit items-center justify-end border-b border-border bg-background p-3">
+        {user ? (
+          <ChatHeader user={user} />
+        ) : (
           <div className="flex w-full items-center justify-between px-2">
             <ComponentSwitchTheme />
             <Link
@@ -100,50 +88,13 @@ export function Chat({
               className="flex items-center justify-center gap-2 text-xs font-medium"
             >
               <Button variant={'secondary'}>
-                <UserPlus className="h-5 w-5" />
-                <span>Entrar</span>
+                <UserPlus className="size-5" />
+                Entrar
               </Button>
             </Link>
           </div>
         )}
-        <div className="flex items-center gap-4">
-          {user && (
-            <DropdownMenu open={open} onOpenChange={setOpen}>
-              <DropdownMenuTrigger asChild>
-                {statusForUser === 'loading' ? (
-                  <Skeleton className="h-8 w-8 rounded-sm" />
-                ) : (
-                  <Avatar className="h-8 w-8 cursor-grab rounded-sm">
-                    <AvatarImage src={user.image as string} alt="user avatar" />
-                    <AvatarFallback className="rounded-none">
-                      {user.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem className="flex text-xs text-muted-foreground">
-                  <span>{user.email}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <Link
-                  href="/dashboard"
-                  className="flex w-full items-center justify-center gap-2 text-xs"
-                >
-                  <DropdownMenuItem>
-                    Acessar App
-                    <ArrowRight className="h-4 w-4" />
-                  </DropdownMenuItem>
-                </Link>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center justify-center">
-                  <ComponentSwitchTheme />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      </div>
+      </header>
       <div
         className="mt-2 flex items-center justify-around rounded-b-md bg-muted data-[close=true]:hidden"
         data-close={closeInfoMessage}
@@ -155,7 +106,7 @@ export function Chat({
           testes.
         </p>
         <span onClick={handleCloseInfoMessage} className="cursor-pointer">
-          <X className="h-4 w-4" />
+          <X className="size-4" />
         </span>
       </div>
       <div
@@ -175,12 +126,12 @@ export function Chat({
 
       <form
         onSubmit={handleSubmit}
-        className="grid w-full grid-cols-[1fr_4rem] items-center justify-center gap-2 border-t border-border p-4 pt-4"
+        className="grid w-full grid-cols-[1fr_auto] items-center justify-center gap-4 border-t border-border bg-muted/20 p-4 pt-4"
       >
         <Input
-          className="rounded border border-zinc-300 p-2 drop-shadow-md placeholder:text-sm placeholder:text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900"
+          className="placeholder:text-xs placeholder:text-muted-foreground"
           value={input}
-          placeholder={placeholder?.replace(/"/g, '')}
+          placeholder={'Digite sua mensagem...'}
           onChange={handleInputChange}
           ref={inputRef}
         />
@@ -189,13 +140,13 @@ export function Chat({
             type="button"
             size={'icon'}
             onClick={() => stop()}
-            className="mx-auto flex items-center justify-center rounded-full drop-shadow-md"
+            className="flex items-center justify-center rounded-full"
           >
-            <CircleStop className="h-4 w-4" />
+            <CircleStop className="size-4" />
           </Button>
         ) : (
           <Button
-            className="mx-auto flex items-center justify-center rounded-full bg-muted text-muted-foreground drop-shadow-md"
+            className="flex items-center justify-center rounded-full bg-muted text-muted-foreground"
             type="submit"
             variant={'outline'}
             size={'icon'}
@@ -203,7 +154,7 @@ export function Chat({
               containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
             }
           >
-            <ArrowUp className="h-4 w-4" />
+            <ArrowUp className="size-4" />
           </Button>
         )}
       </form>
