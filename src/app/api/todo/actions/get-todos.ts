@@ -1,3 +1,5 @@
+'use server'
+
 import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 

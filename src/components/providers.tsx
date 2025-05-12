@@ -7,7 +7,7 @@ import React from 'react'
 import { Toaster } from 'sonner'
 
 import { queryClient } from '@/lib/query-client'
-import { UserStoreProvider } from '@/store/user-provider'
+import { SyncSession } from '@/store/sync-session'
 
 import { ThemeProvider } from './theme/theme-provider'
 import { SidebarProvider } from './ui/sidebar'
@@ -45,15 +45,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
         options={{ showSpinner: false }}
         shallowRouting
       >
-        <SidebarProvider defaultOpen={sidebarState}>
-          <QueryClientProvider client={queryClient}>
-            <NextAuthSessionProvider>
-              <TooltipProvider>
-                <UserStoreProvider>{children}</UserStoreProvider>
-              </TooltipProvider>
-            </NextAuthSessionProvider>
-          </QueryClientProvider>
-        </SidebarProvider>
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={sidebarState}>
+            <QueryClientProvider client={queryClient}>
+              <NextAuthSessionProvider>
+                <SyncSession />
+                {children}
+              </NextAuthSessionProvider>
+            </QueryClientProvider>
+          </SidebarProvider>
+        </TooltipProvider>
         <Toaster
           richColors
           duration={3000}

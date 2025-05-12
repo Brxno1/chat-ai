@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from './generated'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 

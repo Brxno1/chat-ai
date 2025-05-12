@@ -38,36 +38,6 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ todo: response.todo }, { status: 200 })
 }
 
-// export async function GET(request: NextRequest) {
-//   try {
-//     const userId = request.headers.get('X-user-ID')
-
-//     if (!userId) {
-//       return NextResponse.json(
-//         { error: 'User ID is required' },
-//         { status: 400 },
-//       )
-//     }
-
-//     const response = await actionGetTodos()
-
-//     if (!response) {
-//       return NextResponse.json(
-//         { error: 'No todos found', message: 'No todos found' },
-//         { status: 404 },
-//       )
-//     }
-
-//     return NextResponse.json(response, { status: 200 })
-//   } catch (error) {
-//     console.error('Erro na API Route:', error)
-//     return NextResponse.json(
-//       { error: 'Internal server error', message: 'Erro ao buscar os todos' },
-//       { status: 500 },
-//     )
-//   }
-// }
-
 export async function DELETE(request: NextRequest) {
   const session = await auth()
 

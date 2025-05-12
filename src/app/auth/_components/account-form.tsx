@@ -287,17 +287,18 @@ export function CreateAccountForm() {
                   </div>
                   {fileName && (
                     <div className="inline-flex gap-2 text-xs">
-                      <CopyTextComponent
-                        textForCopy={fileName}
-                        className="text-muted-foreground"
+                      <div className="relative">
+                        <CopyTextComponent
+                          textForCopy={fileName}
+                          className="text-muted-foreground"
+                        />
+                      </div>
+                      <p
+                        className="truncate text-muted-foreground"
+                        aria-live="polite"
                       >
-                        <p
-                          className="truncate text-muted-foreground"
-                          aria-live="polite"
-                        >
-                          {truncateText({ text: fileName, maxLength: 20 })}
-                        </p>
-                      </CopyTextComponent>
+                        {truncateText({ text: fileName, maxLength: 20 })}
+                      </p>
                       {'-'}
                       <button
                         onClick={handleRemoveFile}

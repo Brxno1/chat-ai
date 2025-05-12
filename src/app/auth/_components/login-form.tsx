@@ -95,7 +95,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
         <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
           <CardHeader className="gap-1 text-center">
             {name && (
-              <CardTitle className="flex items-center justify-center">
+              <CardTitle className="flex items-center justify-center text-lg font-bold">
                 <span className="mr-2">Bem-vindo de volta,</span>
                 <TypingAnimation>{name}</TypingAnimation>
               </CardTitle>

@@ -1,34 +1,31 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+
+import { useSessionStore } from '@/store/user-store'
 
 export default function NotFound() {
-  const session = useSession()
+  const { user } = useSessionStore()
   const router = useRouter()
 
-  const [counter, setCounter] = useState(5)
-
   useEffect(() => {
-    if (counter <= 0) {
-      router.push(session.data?.user ? '/dashboard' : '/auth')
-    }
+    const redirectTimeout = setTimeout(() => {
+      router.replace(user ? '/dashboard' : '/auth')
+    }, 1500)
 
-    const timer = setInterval(() => {
-      setCounter((prev) => (prev > 0 ? prev - 1 : 0))
-    }, 1000)
-
-    document.title = `Página não encontrada`
-    return () => clearInterval(timer)
-  }, [counter])
+    return () => clearTimeout(redirectTimeout)
+  }, [router, user])
 
   return (
     <div className="flex h-screen flex-col items-center justify-center space-y-8">
-      <h1 className="text-center text-4xl font-bold">Página não encontrada</h1>
-      <p>
-        Você será redirecionado em{' '}
-        <span className="font-bold text-purple-500">{counter}</span> segundos...
+      <h1 className="max-w-xl text-balance text-center text-4xl font-bold">
+        {user
+          ? `Oops, ${user.name}! Essa página não existe, qual tal você voltar?`
+          : 'Redirecionando para /auth'}
+      </h1>
+      <p className="animate-pulse text-center">
+        Redirecionando para {user ? '/dashboard' : '/auth'}
       </p>
     </div>
   )

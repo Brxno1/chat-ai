@@ -3,6 +3,7 @@ import React from 'react'
 
 import { clipboardWriteText } from '@/utils/clipboard-write-text'
 import { cn } from '@/utils/utils'
+import { ContainerWrapper } from './container'
 
 interface CopyTextComponentProps {
   textForCopy: string
@@ -33,11 +34,20 @@ export function CopyTextComponent({
   return (
     <div
       onClick={handleCopy}
-      className={cn('flex w-full items-center gap-2', className)}
+      className={cn('flex items-center', className)}
     >
-      <div
+      {children}
+      <ContainerWrapper
         className={cn(
-          'transition-all',
+          'cursor-pointer transition-all',
+          hasCopied ? 'scale-0 opacity-0' : 'scale-100 opacity-100',
+        )}
+      >
+        <CopyIcon size={16} aria-hidden="true" />
+      </ContainerWrapper>
+      <ContainerWrapper
+        className={cn(
+          'absolute right-0 transition-all',
           hasCopied ? 'scale-100 opacity-100' : 'scale-0 opacity-0',
         )}
       >
@@ -46,16 +56,7 @@ export function CopyTextComponent({
           size={16}
           aria-hidden="true"
         />
-      </div>
-      <div
-        className={cn(
-          'absolute cursor-pointer transition-all',
-          hasCopied ? 'scale-0 opacity-0' : 'scale-100 opacity-100',
-        )}
-      >
-        <CopyIcon size={16} aria-hidden="true" />
-      </div>
-      {children}
+      </ContainerWrapper>
     </div>
   )
 }

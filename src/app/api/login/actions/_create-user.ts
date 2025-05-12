@@ -1,3 +1,5 @@
+'use server'
+
 import { createAccountSchema } from '@/schemas'
 
 import { createUserAndSendMagicLink } from './login'
@@ -14,9 +16,6 @@ export type FormState =
   | undefined
 
 export async function createUser(state: FormState, formData: FormData) {
-  console.log('createUser', state)
-  console.log('formData', formData)
-
   const validatedFields = createAccountSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),

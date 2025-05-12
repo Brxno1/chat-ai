@@ -1,4 +1,5 @@
 'use client'
+
 import Link from 'next/link'
 
 import { cn } from '@/utils/utils'
@@ -77,9 +78,9 @@ function SidebarNavLink({
       onClick={onClick}
       prefetch={false}
       className={cn(
-        'flex items-center rounded-sm bg-primary-foreground px-3 py-2 text-sm transition-all hover:bg-secondary/60',
+        'flex items-center bg-primary-foreground w-full rounded-sm py-2 text-sm transition-all hover:bg-secondary/60',
+        className,
         {
-          className,
           'cursor-default bg-primary text-primary-foreground hover:bg-primary':
             active,
         },

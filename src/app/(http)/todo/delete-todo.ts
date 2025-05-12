@@ -7,7 +7,5 @@ export async function deleteTodo(id: string) {
     },
   })
 
-  console.log('response', response)
-
   return response.data
 }

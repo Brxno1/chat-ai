@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
-export async function markTodoAsDone(id: string) {
+export async function actionMarkTodoAsDone(id: string) {
   try {
     const session = await auth()
 

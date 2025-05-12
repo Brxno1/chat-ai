@@ -11,7 +11,7 @@ import { ToggleTheme } from '@/components/theme/toggle-theme'
 export default function Settings() {
   return (
     <DashboardPage>
-      <DashboardPageHeader className="sticky top-0 z-10 flex w-full items-center justify-end gap-4 p-3">
+      <DashboardPageHeader>
         <ContainerWrapper className="mr-5">
           <ToggleTheme />
         </ContainerWrapper>

@@ -1,3 +1,5 @@
+'use server'
+
 import { prisma } from '@/services/database/prisma'
 
 type DeleteTodoArgs = {

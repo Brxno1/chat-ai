@@ -22,6 +22,7 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().optional(),
   SENDGRID_API_KEY: z.string().optional(),
   SENDGRID_EMAIL_FROM: z.string().optional(),
+  NEXT_PUBLIC_LOGO_DEV_TOKEN: z.string().optional(),
 })
 
 export const env = envSchema.parse(process.env)
