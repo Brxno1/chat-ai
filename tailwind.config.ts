@@ -132,10 +132,6 @@ export default {
 			fontSize: {
 				'2xs': '0.675rem',
 			},
-			dropShadow: {
-				avatar: 'drop-shadow(8px 8px 6px rgba(255, 22, 0, 0.5))',
-				blue: 'drop-shadow(8px 8px 6px rgba(0, 22, 255, 0.5))',
-			},
 		},
 	},
 	plugins: [require('tailwindcss-animate')],

@@ -1,20 +1,22 @@
+'use client'
+
+import { useMutation } from '@tanstack/react-query'
 import {
-  House,
   LayoutDashboard,
+  Loader2,
   LogOut,
+  MessageSquare,
   Navigation,
-  PanelLeftOpen,
   Rocket,
   Settings2,
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Suspense } from 'react'
+import React from 'react'
 import { toast } from 'sonner'
 
 import EditProfile from '@/app/dashboard/_components/profile/edit-profile'
 import { ContainerWrapper } from '@/components/container'
-import { SidebarNavLink } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -32,45 +34,66 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  useSidebar,
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { useSessionStore } from '@/store/user-store'
 
-function UserDropdown() {
-  const user = useSessionStore((state) => state.user)
+import { SidebarLinks } from './sidebar-links'
+import { SidebarTriggerComponent } from './sidebar-trigger'
 
-  const handleSignOut = () => {
-    try {
-      signOut({ redirectTo: `/auth?mode=login&name=${user?.name}` })
+function UserDropdown() {
+  const [open, setOpen] = React.useState(false)
+
+  const { user } = useSessionStore()
+
+  const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
+    mutationFn: async () => {
+      await signOut({
+        redirectTo: `/auth?mode=login&name=${user!.name}`,
+      })
+    },
+    onSuccess: () => {
       toast('Deslogado com sucesso!', {
         duration: 1000,
         position: 'top-center',
       })
-    } catch (error) {
+    },
+    onError: () => {
       toast.error('Erro ao deslogar!', {
         duration: 1000,
         position: 'top-center',
       })
+    },
+  })
+
+  const onOpenChangeFn = (isOpen: boolean) => {
+    if (isSigningOut && !isOpen) {
+      return
     }
+    setOpen(isOpen)
+  }
+
+  const handleSignOut = async (ev: React.MouseEvent) => {
+    ev.preventDefault()
+
+    await signOutFn()
+  }
+
+  if (!user) {
+    return <UserDropdownClosedSidebarSkeleton />
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={onOpenChangeFn}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="!b-0 relative ml-2 flex w-full items-center justify-between rounded-full !px-0 hover:bg-transparent"
+          className="relative flex items-center justify-center hover:bg-transparent"
         >
-          <Avatar className="size-7 cursor-grab rounded-sm">
-            <AvatarImage src={user?.image || ''} alt="user avatar" />
+          <Avatar className="size-8 cursor-grab rounded-sm">
+            <AvatarImage src={user.image || ''} alt="user avatar" />
             <AvatarFallback className="rounded-none">
-              {user?.name?.slice(0, 2).toUpperCase()}
+              {user.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -78,9 +101,9 @@ function UserDropdown() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
           <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium leading-none">{user?.name}</p>
+            <p className="text-sm font-medium leading-none">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
+              {user.email}
             </p>
           </div>
           <EditProfile user={user!} />
@@ -99,10 +122,20 @@ function UserDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
+          disabled={isSigningOut}
           className="flex cursor-pointer items-center justify-between hover:hover:bg-destructive hover:hover:text-destructive-foreground"
         >
-          Sair
-          <LogOut className="mr-2 size-4" />
+          {isSigningOut ? (
+            <>
+              Saindo...
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            </>
+          ) : (
+            <>
+              Sair
+              <LogOut className="mr-2 size-4" />
+            </>
+          )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -113,85 +146,72 @@ function UserDropdownClosedSidebarSkeleton() {
   return (
     <Button
       variant="ghost"
-      className="relative ml-2 flex w-full cursor-default items-center justify-between rounded-full !px-0 hover:bg-transparent"
+      className="relative flex items-center justify-center"
     >
-      <Skeleton className="size-7 rounded-sm" />
+      <Skeleton className="size-9 rounded-sm" />
     </Button>
   )
 }
 
 function AppClosedSidebar() {
-  const { toggleSidebar } = useSidebar()
-
   const pathname = usePathname()
 
   const isActiveLink = (path: string) => {
     return pathname === path
   }
 
-  const handleClickToNavigate = () => {
-    toast.warning('Em desenvolvimento!', {
-      duration: 1000,
-      position: 'top-center',
-    })
-  }
+  const mainLinks = [
+    {
+      href: '/dashboard',
+      icon: LayoutDashboard,
+      label: 'Dashboard',
+    },
+    {
+      href: '/dashboard/settings',
+      icon: Settings2,
+      label: 'Configurações',
+    },
+  ]
+
+  const bottomLinks = [
+    {
+      href: '/',
+      icon: MessageSquare,
+      label: 'Chat',
+    },
+    {
+      href: '/?navigation=true',
+      icon: Navigation,
+      label: 'Navegação',
+    },
+  ]
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex w-full items-center justify-center border-b border-border bg-muted py-4 dark:bg-background">
         <Logo />
       </SidebarHeader>
-      <SidebarContent className="flex flex-grow flex-col bg-muted dark:bg-background">
-        <nav className="flex flex-grow flex-col gap-2 !py-4">
-          <SidebarNavLink
-            href="/dashboard"
-            active={isActiveLink('/dashboard')}
-            className="justify-center"
-          >
-            <LayoutDashboard className="size-5" />
-          </SidebarNavLink>
-          <SidebarNavLink
-            href="/dashboard/settings"
-            active={isActiveLink('/dashboard/settings')}
-            className="justify-center"
-          >
-            <Settings2 className="size-5" />
-          </SidebarNavLink>
+      <SidebarContent className="flex">
+        <nav className="flex flex-grow flex-col gap-2 space-y-2">
+          <SidebarLinks linksOptions={mainLinks} isActiveLink={isActiveLink} />
         </nav>
-        <nav className="mt-auto flex w-full flex-col items-center justify-center space-y-3">
-          <SidebarNavLink
-            href="/"
-            active={isActiveLink('/')}
-            className="justify-center"
-          >
-            <House className="size-5" />
-          </SidebarNavLink>
-          <SidebarNavLink href="/auth" onClick={handleClickToNavigate}>
-            <Navigation className="size-5" />
-          </SidebarNavLink>
-          <Tooltip disableHoverableContent>
-            <ContainerWrapper className="flex w-full items-center justify-center border-t border-border py-2">
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="flex cursor-pointer items-center justify-center"
-                  onClick={() => toggleSidebar()}
-                >
-                  <PanelLeftOpen className="size-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent align="end" className="text-sm">
-                <span>Abrir</span>
-              </TooltipContent>
-            </ContainerWrapper>
-          </Tooltip>
+        <nav className="mt-auto flex flex-col items-center justify-center space-y-2">
+          <SidebarLinks
+            linksOptions={bottomLinks}
+            isActiveLink={isActiveLink}
+          />
+          <ContainerWrapper className="flex w-full items-center justify-center px-2 pb-2">
+            <SidebarTriggerComponent
+              text="Abrir"
+              variant="outline"
+              className="my-auto w-full"
+            />
+          </ContainerWrapper>
         </nav>
       </SidebarContent>
       <Separator className="w-full" />
-      <SidebarFooter className="flex w-full items-center justify-center bg-muted p-2 dark:bg-background">
-        <Suspense fallback={<UserDropdownClosedSidebarSkeleton />}>
-          <UserDropdown />
-        </Suspense>
+      <SidebarFooter className="flex w-full items-center justify-center">
+        <UserDropdown />
       </SidebarFooter>
     </Sidebar>
   )

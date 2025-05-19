@@ -3,15 +3,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { Edit, LoaderCircle } from 'lucide-react'
-import { Session } from 'next-auth'
+import { User } from 'next-auth'
 import { useSession } from 'next-auth/react'
-import * as React from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateProfile } from '@/app/(http)/update-profile'
-import { ContainerWrapper } from '@/components/container'
+import { updateProfile } from '@/app/(http)/user/update-profile'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -36,18 +35,15 @@ import { useCharacterLimit } from '@/hooks/use-character-limit'
 import { editProfileSchema } from '@/schemas'
 import { cn } from '@/utils/utils'
 
-import {
-  BackgroundProfile,
-  BackgroundProfileFallback,
-} from './avatar-background'
-import { AvatarProfile, AvatarProfileFallback } from './avatar-profile'
+import { BackgroundProfile } from './avatar-background'
+import { AvatarProfile } from './avatar-profile'
 
-type FileChange = {
+export type FileChange = {
   name: 'avatar' | 'background'
   file: File | null
 }
 
-export default function EditProfile({ user }: { user: Session['user'] }) {
+export default function EditProfile({ user }: { user: User }) {
   const id = React.useId()
   const [open, setOpen] = React.useState(false)
 
@@ -64,7 +60,7 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
     },
   })
 
-  const { mutateAsync: updateProfileFn, isPending: isUpdating } = useMutation({
+  const { mutateAsync: updateProfileFn } = useMutation({
     mutationFn: updateProfile,
     onSuccess: async (data) => {
       await update({
@@ -87,11 +83,9 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
 
   const onFileChange = ({ name, file }: FileChange) => {
     form.setValue(name, file)
+    form.clearErrors(name)
 
-    if (!file) {
-      form.clearErrors(name)
-    } else {
-      form.clearErrors(name)
+    if (file) {
       form.trigger(name)
     }
   }
@@ -103,7 +97,12 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
     initialValue: user.bio || '',
   })
 
-  const handleUpdateProfile = async ({
+  const handleCloseDialog = () => {
+    setOpen((prev) => !prev)
+    form.reset()
+  }
+
+  const handleProfileUpdate = async ({
     name,
     bio,
     avatar,
@@ -114,28 +113,17 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
     formData.append('name', name)
     formData.append('bio', bio)
 
-    if (avatar) {
-      formData.append('avatar', avatar)
-    }
-
-    if (background) {
-      formData.append('background', background)
-    }
+    if (avatar) formData.append('avatar', avatar)
+    if (background) formData.append('background', background)
 
     await updateProfileFn(formData)
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={() => {
-        setOpen(!open)
-        form.reset()
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleCloseDialog}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon">
-          <Edit className={cn('h-3 w-3 cursor-pointer')} />
+          <Edit className="h-3 w-3 cursor-pointer" />
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -158,132 +146,115 @@ export default function EditProfile({ user }: { user: Session['user'] }) {
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleUpdateProfile)}
+            onSubmit={form.handleSubmit(handleProfileUpdate)}
             id="update-profile-form"
           >
-            <ContainerWrapper>
-              <React.Suspense fallback={<BackgroundProfileFallback />}>
-                <BackgroundProfile
-                  Background={user.background}
-                  onFileChange={onFileChange}
-                />
-              </React.Suspense>
-              <React.Suspense fallback={<AvatarProfileFallback user={user} />}>
-                <AvatarProfile
-                  onFileChange={onFileChange}
-                  user={user}
-                  error={form.formState.errors.avatar?.message}
-                />
-              </React.Suspense>
-              <div className="px-6 pb-6 pt-4">
-                <FormField
-                  name="name"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem className="mb-5">
-                      <div className="group relative space-y-2">
-                        <FormLabel
+            <BackgroundProfile
+              Background={user.background}
+              onFileChange={onFileChange}
+            />
+            <AvatarProfile
+              onFileChange={onFileChange}
+              user={user}
+              error={form.formState.errors.avatar?.message}
+            />
+            <div className="my-6 px-3">
+              <FormField
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormItem className="mb-5">
+                    <div className="group relative space-y-2">
+                      <FormLabel
+                        className={cn(
+                          'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
+                        )}
+                      >
+                        <span
                           className={cn(
-                            'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
+                            'inline-flex bg-muted px-2 dark:bg-background',
                             {
                               'text-red-500': fieldState.error,
                             },
                           )}
                         >
-                          <span
-                            className={cn(
-                              'inline-flex bg-muted px-2 dark:bg-background',
-                              {
-                                'text-red-500': fieldState.error,
-                              },
-                            )}
-                          >
-                            Nome
-                          </span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input type="text" placeholder=" " {...field} />
-                        </FormControl>
-                      </div>
-                      <FormMessage className="text-red-500" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="bio"
-                  control={form.control}
-                  render={({ field: { onChange, ...rest }, fieldState }) => (
-                    <FormItem>
-                      <div className="group space-y-2">
-                        <FormLabel
-                          className={cn({
-                            'text-red-500': fieldState.error,
-                          })}
+                          Nome
+                        </span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="text" placeholder=" " {...field} />
+                      </FormControl>
+                    </div>
+                    <FormMessage className="text-red-500" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="bio"
+                control={form.control}
+                render={({ field: { onChange, ...rest }, fieldState }) => (
+                  <FormItem>
+                    <div className="group space-y-2">
+                      <FormLabel>
+                        <span
+                          className={cn(
+                            'inline-flex bg-muted px-2 dark:bg-background',
+                            {
+                              'text-red-500': fieldState.error,
+                            },
+                          )}
                         >
-                          <span
-                            className={cn(
-                              'inline-flex bg-muted px-2 dark:bg-background',
-                              {
-                                'text-red-500': fieldState.error,
-                              },
-                            )}
-                          >
-                            Biografia
-                          </span>
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="max-h-36"
-                            placeholder="Escreva uma biografia para o seu perfil"
-                            aria-describedby={`${id}-description`}
-                            {...rest}
-                            onChange={(ev) => {
-                              onChange(ev)
-                              handleChange(ev)
-                            }}
-                          />
-                        </FormControl>
-                      </div>
-                      <div className="flex items-center justify-between py-px">
-                        <FormMessage className="text-xs text-red-500" />
-                        <p
-                          id={`${id}-description`}
-                          className="ml-auto mt-2 text-right text-xs"
-                          role="status"
-                          aria-live="polite"
-                        >
-                          <span className="font-bold tabular-nums">
-                            {maxLengthForBio - characterCount}
-                          </span>{' '}
-                          <span className="text-muted-foreground">
-                            {maxLengthForBio - characterCount <= 1
-                              ? 'caractere restante'
-                              : 'carácteres restantes'}
-                          </span>
-                        </p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </ContainerWrapper>
+                          Biografia
+                        </span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="max-h-36"
+                          placeholder="Escreva uma biografia para o seu perfil"
+                          aria-describedby={`${id}-description`}
+                          {...rest}
+                          onChange={(ev) => {
+                            onChange(ev)
+                            handleChange(ev)
+                          }}
+                        />
+                      </FormControl>
+                    </div>
+                    <div className="flex items-center justify-between py-px">
+                      <FormMessage className="text-xs text-red-500" />
+                      <p
+                        id={`${id}-description`}
+                        className="ml-auto mt-2 text-right text-xs"
+                        role="status"
+                        aria-live="polite"
+                      >
+                        <span className="font-bold tabular-nums">
+                          {maxLengthForBio - characterCount}
+                        </span>{' '}
+                        <span className="text-muted-foreground">
+                          {maxLengthForBio - characterCount <= 1
+                            ? 'caractere restante'
+                            : 'carácteres restantes'}
+                        </span>
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
           </form>
         </Form>
         <footer className="mt-4 flex flex-row justify-between gap-2 border-t p-6">
           <Button
+            form="update-profile-form"
             type="submit"
             className="min-w-[150px] font-semibold"
-            disabled={
-              form.formState.isSubmitting ||
-              isUpdating ||
-              !form.formState.isValid
-            }
-            form="update-profile-form"
+            disabled={form.formState.isSubmitting || !form.formState.isValid}
           >
             {form.formState.isSubmitting ? (
               <LoaderCircle className="animate-spin font-semibold" />
             ) : (
-              <span className="flex items-center gap-4">Salvar alterações</span>
+              <>Salvar alterações</>
             )}
           </Button>
           <DialogClose asChild>

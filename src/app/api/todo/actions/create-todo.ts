@@ -1,3 +1,5 @@
+'use server'
+
 import { Todo } from '@prisma/client'
 
 import { prisma } from '@/services/database/prisma'
@@ -12,7 +14,7 @@ type CreateTodoResponse = {
   error: Error | null
 }
 
-export async function actionCreateTodo({
+export async function createTodoAction({
   title,
   id,
 }: TodoData): Promise<CreateTodoResponse> {

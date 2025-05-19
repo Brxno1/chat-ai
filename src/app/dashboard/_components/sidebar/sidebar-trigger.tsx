@@ -10,28 +10,39 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-export function SidebarTriggerComponent() {
-  const { open, toggleSidebar } = useSidebar()
+interface SidebarTriggerComponentProps {
+  text: string
+  className?: string
+  variant?:
+    | 'default'
+    | 'ghost'
+    | 'outline'
+    | 'secondary'
+    | 'destructive'
+    | 'link'
+}
 
-  if (open) {
-    return (
-      <Tooltip disableHoverableContent>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-2 flex cursor-pointer items-center justify-center"
-            onClick={() => toggleSidebar()}
-          >
-            <PanelLeftClose className="size-5" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent align="end" className="text-sm">
-          <p>Fechar</p>
-        </TooltipContent>
-      </Tooltip>
-    )
-  }
+export function SidebarTriggerComponent({
+  text,
+  variant = 'default',
+  className,
+}: SidebarTriggerComponentProps) {
+  const { toggleSidebar } = useSidebar()
 
-  return <span className="" />
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant={variant}
+          className={className}
+          onClick={() => toggleSidebar()}
+        >
+          <PanelLeftClose className="size-8" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent align="end" className="text-sm font-bold">
+        <p>{text}</p>
+      </TooltipContent>
+    </Tooltip>
+  )
 }

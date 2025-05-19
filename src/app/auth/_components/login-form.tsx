@@ -57,7 +57,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
       const { error, user } = await getUserByEmail({ email })
 
       if (error) {
-        throw new Error(error.message)
+        throw new Error(error)
       }
 
       await signIn('email', {
@@ -95,7 +95,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
         <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
           <CardHeader className="gap-1 text-center">
             {name && (
-              <CardTitle className="flex items-center justify-center">
+              <CardTitle className="flex items-center justify-center text-lg font-bold">
                 <span className="mr-2">Bem-vindo de volta,</span>
                 <TypingAnimation>{name}</TypingAnimation>
               </CardTitle>
@@ -139,9 +139,10 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
               )}
             />
           </CardContent>
-          <CardFooter className="mt-2 flex justify-center">
+          <CardFooter className="my-2 flex justify-center">
             <InteractiveHoverButton
               type="submit"
+              className="flex w-full items-center justify-center font-semibold"
               disabled={form.formState.isSubmitting || !form.formState.isValid}
             >
               {form.formState.isSubmitting ? (
@@ -155,7 +156,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
             </InteractiveHoverButton>
           </CardFooter>
         </form>
-        <div className="my-4 flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+        <div className="my-2 flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
           <span className="text-xs text-muted-foreground">OU ENTRE COM</span>
         </div>
         <div className="mb-6 mt-3 flex justify-center">

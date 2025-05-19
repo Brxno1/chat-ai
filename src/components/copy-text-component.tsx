@@ -4,17 +4,46 @@ import React from 'react'
 import { clipboardWriteText } from '@/utils/clipboard-write-text'
 import { cn } from '@/utils/utils'
 
+function CopyIconComponent({ hasCopied }: { hasCopied: boolean }) {
+  return (
+    <div className="relative flex items-center">
+      <div
+        className={cn(
+          'transition-all',
+          hasCopied ? 'scale-0 opacity-0' : 'scale-100 opacity-100',
+        )}
+      >
+        <CopyIcon size={16} aria-hidden="true" />
+      </div>
+      <div
+        className={cn(
+          'absolute right-0 transition-all',
+          hasCopied ? 'scale-100 opacity-100' : 'scale-0 opacity-0',
+        )}
+      >
+        <CheckIcon
+          className="stroke-emerald-500"
+          size={16}
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  )
+}
+
 interface CopyTextComponentProps {
-  textForCopy: string
   className?: string
   children?: React.ReactNode
+  textForCopy: string
+  iconPosition?: 'left' | 'right'
   onCloseComponent?: () => void
 }
 
-export function CopyTextComponent({
-  textForCopy,
+function CopyTextComponent({
   className,
   children,
+  textForCopy,
+  iconPosition = 'right',
   onCloseComponent,
 }: CopyTextComponentProps) {
   const [hasCopied, setHasCopied] = React.useState(false)
@@ -32,30 +61,14 @@ export function CopyTextComponent({
 
   return (
     <div
+      className={cn('flex w-full items-center', className)}
       onClick={handleCopy}
-      className={cn('flex w-full items-center gap-2', className)}
     >
-      <div
-        className={cn(
-          'transition-all',
-          hasCopied ? 'scale-100 opacity-100' : 'scale-0 opacity-0',
-        )}
-      >
-        <CheckIcon
-          className="stroke-emerald-500"
-          size={16}
-          aria-hidden="true"
-        />
-      </div>
-      <div
-        className={cn(
-          'absolute cursor-pointer transition-all',
-          hasCopied ? 'scale-0 opacity-0' : 'scale-100 opacity-100',
-        )}
-      >
-        <CopyIcon size={16} aria-hidden="true" />
-      </div>
+      {iconPosition === 'left' && <CopyIconComponent hasCopied={hasCopied} />}
       {children}
+      {iconPosition === 'right' && <CopyIconComponent hasCopied={hasCopied} />}
     </div>
   )
 }
+
+export { CopyTextComponent, CopyIconComponent }

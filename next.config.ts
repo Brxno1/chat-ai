@@ -3,11 +3,10 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['apcckevlnyublmecrwzu.supabase.co', 'localhost'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'apcckevlnyublmecrwzu.supabase.co',
+        hostname: 'svlgyuqyhfnqdfqvgqjz.supabase.co',
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
@@ -15,6 +14,18 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '3000',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.logo.dev',
+        port: '',
         pathname: '/**',
       },
     ],

@@ -6,19 +6,25 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('authjs.session-token')
   const { pathname } = request.nextUrl
 
-  if (['/auth'].includes(pathname) && token) {
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.includes('.') ||
+    pathname.startsWith('/api')
+  ) {
+    return NextResponse.next()
+  }
+
+  if (pathname === '/auth' && token) {
     return NextResponse.redirect(new URL(getUrl('/dashboard')))
   }
 
-  if (['/dashboard'].includes(pathname) && !token) {
+  if (pathname === '/dashboard' && !token) {
     return NextResponse.redirect(new URL(getUrl('/auth')))
   }
 
-  if (['/api/auth', '/auth'].includes(pathname)) {
-    return NextResponse.next()
-  }
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

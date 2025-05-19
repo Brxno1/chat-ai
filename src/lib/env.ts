@@ -5,6 +5,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().default('http://localhost:3000'),
   NEXT_PUBLIC_SUPABASE_URL: z.string().optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
+  NEXT_PUBLIC_BETTER_AUTH_URL: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   NEXT_PUBLIC_GOOGLE_REDIRECT_URI: z.string().optional(),
@@ -12,6 +13,7 @@ const envSchema = z.object({
   EMAIL_SERVER: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
   MAILTRAP_HOST: z.string().optional(),
+  MAILTRAP_PORT: z.string().optional(),
   MAILTRAP_USERNAME: z.string().optional(),
   MAILTRAP_PASSWORD: z.string().optional(),
   MAILHOG_HOST: z.string().default('localhost'),
@@ -20,6 +22,7 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().optional(),
   SENDGRID_API_KEY: z.string().optional(),
   SENDGRID_EMAIL_FROM: z.string().optional(),
+  NEXT_PUBLIC_LOGO_DEV_TOKEN: z.string().optional(),
 })
 
 export const env = envSchema.parse(process.env)

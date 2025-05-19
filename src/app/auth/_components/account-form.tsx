@@ -1,10 +1,9 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User } from '@prisma/client'
 import { RiGoogleFill } from '@remixicon/react'
 import { useMutation } from '@tanstack/react-query'
-import { AxiosError, AxiosResponse } from 'axios'
+import { AxiosError } from 'axios'
 import {
   ArrowRightLeft,
   CircleUserRoundIcon,
@@ -16,13 +15,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 import { useTheme } from 'next-themes'
-import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { createAccount } from '@/app/(http)/user/login-account'
+import { FileChange } from '@/app/dashboard/_components/profile/edit-profile'
 import { ContainerWrapper } from '@/components/container'
 import { CopyTextComponent } from '@/components/copy-text-component'
+import { InteractiveHoverButton } from '@/components/magicui/interactive-hover-button'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { Button } from '@/components/ui/button'
 import {
@@ -41,22 +42,22 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+// import { UploadAvatar } from '@/components/upload-avatar'
 import { useImageUpload } from '@/hooks/use-image-upload'
-import { api } from '@/lib/axios'
 import { env } from '@/lib/env'
-import { accountSchema } from '@/schemas'
+import { createAccountSchema } from '@/schemas'
 import { useSessionStore } from '@/store/user-store'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
-type FormValues = z.infer<typeof accountSchema>
+type FormValues = z.infer<typeof createAccountSchema>
 
-export function AccountForm() {
+export function CreateAccountForm() {
   const { theme } = useTheme()
   const { email } = useSessionStore()
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(accountSchema),
+    resolver: zodResolver(createAccountSchema),
     mode: 'onChange',
     defaultValues: {
       name: '',
@@ -66,28 +67,17 @@ export function AccountForm() {
   })
 
   const {
-    fileName,
+    handleRemove,
     previewUrl,
+    fileName,
     fileInputRef,
     handleThumbnailClick,
-    handleFileChange: onFileChange,
-    handleRemove,
+    handleFileChange,
   } = useImageUpload()
 
-  const handleRemoveFile = () => {
-    handleRemove()
-    form.setValue('avatar', null)
-  }
-
-  const handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    onFileChange(ev)
-    form.setValue('avatar', ev.target.files?.[0])
-  }
-
-  const { mutateAsync } = useMutation({
-    mutationFn: (formData: FormData) =>
-      api.post<FormValues, AxiosResponse<User>>('/login', formData),
-    onSuccess: ({ data: { name } }) => {
+  const { mutateAsync: createAccountFn } = useMutation({
+    mutationFn: createAccount,
+    onSuccess: ({ name }) => {
       toast('Link mágico enviado para: ', {
         action: (
           <Link
@@ -100,8 +90,10 @@ export function AccountForm() {
         ),
         duration: 7000,
       })
-      handleRemove()
-      form.reset()
+      handleRemoveFile()
+      form.reset({
+        avatar: null,
+      })
     },
     onError: (err) => {
       if (err instanceof AxiosError) {
@@ -121,16 +113,34 @@ export function AccountForm() {
     },
   })
 
+  const handleRemoveFile = () => {
+    handleRemove()
+    form.setValue('avatar', null)
+  }
+
+  const onFileChange = ({ name, file }: FileChange) => {
+    form.setValue(name as 'avatar', file)
+    form.clearErrors(name as 'avatar')
+
+    if (file) {
+      form.trigger(name as 'avatar')
+    }
+  }
+
+  const handleFileRemove = () => {
+    handleRemove()
+    onFileChange({ name: 'avatar', file: null })
+  }
+
   const onCreateAccount = async ({ name, email, avatar }: FormValues) => {
     const formData = new FormData()
 
     formData.append('name', name)
     formData.append('email', email)
-    if (avatar) {
-      formData.append('avatar', avatar)
-    }
 
-    await mutateAsync(formData)
+    if (avatar) formData.append('avatar', avatar)
+
+    await createAccountFn(formData)
   }
 
   return (
@@ -221,7 +231,7 @@ export function AccountForm() {
                 <FormItem>
                   <div className="my-4 inline-flex w-full items-center justify-between align-top">
                     <div
-                      className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
+                      className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
                       aria-label={
                         previewUrl
                           ? 'Preview of uploaded image'
@@ -242,12 +252,9 @@ export function AccountForm() {
                       {!previewUrl && (
                         <ContainerWrapper
                           aria-hidden="true"
-                          className="flex h-full w-full items-center justify-center"
+                          className="flex h-full w-full items-center justify-center opacity-60"
                         >
-                          <CircleUserRoundIcon
-                            className="opacity-60"
-                            size={24}
-                          />
+                          <CircleUserRoundIcon size={24} />
                         </ContainerWrapper>
                       )}
                     </div>
@@ -276,11 +283,11 @@ export function AccountForm() {
                         <Input
                           type="file"
                           accept="image/*"
-                          ref={fileInputRef}
                           className="hidden"
                           multiple={false}
-                          {...rest}
+                          ref={fileInputRef}
                           onChange={handleFileChange}
+                          {...rest}
                         />
                       </FormControl>
                     </div>
@@ -289,18 +296,16 @@ export function AccountForm() {
                     <div className="inline-flex gap-2 text-xs">
                       <CopyTextComponent
                         textForCopy={fileName}
-                        className="text-muted-foreground"
+                        className="gap-2 text-muted-foreground"
+                        iconPosition="left"
                       >
-                        <p
-                          className="truncate text-muted-foreground"
-                          aria-live="polite"
-                        >
+                        <p aria-live="polite">
                           {truncateText({ text: fileName, maxLength: 20 })}
                         </p>
                       </CopyTextComponent>
                       {'-'}
                       <button
-                        onClick={handleRemoveFile}
+                        onClick={handleFileRemove}
                         className="font-medium text-red-500 hover:underline"
                         aria-label={`Remove ${fileName}`}
                       >
@@ -318,7 +323,7 @@ export function AccountForm() {
             />
           </CardContent>
           <CardFooter>
-            <Button
+            <InteractiveHoverButton
               type="submit"
               className="flex w-full items-center justify-center font-semibold"
               disabled={form.formState.isSubmitting || !form.formState.isValid}
@@ -329,11 +334,11 @@ export function AccountForm() {
                   <LoaderCircle className="ml-1 animate-spin font-semibold" />
                 </span>
               ) : (
-                <span className="flex items-center gap-4">
+                <span className="flex items-center gap-2">
                   Criar e enviar link
                 </span>
               )}
-            </Button>
+            </InteractiveHoverButton>
           </CardFooter>
         </form>
       </Form>

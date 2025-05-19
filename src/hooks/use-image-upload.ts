@@ -10,10 +10,10 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
   const previewRef = React.useRef<string | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
+  const [file, setFile] = React.useState<File | null>(null)
   const [fileName, setFileName] = React.useState<string | null>(null)
   const [fileSize, setFileSize] = React.useState<number | null>(null)
-  const [file, setFile] = React.useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
 
   const handleThumbnailClick = React.useCallback(() => {
     fileInputRef.current?.click()

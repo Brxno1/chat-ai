@@ -1,4 +1,4 @@
-import { ImagePlusIcon, XIcon } from 'lucide-react'
+import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 
@@ -13,15 +13,11 @@ import {
 } from '@/components/ui/tooltip'
 import { useImageUpload } from '@/hooks/use-image-upload'
 
+import { FileChange } from './edit-profile'
+
 interface FileUploadProps {
   Background?: string | null
-  onFileChange: ({
-    name,
-    file,
-  }: {
-    name: 'background'
-    file: File | null
-  }) => void
+  onFileChange: ({ name, file }: FileChange) => void
 }
 
 function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
@@ -51,9 +47,9 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
   }
 
   return (
-    <ContainerWrapper className="h-32">
+    <div className="h-32">
       <ContainerWrapper className="group relative size-full items-center justify-center overflow-hidden border-b">
-        {currentBackground && (
+        {currentBackground ? (
           <Image
             src={currentBackground}
             className="size-full object-cover"
@@ -61,15 +57,21 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
             height={96}
             alt="Imagem de fundo"
           />
+        ) : (
+          <div className="size-full" />
         )}
-        <ContainerWrapper className="absolute inset-0 flex items-center justify-center gap-2">
+        <div className="absolute inset-0 flex items-center justify-center gap-2">
           <Button
             type="button"
             className="z-50 hidden size-10 cursor-pointer items-center justify-center rounded-full bg-muted text-primary outline-none transition-[color,box-shadow] hover:bg-muted/90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 group-hover:flex"
             onClick={handleThumbnailClick}
             aria-label={currentBackground ? 'Alterar fundo' : 'Carregar fundo'}
           >
-            <ImagePlusIcon size={16} aria-hidden="true" />
+            {currentBackground ? (
+              <ArrowRightLeft size={16} aria-hidden="true" />
+            ) : (
+              <ImagePlusIcon size={16} aria-hidden="true" />
+            )}
           </Button>
           {previewUrl && (
             <Button
@@ -81,7 +83,7 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
               <XIcon size={16} aria-hidden="true" />
             </Button>
           )}
-        </ContainerWrapper>
+        </div>
       </ContainerWrapper>
       <Input
         type="file"
@@ -91,7 +93,7 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
         accept="image/*"
         aria-label="Carregar arquivo de imagem"
       />
-    </ContainerWrapper>
+    </div>
   )
 }
 

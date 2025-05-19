@@ -6,7 +6,7 @@ import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useSessionStore } from '@/store/user-store'
 
-import { AccountForm } from './account-form'
+import { CreateAccountForm } from './account-form'
 import { LoginForm } from './login-form'
 
 export function FormAuth() {
@@ -31,7 +31,7 @@ export function FormAuth() {
         <TabsTrigger value="login">Entrar</TabsTrigger>
       </TabsList>
       <TabsContent value="account">
-        <AccountForm />
+        <CreateAccountForm />
       </TabsContent>
       <TabsContent value="login">
         <LoginForm name={name} onChangeMode={handleChangeModeToAccount} />

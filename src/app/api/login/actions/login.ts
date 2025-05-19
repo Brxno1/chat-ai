@@ -21,13 +21,13 @@ type LoginResponse = {
   userExists?: boolean
 }
 
-export async function loginWithMagicLink(
+export async function createUserAndSendMagicLink(
   data: LoginData,
 ): Promise<LoginResponse> {
   try {
-    const userExists = await getUserByEmail({ email: data.email })
+    const { user } = await getUserByEmail({ email: data.email })
 
-    if (userExists.user) {
+    if (user) {
       return { error: null, userExists: true }
     }
 
@@ -85,7 +85,7 @@ export async function loginWithMagicLink(
     }
   } catch (error) {
     return {
-      error: 'Internal Server Error',
+      error: String(error),
     }
   }
 }

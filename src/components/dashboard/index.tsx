@@ -23,7 +23,7 @@ export function DashboardPageHeader({
   return (
     <header
       className={cn([
-        'flex justify-between border-b border-border bg-background py-2',
+        'sticky top-0 z-10 flex w-full border-b items-center justify-end gap-3 bg-muted px-6 py-3 drop-shadow-md dark:bg-background',
         className,
       ])}
     >
@@ -47,7 +47,7 @@ export function DashboardPageHeaderNav({
   className,
   children,
 }: DashboardPageGenericProps) {
-  return <nav className={cn(['', className])}>{children}</nav>
+  return <nav className={cn(className)}>{children}</nav>
 }
 
 export function DashboardPageMain({

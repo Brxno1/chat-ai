@@ -1,3 +1,5 @@
+'use client'
+
 import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
 import Image from 'next/image'
 import { User } from 'next-auth'
@@ -12,20 +14,20 @@ import {
 } from '@/components/ui/hover-card'
 import { Input } from '@/components/ui/input'
 import { useImageUpload } from '@/hooks/use-image-upload'
-import { formatDataToLocale, formatFileSize } from '@/utils/format'
+import { formatDateToLocale, formatFileSize } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'
+
+import { FileChange } from './edit-profile'
 
 interface AvatarProps {
   user: User
   error?: string
-  onFileChange: ({ name, file }: { name: 'avatar'; file: File | null }) => void
+  onFileChange: ({ name, file }: FileChange) => void
 }
 
 function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
   const {
     file,
-    fileName,
-    fileSize,
     previewUrl,
     fileInputRef,
     handleThumbnailClick,
@@ -47,47 +49,18 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
   return (
     <ContainerWrapper className="-mt-10 flex items-center px-6">
       <div className="shadow-xs group relative flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
-        {currentImage && (
-          <HoverCard>
-            <HoverCardTrigger asChild>
-              <Image
-                src={currentImage}
-                className="size-full object-cover"
-                width={80}
-                height={80}
-                alt="Imagem de perfil"
-              />
-            </HoverCardTrigger>
-            {previewUrl && (
-              <HoverCardContent className="flex w-[13rem] flex-col items-start gap-1">
-                <p className="text-sm">
-                  Nome:{' '}
-                  <span className="text-muted-foreground">
-                    {truncateText({
-                      text: fileName!,
-                      maxLength: 17,
-                    })}
-                  </span>
-                </p>
-                <p className="text-sm">
-                  Tipo:{' '}
-                  <span className="text-muted-foreground">{file!.type}</span>
-                </p>
-                <p className="text-sm">
-                  Tamanho:{' '}
-                  <span className="text-muted-foreground">
-                    {fileSize ? formatFileSize(fileSize) : '0 B'}
-                  </span>
-                </p>
-                <p className="text-sm">
-                  Modificado em:{' '}
-                  <span className="text-muted-foreground">
-                    {formatDataToLocale(new Date(file!.lastModified))}
-                  </span>
-                </p>
-              </HoverCardContent>
-            )}
-          </HoverCard>
+        {currentImage ? (
+          <AvatarDetails
+            currentImage={currentImage}
+            previewUrl={previewUrl!}
+            file={file}
+          />
+        ) : (
+          <Avatar className="size-20 rounded-sm font-semibold">
+            <AvatarFallback>
+              {user.name!.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
         )}
         <button
           type="button"
@@ -127,6 +100,57 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
         <span className="ml-auto mt-10 text-xs text-red-600">{error}</span>
       )}
     </ContainerWrapper>
+  )
+}
+
+type AvatarDetailsProps = {
+  currentImage: string
+  previewUrl: string
+  file: File | null
+}
+
+function AvatarDetails({ currentImage, previewUrl, file }: AvatarDetailsProps) {
+  return (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Image
+          src={currentImage}
+          className="size-full object-cover"
+          width={80}
+          height={80}
+          alt="Imagem de perfil"
+        />
+      </HoverCardTrigger>
+      {previewUrl && (
+        <HoverCardContent className="flex w-[13rem] flex-col items-start gap-1">
+          <p className="text-sm">
+            Nome:{' '}
+            <span className="text-muted-foreground">
+              {truncateText({
+                text: file?.name || '',
+                maxLength: 17,
+              })}
+            </span>
+          </p>
+          <p className="text-sm">
+            Tipo:{' '}
+            <span className="text-muted-foreground">{file?.type || ''}</span>
+          </p>
+          <p className="text-sm">
+            Tamanho:{' '}
+            <span className="text-muted-foreground">
+              {formatFileSize(file?.size || 0)}
+            </span>
+          </p>
+          <p className="text-sm">
+            Modificado em:{' '}
+            <span className="text-muted-foreground">
+              {formatDateToLocale(new Date(file?.lastModified || 0))}
+            </span>
+          </p>
+        </HoverCardContent>
+      )}
+    </HoverCard>
   )
 }
 

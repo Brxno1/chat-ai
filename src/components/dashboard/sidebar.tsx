@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 
 import { cn } from '@/utils/utils'
@@ -21,40 +23,40 @@ function Sidebar({ className, children }: SidebarGenericProps) {
 }
 
 function SidebarHeader({ className, children }: SidebarGenericProps) {
-  return <header className={cn(['', className])}>{children}</header>
+  return <header className={cn(className)}>{children}</header>
 }
 
 function SidebarHeaderTitle({ className, children }: SidebarGenericProps) {
-  return <h1 className={cn(['', className])}>{children}</h1>
+  return <h1 className={cn(className)}>{children}</h1>
 }
 
 function SidebarMain({ className, children }: SidebarGenericProps) {
-  return <main className={cn(['px-3', className])}>{children}</main>
+  return <main className={cn('px-3', className)}>{children}</main>
 }
 
 function SidebarNav({ className, children }: SidebarGenericProps) {
-  return <nav className={cn(['', className])}>{children}</nav>
+  return <nav className={cn(className)}>{children}</nav>
 }
 
 function SidebarNavHeader({ className, children }: SidebarGenericProps) {
-  return <header className={cn(['', className])}>{children}</header>
+  return <header className={cn(className)}>{children}</header>
 }
 
 function SidebarNavHeaderTitle({ className, children }: SidebarGenericProps) {
   return (
-    <div
-      className={cn([
+    <h1
+      className={cn(
         'ml-3 text-[0.6rem] uppercase text-muted-foreground',
         className,
-      ])}
+      )}
     >
       {children}
-    </div>
+    </h1>
   )
 }
 
 function SidebarNavMain({ className, children }: SidebarGenericProps) {
-  return <main className={cn(['space-y-2', className])}>{children}</main>
+  return <main className={cn('space-y-2', className)}>{children}</main>
 }
 
 type SidebarNavLinkProps = {
@@ -66,18 +68,19 @@ type SidebarNavLinkProps = {
 function SidebarNavLink({
   className,
   children,
-  href,
   active,
+  href,
   onClick,
 }: SidebarGenericProps<SidebarNavLinkProps>) {
   return (
     <Link
       href={href}
-      onClick={onClick}
+      prefetch={false}
+      onClick={() => onClick?.()}
       className={cn(
-        'flex items-center rounded-sm bg-primary-foreground px-3 py-2 text-sm transition-all hover:bg-secondary/60',
+        'flex items-center bg-primary-foreground w-full rounded-sm py-2 text-sm transition-all hover:bg-secondary/60',
+        className,
         {
-          className,
           'cursor-default bg-primary text-primary-foreground hover:bg-primary':
             active,
         },
@@ -91,10 +94,10 @@ function SidebarNavLink({
 function SidebarFooter({ className, children }: SidebarGenericProps) {
   return (
     <footer
-      className={cn([
+      className={cn(
         'mt-auto flex items-center border-t border-border p-4',
         className,
-      ])}
+      )}
     >
       {children}
     </footer>

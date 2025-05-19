@@ -1,8 +1,12 @@
 'use client'
 
-import { House, LayoutDashboard, Navigation, Settings2 } from 'lucide-react'
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Navigation,
+  Settings2,
+} from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { Suspense } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -16,65 +20,89 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
 import { SidebarTriggerComponent } from './sidebar-trigger'
-import { UserDropdown, UserDropdownSkeleton } from './user-dropdown'
+import { UserDropdown } from './user-dropdown'
 
 export function AppSidebar() {
   const pathname = usePathname()
-  const isActive = (path: string) => {
-    return pathname === path
-  }
+
+  const isActivePath = (path: string) => pathname === path
 
   const handleClickToNavigate = () => {
-    toast.warning('Em desenvolvimento!', {
+    toast('Em desenvolvimento!', {
       duration: 1000,
       position: 'top-center',
     })
   }
+
+  const mainLinks = [
+    {
+      href: '/dashboard',
+      icon: LayoutDashboard,
+      label: 'Dashboard',
+    },
+    {
+      href: '/dashboard/settings',
+      icon: Settings2,
+      label: 'Configurações',
+    },
+  ]
+
+  const bottomLinks = [
+    {
+      href: '/',
+      icon: MessageSquare,
+      label: 'Chat',
+    },
+    {
+      href: '/?a=1',
+      icon: Navigation,
+      label: 'Site',
+      onClick: handleClickToNavigate,
+    },
+  ]
 
   return (
     <Sidebar>
       <SidebarHeader className="w-full rounded-sm border-b border-border bg-muted dark:bg-background">
         <SidebarHeaderTitle className="flex w-full items-center justify-between py-1">
           <Logo className="ml-2" />
-          <SidebarTriggerComponent />
+          <SidebarTriggerComponent text="Fechar" variant="outline" />
         </SidebarHeaderTitle>
       </SidebarHeader>
-      <SidebarContent className="flex flex-grow flex-col bg-muted !p-0 dark:bg-background">
+      <SidebarContent className="flex flex-grow flex-col">
         <SidebarGroup className="space-y-2">
-          <SidebarNavLink href="/dashboard" active={isActive('/dashboard')}>
-            <LayoutDashboard className="mr-3 size-4" />
-            Dashboard
-          </SidebarNavLink>
-          <SidebarNavLink
-            href="/dashboard/settings"
-            active={isActive('/dashboard/settings')}
-          >
-            <Settings2 className="mr-3 size-4" />
-            Configurações
-          </SidebarNavLink>
+          {mainLinks.map((link) => (
+            <SidebarNavLink
+              key={link.href}
+              href={link.href}
+              active={isActivePath(link.href)}
+              className="px-3"
+            >
+              <link.icon className="mr-3 size-5" />
+              {link.label}
+            </SidebarNavLink>
+          ))}
         </SidebarGroup>
-
-        <SidebarGroup className="mb-3 mt-auto">
-          <SidebarMenuItem className="space-y-2">
-            <SidebarNavLink href="/" active={isActive('/')}>
-              <House className="mr-3 size-4" />
-              Home
+        <SidebarGroup className="mb-3 mt-auto space-y-2">
+          {bottomLinks.map((link) => (
+            <SidebarNavLink
+              key={link.href}
+              href={link.href}
+              active={isActivePath(link.href)}
+              className="px-3"
+              onClick={link.onClick}
+            >
+              <link.icon className="mr-3 size-5" />
+              {link.label}
             </SidebarNavLink>
-            <SidebarNavLink href="/auth" onClick={handleClickToNavigate}>
-              <Navigation className="mr-3 size-4" />
-              Site
-            </SidebarNavLink>
-          </SidebarMenuItem>
+          ))}
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="flex w-full items-center justify-center rounded-sm border-t border-border bg-muted py-2 dark:bg-background">
-        <Suspense fallback={<UserDropdownSkeleton />}>
-          <UserDropdown />
-        </Suspense>
+      <SidebarFooter className="flex h-16 w-full items-center justify-center">
+        <UserDropdown />
       </SidebarFooter>
     </Sidebar>
   )

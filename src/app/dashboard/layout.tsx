@@ -8,6 +8,6 @@ export const metadata: Metadata = {
   description: 'Gerencie suas tarefas com facilidade',
 }
 
-export default async function RootLayout({ children }: PropsWithChildren) {
+export default async function DashboardLayout({ children }: PropsWithChildren) {
   return <ContainerLayout>{children}</ContainerLayout>
 }

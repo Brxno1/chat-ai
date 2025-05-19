@@ -4,27 +4,27 @@ import NextAuth, { Session } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import nodemailer from 'nodemailer'
 import { JWT } from 'next-auth/jwt'
-import sgMail from '@sendgrid/mail'
-
 import { prisma } from '@/services/database/prisma'
 
 import { Email } from '../email/'
 import { env } from '@/lib/env'
 import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
 import { User } from 'next-auth'
+import { Adapter } from 'next-auth/adapters'
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
+const extendedPrisma = prisma.$extends({}) as any
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma) as any,
+  adapter: PrismaAdapter(extendedPrisma) as Adapter,
+  secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
     GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      clientId: env.GOOGLE_CLIENT_ID!,
+      clientSecret: env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          redirect_uri: env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
+          redirect_uri: env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI!,
         },
       },
     }),
@@ -53,14 +53,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const html = await render(Email({ url, user }));
 
-          const msg = {
+          const transporter = nodemailer.createTransport({
+            host: env.MAILHOG_HOST,
+            port: parseInt(env.MAILHOG_PORT),
+            auth: undefined,
+          });
+
+          const options = {
+            from: env.EMAIL_FROM,
             to: email,
-            from: env.EMAIL_FROM || 'Bruno-bruno14dev@gmail.com',
             subject: `Olá, ${user.name}`,
             html,
           };
 
-          await sgMail.send(msg);
+          await transporter.sendMail(options);
         } catch (error) {
           console.error('Erro ao enviar e-mail:', error);
         }
@@ -73,13 +79,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verifyRequest: '/auth',
     newUser: '/dashboard',
   },
-
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt'
   },
-
-  secret: env.AUTH_SECRET,
-
   callbacks: {
     async jwt({ token, user, trigger, session }: {
       token: JWT;
@@ -108,15 +110,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token
     },
 
-    async signIn({ user }) {
-      if (user) {
-        const data = await getUserByEmail({ email: user.email as string })
-
-        if (data.error) {
-          return false
-        }
-      }
-
+    async signIn() {
       return true
     },
 
