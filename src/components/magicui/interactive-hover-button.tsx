@@ -21,13 +21,13 @@ export const InteractiveHoverButton = ({
   return (
     <Button
       ref={ref}
+      {...props}
       disabled={disabled}
       variant="outline"
       className={cn(
         'group relative items-center overflow-hidden px-6 py-2 font-semibold',
         className,
       )}
-      {...props}
     >
       {disabled ? (
         <div className="flex items-center justify-center gap-2">

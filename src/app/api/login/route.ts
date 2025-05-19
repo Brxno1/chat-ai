@@ -13,8 +13,6 @@ export async function POST(req: NextRequest) {
     avatar: formData.get('avatar'),
   })
 
-  console.log(data, 'data in POST')
-
   if (schemaError) {
     return NextResponse.json({ error: schemaError.message }, { status: 400 })
   }

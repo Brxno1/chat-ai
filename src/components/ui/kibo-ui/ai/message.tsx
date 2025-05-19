@@ -3,7 +3,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from '@repo/shadcn-ui/components/ui/avatar';
+} from '@/components/ui/avatar';
 import type { ComponentProps, HTMLAttributes } from 'react';
 
 export type AIMessageProps = HTMLAttributes<HTMLDivElement> & {

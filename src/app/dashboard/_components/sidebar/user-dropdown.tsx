@@ -23,9 +23,9 @@ import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
 function UserDropdown() {
-  const { user } = useSessionStore()
-
   const [open, setOpen] = React.useState(false)
+
+  const { user } = useSessionStore()
 
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: async () => {
@@ -47,11 +47,6 @@ function UserDropdown() {
     },
   })
 
-  const handleSignOut = async (ev: React.MouseEvent) => {
-    ev.preventDefault()
-    await signOutFn()
-  }
-
   const onOpenChangeFn = (isOpen: boolean) => {
     if (isSigningOut && !isOpen) {
       return
@@ -59,22 +54,32 @@ function UserDropdown() {
     setOpen(isOpen)
   }
 
+  const handleSignOut = async (ev: React.MouseEvent) => {
+    ev.preventDefault()
+    await signOutFn()
+  }
+
+  if (!user) {
+    return <UserDropdownSkeleton />
+  }
+
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChangeFn}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="lg"
-          className={cn('relative flex w-full items-center justify-start p-2')}
+          className={cn(
+            'relative flex w-full items-center justify-start gap-2 py-6',
+          )}
         >
           <ContainerWrapper className="flex items-center gap-3">
             <Avatar className="size-8 cursor-grab rounded-sm">
-              <AvatarImage src={user?.image || ''} alt="user avatar" />
+              <AvatarImage src={user.image || ''} alt="user avatar" />
               <AvatarFallback className="rounded-sm font-semibold">
-                {user?.name?.slice(0, 2).toUpperCase()}
+                {user.name?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <p className="font-semibold leading-none">{user?.name}</p>
+            <p className="font-semibold leading-none">{user.name}</p>
           </ContainerWrapper>
           <ChevronUp
             className={cn('absolute right-2 size-4', {
@@ -129,20 +134,20 @@ function UserDropdown() {
   )
 }
 
-//  hover:bg-gradient-to-r hover:hover:from-purple-600 hover:hover:to-teal-400 hover:hover:shadow-sm hover:hover:shadow-purple-500
-
 function UserDropdownSkeleton() {
   return (
-    <div
+    <Button
+      variant="outline"
+      disabled
       className={cn(
-        'relative flex w-full cursor-default items-center justify-start gap-2 rounded-md px-2 py-2',
+        'relative flex w-full items-center justify-start gap-3 py-6',
       )}
     >
-      <Skeleton className="size-9 rounded-sm" />
-      <Skeleton className="h-4 w-24 rounded-sm" />
-      <Skeleton className="absolute right-2 size-4 rounded-sm" />
-    </div>
+      <Skeleton className="size-8 rounded-sm" />
+      <Skeleton className="h-3 w-24 rounded-sm" />
+      <ChevronUp className="absolute right-2 size-4 rounded-sm" />
+    </Button>
   )
 }
 
-export { UserDropdown, UserDropdownSkeleton }
+export { UserDropdown }

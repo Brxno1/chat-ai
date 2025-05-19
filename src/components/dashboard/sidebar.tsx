@@ -68,15 +68,15 @@ type SidebarNavLinkProps = {
 function SidebarNavLink({
   className,
   children,
-  href,
   active,
+  href,
   onClick,
 }: SidebarGenericProps<SidebarNavLinkProps>) {
   return (
     <Link
       href={href}
-      onClick={onClick}
       prefetch={false}
+      onClick={() => onClick?.()}
       className={cn(
         'flex items-center bg-primary-foreground w-full rounded-sm py-2 text-sm transition-all hover:bg-secondary/60',
         className,

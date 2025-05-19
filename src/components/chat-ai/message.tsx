@@ -18,17 +18,17 @@ import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
-interface MessageChatProps {
+interface MessageProps {
   message: Message
   modelName: string
   onDeleteMessageChat: (id: string) => void
 }
 
-export function MessageChat({
+export function Messages({
   message,
   modelName,
   onDeleteMessageChat,
-}: MessageChatProps) {
+}: MessageProps) {
   const user = useSessionStore((state) => state.user)
 
   const [state, setState] = useState({
@@ -51,7 +51,7 @@ export function MessageChat({
     setTimeout(() => {
       setState((prev) => ({ ...prev, isDeleting: false }))
       onDeleteMessageChat(id)
-    }, 1000)
+    }, 500)
   }
 
   return (
@@ -84,20 +84,20 @@ export function MessageChat({
               >
                 <div
                   className={cn(
-                    'flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-1 dark:bg-foreground',
+                    'flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-2 dark:bg-foreground',
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',
                     },
                   )}
                 >
-                  <p className="h-fit w-fit max-w-md text-wrap rounded-md px-2 text-base font-thin text-background">
+                  <p className="size-fit max-w-md text-wrap rounded-md px-2 text-background">
                     {formatTextWithStrong(part.text)}
                   </p>
                   <DropdownMenu
                     open={state.openDropdown}
                     onOpenChange={() =>
-                      setState({ ...state, openDropdown: !state.openDropdown })
+                      setState((prev) => ({ ...prev, openDropdown: !prev.openDropdown }))
                     }
                   >
                     <DropdownMenuTrigger asChild>

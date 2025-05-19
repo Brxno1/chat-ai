@@ -1,7 +1,7 @@
 import { Todo } from '@prisma/client'
 import { Suspense } from 'react'
 
-import { actionGetTodos } from '@/app/api/todo/actions/get-todos'
+import { getTodosAction } from '@/app/api/todo/actions/get-todos'
 import { ChartDemoOne } from '@/components/chart-demo-one'
 import { ContainerWrapper } from '@/components/container'
 import {
@@ -16,11 +16,11 @@ import { TodoDataTable } from './_components/todo/data-table'
 import { TodoDataTableFallback } from './_components/todo/data-table-fallback'
 
 export default async function Page() {
-  const initialData = await actionGetTodos()
+  const initialData = await getTodosAction()
 
   async function refreshTodos(): Promise<Todo[]> {
     'use server'
-    return actionGetTodos()
+    return getTodosAction()
   }
 
   return (

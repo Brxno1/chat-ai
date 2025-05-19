@@ -3,7 +3,7 @@
 import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
-export async function actionGetTodos() {
+export async function getTodosAction() {
   const session = await auth()
 
   if (!session) {

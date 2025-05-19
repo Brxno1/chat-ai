@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/tooltip'
 import { formatDistanceToNow } from '@/utils/format'
 
-import { ActionsForTodo } from './actions'
+import { ActionsForTodo } from './actions-components/actions'
 import { BadgeStatus } from './badge-status'
 
 export const columns: ColumnDef<Todo>[] = [

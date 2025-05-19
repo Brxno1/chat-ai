@@ -1,38 +1,52 @@
+import { CheckCircleIcon, ClockIcon, XCircleIcon } from 'lucide-react'
+
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/utils/utils'
 
+type StatusType = 'PENDING' | 'FINISHED' | 'CANCELLED'
+
+type BadgeConfig = {
+  label: string
+  color: string
+  icon: React.ReactNode
+}
+
 type BadgeStatusProps = {
-  status: 'PENDING' | 'FINISHED' | 'CANCELLED'
+  status: StatusType
+}
+
+const badge: Record<StatusType, BadgeConfig> = {
+  FINISHED: {
+    label: 'Finalizado',
+    color:
+      'bg-emerald-50 dark:bg-emerald-300/10 text-emerald-600 border-emerald-600 dark:text-emerald-600',
+    icon: <CheckCircleIcon size={16} />,
+  },
+  PENDING: {
+    label: 'Pendente',
+    color:
+      'bg-yellow-50 dark:bg-yellow-300/10 text-yellow-600 border-yellow-600 dark:text-yellow-600',
+    icon: <ClockIcon size={16} />,
+  },
+  CANCELLED: {
+    label: 'Cancelado',
+    color:
+      'bg-rose-50 dark:bg-rose-300/10 text-rose-600 border-rose-600 dark:text-rose-600',
+    icon: <XCircleIcon size={16} />,
+  },
 }
 
 export function BadgeStatus({ status }: BadgeStatusProps) {
-  let displayStatus: string
-  let statusColor: string
-
-  switch (status) {
-    case 'FINISHED':
-      displayStatus = 'Finalizado'
-      statusColor = 'before:bg-green-500 dark:before:bg-green-600'
-      break
-    case 'PENDING':
-      displayStatus = 'Pendente'
-      statusColor = 'before:bg-yellow-500 dark:before:bg-yellow-600'
-      break
-    case 'CANCELLED':
-      displayStatus = 'Cancelado'
-      statusColor = 'before:bg-red-500 dark:before:bg-red-600'
-      break
-  }
-
   return (
     <Badge
-      variant={'outline'}
+      variant="outline"
       className={cn(
-        'flex min-w-[6rem] items-center justify-center gap-2 bg-background p-2 capitalize before:h-2 before:w-2 before:rounded-full',
-        statusColor,
+        'flex min-w-[7rem] items-center justify-center gap-4 border p-1.5 capitalize',
+        badge[status].color,
       )}
     >
-      <span>{displayStatus}</span>
+      {badge[status].icon}
+      <span>{badge[status].label}</span>
     </Badge>
   )
 }

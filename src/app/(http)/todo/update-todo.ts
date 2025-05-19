@@ -1,7 +1,16 @@
-import { api } from '@/lib/axios'
+'use server'
 
-export async function updateTodo(title: string) {
-  const response = await api.put('/todo', { title })
+import { Todo } from '@prisma/client'
 
-  return response.data
+import { prisma } from '@/services/database/prisma'
+
+export async function updateTodoAction(todo: Todo) {
+  await prisma.todo.update({
+    where: {
+      id: todo.id,
+    },
+    data: {
+      title: todo.title,
+    },
+  })
 }

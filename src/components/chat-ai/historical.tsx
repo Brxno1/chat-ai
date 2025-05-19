@@ -77,6 +77,7 @@ export function Historical({ disabled = false }: { disabled?: boolean }) {
 
   const handleDeleteAllMessages = () => {
     setMessages([])
+    setOpen(false)
   }
 
   return (

@@ -33,11 +33,11 @@ export const editProfileSchema = z.object({
 export const createAccountSchema = z.object({
   name: z
     .string()
-    .nonempty('O nome não pode estar vazio')
+    .nonempty('Nome não pode estar vazio')
     .min(3, 'Nome deve ter no mínimo 3 carácteres'),
   email: z
     .string()
-    .nonempty('O email não pode estar vazio')
+    .nonempty('Email não pode estar vazio')
     .email('Insira um email válido'),
   avatar: z.union([
     z
@@ -54,6 +54,6 @@ export const createAccountSchema = z.object({
 export const loginSchema = z.object({
   email: z
     .string()
-    .nonempty('O email não pode estar vazio')
+    .nonempty('Email não pode estar vazio')
     .email('Insira um email válido'),
 })

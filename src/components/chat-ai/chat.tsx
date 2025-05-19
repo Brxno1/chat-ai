@@ -17,7 +17,7 @@ import { z } from 'zod'
 
 import { ComponentSwitchTheme } from '@/components/switch-theme'
 import { Button } from '@/components/ui/button'
-import { Form, FormField, FormItem } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import {
   AIForm,
   AIInputButton,
@@ -26,21 +26,20 @@ import {
   AIInputModelSelectItem,
   AIInputModelSelectTrigger,
   AIInputModelSelectValue,
-  AIButtonSubmit,
-  AIInputTextarea,
-  AIInputToolbar,
-  AIInputTools,
+  AIButtonSubmit, AIInputToolbar,
+  AIInputTools
 } from '@/components/ui/kibo-ui/ai/input'
 import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
 import { ChatHeader } from './header'
-import { MessageChat } from './message'
+import { Messages } from './message'
 import { models } from './models'
 import Image from 'next/image'
 import { TypingAnimation } from '../magicui/typing-animation'
 import { Historical } from './historical'
 import { ContainerWrapper } from '../container'
+import { Input } from '../ui/input'
 
 interface ChatProps {
   modelName: string
@@ -53,6 +52,7 @@ const schema = z.object({
 export function Chat({ modelName }: ChatProps) {
   const [model, setModel] = React.useState<string>(models[0].id)
   const [isGhost, setIsGhost] = React.useState<boolean>(false)
+
   const { user } = useSessionStore()
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
@@ -90,8 +90,13 @@ export function Chat({ modelName }: ChatProps) {
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    inputRef.current?.focus()
   }, [messages])
+
+  React.useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [])
 
   const onSubmit = () => {
     handleSubmit()
@@ -141,7 +146,7 @@ export function Chat({ modelName }: ChatProps) {
         )}
       >
         {messages.map((message) => (
-          <MessageChat
+          <Messages
             key={message.id}
             message={message}
             modelName={modelName}
@@ -160,17 +165,20 @@ export function Chat({ modelName }: ChatProps) {
             name="message"
             render={({ field }) => (
               <FormItem className='relative'>
-                <AIInputTextarea
-                  placeholder=''
-                  value={field.value}
-                  onChange={(ev) => {
-                    field.onChange(ev)
-                    handleInputChange(ev)
-                  }}
-                />
+                <FormControl>
+                  <Input
+                    className='w-full h-20 resize-none rounded-none border-none p-3 shadow-none outline-none ring-0 focus-visible:ring-0'
+                    value={field.value}
+                    ref={inputRef}
+                    onChange={(ev) => {
+                      field.onChange(ev)
+                      handleInputChange(ev)
+                    }}
+                  />
+                </FormControl>
                 {!field.value && (
                   <TypingAnimation
-                    className="pointer-events-none text-xs text-muted-foreground absolute left-3 top-3"
+                    className="pointer-events-none text-xs text-muted-foreground absolute left-3 top-6"
                   >
                     Digite sua mensagem...
                   </TypingAnimation>
@@ -219,7 +227,7 @@ export function Chat({ modelName }: ChatProps) {
                 <StopCircle size={16} />
               </AIButtonSubmit>
             ) : (
-              <AIButtonSubmit variant={'outline'} disabled={!input}>
+              <AIButtonSubmit variant={'outline'} disabled={!input} type='submit'>
                 <SendIcon size={16} />
               </AIButtonSubmit>
             )}

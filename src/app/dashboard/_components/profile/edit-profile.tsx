@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Edit, LoaderCircle } from 'lucide-react'
 import { User } from 'next-auth'
 import { useSession } from 'next-auth/react'
-import React, { Suspense } from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -35,11 +35,8 @@ import { useCharacterLimit } from '@/hooks/use-character-limit'
 import { editProfileSchema } from '@/schemas'
 import { cn } from '@/utils/utils'
 
-import {
-  BackgroundProfile,
-  BackgroundProfileFallback,
-} from './avatar-background'
-import { AvatarProfile, AvatarProfileFallback } from './avatar-profile'
+import { BackgroundProfile } from './avatar-background'
+import { AvatarProfile } from './avatar-profile'
 
 export type FileChange = {
   name: 'avatar' | 'background'
@@ -86,11 +83,9 @@ export default function EditProfile({ user }: { user: User }) {
 
   const onFileChange = ({ name, file }: FileChange) => {
     form.setValue(name, file)
+    form.clearErrors(name)
 
-    if (!file) {
-      form.clearErrors(name)
-    } else {
-      form.clearErrors(name)
+    if (file) {
       form.trigger(name)
     }
   }
@@ -107,7 +102,7 @@ export default function EditProfile({ user }: { user: User }) {
     form.reset()
   }
 
-  const handleUpdateProfile = async ({
+  const handleProfileUpdate = async ({
     name,
     bio,
     avatar,
@@ -118,13 +113,8 @@ export default function EditProfile({ user }: { user: User }) {
     formData.append('name', name)
     formData.append('bio', bio)
 
-    if (avatar) {
-      formData.append('avatar', avatar)
-    }
-
-    if (background) {
-      formData.append('background', background)
-    }
+    if (avatar) formData.append('avatar', avatar)
+    if (background) formData.append('background', background)
 
     await updateProfileFn(formData)
   }
@@ -156,22 +146,18 @@ export default function EditProfile({ user }: { user: User }) {
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleUpdateProfile)}
+            onSubmit={form.handleSubmit(handleProfileUpdate)}
             id="update-profile-form"
           >
-            <Suspense fallback={<BackgroundProfileFallback />}>
-              <BackgroundProfile
-                Background={user.background}
-                onFileChange={onFileChange}
-              />
-            </Suspense>
-            <Suspense fallback={<AvatarProfileFallback user={user} />}>
-              <AvatarProfile
-                onFileChange={onFileChange}
-                user={user}
-                error={form.formState.errors.avatar?.message}
-              />
-            </Suspense>
+            <BackgroundProfile
+              Background={user.background}
+              onFileChange={onFileChange}
+            />
+            <AvatarProfile
+              onFileChange={onFileChange}
+              user={user}
+              error={form.formState.errors.avatar?.message}
+            />
             <div className="my-6 px-3">
               <FormField
                 name="name"

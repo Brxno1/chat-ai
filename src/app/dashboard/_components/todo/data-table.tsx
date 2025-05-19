@@ -88,6 +88,8 @@ export function TodoDataTable({
     refetchOnWindowFocus: true,
   })
 
+  const hasTodos = todos.length > 0
+
   const containerRef = React.useRef<HTMLDivElement>(
     null,
   ) as React.RefObject<HTMLDivElement>
@@ -130,20 +132,18 @@ export function TodoDataTable({
     }
   }
 
-  const handleRefreshTodos = async () => {
-    await refetch()
-  }
+  const handleRefreshTodos = async () => await refetch()
 
   React.useEffect(() => {
     scrollToBottom()
-  }, [scrollToBottom])
+  }, [scrollToBottom, todos])
 
   return (
-    <ContainerWrapper
+    <div
       className="rounded-lg border border-border bg-muted p-3 drop-shadow-md dark:bg-background"
       ref={containerRef}
     >
-      {todos.length > 0 && (
+      {hasTodos && (
         <ContainerWrapper className="flex items-center py-4">
           <div className="flex max-w-sm items-center justify-center gap-2">
             <div className="relative flex items-center justify-center">
@@ -169,7 +169,7 @@ export function TodoDataTable({
               onClick={handleRefreshTodos}
               disabled={isFetching}
               variant="outline"
-              className={cn(isFetching && 'animate-pulse')}
+              className={cn('w-[8rem] gap-2', isFetching && 'animate-pulse')}
             >
               <RefreshCcw
                 size={16}
@@ -180,7 +180,11 @@ export function TodoDataTable({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button
+                variant="outline"
+                className="ml-auto"
+                disabled={isFetching}
+              >
                 Colunas <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
@@ -252,7 +256,7 @@ export function TodoDataTable({
         <div className="flex-1 text-sm text-muted-foreground">
           {isFetching ? (
             <Skeleton className="h-5 w-40" />
-          ) : todos.length > 0 ? (
+          ) : hasTodos ? (
             <SelectionText table={table} />
           ) : (
             <p className="text-center text-muted-foreground">
@@ -266,7 +270,7 @@ export function TodoDataTable({
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!table.getCanPreviousPage() || isFetching}
           >
             Anterior
           </Button>
@@ -274,12 +278,12 @@ export function TodoDataTable({
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={!table.getCanNextPage() || isFetching}
           >
             Próximo
           </Button>
         </div>
       </ContainerWrapper>
-    </ContainerWrapper>
+    </div>
   )
 }

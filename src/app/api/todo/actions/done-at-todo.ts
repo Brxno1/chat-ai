@@ -2,17 +2,22 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
-export async function actionMarkTodoAsDone(id: string) {
-  try {
-    const session = await auth()
+type MarkTodoAsDoneActionProps = {
+  id: string
+  userId: string
+}
 
+export async function markTodoAsDoneAction({
+  id,
+  userId,
+}: MarkTodoAsDoneActionProps) {
+  try {
     const updatedTodo = await prisma.todo.update({
       where: {
         id,
-        userId: session!.user.id,
+        userId,
       },
       data: {
         doneAt: new Date(),

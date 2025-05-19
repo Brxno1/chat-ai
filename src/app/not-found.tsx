@@ -22,7 +22,7 @@ export default function NotFound() {
       <h1 className="max-w-xl text-balance text-center text-4xl font-bold">
         {user
           ? `Oops, ${user.name}! Essa página não existe, qual tal você voltar?`
-          : 'Redirecionando para /auth'}
+          : 'Essa página não existe, qual tal você voltar?'}
       </h1>
       <p className="animate-pulse text-center">
         Redirecionando para {user ? '/dashboard' : '/auth'}

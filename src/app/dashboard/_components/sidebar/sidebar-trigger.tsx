@@ -10,16 +10,31 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-export function SidebarTriggerComponent({ text }: { text: string }) {
+interface SidebarTriggerComponentProps {
+  text: string
+  className?: string
+  variant?:
+    | 'default'
+    | 'ghost'
+    | 'outline'
+    | 'secondary'
+    | 'destructive'
+    | 'link'
+}
+
+export function SidebarTriggerComponent({
+  text,
+  variant = 'default',
+  className,
+}: SidebarTriggerComponentProps) {
   const { toggleSidebar } = useSidebar()
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
-          className="flex items-center justify-center"
+          variant={variant}
+          className={className}
           onClick={() => toggleSidebar()}
         >
           <PanelLeftClose className="size-8" />

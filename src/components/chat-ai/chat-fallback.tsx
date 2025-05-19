@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Image from 'next/image'
 import { Historical } from './historical'
+import { Input } from '../ui/input'
 
 interface ChatFallbackProps {
   modelName: string
@@ -67,11 +68,15 @@ export function ChatFallback({ modelName }: ChatFallbackProps) {
       </ContainerWrapper>
 
       <AIForm className="drop-shadow-md">
-        <AIInputTextarea
-          className="placeholder:text-sm placeholder:text-muted-foreground"
-          placeholder='Digite sua mensagem...'
-          disabled
+        <div className='relative'>
+          <Input
+            className="w-full h-20 resize-none rounded-none border-none p-3 shadow-none outline-none ring-0 focus-visible:ring-0"
+            disabled
         />
+        <span className='text-xs text-muted-foreground absolute left-3 top-7'>
+            Digite sua mensagem...
+          </span>
+        </div>
         <AIInputToolbar className="p-2">
           <AIInputTools className="gap-2">
             <AIInputButton disabled variant={'outline'}>

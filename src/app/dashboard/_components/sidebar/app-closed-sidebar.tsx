@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import React, { Suspense } from 'react'
+import React from 'react'
 import { toast } from 'sonner'
 
 import EditProfile from '@/app/dashboard/_components/profile/edit-profile'
@@ -66,12 +66,6 @@ function UserDropdown() {
     },
   })
 
-  const handleSignOut = async (ev: React.MouseEvent) => {
-    ev.preventDefault()
-
-    await signOutFn()
-  }
-
   const onOpenChangeFn = (isOpen: boolean) => {
     if (isSigningOut && !isOpen) {
       return
@@ -79,17 +73,27 @@ function UserDropdown() {
     setOpen(isOpen)
   }
 
+  const handleSignOut = async (ev: React.MouseEvent) => {
+    ev.preventDefault()
+
+    await signOutFn()
+  }
+
+  if (!user) {
+    return <UserDropdownClosedSidebarSkeleton />
+  }
+
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChangeFn}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="!b-0 relative ml-2 flex w-full items-center justify-between rounded-full !px-0 hover:bg-transparent"
+          className="relative flex items-center justify-center hover:bg-transparent"
         >
-          <Avatar className="size-7 cursor-grab rounded-sm">
-            <AvatarImage src={user?.image || ''} alt="user avatar" />
+          <Avatar className="size-8 cursor-grab rounded-sm">
+            <AvatarImage src={user.image || ''} alt="user avatar" />
             <AvatarFallback className="rounded-none">
-              {user?.name?.slice(0, 2).toUpperCase()}
+              {user.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -97,9 +101,9 @@ function UserDropdown() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
           <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium leading-none">{user?.name}</p>
+            <p className="text-sm font-medium leading-none">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
+              {user.email}
             </p>
           </div>
           <EditProfile user={user!} />
@@ -142,9 +146,9 @@ function UserDropdownClosedSidebarSkeleton() {
   return (
     <Button
       variant="ghost"
-      className="relative ml-2 flex w-full cursor-default items-center justify-between rounded-full !px-0 hover:bg-transparent"
+      className="relative flex items-center justify-center"
     >
-      <Skeleton className="size-7 rounded-sm" />
+      <Skeleton className="size-9 rounded-sm" />
     </Button>
   )
 }
@@ -187,25 +191,27 @@ function AppClosedSidebar() {
       <SidebarHeader className="flex w-full items-center justify-center border-b border-border bg-muted py-4 dark:bg-background">
         <Logo />
       </SidebarHeader>
-      <SidebarContent className="flex bg-muted dark:bg-background">
-        <nav className="flex flex-grow flex-col gap-2 !py-3">
+      <SidebarContent className="flex">
+        <nav className="flex flex-grow flex-col gap-2 space-y-2">
           <SidebarLinks linksOptions={mainLinks} isActiveLink={isActiveLink} />
         </nav>
-        <nav className="mt-auto flex flex-col items-center justify-center space-y-3">
+        <nav className="mt-auto flex flex-col items-center justify-center space-y-2">
           <SidebarLinks
             linksOptions={bottomLinks}
             isActiveLink={isActiveLink}
           />
-          <ContainerWrapper className="flex w-full items-center justify-center border-t border-border p-2">
-            <SidebarTriggerComponent text="Abrir" />
+          <ContainerWrapper className="flex w-full items-center justify-center px-2 pb-2">
+            <SidebarTriggerComponent
+              text="Abrir"
+              variant="outline"
+              className="my-auto w-full"
+            />
           </ContainerWrapper>
         </nav>
       </SidebarContent>
       <Separator className="w-full" />
-      <SidebarFooter className="flex w-full items-center justify-center bg-muted p-2 dark:bg-background">
-        <Suspense fallback={<UserDropdownClosedSidebarSkeleton />}>
-          <UserDropdown />
-        </Suspense>
+      <SidebarFooter className="flex w-full items-center justify-center">
+        <UserDropdown />
       </SidebarFooter>
     </Sidebar>
   )

@@ -3,8 +3,8 @@ import { z } from 'zod'
 
 import { auth } from '@/services/auth'
 
-import { actionCreateTodo } from './actions/create-todo'
-import { actionDeleteTodos } from './actions/delete-todos'
+import { createTodoAction } from './actions/create-todo'
+import { deleteTodoAction } from './actions/delete-todo'
 
 const CreateTodoSchemaBody = z.object({
   title: z.string(),
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { title } = CreateTodoSchemaBody.parse(body)
 
-  const response = await actionCreateTodo({
+  const response = await createTodoAction({
     title,
     id: session.user.id,
   })
@@ -57,7 +57,7 @@ export async function DELETE(request: NextRequest) {
     )
   }
 
-  const response = await actionDeleteTodos({
+  const response = await deleteTodoAction({
     id,
     userId: session.user.id,
   })

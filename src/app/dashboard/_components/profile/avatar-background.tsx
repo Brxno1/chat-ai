@@ -13,15 +13,11 @@ import {
 } from '@/components/ui/tooltip'
 import { useImageUpload } from '@/hooks/use-image-upload'
 
+import { FileChange } from './edit-profile'
+
 interface FileUploadProps {
   Background?: string | null
-  onFileChange: ({
-    name,
-    file,
-  }: {
-    name: 'background'
-    file: File | null
-  }) => void
+  onFileChange: ({ name, file }: FileChange) => void
 }
 
 function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {

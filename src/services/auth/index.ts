@@ -10,9 +10,13 @@ import { Email } from '../email/'
 import { env } from '@/lib/env'
 import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
 import { User } from 'next-auth'
+import { Adapter } from 'next-auth/adapters'
+
+const extendedPrisma = prisma.$extends({}) as any
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma) as any,
+  adapter: PrismaAdapter(extendedPrisma) as Adapter,
+  secret: env.AUTH_SECRET,
   trustHost: true,
   providers: [
     GoogleProvider({
@@ -75,13 +79,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verifyRequest: '/auth',
     newUser: '/dashboard',
   },
-
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt'
   },
-
-  secret: env.AUTH_SECRET,
-
   callbacks: {
     async jwt({ token, user, trigger, session }: {
       token: JWT;
@@ -111,7 +111,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
 
     async signIn() {
-
       return true
     },
 

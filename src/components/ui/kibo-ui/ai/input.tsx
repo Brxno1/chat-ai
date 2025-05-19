@@ -15,6 +15,7 @@ import type {
   ComponentProps,
   HTMLAttributes,
   KeyboardEventHandler,
+  RefObject,
 } from 'react';
 
 type UseAutoResizeTextareaProps = {
@@ -92,7 +93,7 @@ export type AIInputTextareaProps = ComponentProps<typeof Textarea> & {
 export const AIInputTextarea = ({
   onChange,
   className,
-  placeholder = 'What would you like to know?',
+  placeholder = 'Pergunte o que você precisa...',
   minHeight = 48,
   maxHeight = 164,
   ...props

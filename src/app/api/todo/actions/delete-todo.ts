@@ -12,7 +12,7 @@ type DeleteTodosResponse = {
   error: string | null
 }
 
-export async function actionDeleteTodos({
+export async function deleteTodoAction({
   id,
   userId,
 }: DeleteTodoArgs): Promise<DeleteTodosResponse> {
@@ -20,7 +20,9 @@ export async function actionDeleteTodos({
     await prisma.todo.delete({
       where: {
         id,
-        userId,
+        user: {
+          id: userId,
+        },
       },
     })
 

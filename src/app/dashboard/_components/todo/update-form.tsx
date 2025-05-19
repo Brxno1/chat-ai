@@ -1,15 +1,25 @@
+'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Todo } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Edit, Loader2 } from 'lucide-react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateTodo } from '@/app/(http)/todo/update-todo'
+import { updateTodoAction } from '@/app/api/todo/actions/update-todo'
 import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
-import { DialogClose, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -19,6 +29,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { queryClient } from '@/lib/query-client'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({
@@ -42,15 +53,13 @@ const schema = z.object({
     }),
 })
 
-type TodoFormData = z.infer<typeof schema>
-
-interface TodoUpdateFormProps {
+interface TodoUpdateProps {
   todo: Todo
   onCloseDropdown: () => void
 }
 
-export function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateFormProps) {
-  const form = useForm<TodoFormData>({
+function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateProps) {
+  const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {
@@ -59,29 +68,31 @@ export function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateFormProps) {
   })
 
   const { mutateAsync: updateTodoFn, isPending: isUpdating } = useMutation({
-    mutationFn: updateTodo,
+    mutationFn: updateTodoAction,
     mutationKey: ['update-todo'],
-    onSuccess: () => {
-      toast(`Tarefa "${todo.title}" atualizada com sucesso`, {
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] })
+      toast(`Tarefa "${variables.title}" atualizada com sucesso`, {
         duration: 2000,
         position: 'top-center',
       })
       form.reset()
       onCloseDropdown()
     },
-    onError: () => {
-      toast.warning(
-        `Erro ao atualizar "${todo.title}" para "${form.getValues('title')}"`,
-        {
-          duration: 2000,
-          position: 'top-center',
-        },
-      )
+    onError: (error) => {
+      toast.warning(error.message, {
+        duration: 2000,
+        position: 'top-center',
+      })
     },
   })
 
-  async function onUpdateTodo(data: TodoFormData) {
-    await updateTodoFn(data.title)
+  async function onUpdateTodo(data: z.infer<typeof schema>) {
+    await updateTodoFn({
+      userId: todo.userId,
+      id: todo.id,
+      title: data.title,
+    })
   }
 
   return (
@@ -137,7 +148,7 @@ export function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateFormProps) {
                   }
                 >
                   {isUpdating ? (
-                    <Loader2 className="animate-spin text-white" />
+                    <Loader2 className="animate-spin" />
                   ) : (
                     'Atualizar'
                   )}
@@ -157,5 +168,23 @@ export function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateFormProps) {
         />
       </form>
     </Form>
+  )
+}
+
+export function UpdateTodo({ todo, onCloseDropdown }: TodoUpdateProps) {
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <span className="relative flex cursor-pointer select-none items-center justify-between gap-4 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:hover:bg-muted [&>svg]:size-4 [&>svg]:shrink-0">
+          Editar
+          <Edit size={16} />
+        </span>
+      </DialogTrigger>
+      <DialogContent>
+        <TodoUpdateForm todo={todo} onCloseDropdown={onCloseDropdown} />
+      </DialogContent>
+    </Dialog>
   )
 }

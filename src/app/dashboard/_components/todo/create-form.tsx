@@ -81,21 +81,10 @@ const TodoCreateForm = () => {
   }
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(prevOpen) => {
-        setOpen(prevOpen)
-        if (!prevOpen) {
-          form.reset()
-        }
-      }}
-    >
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          className="hover:bg-green-500 dark:hover:bg-green-600"
-        >
-          <Plus className="h-4 w-4" />
+        <Button variant="outline">
+          <Plus size={16} />
           Criar Tarefa
         </Button>
       </SheetTrigger>
@@ -140,17 +129,14 @@ const TodoCreateForm = () => {
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className="w-full font-bold"
-              disabled={isPending}
-            >
+            <Button type="submit" className="font-bold" disabled={isPending}>
               {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  Criando...
+                </>
               ) : (
-                <span className="flex items-center gap-2 text-purple-500">
-                  Criar
-                </span>
+                <span>Criar</span>
               )}
             </Button>
           </form>

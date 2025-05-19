@@ -145,7 +145,7 @@ function TableHeaderFallback() {
 
 function SkeletonTableBodyFallback() {
   const skeletonSizes = [
-    'h-6 rounded-sm w-24 mx-auto',
+    'h-6 rounded-sm w-28 mx-auto',
     'h-5 w-24 mx-auto',
     'h-5 w-28 mx-auto',
     'h-5 w-28 mx-auto',
