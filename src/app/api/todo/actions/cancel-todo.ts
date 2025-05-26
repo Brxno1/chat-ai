@@ -19,6 +19,7 @@ export async function cancelTodoAction({ id, userId }: CancelTodoActionProps) {
       data: {
         status: 'CANCELLED',
         completed: false,
+        cancelledAt: new Date(),
       },
     })
 

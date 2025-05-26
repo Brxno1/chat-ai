@@ -70,7 +70,7 @@ export function Messages({
       >
         <Badge className="bg-transparent text-sm font-semibold text-foreground hover:bg-transparent">
           {['user'].includes(message.role)
-            ? truncateText({ text: user?.name ?? '', maxLength: 15 })
+            ? truncateText(user?.name ?? '', 20)
             : modelName}
         </Badge>
       </div>

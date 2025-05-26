@@ -1,20 +1,22 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LoaderCircle, XCircleIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { cancelTodoAction } from '@/app/api/todo/actions/cancel-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { queryClient } from '@/lib/query-client'
+import { queryKeys, todoInvalidations } from '@/lib/query-client'
 
 import { ActionsStatusProps } from './types'
 
 export function CancelTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
+  const queryClient = useQueryClient()
+
   const { mutateAsync: cancelTodoFn, isPending: isCancelling } = useMutation({
     mutationFn: cancelTodoAction,
-    mutationKey: ['cancel-todo'],
-
+    mutationKey: queryKeys.todoMutations.cancel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
+
       toast(`Tarefa "${todo.title}" cancelada`, {
         position: 'top-center',
         duration: 2000,
@@ -51,10 +53,7 @@ export function CancelTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
       {isCancelling ? (
         <>
           Cancelando...
-          <LoaderCircle
-            size={16}
-            className="animate-spin font-semibold text-rose-500"
-          />
+          <LoaderCircle size={16} className="animate-spin" />
         </>
       ) : (
         <>

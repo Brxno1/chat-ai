@@ -1,20 +1,22 @@
-import { useMutation } from '@tanstack/react-query'
-import { Trash } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { LoaderCircle, Trash } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { deleteTodoAction } from '@/app/api/todo/actions/delete-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { queryClient } from '@/lib/query-client'
+import { queryKeys, todoInvalidations } from '@/lib/query-client'
 
 import { ActionsStatusProps } from './types'
 
 export function DeleteTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
+  const queryClient = useQueryClient()
+
   const { mutateAsync: deleteTodoFn, isPending: isDeleting } = useMutation({
     mutationFn: deleteTodoAction,
-    mutationKey: ['delete-todo'],
+    mutationKey: queryKeys.todoMutations.delete,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
       toast(`Tarefa "${todo.title}" deletada`, {
         position: 'top-center',
         duration: 2000,
@@ -45,7 +47,7 @@ export function DeleteTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
       {isDeleting ? (
         <>
           Excluindo...
-          <Trash size={16} className="animate-bounce text-destructive" />
+          <LoaderCircle size={16} className="animate-spin" />
         </>
       ) : (
         <>

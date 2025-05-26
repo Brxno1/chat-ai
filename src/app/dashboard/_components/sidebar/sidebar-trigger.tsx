@@ -1,8 +1,8 @@
 'use client'
 
-import { PanelLeftClose } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button, ButtonProps } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
 import {
   Tooltip,
@@ -11,23 +11,19 @@ import {
 } from '@/components/ui/tooltip'
 
 interface SidebarTriggerComponentProps {
-  text: string
   className?: string
-  variant?:
-    | 'default'
-    | 'ghost'
-    | 'outline'
-    | 'secondary'
-    | 'destructive'
-    | 'link'
+  size?: ButtonProps['size']
+  variant: ButtonProps['variant']
+  side?: 'left' | 'right' | 'top' | 'bottom' | undefined
 }
 
 export function SidebarTriggerComponent({
-  text,
   variant = 'default',
   className,
+  size = 'default',
+  side = 'right',
 }: SidebarTriggerComponentProps) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, open } = useSidebar()
 
   return (
     <Tooltip>
@@ -35,13 +31,18 @@ export function SidebarTriggerComponent({
         <Button
           variant={variant}
           className={className}
-          onClick={() => toggleSidebar()}
+          onClick={toggleSidebar}
+          size={size}
         >
-          <PanelLeftClose className="size-8" />
+          {open ? (
+            <PanelLeftClose className="size-8" />
+          ) : (
+            <PanelLeftOpen className="size-8" />
+          )}
         </Button>
       </TooltipTrigger>
-      <TooltipContent align="end" className="text-sm font-bold">
-        <p>{text}</p>
+      <TooltipContent side={side}>
+        <p>{open ? 'Fechar' : 'Abrir'}</p>
       </TooltipContent>
     </Tooltip>
   )

@@ -15,9 +15,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { UpdateTodo } from '../update-form'
-import { MarkTodoAsDone } from './as-done-todo'
 import { CancelTodo } from './cancel-todo'
 import { DeleteTodo } from './delete-todo'
+import { MarkTodoAsDone } from './todo-as-done'
 import { ActionsForTodoProps } from './types'
 
 export function ActionsForTodo({ todo }: ActionsForTodoProps) {

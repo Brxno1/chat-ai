@@ -1,23 +1,17 @@
 import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
-import Image from 'next/image'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { useImageUpload } from '@/hooks/use-image-upload'
-
-import { FileChange } from './edit-profile'
 
 interface FileUploadProps {
   Background?: string | null
-  onFileChange: ({ name, file }: FileChange) => void
+  onFileChange: (name: 'background', file: File | null) => void
 }
 
 function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
@@ -31,35 +25,32 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
   } = useImageUpload()
 
   React.useEffect(() => {
-    onFileChange({ name: 'background', file })
+    onFileChange('background', file)
   }, [file])
 
   const currentBackground = previewUrl || Background
 
   const handleRemoveImage = () => {
     handleRemove()
-    onFileChange({ name: 'background', file: null })
+    onFileChange('background', null)
   }
 
   const handleFileInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     handleFileChange(ev)
-    onFileChange({ name: 'background', file: ev.target.files?.[0] || null })
+    onFileChange('background', ev.target.files?.[0] || null)
   }
 
   return (
-    <div className="h-32">
+    <div className="h-[10.5rem]">
       <ContainerWrapper className="group relative size-full items-center justify-center overflow-hidden border-b">
-        {currentBackground ? (
-          <Image
-            src={currentBackground}
-            className="size-full object-cover"
-            width={512}
-            height={96}
-            alt="Imagem de fundo"
-          />
-        ) : (
-          <div className="size-full" />
-        )}
+        <AspectRatio ratio={16 / 9}>
+          <Avatar className="size-full rounded-none">
+            <AvatarImage src={currentBackground || ''} />
+            <AvatarFallback className="rounded-none">
+              <BackgroundProfileFallback />
+            </AvatarFallback>
+          </Avatar>
+        </AspectRatio>
         <div className="absolute inset-0 flex items-center justify-center gap-2">
           <Button
             type="button"
@@ -99,18 +90,9 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
 
 function BackgroundProfileFallback() {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className="h-32">
-          <div className="group relative size-full items-center justify-center overflow-hidden border-b">
-            <Skeleton className="size-full" />
-          </div>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent align="center">
-        <p className="text-xs font-semibold">Carregando imagem de fundo...</p>
-      </TooltipContent>
-    </Tooltip>
+    <div className="size-full">
+      <Skeleton className="size-full" />
+    </div>
   )
 }
 

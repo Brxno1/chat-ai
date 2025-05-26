@@ -4,25 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RiGoogleFill } from '@remixicon/react'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import {
-  ArrowRightLeft,
-  CircleUserRoundIcon,
-  ImagePlus,
-  LoaderCircle,
-  RotateCw,
-} from 'lucide-react'
-import Image from 'next/image'
+import { LoaderCircle, RotateCw } from 'lucide-react'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
-import { useTheme } from 'next-themes'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { createAccount } from '@/app/(http)/user/login-account'
-import { FileChange } from '@/app/dashboard/_components/profile/edit-profile'
-import { ContainerWrapper } from '@/components/container'
-import { CopyTextComponent } from '@/components/copy-text-component'
 import { InteractiveHoverButton } from '@/components/magicui/interactive-hover-button'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { Button } from '@/components/ui/button'
@@ -42,18 +32,15 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-// import { UploadAvatar } from '@/components/upload-avatar'
-import { useImageUpload } from '@/hooks/use-image-upload'
+import { UploadAvatar } from '@/components/upload-avatar'
 import { env } from '@/lib/env'
 import { createAccountSchema } from '@/schemas'
 import { useSessionStore } from '@/store/user-store'
-import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
 type FormValues = z.infer<typeof createAccountSchema>
 
 export function CreateAccountForm() {
-  const { theme } = useTheme()
   const { email } = useSessionStore()
 
   const form = useForm<FormValues>({
@@ -65,15 +52,6 @@ export function CreateAccountForm() {
       avatar: null,
     },
   })
-
-  const {
-    handleRemove,
-    previewUrl,
-    fileName,
-    fileInputRef,
-    handleThumbnailClick,
-    handleFileChange,
-  } = useImageUpload()
 
   const { mutateAsync: createAccountFn } = useMutation({
     mutationFn: createAccount,
@@ -90,8 +68,9 @@ export function CreateAccountForm() {
         ),
         duration: 7000,
       })
-      handleRemoveFile()
       form.reset({
+        name: '',
+        email: '',
         avatar: null,
       })
     },
@@ -113,23 +92,13 @@ export function CreateAccountForm() {
     },
   })
 
-  const handleRemoveFile = () => {
-    handleRemove()
-    form.setValue('avatar', null)
-  }
-
-  const onFileChange = ({ name, file }: FileChange) => {
-    form.setValue(name as 'avatar', file)
-    form.clearErrors(name as 'avatar')
+  const onFileChange = (name: 'avatar', file: File | null) => {
+    form.setValue(name, file)
+    form.clearErrors(name)
 
     if (file) {
-      form.trigger(name as 'avatar')
+      form.trigger(name)
     }
-  }
-
-  const handleFileRemove = () => {
-    handleRemove()
-    onFileChange({ name: 'avatar', file: null })
   }
 
   const onCreateAccount = async ({ name, email, avatar }: FormValues) => {
@@ -143,12 +112,13 @@ export function CreateAccountForm() {
     await createAccountFn(formData)
   }
 
+  React.useEffect(() => {
+    form.setFocus('name')
+  }, [form])
+
   return (
     <Card className="relative overflow-hidden">
-      <ShineBorder
-        shineColor={theme === 'dark' ? '#FEFEFE' : '#121212'}
-        borderWidth={1}
-      />
+      <ShineBorder shineColor={'#7a41ff'} borderWidth={1} />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onCreateAccount)} id="form-auth">
           <CardHeader>
@@ -226,98 +196,14 @@ export function CreateAccountForm() {
             <FormField
               name="avatar"
               control={form.control}
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              render={({ field: { value, ref, onChange, ...rest } }) => (
+              render={() => (
                 <FormItem>
-                  <div className="my-4 inline-flex w-full items-center justify-between align-top">
-                    <div
-                      className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input"
-                      aria-label={
-                        previewUrl
-                          ? 'Preview of uploaded image'
-                          : 'Default user avatar'
-                      }
-                    >
-                      {previewUrl && (
-                        <ContainerWrapper className="h-full w-full">
-                          <Image
-                            className="h-full w-full object-cover"
-                            src={previewUrl}
-                            alt="Preview of uploaded image"
-                            width={32}
-                            height={32}
-                          />
-                        </ContainerWrapper>
-                      )}
-                      {!previewUrl && (
-                        <ContainerWrapper
-                          aria-hidden="true"
-                          className="flex h-full w-full items-center justify-center opacity-60"
-                        >
-                          <CircleUserRoundIcon size={24} />
-                        </ContainerWrapper>
-                      )}
-                    </div>
-                    <div className="relative inline-block">
-                      <Button
-                        onClick={handleThumbnailClick}
-                        aria-haspopup="dialog"
-                        type="button"
-                        className="font-semibold"
-                        variant={'secondary'}
-                      >
-                        {fileName && (
-                          <>
-                            <ArrowRightLeft className="h-4 w-4" />
-                            Alterar foto
-                          </>
-                        )}
-                        {!fileName && (
-                          <>
-                            <ImagePlus className="h-4 w-4" />
-                            Selecionar foto
-                          </>
-                        )}
-                      </Button>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          multiple={false}
-                          ref={fileInputRef}
-                          onChange={handleFileChange}
-                          {...rest}
-                        />
-                      </FormControl>
-                    </div>
-                  </div>
-                  {fileName && (
-                    <div className="inline-flex gap-2 text-xs">
-                      <CopyTextComponent
-                        textForCopy={fileName}
-                        className="gap-2 text-muted-foreground"
-                        iconPosition="left"
-                      >
-                        <p aria-live="polite">
-                          {truncateText({ text: fileName, maxLength: 20 })}
-                        </p>
-                      </CopyTextComponent>
-                      {'-'}
-                      <button
-                        onClick={handleFileRemove}
-                        className="font-medium text-red-500 hover:underline"
-                        aria-label={`Remove ${fileName}`}
-                      >
-                        Remover
-                      </button>
-                    </div>
-                  )}
-                  <div className="sr-only" aria-live="polite" role="status">
-                    {previewUrl
-                      ? 'Image uploaded and preview available'
-                      : 'No image uploaded'}
-                  </div>
+                  <FormControl>
+                    <UploadAvatar
+                      className="mt-6"
+                      onFileChange={onFileChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -325,7 +211,7 @@ export function CreateAccountForm() {
           <CardFooter>
             <InteractiveHoverButton
               type="submit"
-              className="flex w-full items-center justify-center font-semibold"
+              className="mx-auto flex w-[12rem] items-center justify-center rounded-2xl font-semibold"
               disabled={form.formState.isSubmitting || !form.formState.isValid}
             >
               {form.formState.isSubmitting ? (
@@ -347,8 +233,8 @@ export function CreateAccountForm() {
       </div>
       <div className="mb-6 flex justify-center">
         <Button
-          variant="default"
-          className="font-semibold"
+          variant="outline"
+          className="mx-auto w-[12rem] rounded-2xl font-semibold"
           onClick={() => signIn('google', { redirectTo: '/dashboard' })}
         >
           <RiGoogleFill className="me-1" size={16} aria-hidden="true" />

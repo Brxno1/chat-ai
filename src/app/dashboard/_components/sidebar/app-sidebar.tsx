@@ -1,43 +1,49 @@
 'use client'
 
-import {
-  LayoutDashboard,
-  MessageSquare,
-  Navigation,
-  Settings2,
-} from 'lucide-react'
+import { LayoutDashboard, MessageSquare, Settings2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { toast } from 'sonner'
+import { User } from 'next-auth'
 
 import {
   SidebarHeaderTitle,
   SidebarNavLink,
 } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
+import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  useSidebar,
 } from '@/components/ui/sidebar'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { cn } from '@/utils/utils'
 
+import { ClosedSidebarUserDropdown } from './app-closed-sidebar'
 import { SidebarTriggerComponent } from './sidebar-trigger'
 import { UserDropdown } from './user-dropdown'
 
-export function AppSidebar() {
-  const pathname = usePathname()
+type AppSidebarProps = {
+  initialUser?: User
+}
 
+export function AppSidebar({ initialUser }: AppSidebarProps) {
+  const pathname = usePathname()
+  const { open, isMobile } = useSidebar()
   const isActivePath = (path: string) => pathname === path
 
-  const handleClickToNavigate = () => {
-    toast('Em desenvolvimento!', {
-      duration: 1000,
-      position: 'top-center',
-    })
-  }
-
   const mainLinks = [
+    {
+      href: '/',
+      icon: MessageSquare,
+      label: 'Chat',
+    },
     {
       href: '/dashboard',
       icon: LayoutDashboard,
@@ -50,59 +56,63 @@ export function AppSidebar() {
     },
   ]
 
-  const bottomLinks = [
-    {
-      href: '/',
-      icon: MessageSquare,
-      label: 'Chat',
-    },
-    {
-      href: '/?a=1',
-      icon: Navigation,
-      label: 'Site',
-      onClick: handleClickToNavigate,
-    },
-  ]
+  if (isMobile) {
+    return null
+  }
 
   return (
-    <Sidebar>
-      <SidebarHeader className="w-full rounded-sm border-b border-border bg-muted dark:bg-background">
-        <SidebarHeaderTitle className="flex w-full items-center justify-between py-1">
-          <Logo className="ml-2" />
-          <SidebarTriggerComponent text="Fechar" variant="outline" />
+    <Sidebar collapsible="icon" className="!p-0">
+      <SidebarHeader className="w-full">
+        <SidebarHeaderTitle className="flex w-full items-center justify-between py-1.5">
+          <Logo className={cn('mx-auto', { 'ml-2': open })} />
+          {open && (
+            <SidebarTriggerComponent
+              variant="outline"
+              size="sm"
+              className="!border-none text-muted-foreground"
+            />
+          )}
         </SidebarHeaderTitle>
+        <Separator />
       </SidebarHeader>
       <SidebarContent className="flex flex-grow flex-col">
         <SidebarGroup className="space-y-2">
           {mainLinks.map((link) => (
-            <SidebarNavLink
-              key={link.href}
-              href={link.href}
-              active={isActivePath(link.href)}
-              className="px-3"
-            >
-              <link.icon className="mr-3 size-5" />
-              {link.label}
-            </SidebarNavLink>
+            <Tooltip key={link.href} disableHoverableContent>
+              <TooltipTrigger asChild>
+                <div>
+                  <SidebarNavLink
+                    href={link.href}
+                    active={isActivePath(link.href)}
+                    className={cn(open ? 'gap-2 pl-3' : 'flex justify-center')}
+                  >
+                    <link.icon size={20} />
+                    {open && link.label}
+                  </SidebarNavLink>
+                </div>
+              </TooltipTrigger>
+              {!open && (
+                <TooltipContent side="right">{link.label}</TooltipContent>
+              )}
+            </Tooltip>
           ))}
         </SidebarGroup>
-        <SidebarGroup className="mb-3 mt-auto space-y-2">
-          {bottomLinks.map((link) => (
-            <SidebarNavLink
-              key={link.href}
-              href={link.href}
-              active={isActivePath(link.href)}
-              className="px-3"
-              onClick={link.onClick}
-            >
-              <link.icon className="mr-3 size-5" />
-              {link.label}
-            </SidebarNavLink>
-          ))}
+        <SidebarGroup className="mt-auto space-y-2">
+          {!open && (
+            <SidebarTriggerComponent
+              variant="outline"
+              size="sm"
+              className="!border-none text-muted-foreground"
+            />
+          )}
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="flex h-16 w-full items-center justify-center">
-        <UserDropdown />
+      <SidebarFooter className="flex w-full items-center justify-center">
+        {open ? (
+          <UserDropdown user={initialUser!} />
+        ) : (
+          <ClosedSidebarUserDropdown />
+        )}
       </SidebarFooter>
     </Sidebar>
   )

@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const MAX_SIZE_FOR_FILE = 10 * 1024 * 1024 // 10MB
 
-export const editProfileSchema = z.object({
+export const updateProfileSchema = z.object({
   name: z
     .string()
     .nonempty('O nome não pode estar vazio')

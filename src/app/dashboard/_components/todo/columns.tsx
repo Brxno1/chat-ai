@@ -67,6 +67,7 @@ export const columns: ColumnDef<Todo>[] = [
 
     sortingFn: (rowA, rowB) => {
       type TodoStatus = 'finished' | 'pending' | 'cancelled'
+
       const statusOrder = new Map<TodoStatus, number>([
         ['finished', 1],
         ['pending', 2],
@@ -76,7 +77,8 @@ export const columns: ColumnDef<Todo>[] = [
       const getStatus = (status: string): TodoStatus => {
         const normalized = status.toLowerCase() as TodoStatus
         if (!statusOrder.has(normalized)) {
-          console.log(`Status inválido: ${status}`)
+          console.log(`Invalid status: ${status}`)
+          return 'pending'
         }
         return normalized
       }
@@ -105,9 +107,11 @@ export const columns: ColumnDef<Todo>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('title')}</div>
-    ),
+    cell: ({ row }) => {
+      const { title } = row.original
+
+      return <div className="capitalize">{title}</div>
+    },
   },
   {
     id: 'createdAt',
@@ -126,7 +130,7 @@ export const columns: ColumnDef<Todo>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const createdAt = row.original.createdAt
+      const { createdAt } = row.original
 
       return (
         <Tooltip>

@@ -145,8 +145,8 @@ exports.Prisma.MessageScalarFieldEnum = {
   content: 'content',
   role: 'role',
   createdAt: 'createdAt',
-  userId: 'userId',
-  chatId: 'chatId'
+  chatId: 'chatId',
+  userId: 'userId'
 };
 
 exports.Prisma.TodoScalarFieldEnum = {
@@ -218,6 +218,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.MessageRole = exports.$Enums.MessageRole = {
+  USER: 'USER',
+  ASSISTANT: 'ASSISTANT'
+};
+
 exports.TodoStatus = exports.$Enums.TodoStatus = {
   PENDING: 'PENDING',
   FINISHED: 'FINISHED',

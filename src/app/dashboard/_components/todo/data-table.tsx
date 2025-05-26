@@ -36,6 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { queryKeys } from '@/lib/query-client'
 import { cn } from '@/utils/utils'
 
 import { columns } from './columns'
@@ -80,9 +81,8 @@ export function TodoDataTable({
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ['todos'],
+    queryKey: queryKeys.todos.all,
     queryFn: refreshTodos,
-    staleTime: Infinity,
     initialData,
     refetchOnReconnect: true,
     refetchOnWindowFocus: true,
@@ -90,9 +90,7 @@ export function TodoDataTable({
 
   const hasTodos = todos.length > 0
 
-  const containerRef = React.useRef<HTMLDivElement>(
-    null,
-  ) as React.RefObject<HTMLDivElement>
+  const containerRef = React.useRef<HTMLDivElement>(null)
 
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -140,11 +138,11 @@ export function TodoDataTable({
 
   return (
     <div
-      className="rounded-lg border border-border bg-muted p-3 drop-shadow-md dark:bg-background"
+      className="w-full overflow-x-auto rounded-lg border border-border bg-background p-3 drop-shadow-md"
       ref={containerRef}
     >
       {hasTodos && (
-        <ContainerWrapper className="flex items-center py-4">
+        <ContainerWrapper className="flex flex-wrap items-center gap-2 py-4">
           <div className="flex max-w-sm items-center justify-center gap-2">
             <div className="relative flex items-center justify-center">
               <Input
@@ -208,7 +206,8 @@ export function TodoDataTable({
           </DropdownMenu>
         </ContainerWrapper>
       )}
-      <Table>
+
+      <Table className="min-w-[75rem]">
         <TableHeader>
           {isFetching ? (
             <TableRow>
@@ -252,38 +251,40 @@ export function TodoDataTable({
           )}
         </TableBody>
       </Table>
-      <ContainerWrapper className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {isFetching ? (
-            <Skeleton className="h-5 w-40" />
-          ) : hasTodos ? (
-            <SelectionText table={table} />
-          ) : (
-            <p className="text-center text-muted-foreground">
-              Você ainda não possui nenhum todo. Crie um para que seja exibido
-              aqui.
-            </p>
-          )}
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage() || isFetching}
-          >
-            Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage() || isFetching}
-          >
-            Próximo
-          </Button>
-        </div>
-      </ContainerWrapper>
+      <div className="overflow-x-auto">
+        <ContainerWrapper className="flex flex-wrap items-center justify-between gap-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            {isFetching ? (
+              <Skeleton className="h-5 w-40" />
+            ) : hasTodos ? (
+              <SelectionText table={table} />
+            ) : (
+              <p className="text-center text-muted-foreground">
+                Você ainda não possui nenhum todo. Crie um para que seja exibido
+                aqui.
+              </p>
+            )}
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage() || isFetching}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage() || isFetching}
+            >
+              Próximo
+            </Button>
+          </div>
+        </ContainerWrapper>
+      </div>
     </div>
   )
 }

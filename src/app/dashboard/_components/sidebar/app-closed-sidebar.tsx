@@ -41,7 +41,7 @@ import { useSessionStore } from '@/store/user-store'
 import { SidebarLinks } from './sidebar-links'
 import { SidebarTriggerComponent } from './sidebar-trigger'
 
-function UserDropdown() {
+function ClosedSidebarUserDropdown() {
   const [open, setOpen] = React.useState(false)
 
   const { user } = useSessionStore()
@@ -79,66 +79,70 @@ function UserDropdown() {
     await signOutFn()
   }
 
-  if (!user) {
-    return <UserDropdownClosedSidebarSkeleton />
-  }
-
   return (
-    <DropdownMenu open={open} onOpenChange={onOpenChangeFn}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="relative flex items-center justify-center hover:bg-transparent"
-        >
-          <Avatar className="size-8 cursor-grab rounded-sm">
-            <AvatarImage src={user.image || ''} alt="user avatar" />
-            <AvatarFallback className="rounded-none">
-              {user.name?.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
-          <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
-          </div>
-          <EditProfile user={user!} />
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem className="flex cursor-pointer items-center justify-between">
-            Configurações
-            <Settings2 className="mr-2 size-4" />
+    <>
+      {isSigningOut && (
+        <div
+          className="fixed inset-0 z-40 bg-muted/40 backdrop-blur-sm dark:bg-background/30 dark:backdrop-blur-md"
+          aria-hidden="true"
+        />
+      )}
+      <DropdownMenu open={open} onOpenChange={onOpenChangeFn}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="link"
+            className="relative z-50 my-auto flex w-full items-center py-6"
+          >
+            <Avatar className="size-9 cursor-grab rounded-md">
+              <AvatarImage src={user?.image || ''} alt="user avatar" />
+              <AvatarFallback className="rounded-md">
+                {user?.name?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="z-50 ml-2 w-56" align="end" forceMount>
+          <DropdownMenuGroup className="flex items-center justify-between p-2 font-normal">
+            <div className="flex flex-col space-y-2">
+              <p className="text-sm font-medium leading-none">{user?.name}</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {user?.email}
+              </p>
+            </div>
+            <EditProfile user={user!} />
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem className="flex cursor-pointer items-center justify-between">
+              Configurações
+              <Settings2 className="mr-2 size-4" />
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex cursor-pointer items-center justify-between">
+              Upgrade
+              <Rocket className="mr-2 size-4" />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className="flex cursor-pointer items-center justify-between hover:hover:bg-destructive hover:hover:text-destructive-foreground"
+          >
+            {isSigningOut ? (
+              <>
+                Saindo...
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              </>
+            ) : (
+              <>
+                Sair
+                <LogOut className="mr-2 size-4" />
+              </>
+            )}
           </DropdownMenuItem>
-          <DropdownMenuItem className="flex cursor-pointer items-center justify-between">
-            Upgrade
-            <Rocket className="mr-2 size-4" />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={handleSignOut}
-          disabled={isSigningOut}
-          className="flex cursor-pointer items-center justify-between hover:hover:bg-destructive hover:hover:text-destructive-foreground"
-        >
-          {isSigningOut ? (
-            <>
-              Saindo...
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            </>
-          ) : (
-            <>
-              Sair
-              <LogOut className="mr-2 size-4" />
-            </>
-          )}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   )
 }
 
@@ -148,7 +152,7 @@ function UserDropdownClosedSidebarSkeleton() {
       variant="ghost"
       className="relative flex items-center justify-center"
     >
-      <Skeleton className="size-9 rounded-sm" />
+      <Skeleton className="size-8 rounded-md" />
     </Button>
   )
 }
@@ -202,7 +206,6 @@ function AppClosedSidebar() {
           />
           <ContainerWrapper className="flex w-full items-center justify-center px-2 pb-2">
             <SidebarTriggerComponent
-              text="Abrir"
               variant="outline"
               className="my-auto w-full"
             />
@@ -211,10 +214,14 @@ function AppClosedSidebar() {
       </SidebarContent>
       <Separator className="w-full" />
       <SidebarFooter className="flex w-full items-center justify-center">
-        <UserDropdown />
+        <ClosedSidebarUserDropdown />
       </SidebarFooter>
     </Sidebar>
   )
 }
 
-export { AppClosedSidebar }
+export {
+  ClosedSidebarUserDropdown,
+  AppClosedSidebar,
+  UserDropdownClosedSidebarSkeleton,
+}

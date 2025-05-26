@@ -1,12 +1,11 @@
 'use client'
 
 import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
-import Image from 'next/image'
 import { User } from 'next-auth'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   HoverCard,
   HoverCardContent,
@@ -17,12 +16,10 @@ import { useImageUpload } from '@/hooks/use-image-upload'
 import { formatDateToLocale, formatFileSize } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'
 
-import { FileChange } from './edit-profile'
-
 interface AvatarProps {
   user: User
   error?: string
-  onFileChange: ({ name, file }: FileChange) => void
+  onFileChange: (name: 'avatar', file: File | null) => void
 }
 
 function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
@@ -36,32 +33,25 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
   } = useImageUpload()
 
   React.useEffect(() => {
-    onFileChange({ name: 'avatar', file })
+    onFileChange('avatar', file)
   }, [file])
 
   const currentImage = previewUrl || user.image
 
   const handleRemoveImage = () => {
     handleRemove()
-    onFileChange({ name: 'avatar', file: null })
+    onFileChange('avatar', null)
   }
 
   return (
     <ContainerWrapper className="-mt-10 flex items-center px-6">
       <div className="shadow-xs group relative flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
-        {currentImage ? (
-          <AvatarDetails
-            currentImage={currentImage}
-            previewUrl={previewUrl!}
-            file={file}
-          />
-        ) : (
-          <Avatar className="size-20 rounded-sm font-semibold">
-            <AvatarFallback>
-              {user.name!.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        )}
+        <AvatarDetails
+          currentImage={currentImage || ''}
+          previewUrl={previewUrl!}
+          file={file}
+          name={user.name || ''}
+        />
         <button
           type="button"
           className="absolute hidden size-7 cursor-pointer items-center justify-center rounded-full bg-muted text-primary outline-none transition-all hover:bg-muted/90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 group-hover:flex"
@@ -82,7 +72,7 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
           accept="image/*"
           onChange={(ev) => {
             handleFileChange(ev)
-            onFileChange({ name: 'avatar', file: ev.target.files?.[0] || null })
+            onFileChange('avatar', ev.target.files?.[0] || null)
           }}
         />
       </div>
@@ -104,32 +94,38 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
 }
 
 type AvatarDetailsProps = {
+  name: string
   currentImage: string
   previewUrl: string
   file: File | null
 }
 
-function AvatarDetails({ currentImage, previewUrl, file }: AvatarDetailsProps) {
+function AvatarDetails({
+  name,
+  currentImage,
+  previewUrl,
+  file,
+}: AvatarDetailsProps) {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <Image
-          src={currentImage}
-          className="size-full object-cover"
-          width={80}
-          height={80}
-          alt="Imagem de perfil"
-        />
+        <Avatar className="size-20">
+          <AvatarImage
+            src={currentImage}
+            alt="Imagem de perfil"
+            className="object-cover"
+          />
+          <AvatarFallback className="text-lg font-semibold">
+            {name.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </HoverCardTrigger>
       {previewUrl && (
         <HoverCardContent className="flex w-[13rem] flex-col items-start gap-1">
           <p className="text-sm">
             Nome:{' '}
             <span className="text-muted-foreground">
-              {truncateText({
-                text: file?.name || '',
-                maxLength: 17,
-              })}
+              {truncateText(file?.name || '', 17)}
             </span>
           </p>
           <p className="text-sm">
@@ -154,18 +150,18 @@ function AvatarDetails({ currentImage, previewUrl, file }: AvatarDetailsProps) {
   )
 }
 
-function AvatarProfileFallback({ user }: { user: User }) {
-  return (
-    <div className="-mt-10 flex items-center px-6">
-      <div className="shadow-xs flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
-        <Avatar className="size-20">
-          <AvatarFallback className="rounded-sm font-semibold">
-            {user.name!.slice(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      </div>
-    </div>
-  )
-}
+// function AvatarProfileFallback({ user }: { user: User }) {
+//   return (
+//     <div className="-mt-10 flex items-center px-6">
+//       <div className="shadow-xs flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
+//         <Avatar className="size-20">
+//           <AvatarFallback className="rounded-md font-semibold">
+//             {user.name!.slice(0, 2).toUpperCase()}
+//           </AvatarFallback>
+//         </Avatar>
+//       </div>
+//     </div>
+//   )
+// }
 
-export { AvatarProfile, AvatarProfileFallback }
+export { AvatarProfile }

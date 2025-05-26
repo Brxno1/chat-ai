@@ -2,10 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiGoogleFill } from '@remixicon/react'
-import { LoaderCircle } from 'lucide-react'
+import { useMutation } from '@tanstack/react-query'
+import { LoaderCircle, Mail, Undo2 } from 'lucide-react'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
-import { useTheme } from 'next-themes'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -35,6 +36,7 @@ import { Input } from '@/components/ui/input'
 import { env } from '@/lib/env'
 import { loginSchema } from '@/schemas'
 import { cn } from '@/utils/utils'
+
 type FormValue = z.infer<typeof loginSchema>
 
 interface LoginFormProps {
@@ -43,7 +45,6 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ name, onChangeMode }: LoginFormProps) {
-  const { theme } = useTheme()
   const form = useForm<FormValue>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
@@ -52,45 +53,55 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
     },
   })
 
-  async function handleSentMagicLink({ email }: FormValue) {
-    try {
-      const { error, user } = await getUserByEmail({ email })
-
-      if (error) {
-        throw new Error(error)
+  const { mutateAsync: sendMagicLink } = useMutation({
+    mutationFn: getUserByEmail,
+    onSuccess: async ({ user, success }) => {
+      if (!success) {
+        toast('Verifique seu e-mail ou tente novamente', {
+          action: (
+            <Button className="ml-2" size="icon" form="login-form">
+              <Undo2 size={16} />
+            </Button>
+          ),
+        })
+        return
       }
 
+      toast('Verifique seu e-mail para acessar a sua conta', {
+        action: (
+          <Button className="ml-2" size="icon">
+            <Link href={env.MAILHOG_UI} target="_blank">
+              <Mail size={16} />
+            </Link>
+          </Button>
+        ),
+        duration: 10000,
+      })
+
       await signIn('email', {
-        email,
+        email: user!.email,
         redirect: false,
         redirectTo: '/dashboard',
       })
-
-      toast('Link mágico enviado para: ', {
-        action: (
-          <Link
-            href={env.MAILHOG_UI}
-            target="_blank"
-            className="cursor-pointer font-bold text-purple-500 hover:underline"
-          >
-            {user!.name}
-          </Link>
-        ),
-        duration: 7000,
-      })
+    },
+    onError: () => {
+      toast.error('Ocorreu um erro ao enviar o e-mail. Tente novamente.')
+      onChangeMode(form.getValues('email'))
       form.reset()
-    } catch (error) {
-      toast.error('Entre com uma conta existente ou crie uma nova conta.')
-      onChangeMode(email)
-    }
+    },
+  })
+
+  React.useEffect(() => {
+    form.setFocus('email')
+  }, [form])
+
+  async function handleSentMagicLink({ email }: FormValue) {
+    await sendMagicLink({ email })
   }
 
   return (
     <Card className="relative overflow-hidden">
-      <ShineBorder
-        shineColor={theme === 'dark' ? '#FEFEFE' : '#121212'}
-        borderWidth={1}
-      />
+      <ShineBorder shineColor={'#7a41ff'} borderWidth={1} />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
           <CardHeader className="gap-1 text-center">
@@ -142,7 +153,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
           <CardFooter className="my-2 flex justify-center">
             <InteractiveHoverButton
               type="submit"
-              className="flex w-full items-center justify-center font-semibold"
+              className="flex w-[12rem] items-center justify-center rounded-2xl font-semibold"
               disabled={form.formState.isSubmitting || !form.formState.isValid}
             >
               {form.formState.isSubmitting ? (
@@ -156,13 +167,13 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
             </InteractiveHoverButton>
           </CardFooter>
         </form>
-        <div className="my-2 flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+        <div className="flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
           <span className="text-xs text-muted-foreground">OU ENTRE COM</span>
         </div>
-        <div className="mb-6 mt-3 flex justify-center">
+        <div className="my-6 flex justify-center">
           <Button
-            variant="default"
-            className="font-semibold"
+            variant="outline"
+            className="mx-auto w-[12rem] rounded-2xl font-semibold"
             onClick={() => signIn('google', { redirectTo: '/dashboard' })}
           >
             <RiGoogleFill className="me-1" size={16} aria-hidden="true" />

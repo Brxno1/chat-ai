@@ -3,7 +3,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono as GeistMono } from 'next/font/google'
 
-import { Providers } from '@/components/providers'
+import { Initializer } from '@/components/initializer'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,9 +32,9 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
+        <Initializer>
           <main className="w-full">{children}</main>
-        </Providers>
+        </Initializer>
       </body>
     </html>
   )

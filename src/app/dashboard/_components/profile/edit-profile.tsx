@@ -2,7 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { Edit, LoaderCircle } from 'lucide-react'
+import { Edit } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { User } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import React from 'react'
@@ -32,25 +33,22 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
-import { editProfileSchema } from '@/schemas'
+import { updateProfileSchema } from '@/schemas'
 import { cn } from '@/utils/utils'
 
 import { BackgroundProfile } from './avatar-background'
 import { AvatarProfile } from './avatar-profile'
 
-export type FileChange = {
-  name: 'avatar' | 'background'
-  file: File | null
-}
-
 export default function EditProfile({ user }: { user: User }) {
   const id = React.useId()
   const [open, setOpen] = React.useState(false)
 
+  const router = useRouter()
+
   const { update } = useSession()
 
-  const form = useForm<z.infer<typeof editProfileSchema>>({
-    resolver: zodResolver(editProfileSchema),
+  const form = useForm<z.infer<typeof updateProfileSchema>>({
+    resolver: zodResolver(updateProfileSchema),
     mode: 'onChange',
     defaultValues: {
       name: user.name || '',
@@ -67,11 +65,12 @@ export default function EditProfile({ user }: { user: User }) {
         trigger: 'update',
         data,
       })
+
       toast('Perfil atualizado com sucesso!', {
         duration: 3000,
         position: 'top-center',
       })
-      setOpen(false)
+      router.refresh()
     },
     onError: () => {
       toast.error('Erro ao atualizar perfil', {
@@ -81,7 +80,7 @@ export default function EditProfile({ user }: { user: User }) {
     },
   })
 
-  const onFileChange = ({ name, file }: FileChange) => {
+  const onFileChange = (name: 'avatar' | 'background', file: File | null) => {
     form.setValue(name, file)
     form.clearErrors(name)
 
@@ -97,17 +96,12 @@ export default function EditProfile({ user }: { user: User }) {
     initialValue: user.bio || '',
   })
 
-  const handleCloseDialog = () => {
-    setOpen((prev) => !prev)
-    form.reset()
-  }
-
   const handleProfileUpdate = async ({
     name,
     bio,
     avatar,
     background,
-  }: z.infer<typeof editProfileSchema>) => {
+  }: z.infer<typeof updateProfileSchema>) => {
     const formData = new FormData()
 
     formData.append('name', name)
@@ -120,14 +114,14 @@ export default function EditProfile({ user }: { user: User }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleCloseDialog}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon">
           <Edit className="h-3 w-3 cursor-pointer" />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="flex max-h-[75vh] flex-col gap-0 overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3.5"
+        className="flex max-h-[75vh] flex-col overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3"
         onPointerDownOutside={(ev) => {
           ev.preventDefault()
         }}
@@ -248,11 +242,11 @@ export default function EditProfile({ user }: { user: User }) {
           <Button
             form="update-profile-form"
             type="submit"
-            className="min-w-[150px] font-semibold"
+            className="min-w-[9.375rem] rounded-2xl font-semibold"
             disabled={form.formState.isSubmitting || !form.formState.isValid}
           >
             {form.formState.isSubmitting ? (
-              <LoaderCircle className="animate-spin font-semibold" />
+              <>Salvando...</>
             ) : (
               <>Salvar alterações</>
             )}
@@ -261,7 +255,7 @@ export default function EditProfile({ user }: { user: User }) {
             <Button
               type="button"
               variant="ghost"
-              className="border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600"
+              className="rounded-2xl border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600"
             >
               Cancelar
             </Button>

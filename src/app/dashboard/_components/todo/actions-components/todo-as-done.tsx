@@ -1,20 +1,22 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BookmarkCheck, CheckCircleIcon, LoaderCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { markTodoAsDoneAction } from '@/app/api/todo/actions/done-at-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { queryClient } from '@/lib/query-client'
+import { queryKeys, todoInvalidations } from '@/lib/query-client'
 
 import { ActionsStatusProps } from './types'
 
 export function MarkTodoAsDone({ todo, onCloseDropdown }: ActionsStatusProps) {
+  const queryClient = useQueryClient()
+
   const { mutateAsync: markTodoAsDoneFn, isPending: isMarkingAsDone } =
     useMutation({
       mutationFn: markTodoAsDoneAction,
-      mutationKey: ['mark-todo-done'],
+      mutationKey: queryKeys.todoMutations.markAsDone,
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['todos'] })
+        queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
         toast.success(`Tarefa "${todo.title}" finalizada`, {
           position: 'top-center',
           duration: 2000,
@@ -32,6 +34,7 @@ export function MarkTodoAsDone({ todo, onCloseDropdown }: ActionsStatusProps) {
   const handleMarkTodoAsDone = async (ev: React.MouseEvent<HTMLDivElement>) => {
     ev.preventDefault()
     ev.stopPropagation()
+
     await markTodoAsDoneFn({ id: todo.id, userId: todo.userId })
   }
 
@@ -50,10 +53,7 @@ export function MarkTodoAsDone({ todo, onCloseDropdown }: ActionsStatusProps) {
       {isMarkingAsDone ? (
         <>
           Finalizando...
-          <LoaderCircle
-            size={16}
-            className="animate-spin font-semibold text-green-500"
-          />
+          <LoaderCircle size={16} className="animate-spin" />
         </>
       ) : (
         <>

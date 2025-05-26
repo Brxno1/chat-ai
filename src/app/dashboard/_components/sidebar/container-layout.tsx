@@ -1,35 +1,23 @@
 'use client'
 
-import { PropsWithChildren } from 'react'
+import { User } from 'next-auth'
 
-import { ContainerWrapper } from '@/components/container'
-import { useSidebar } from '@/components/ui/sidebar'
-import { cn } from '@/utils/utils'
-
-import { AppClosedSidebar } from './app-closed-sidebar'
 import { AppSidebar } from './app-sidebar'
 
-export function ContainerLayout({ children }: PropsWithChildren) {
-  const { open, isMobile } = useSidebar()
+type ContainerLayoutProps = {
+  children: React.ReactNode
+  initialUser?: User
+}
 
+export function DashboardContainerLayout({
+  children,
+  initialUser,
+}: ContainerLayoutProps) {
   return (
-    <div
-      className={cn('grid h-screen w-full transition-all duration-300', {
-        'grid-cols-[auto_1fr]': !isMobile,
-        'grid-cols-1': isMobile,
-      })}
-    >
-      {!isMobile && (
-        <ContainerWrapper
-          className="sticky top-0 z-10 h-screen"
-          role="navigation"
-          aria-label="Menu principal"
-        >
-          {open ? <AppSidebar /> : <AppClosedSidebar />}
-        </ContainerWrapper>
-      )}
+    <div className="flex h-screen w-full">
+      <AppSidebar initialUser={initialUser} />
       <main
-        className="flex flex-col overflow-auto bg-background"
+        className="flex w-full flex-1 flex-col overflow-hidden"
         aria-label="Conteúdo principal"
       >
         {children}

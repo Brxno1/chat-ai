@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Todo } from '@prisma/client'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Edit, Loader2 } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -29,7 +29,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { queryClient } from '@/lib/query-client'
+import { queryKeys, todoInvalidations } from '@/lib/query-client'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({
@@ -59,6 +59,8 @@ interface TodoUpdateProps {
 }
 
 function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateProps) {
+  const queryClient = useQueryClient()
+
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     mode: 'onChange',
@@ -69,9 +71,9 @@ function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateProps) {
 
   const { mutateAsync: updateTodoFn, isPending: isUpdating } = useMutation({
     mutationFn: updateTodoAction,
-    mutationKey: ['update-todo'],
+    mutationKey: queryKeys.todoMutations.update,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
+      queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
       toast(`Tarefa "${variables.title}" atualizada com sucesso`, {
         duration: 2000,
         position: 'top-center',
@@ -143,8 +145,8 @@ function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateProps) {
                   variant={'outline'}
                   disabled={
                     isUpdating ||
-                    form.getValues('title') === todo.title ||
-                    !form.formState.isValid
+                    !form.formState.isValid ||
+                    !form.formState.isDirty
                   }
                 >
                   {isUpdating ? (

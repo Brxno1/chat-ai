@@ -1,7 +1,7 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { Loader2, Plus } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -26,7 +26,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { queryClient } from '@/lib/query-client'
+import { queryKeys, todoInvalidations } from '@/lib/query-client'
 import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
@@ -36,8 +36,9 @@ const schema = z.object({
 
 type TodoFormData = z.infer<typeof schema>
 
-const TodoCreateForm = () => {
+export function TodoCreateForm() {
   const { user } = useSessionStore()
+  const queryClient = useQueryClient()
   const [open, setOpen] = React.useState(false)
 
   const form = useForm<TodoFormData>({
@@ -50,21 +51,23 @@ const TodoCreateForm = () => {
 
   const { mutateAsync: createTodoFn, isPending } = useMutation({
     mutationFn: createTodo,
-    mutationKey: ['create-todo'],
+    mutationKey: queryKeys.todoMutations.create,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
-      setOpen(false)
-      toast.success(`Tarefa "${variables.title}" criada com sucesso`, {
+      queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
+
+      toast(`Tarefa "${variables.title}" criada com sucesso`, {
         position: 'top-center',
         duration: 2000,
       })
       form.reset()
+      setOpen(false)
     },
     onError: (_error, variables) => {
       toast.error(`Erro ao criar a tarefa "${variables.title}"`, {
         position: 'top-center',
         duration: 2000,
       })
+      form.reset()
     },
   })
 
@@ -73,11 +76,7 @@ const TodoCreateForm = () => {
   }, [open, form])
 
   async function handleCreateTodo(data: TodoFormData) {
-    try {
-      await createTodoFn({ title: data.title })
-    } catch (err) {
-      form.reset()
-    }
+    await createTodoFn({ title: data.title })
   }
 
   return (
@@ -89,10 +88,8 @@ const TodoCreateForm = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side={'right'}>
-        <SheetHeader className="flex flex-col gap-1">
-          <SheetTitle>
-            Olá, <span className="font-bold text-purple-500">{user?.name}</span>
-          </SheetTitle>
+        <SheetHeader>
+          <SheetTitle>Olá, {user?.name}</SheetTitle>
           <SheetDescription>Qual será a tarefa de hoje?</SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -106,38 +103,34 @@ const TodoCreateForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
-                    className={cn(
-                      'text-sm font-medium',
-                      form.formState.errors.title && 'text-red-600',
-                    )}
+                    className={cn('text-sm font-medium', {
+                      'text-red-600': form.formState.errors.title,
+                    })}
                   >
                     Título
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      className={cn(
-                        form.formState.errors.title && 'border-red-600',
-                      )}
+                      className={cn({
+                        'border-red-600': form.formState.errors.title,
+                      })}
                     />
                   </FormControl>
                   <FormMessage
-                    className={cn(
-                      form.formState.errors.title && 'text-red-600',
-                    )}
+                    className={cn({
+                      'text-red-600': form.formState.errors.title,
+                    })}
                   />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="font-bold" disabled={isPending}>
-              {isPending ? (
-                <>
-                  <Loader2 className="animate-spin" size={16} />
-                  Criando...
-                </>
-              ) : (
-                <span>Criar</span>
-              )}
+            <Button
+              type="submit"
+              className="mx-auto w-[12rem] rounded-2xl font-bold"
+              disabled={isPending || !form.formState.isValid}
+            >
+              {isPending ? 'Criando...' : 'Criar'}
             </Button>
           </form>
         </Form>
@@ -145,5 +138,3 @@ const TodoCreateForm = () => {
     </Sheet>
   )
 }
-
-export default TodoCreateForm
