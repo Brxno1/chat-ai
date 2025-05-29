@@ -2,7 +2,6 @@
 /* eslint-disable */
 
 import type { Config } from 'tailwindcss'
-import animate from 'tailwindcss-animate'
 
 export default {
 	darkMode: ['class'],
@@ -132,7 +131,21 @@ export default {
 			fontSize: {
 				'2xs': '0.675rem',
 			},
+			scrollbar: {
+				DEFAULT: {
+					width: '5px',
+					height: '30px',
+				},
+			},
+			backdropBlur: {
+				xs: '2px',
+			},
 		},
 	},
-	plugins: [require('tailwindcss-animate')],
+	plugins: [
+		require('tailwindcss-animate'),
+		require('tailwind-scrollbar')({
+			nocompatible: true,
+		}),
+	],
 } satisfies Config

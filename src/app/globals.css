@@ -110,20 +110,6 @@ body {
   }
 }
 
-/* Sidebar collapsible styles */
-[data-collapsible="icon"] .sidebar-expanded-only {
-  display: none;
-}
-
-[data-collapsible="icon"] .flex-shrink-0 {
-  margin: 0 auto;
-}
-
-[data-state="collapsed"] .sidebar-nav-link {
-  justify-content: center;
-  padding: 0.5rem;
-}
-
 
 @theme inline {
   @keyframes aurora {
@@ -149,3 +135,16 @@ body {
     }
   }
 }
+
+/* .custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(161, 161, 170, 0.7);
+} */
+ 

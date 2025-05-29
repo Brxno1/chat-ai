@@ -3,80 +3,79 @@
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Loader2, TextSearch, Trash, X } from 'lucide-react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { formatDateToLocale } from '@/utils/format'
+import { useRouter } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { api } from '@/lib/axios'
+
+interface Chat {
+  id: string
+  title: string
+  createdAt: string
+  messages: Array<{
+    content: string
+    role: string
+  }>
+}
+
+async function fetchChats() {
+  const response = await api.get('/chats')
+
+  const data = response.data
+  return data.chats || []
+}
+
+async function deleteChat(id: string) {
+  const response = await api.delete(`/chats/${id}`)
+
+  return response.data
+}
+
+async function deleteAllChats() {
+  const response = await api.delete('/chats')
+
+  return response
+}
 
 export function Historical({ disabled = false }: { disabled?: boolean }) {
   const [open, setOpen] = React.useState(false)
-  const [messages, setMessages] = React.useState([
-    {
-      id: '1',
-      content: 'Como criar uma API REST com Node.js?',
-      date: '2023-11-20T14:30:00'
-    },
-    {
-      id: '2',
-      content: 'Quais são os melhores frameworks React em 2024?',
-      date: '2023-11-18T09:15:00'
-    },
-    {
-      id: '3',
-      content: 'Me ajude a otimizar meu código SQL para consultas mais rápidas',
-      date: '2023-11-15T16:45:00'
-    },
-    {
-      id: '4',
-      content: 'Explique como implementar autenticação JWT em uma aplicação fullstack',
-      date: '2023-11-10T11:20:00'
-    },
-    {
-      id: '5',
-      content: 'Quais são as melhores práticas para deploy de microsserviços?',
-      date: '2025-11-05T08:30:00'
-    },
-    {
-      id: '6',
-      content: 'Como posso melhorar a performance de minha aplicação?',
-      date: '2025-11-02T12:45:00'
-    },
-    {
-      id: '7',
-      content: 'Como posso melhorar a performance de minha aplicação?',
-      date: '2025-11-02T12:45:00'
-    },
-    {
-      id: '8',
-      content: 'Como posso melhorar a performance de minha aplicação?',
-      date: '2025-11-02T12:45:00'
-    },
-    {
-      id: '9',
-      content: 'Como posso melhorar a performance de minha aplicação?',
-      date: '2025-11-02T12:45:00'
-    },
-    {
-      id: '10',
-      content: 'Como posso melhorar a performance de minha aplicação?',
-      date: '2025-11-02T12:45:00'
-    },
-    {
-      id: '11',
-      content: 'Como posso melhorar a performance de minha aplicação?',
-      date: '2025-11-02T12:45:00'
-    },
-    {
-      id: '12',
-      content: 'Como posso melhorar a performance de minha aplicação?',
-      date: '2025-11-02T12:45:00'
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
+  const {
+    data: chats = [],
+    isLoading: isLoadingChats,
+    refetch
+  } = useQuery<Chat[]>({
+    queryKey: ['chats'],
+    queryFn: fetchChats,
+    enabled: open && !disabled,
+  })
+
+  const { mutateAsync: deleteChatMutation } = useMutation({
+    mutationFn: deleteChat,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chats'] })
     }
-  ])
+  })
 
-  const handleDeleteMessage = (id: string) => {
-    setMessages((prevMessages) => prevMessages.filter((message) => message.id !== id))
-  }
+  const { mutateAsync: deleteAllChatsMutation, isPending: isDeletingAllChats } = useMutation({
+    mutationFn: deleteAllChats,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chats'] })
+      setOpen(false)
+    }
+  })
 
-  const handleDeleteAllMessages = () => {
-    setMessages([])
+  useEffect(() => {
+    if (open && !disabled) {
+      refetch()
+    }
+  }, [open, disabled, refetch])
+
+  const handleOpenChat = (chatId: string) => {
+    router.push(`/chat/${chatId}`)
     setOpen(false)
   }
 
@@ -87,26 +86,38 @@ export function Historical({ disabled = false }: { disabled?: boolean }) {
           <TextSearch size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] space-y-2 p-4">
+      <DialogContent className="max-h-[80vh] space-y-2 py-4">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>Histórico de Conversas</DialogTitle>
           <DialogClose asChild>
-            <Button variant="link">
+            <Button variant="link" size="icon">
               <X size={16} />
             </Button>
           </DialogClose>
         </DialogHeader>
         <div className="flex flex-col overflow-y-auto max-h-[55vh] pr-4 space-y-2">
-          {messages.length > 0 ? messages.map((message) => (
-            <MessageItem key={message.id} message={message} onDeleteMessage={handleDeleteMessage} />
-          )) : (
-            <p className="text-sm text-center text-muted-foreground">Nenhuma conversa encontrada</p>
-          )}
+          {chats.map((chat) => (
+            <MessageItem
+              key={chat.id}
+              chat={chat}
+              onDeleteChat={deleteChatMutation}
+              onOpenChat={handleOpenChat}
+            />
+          ))}
         </div>
-        {messages.length > 0 && (
+        {chats.length > 0 && (
           <DialogFooter>
-            <Button variant="secondary" onClick={handleDeleteAllMessages}>
-              <Trash size={16} />
+            <Button
+              variant="outline"
+              onClick={() => deleteAllChatsMutation()}
+              disabled={isDeletingAllChats}
+              className='border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600'
+            >
+              {isDeletingAllChats ? (
+                <Loader2 size={16} className="animate-spin mr-2" />
+              ) : (
+                <Trash size={16} className="mr-2" />
+              )}
               Excluir todas as conversas
             </Button>
           </DialogFooter>
@@ -116,38 +127,43 @@ export function Historical({ disabled = false }: { disabled?: boolean }) {
   )
 }
 
-interface MessageProps {
-  message: {
-    id: string
-    content: string
-    date: string
-  }
-  onDeleteMessage: (id: string) => void
+interface MessageItemProps {
+  chat: Chat
+  onDeleteChat: (id: string) => void
+  onOpenChat: (id: string) => void
 }
 
-function MessageItem({ message, onDeleteMessage }: MessageProps) {
-  const [isLoading, setIsLoading] = React.useState(false)
+function MessageItem({ chat, onDeleteChat, onOpenChat }: MessageItemProps) {
+  const [isDeleting, setIsDeleting] = React.useState(false)
 
-  const handleDelete = () => {
-    setIsLoading(true)
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsDeleting(true)
 
     setTimeout(() => {
-      onDeleteMessage(message.id)
-      setIsLoading(false)
-    }, 1000)
+      onDeleteChat(chat.id)
+      setIsDeleting(false)
+    }, 500)
   }
 
   return (
     <div
-      key={message.id}
+      key={chat.id}
       className="flex justify-between rounded-sm border border-border p-3 hover:bg-muted/40 cursor-pointer"
+      onClick={() => onOpenChat(chat.id)}
     >
       <div className="flex-1 flex flex-col space-y-1">
-        <p className="font-medium text-sm">{message.content}</p>
-        <p className="text-xs text-muted-foreground">{formatDateToLocale(new Date(message.date))}</p>
+        <p className="font-medium text-sm">{chat.title}</p>
+        <p className="text-xs text-muted-foreground">{formatDateToLocale(new Date(chat.createdAt))}</p>
       </div>
-      <Button variant="link" size="icon" className="size-8 hover:text-red-500 my-auto" onClick={handleDelete}>
-        {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash size={14} />}
+      <Button
+        variant="link"
+        size="icon"
+        className="size-8 hover:text-red-500 my-auto"
+        onClick={handleDelete}
+        disabled={isDeleting}
+      >
+        {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash size={14} />}
       </Button>
     </div>
   )

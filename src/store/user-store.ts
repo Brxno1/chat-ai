@@ -1,16 +1,15 @@
-import { User } from 'next-auth'
-import { useSession } from 'next-auth/react'
+import { Session, User } from 'next-auth'
 import { create } from 'zustand'
 
 type State = {
-  session: ReturnType<typeof useSession> | null
+  session: Session | null
   user: User | null
   email: string
   locale: string
 }
 
 type Action = {
-  syncSession: (session: ReturnType<typeof useSession>) => void
+  syncSession: (session: Session) => void
   syncUser: (user: User) => void
   syncEmail: (email: string) => void
   syncLocale: (locale: string) => void

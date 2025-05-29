@@ -23,7 +23,7 @@ export function DashboardPageHeader({
   return (
     <header
       className={cn([
-        'sticky top-0 z-10 flex w-full border-b items-center justify-end gap-3 bg-muted px-6 py-3 drop-shadow-md dark:bg-background',
+        'sticky top-0 z-[1] flex w-full items-center justify-between px-5 py-3',
         className,
       ])}
     >

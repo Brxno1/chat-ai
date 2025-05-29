@@ -43,17 +43,22 @@ model Chat {
   @@map("chats")
 }
 
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
 model Message {
-  id        String   @id @default(cuid())
-  content   String
-  role      String
-  createdAt DateTime @default(now())
-  userId    String
+  id        String      @id @default(cuid())
+  content   String      @db.Text
+  role      MessageRole
+  createdAt DateTime    @default(now())
+  chatId    String
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  User      User?       @relation(fields: [userId], references: [id])
+  userId    String?
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chatId String
-  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
-
+  @@index([chatId])
   @@map("messages")
 }
 
@@ -112,6 +117,9 @@ model Session {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([sessionToken])
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -120,6 +128,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Authenticator {
@@ -135,4 +144,5 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+  @@map("authenticators")
 }

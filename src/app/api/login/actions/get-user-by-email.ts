@@ -5,6 +5,7 @@ import { User } from '@prisma/client'
 import { prisma } from '@/services/database/prisma'
 
 interface GetUserByEmailResponse {
+  success: boolean
   error: string | null
   user: User | null
 }
@@ -16,21 +17,31 @@ interface UserWithEmail {
 export async function getUserByEmail({
   email,
 }: UserWithEmail): Promise<GetUserByEmailResponse> {
-  const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  })
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    })
 
-  if (!user) {
+    if (!user) {
+      return {
+        success: false,
+        error: 'Invalid credentials or account does not exist',
+        user: null,
+      }
+    }
+
     return {
-      error: 'User not found',
+      success: true,
+      user,
+      error: null,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Failed to process request',
       user: null,
     }
-  }
-
-  return {
-    user,
-    error: null,
   }
 }
