@@ -1,95 +1,124 @@
+import { Chat } from '@prisma/client'
+
 import { prisma } from '@/services/database/prisma'
 
 type Role = 'user' | 'assistant'
+
+type OperationResponse<T = Chat | null> = {
+  data: T
+  error?: string
+  success: boolean
+}
 
 export async function getOrCreateChat(
   userId?: string,
   chatId?: string,
   messages?: Array<{ role: Role; content: string }>,
-) {
-  if (!userId) return null
+): Promise<OperationResponse<Chat | null>> {
+  try {
+    if (!userId) return { success: true, data: null }
 
-  if (chatId) {
-    return prisma.chat.findFirst({
-      where: {
-        id: chatId,
-        userId,
-      },
-    })
+    if (chatId) {
+      const chat = await prisma.chat.findFirst({
+        where: {
+          id: chatId,
+          userId,
+        },
+      })
+
+      return { success: true, data: chat }
+    }
+
+    if (userId && messages?.length) {
+      const lastUserMessage = [...messages]
+        .reverse()
+        .find((msg) => msg.role === 'user')
+
+      const title = lastUserMessage
+        ? lastUserMessage.content.substring(0, 30)
+        : 'Nova conversa'
+
+      const chat = await prisma.chat.create({
+        data: {
+          title,
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+      })
+
+      return { success: true, data: chat }
+    }
+
+    return { success: false, data: null }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      data: null,
+    }
   }
-
-  if (userId && messages?.length) {
-    const lastUserMessage = [...messages]
-      .reverse()
-      .find((msg) => msg.role === 'user')
-    const title = lastUserMessage
-      ? lastUserMessage.content.substring(0, 50)
-      : 'Nova conversa'
-
-    return prisma.chat.create({
-      data: {
-        title,
-        userId,
-      },
-    })
-  }
-
-  return null
 }
 
 export async function saveMessages(
   messages: Array<{ role: Role; content: string }>,
   chatId: string,
-) {
-  return Promise.all(
-    messages.map((message) =>
-      prisma.message.create({
-        data: {
-          content: message.content,
-          role: message.role === 'user' ? 'USER' : 'ASSISTANT',
-          chatId,
-        },
-      }),
-    ),
-  )
+): Promise<OperationResponse<null>> {
+  try {
+    await prisma.message.createMany({
+      data: messages.map((msg) => ({
+        content: msg.content,
+        role: msg.role === 'user' ? 'USER' : 'ASSISTANT',
+        chatId,
+      })),
+    })
+    return { success: true, data: null }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      data: null,
+    }
+  }
 }
 
-export function saveResponseWhenComplete(
+export async function saveResponseWhenComplete(
   result: { text: Promise<string> },
   chatId: string,
   originalChatId?: string,
   messages?: Array<{ role: Role; content: string }>,
-) {
-  const responsePromise = new Promise<void>((resolve) => {
-    result.text.then((fullText) => {
-      prisma.message
-        .create({
-          data: {
-            content: fullText,
-            role: 'ASSISTANT',
-            chatId,
-          },
-        })
-        .then(() => {
-          if (!originalChatId && messages?.length) {
-            const userMessage =
-              messages.find((msg) => msg.role === 'user')?.content || ''
+): Promise<OperationResponse<null>> {
+  try {
+    const fullText = await result.text
 
-            return prisma.chat.update({
-              where: { id: chatId },
-              data: {
-                title: userMessage.substring(0, 50),
-              },
-            })
-          }
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          console.error('Erro ao salvar resposta do assistente:', error)
-          resolve()
-        })
+    await prisma.message.create({
+      data: {
+        content: fullText,
+        role: 'ASSISTANT',
+        chatId,
+      },
     })
-  })
 
-  responsePromise.catch(console.error)
+    if (!originalChatId && messages?.length) {
+      const userMessage =
+        messages.find((msg) => msg.role === 'user')?.content || ''
+
+      await prisma.chat.update({
+        where: { id: chatId },
+        data: {
+          title: userMessage.substring(0, 30),
+        },
+      })
+    }
+
+    return { success: true, data: null }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      data: null,
+    }
+  }
 }

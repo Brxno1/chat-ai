@@ -27,5 +27,9 @@ export default async function ChatPage({
     notFound()
   }
 
-  return <Chat modelName="Claude" initialUser={session.user} chatId={chatId} />
+  return (
+    <div className="flex h-screen w-full items-center justify-center">
+      <Chat user={session.user} initialChatId={chatId} />
+    </div>
+  )
 }

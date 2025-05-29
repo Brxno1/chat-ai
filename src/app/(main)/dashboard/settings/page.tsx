@@ -8,7 +8,7 @@ import {
 } from '@/components/dashboard'
 import { ToggleTheme } from '@/components/theme/toggle-theme'
 
-import { SidebarTriggerComponent } from '../_components/sidebar/sidebar-trigger'
+import { SidebarTriggerComponent } from '../../_components/sidebar/sidebar-trigger'
 
 export default function Settings() {
   return (

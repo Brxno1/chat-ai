@@ -84,7 +84,7 @@ export function Messages({
               >
                 <div
                   className={cn(
-                    'flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-2 dark:bg-foreground',
+                    'flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-2',
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',

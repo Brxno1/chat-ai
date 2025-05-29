@@ -17,9 +17,10 @@ import { TooltipProvider } from './ui/tooltip'
 interface ProvidersProps {
   children: React.ReactNode
   initialSession?: Session
+  defaultOpen?: boolean
 }
 
-export function Providers({ children, initialSession }: ProvidersProps) {
+export function Providers({ children, initialSession, defaultOpen }: ProvidersProps) {
   const [queryClient] = React.useState(() => createQueryClient())
 
   return (
@@ -36,7 +37,7 @@ export function Providers({ children, initialSession }: ProvidersProps) {
         shallowRouting
       >
         <TooltipProvider>
-          <SidebarProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
             <QueryClientProvider client={queryClient}>
               <NextAuthSessionProvider session={initialSession}>
                 <SyncSession initialSession={initialSession!} />

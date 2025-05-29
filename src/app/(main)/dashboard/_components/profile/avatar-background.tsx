@@ -1,4 +1,5 @@
 import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
+import { User } from 'next-auth'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
@@ -10,11 +11,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useImageUpload } from '@/hooks/use-image-upload'
 
 interface FileUploadProps {
-  Background?: string | null
+  user: User
   onFileChange: (name: 'background', file: File | null) => void
 }
 
-function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
+function BackgroundProfile({ user, onFileChange }: FileUploadProps) {
   const {
     file,
     previewUrl,
@@ -28,7 +29,7 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
     onFileChange('background', file)
   }, [file])
 
-  const currentBackground = previewUrl || Background
+  const currentBackground = previewUrl || user.background
 
   const handleRemoveImage = () => {
     handleRemove()
@@ -47,7 +48,7 @@ function BackgroundProfile({ Background, onFileChange }: FileUploadProps) {
           <Avatar className="size-full rounded-none">
             <AvatarImage src={currentBackground || ''} />
             <AvatarFallback className="rounded-none">
-              <BackgroundProfileFallback />
+              <div className="size-full bg-black" />
             </AvatarFallback>
           </Avatar>
         </AspectRatio>

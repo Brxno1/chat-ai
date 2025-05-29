@@ -20,32 +20,22 @@ interface Chat {
 }
 
 async function fetchChats() {
-  const response = await api.get('/api/chats')
-  if (response.status !== 200) {
-    throw new Error('Falha ao carregar conversas')
-  }
-  const data = await response.data
+  const response = await api.get('/chats')
+
+  const data = response.data
   return data.chats || []
 }
 
 async function deleteChat(id: string) {
-  const response = await api.delete(`/api/chats/${id}`)
-
-  if (response.status !== 200) {
-    throw new Error('Falha ao excluir conversa')
-  }
+  const response = await api.delete(`/chats/${id}`)
 
   return response.data
 }
 
 async function deleteAllChats() {
-  const response = await api.delete('/api/chats')
+  const response = await api.delete('/chats')
 
-  if (response.status !== 200) {
-    throw new Error('Falha ao excluir todas as conversas')
-  }
-
-  return response.data
+  return response
 }
 
 export function Historical({ disabled = false }: { disabled?: boolean }) {
@@ -55,7 +45,7 @@ export function Historical({ disabled = false }: { disabled?: boolean }) {
 
   const {
     data: chats = [],
-    isLoading,
+    isLoading: isLoadingChats,
     refetch
   } = useQuery<Chat[]>({
     queryKey: ['chats'],
@@ -63,14 +53,14 @@ export function Historical({ disabled = false }: { disabled?: boolean }) {
     enabled: open && !disabled,
   })
 
-  const deleteChatMutation = useMutation({
+  const { mutateAsync: deleteChatMutation } = useMutation({
     mutationFn: deleteChat,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chats'] })
     }
   })
 
-  const deleteAllChatsMutation = useMutation({
+  const { mutateAsync: deleteAllChatsMutation, isPending: isDeletingAllChats } = useMutation({
     mutationFn: deleteAllChats,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chats'] })
@@ -96,39 +86,34 @@ export function Historical({ disabled = false }: { disabled?: boolean }) {
           <TextSearch size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] space-y-2 p-4">
+      <DialogContent className="max-h-[80vh] space-y-2 py-4">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>Histórico de Conversas</DialogTitle>
           <DialogClose asChild>
-            <Button variant="link">
+            <Button variant="link" size="icon">
               <X size={16} />
             </Button>
           </DialogClose>
         </DialogHeader>
         <div className="flex flex-col overflow-y-auto max-h-[55vh] pr-4 space-y-2">
-          {isLoading ? (
-            <div className="flex justify-center py-4">
-              <Loader2 size={20} className="animate-spin" />
-            </div>
-          ) : chats.length > 0 ? chats.map((chat) => (
+          {chats.map((chat) => (
             <MessageItem
               key={chat.id}
               chat={chat}
-              onDeleteChat={(id) => deleteChatMutation.mutate(id)}
+              onDeleteChat={deleteChatMutation}
               onOpenChat={handleOpenChat}
             />
-          )) : (
-            <p className="text-sm text-center text-muted-foreground">Nenhuma conversa encontrada</p>
-          )}
+          ))}
         </div>
         {chats.length > 0 && (
           <DialogFooter>
             <Button
-              variant="secondary"
-              onClick={() => deleteAllChatsMutation.mutate()}
-              disabled={deleteAllChatsMutation.isPending}
+              variant="outline"
+              onClick={() => deleteAllChatsMutation()}
+              disabled={isDeletingAllChats}
+              className='border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600'
             >
-              {deleteAllChatsMutation.isPending ? (
+              {isDeletingAllChats ? (
                 <Loader2 size={16} className="animate-spin mr-2" />
               ) : (
                 <Trash size={16} className="mr-2" />

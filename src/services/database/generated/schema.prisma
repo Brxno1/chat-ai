@@ -59,6 +59,7 @@ model Message {
   userId    String?
 
   @@index([chatId])
+  @@map("messages")
 }
 
 enum TodoStatus {
@@ -116,6 +117,9 @@ model Session {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([sessionToken])
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -124,6 +128,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Authenticator {
@@ -139,4 +144,5 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+  @@map("authenticators")
 }

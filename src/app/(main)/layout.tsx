@@ -3,19 +3,19 @@ import { PropsWithChildren } from 'react'
 
 import { auth } from '@/services/auth'
 
-import { DashboardContainerLayout } from './_components/sidebar/container-layout'
+import { MainWrapperLayout } from './_components/wrapper-layout'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
   description: 'Gerencie suas tarefas com facilidade',
 }
 
-export default async function DashboardLayout({ children }: PropsWithChildren) {
+export default async function MainLayout({ children }: PropsWithChildren) {
   const session = await auth()
 
   return (
-    <DashboardContainerLayout initialUser={session?.user}>
+    <MainWrapperLayout initialUser={session?.user}>
       {children}
-    </DashboardContainerLayout>
+    </MainWrapperLayout>
   )
 }

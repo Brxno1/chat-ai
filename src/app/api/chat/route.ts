@@ -1,20 +1,12 @@
-import { openai } from '@ai-sdk/openai'
-import { Message, streamText } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { env } from '@/lib/env'
 import { auth } from '@/services/auth'
 
-import {
-  getOrCreateChat,
-  saveMessages,
-  saveResponseWhenComplete,
-} from './actions/chat-operations'
 import { setAiModelCookie } from './actions/set-ai-model-cookie'
 import { chatConfig, defaultErrorMessage } from './config'
 import { logChatError } from './logger'
-import { generateSystemPrompt } from './prompts'
+import { processChat } from './services/chat-processor'
 
 const schema = z.object({
   messages: z.array(
@@ -23,139 +15,57 @@ const schema = z.object({
       content: z.string(),
     }),
   ),
-  name: z.string(),
+  name: z.string().optional(),
   locale: z.string(),
   chatId: z.string().optional(),
+  isGhostChatMode: z.boolean().optional(),
 })
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('Recebendo requisição de chat...')
+    const body = schema.parse(await req.json())
 
-    let requestData
-    try {
-      requestData = await req.json()
-      console.log('Dados da requisição:', JSON.stringify(requestData))
-    } catch (parseError) {
-      console.error('Erro ao parsear JSON:', parseError)
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
-    }
-
-    let validatedData
-    try {
-      validatedData = schema.parse(requestData)
-    } catch (validationError) {
-      console.error('Erro de validação:', validationError)
-      return NextResponse.json(
-        { error: 'Validation failed', details: validationError },
-        { status: 400 },
-      )
-    }
-
-    const { messages, name, locale, chatId } = validatedData
-    console.log(
-      `Mensagens recebidas: ${messages.length}, chatId: ${chatId || 'novo'}`,
-    )
-
-    let session
-    try {
-      session = await auth()
-    } catch (authError) {
-      console.error('Erro de autenticação:', authError)
-      return NextResponse.json(
-        { error: 'Authentication error' },
-        { status: 401 },
-      )
-    }
-
+    const session = await auth()
     const userId = session?.user?.id
-    console.log(`Usuário autenticado: ${userId ? 'Sim' : 'Não'}`)
 
-    let chat
-    try {
-      chat = await getOrCreateChat(userId, chatId, messages)
-      console.log(`Chat: ${chat?.id || 'não criado'}`)
-    } catch (dbError) {
-      console.error('Erro no banco de dados:', dbError)
-      return NextResponse.json({ error: 'Database error' }, { status: 500 })
-    }
+    const model = (await setAiModelCookie()) || chatConfig.modelName
 
-    if (!env.OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY não configurada')
+    const { stream, chatId, error } = await processChat({
+      ...body,
+      userId,
+      model,
+    })
+
+    if (error || !stream) {
       return NextResponse.json(
-        { error: 'API key not configured' },
+        {
+          error: 'Chat processing failed',
+          message: error || defaultErrorMessage,
+        },
         { status: 500 },
       )
     }
 
-    let model
     try {
-      model = (await setAiModelCookie()) || chatConfig.modelName
-      console.log(`Usando modelo: ${model}`)
-    } catch (modelError) {
-      console.error('Erro ao configurar modelo:', modelError)
-      return NextResponse.json(
-        { error: 'Model configuration error' },
-        { status: 500 },
-      )
-    }
-
-    const promptMessages: Message[] = [
-      {
-        id: 'system',
-        role: 'system',
-        content: generateSystemPrompt(name, locale),
-      } as Message,
-      ...(messages.map((msg, i) => ({
-        id: `msg-${i}`,
-        ...msg,
-      })) as Message[]),
-    ]
-
-    console.log('Enviando requisição para a OpenAI...')
-
-    let result
-    try {
-      result = streamText({
-        model: openai(model),
-        temperature: chatConfig.temperature,
-        maxTokens: chatConfig.maxTokens,
-        messages: promptMessages,
-      })
-    } catch (aiError) {
-      console.error('Erro na API da OpenAI:', aiError)
-      return NextResponse.json(
-        { error: 'AI service error', details: aiError },
-        { status: 500 },
-      )
-    }
-
-    if (userId && chat) {
-      try {
-        await saveMessages(messages, chat.id)
-        saveResponseWhenComplete(result, chat.id, chatId, messages)
-        console.log('Mensagens salvas no banco de dados')
-      } catch (saveError) {
-        console.error('Erro ao salvar mensagens:', saveError)
+      const response = stream.toDataStreamResponse()
+      if (chatId) {
+        response.headers.set('X-Chat-Id', chatId)
       }
-    }
 
-    console.log('Enviando resposta de streaming...')
-    try {
-      const response = result.toDataStreamResponse()
-      if (chat?.id) {
-        response.headers.set('X-Chat-Id', chat.id)
-      }
       return response
-    } catch (streamError) {
-      console.error('Erro ao criar stream de resposta:', streamError)
-      return NextResponse.json({ error: 'Streaming error' }, { status: 500 })
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Unknown error' },
+        { status: 500 },
+      )
     }
   } catch (error) {
-    console.error('Erro geral na API de chat:', error)
     logChatError(error)
     return NextResponse.json(
-      { error: 'Internal server error', message: defaultErrorMessage },
+      {
+        error: error instanceof Error ? error.message : 'Internal server error',
+        message: defaultErrorMessage,
+      },
       { status: 500 },
     )
   }

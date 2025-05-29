@@ -53,6 +53,8 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
     },
   })
 
+  const magicLinkRef = React.useRef<HTMLAnchorElement>(null)
+
   const { mutateAsync: sendMagicLink } = useMutation({
     mutationFn: getUserByEmail,
     onSuccess: async ({ user, success }) => {
@@ -69,14 +71,20 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
 
       toast('Verifique seu e-mail para acessar a sua conta', {
         action: (
-          <Button className="ml-2" size="icon">
-            <Link href={env.MAILHOG_UI} target="_blank">
+          <Link href={env.MAILHOG_UI} target="_blank" ref={magicLinkRef}>
+            <Button className="ml-2" size="icon">
               <Mail size={16} />
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         ),
         duration: 10000,
       })
+
+      setTimeout(() => {
+        if (magicLinkRef.current) {
+          magicLinkRef.current.focus()
+        }
+      }, 100)
 
       await signIn('email', {
         email: user!.email,

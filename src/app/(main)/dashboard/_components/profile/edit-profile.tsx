@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { Edit } from 'lucide-react'
+import { UserPen } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { User } from 'next-auth'
 import { useSession } from 'next-auth/react'
@@ -19,6 +19,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogPortal,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
@@ -39,7 +40,12 @@ import { cn } from '@/utils/utils'
 import { BackgroundProfile } from './avatar-background'
 import { AvatarProfile } from './avatar-profile'
 
-export default function EditProfile({ user }: { user: User }) {
+interface EditProfileProps {
+  user: User
+  className?: string
+}
+
+export function EditProfile({ user, className }: EditProfileProps) {
   const id = React.useId()
   const [open, setOpen] = React.useState(false)
 
@@ -115,9 +121,16 @@ export default function EditProfile({ user }: { user: User }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <DialogPortal>
+        <div
+          data-dialog={open ? 'open' : 'closed'}
+          className="fixed inset-0 z-50 backdrop-blur-sm data-[dialog=closed]:hidden"
+          aria-hidden="true"
+        />
+      </DialogPortal>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Edit className="h-3 w-3 cursor-pointer" />
+        <Button variant="outline" size="icon" className={className}>
+          <UserPen />
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -143,10 +156,7 @@ export default function EditProfile({ user }: { user: User }) {
             onSubmit={form.handleSubmit(handleProfileUpdate)}
             id="update-profile-form"
           >
-            <BackgroundProfile
-              Background={user.background}
-              onFileChange={onFileChange}
-            />
+            <BackgroundProfile user={user} onFileChange={onFileChange} />
             <AvatarProfile
               onFileChange={onFileChange}
               user={user}
