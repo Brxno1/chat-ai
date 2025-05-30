@@ -99,7 +99,7 @@ const SidebarProvider = React.forwardRef<
     }, [isMobile, setOpen, setOpenMobile])
 
     // Adds a keyboard shortcut to toggle the sidebar.
-    React.useEffect(() => {            
+    React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (
           event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
@@ -147,6 +147,7 @@ const SidebarProvider = React.forwardRef<
               {
                 '--sidebar-width': SIDEBAR_WIDTH,
                 '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
+                '--sidebar-offset': '0px',
                 ...style,
               } as React.CSSProperties
             }
@@ -170,6 +171,7 @@ const Sidebar = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {
     side?: 'left' | 'right'
+    offsetLeft?: number
     variant?: 'sidebar' | 'floating' | 'inset'
     collapsible?: 'offcanvas' | 'icon' | 'none'
   }
@@ -177,6 +179,7 @@ const Sidebar = React.forwardRef<
   (
     {
       side = 'left',
+      offsetLeft = 0,
       variant = 'sidebar',
       collapsible = 'offcanvas',
       className,
@@ -246,14 +249,15 @@ const Sidebar = React.forwardRef<
           className={cn(
             'fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex',
             side === 'left'
-              ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
-              : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
+              ? `left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]`
+              : `right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]`,
             // Adjust the padding for floating and inset variants.
             variant === 'floating' || variant === 'inset'
               ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
               : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l',
             className,
           )}
+          style={offsetLeft > 0 ? { left: `${offsetLeft}px` } : undefined}
           {...props}
         >
           <div

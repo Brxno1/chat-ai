@@ -3,7 +3,7 @@ import { PropsWithChildren } from 'react'
 
 import { auth } from '@/services/auth'
 
-import { MainWrapperLayout } from './_components/wrapper-layout'
+import { MainWrapperLayout } from '../_components/wrapper-layout'
 
 export const metadata: Metadata = {
   title: 'Dashboard',

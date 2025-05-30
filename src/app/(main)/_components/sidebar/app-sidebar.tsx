@@ -46,6 +46,7 @@ type AppSidebarProps = {
   side?: 'left' | 'right'
   variant?: 'sidebar' | 'floating' | 'inset'
   className?: string
+  offsetLeft?: number
 }
 
 export function AppSidebar({
@@ -53,6 +54,7 @@ export function AppSidebar({
   side = 'left',
   variant = 'sidebar',
   className,
+  offsetLeft = 0,
 }: AppSidebarProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false)
   const { isMobile, open } = useSidebar()
@@ -148,13 +150,14 @@ export function AppSidebar({
   return (
     <Sidebar
       collapsible="icon"
-      className={cn(className, 'group/sidebar')}
+      className={cn(className, 'group/sidebar border')}
       side={side}
       data-sidebar={open ? 'open' : 'closed'}
       variant={variant}
+      offsetLeft={offsetLeft}
     >
-      <SidebarHeader className="w-full">
-        <SidebarHeaderTitle className="flex w-full items-center justify-between py-1.5 group-data-[sidebar=closed]/sidebar:py-3">
+      <SidebarHeader className="w-full bg-card px-0">
+        <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5 group-data-[sidebar=closed]/sidebar:py-2.5">
           <Logo className="mx-auto group-data-[sidebar=open]/sidebar:ml-2" />
           <SidebarTriggerComponent
             variant="ghost"
@@ -163,7 +166,7 @@ export function AppSidebar({
         </SidebarHeaderTitle>
         <Separator />
       </SidebarHeader>
-      <SidebarContent className="flex h-[calc(100vh-130px)] flex-col overflow-hidden">
+      <SidebarContent className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-card">
         <SidebarGroup className="space-y-2">
           <SidebarLinks
             links={mainLinks}
@@ -178,12 +181,14 @@ export function AppSidebar({
             onOpenChange={setIsCollapsed}
             className="group/collapsible flex h-full flex-col"
             data-collapsed={isCollapsed ? 'open' : 'closed'}
-            data-pathname={pathname === '/dashboard'}
+            data-pathname={
+              pathname === '/dashboard' || pathname === '/dashboard/settings'
+            }
           >
             <CollapsibleTrigger asChild disabled={historical.length === 0}>
               <Button
                 variant="outline"
-                className="mb-2 w-full justify-start text-sm group-data-[pathname=true]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden"
+                className="w-full justify-start rounded-md text-sm group-data-[pathname=true]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden"
               >
                 <History size={20} />
                 <span className="flex items-center gap-2">
@@ -192,12 +197,12 @@ export function AppSidebar({
                 </span>
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-2 overflow-y-auto pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-300/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[pathname=true]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border-b">
+            <CollapsibleContent className="space-y-2 overflow-y-auto rounded-md bg-background pb-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-300/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[pathname=true]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border">
               {historical.map((item, index) => (
                 <div
                   key={index}
                   role="button"
-                  className="relative flex w-full cursor-pointer items-start justify-between rounded-md p-1.5 text-left hover:bg-accent"
+                  className="relative flex w-full cursor-pointer items-start justify-between rounded-md px-2 py-1 text-left hover:bg-accent"
                 >
                   <Tooltip>
                     <div className="flex flex-col items-start gap-1">
@@ -212,7 +217,7 @@ export function AppSidebar({
                       >
                         {item.title}
                       </TooltipContent>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-2xs text-muted-foreground">
                         {item.createdAt.toLocaleDateString()}
                       </span>
                     </div>
@@ -236,7 +241,7 @@ export function AppSidebar({
           />
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="flex w-full items-center justify-center">
+      <SidebarFooter className="flex w-full items-center justify-center bg-card">
         <UserDropdown user={initialUser} />
       </SidebarFooter>
     </Sidebar>

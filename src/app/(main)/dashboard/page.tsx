@@ -24,14 +24,14 @@ export default async function Page() {
 
   return (
     <DashboardPage>
-      <DashboardPageHeader className="flex items-center justify-end">
+      <DashboardPageHeader className="flex items-center justify-end border-b border-border bg-card pb-4">
         <div className="mr-2 flex items-center gap-3">
           <TodoCreateForm />
           <ToggleTheme />
         </div>
       </DashboardPageHeader>
       <DashboardPageMain>
-        <ContainerWrapper>
+        <ContainerWrapper className="mt-8">
           <Suspense fallback={<TodoDataTableFallback />}>
             <TodoDataTable
               initialData={initialData}

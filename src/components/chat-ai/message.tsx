@@ -13,23 +13,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useSessionStore } from '@/store/user-store'
 import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
+import { User } from 'next-auth'
 
 interface MessageProps {
+  user: User | undefined
   message: Message
   modelName: string
   onDeleteMessageChat: (id: string) => void
 }
 
 export function Messages({
+  user,
   message,
   modelName,
   onDeleteMessageChat,
 }: MessageProps) {
-  const user = useSessionStore((state) => state.user)
 
   const [state, setState] = useState({
     isDeleting: false,
@@ -57,7 +58,7 @@ export function Messages({
   return (
     <div
       key={`${message.id}-${new Date()}`}
-      className="group flex w-full flex-col"
+      className="flex w-full flex-col"
     >
       <div
         className={cn(
@@ -84,7 +85,7 @@ export function Messages({
               >
                 <div
                   className={cn(
-                    'flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-2',
+                    'group flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-2',
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',

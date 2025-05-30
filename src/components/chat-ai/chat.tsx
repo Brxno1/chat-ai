@@ -8,9 +8,8 @@ import {
   MicIcon,
   PlusIcon,
   SendIcon,
-  StopCircle, UserPlus
+  StopCircle
 } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -39,6 +38,7 @@ import { Historical } from './historical'
 import { ContainerWrapper } from '../container'
 import { Input } from '../ui/input'
 import { User } from 'next-auth'
+import { toast } from 'sonner'
 
 interface ChatProps {
   user?: User
@@ -132,6 +132,22 @@ export function Chat({ user, initialChatId }: ChatProps) {
     }
   }
 
+  const handleGhostChatMode = () => {
+    toast('', {
+      action: (
+        <p className='text-sm'>
+          Chat fantasma:{' '}
+          <span data-ghost={isGhostChatMode} className='font-bold data-[ghost=true]:text-red-400 data-[ghost=false]:text-green-400'>
+            {!isGhostChatMode ? 'ativado' : 'desativado'}
+          </span>
+        </p>
+      ),
+      position: 'top-center',
+      duration: 1500,
+    })
+    setIsGhostChatMode((prev) => !prev)
+  }
+
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -157,9 +173,9 @@ export function Chat({ user, initialChatId }: ChatProps) {
 
   return (
     <div
-      className="grid size-full flex-col border border-l-0 border-border grid-rows-[auto_1fr_auto] max-w-4xl"
+      className="grid size-full flex-col border border-border grid-rows-[auto_1fr_auto] max-w-4xl"
     >
-      <header className="sticky top-0 flex h-fit items-center justify-end border border-x-0 bg-background p-3">
+      <header className="sticky top-0 flex h-fit items-center justify-end border-b border-border bg-card p-[0.849rem]">
         {user ? (
           <ContainerWrapper className="flex items-center justify-between w-full">
             <div className="flex gap-1">
@@ -175,7 +191,7 @@ export function Chat({ user, initialChatId }: ChatProps) {
               <Button
                 variant="link"
                 size="icon"
-                onClick={() => setIsGhostChatMode(!isGhostChatMode)}
+                onClick={handleGhostChatMode}
                 disabled={status === 'streaming'}
               >
                 <Ghost size={16} className={isGhostChatMode ? 'text-primary' : ''} />
@@ -189,10 +205,11 @@ export function Chat({ user, initialChatId }: ChatProps) {
           </div>
         )}
       </header>
-      <div className="overflow-y-auto p-4 pb-6" ref={containerRef}>
+      <div className="overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full p-4 pb-6" ref={containerRef}>
         {messages.map((message) => (
           <Messages
             key={`${message.id}-${message.content.substring(0, 10)}`}
+            user={user}
             message={message}
             modelName={model}
             onDeleteMessageChat={onDeleteMessageChat}
@@ -231,7 +248,7 @@ export function Chat({ user, initialChatId }: ChatProps) {
               </FormItem>
             )}
           />
-          <AIInputToolbar className="p-2">
+          <AIInputToolbar className="p-4">
             <AIInputTools className="gap-2">
               <AIInputButton disabled variant={'outline'}>
                 <PlusIcon size={16} />
@@ -269,12 +286,11 @@ export function Chat({ user, initialChatId }: ChatProps) {
               </AIInputModelSelect>
             </AIInputTools>
             {status === 'streaming' ? (
-              <AIButtonSubmit onClick={stop} variant={'outline'}>
+              <AIButtonSubmit onClick={stop} type='button'>
                 <StopCircle size={16} />
               </AIButtonSubmit>
             ) : (
               <AIButtonSubmit
-                variant={'outline'}
                 disabled={!input || form.formState.isSubmitting || isLoading}
                 type='submit'
               >

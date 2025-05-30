@@ -6,7 +6,7 @@ import { auth } from '@/services/auth'
 import { setAiModelCookie } from './actions/set-ai-model-cookie'
 import { chatConfig, defaultErrorMessage } from './config'
 import { logChatError } from './logger'
-import { processChat } from './services/chat-processor'
+import { processChatAndSaveMessages } from './services/chat-processor'
 
 const schema = z.object({
   messages: z.array(
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     const model = (await setAiModelCookie()) || chatConfig.modelName
 
-    const { stream, chatId, error } = await processChat({
+    const { stream, chatId, error } = await processChatAndSaveMessages({
       ...body,
       userId,
       model,
@@ -48,9 +48,8 @@ export async function POST(req: NextRequest) {
 
     try {
       const response = stream.toDataStreamResponse()
-      if (chatId) {
-        response.headers.set('X-Chat-Id', chatId)
-      }
+
+      if (chatId) response.headers.set('X-Chat-Id', chatId)
 
       return response
     } catch (error) {

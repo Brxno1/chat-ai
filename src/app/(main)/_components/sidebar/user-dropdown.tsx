@@ -72,7 +72,7 @@ function UserDropdown({ user }: { user: User }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="relative z-40 mb-px flex w-full items-center justify-start rounded-xl px-1.5 py-7 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:border-none"
+          className="relative z-40 mb-px flex w-full items-center justify-start gap-4 rounded-xl px-3 py-7 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:border-none"
         >
           <Avatar className="size-9 cursor-grab rounded-md">
             <AvatarImage src={user.image || ''} alt="user avatar" />
@@ -84,7 +84,7 @@ function UserDropdown({ user }: { user: User }) {
             {truncateText(user.name || '', 20)}
           </p>
           <ChevronsUpDown
-            className="absolute right-2 group-data-[sidebar=closed]/sidebar:hidden"
+            className="absolute right-3 group-data-[sidebar=closed]/sidebar:hidden"
             size={20}
           />
         </Button>

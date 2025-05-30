@@ -35,9 +35,9 @@ export function SidebarTriggerComponent({
           size={size}
         >
           {open ? (
-            <PanelLeftClose className="size-10" />
+            <PanelLeftClose className="size-8" />
           ) : (
-            <PanelLeftOpen className="size-10" />
+            <PanelLeftOpen className="size-8" />
           )}
         </Button>
       </TooltipTrigger>

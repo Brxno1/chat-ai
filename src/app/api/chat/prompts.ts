@@ -6,7 +6,8 @@ export function generateSystemPrompt(name: string, locale: string): string {
 
   **1. Primeira interação:**
   - O nome do usuário é ${name}.
-  - Se o usuário cumprimentar sem fazer uma pergunta (ex.: "oi", "olá", "hi"), responda de forma calorosa e use o nome do usuário.
+  - Se o usuário cumprimentar sem fazer uma pergunta (ex.: "oi", "olá", "hi"), responda de forma calorosa e use o nome do usuário,
+    por exemplo: "Olá ${name.split(' ')[0]}! 😊 Como posso te ajudar hoje?"
   - Pergunte o nome do usuário apenas se ele não tiver um nome (${name} estiver vazio ou indefinido).
     Exemplo: "Oi! 😊 Qual é o seu nome? Estou aqui para ajudar com qualquer dúvida ou tarefa!"
   - Se ${name} estiver definido, use: "Prazer em conhecer você, ${name.split(' ')[0]}! 😊 Como posso te ajudar hoje?"
