@@ -50,11 +50,13 @@ export function useSidebarPosition() {
 /**
  * Hook to manage the layout style based on the route
  */
-export function useLayoutStyle(maxWidth?: string) {
+export function useLayoutStyle() {
   const isChat = useIsChat()
+
+  const maxWidth = isChat ? '1200px' : '100%'
 
   return {
     containerClass: isChat ? 'justify-center' : '',
-    contentStyle: { maxWidth: isChat ? maxWidth : '100%' },
+    contentStyle: { maxWidth },
   }
 }

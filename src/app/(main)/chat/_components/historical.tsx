@@ -1,7 +1,7 @@
 'use client'
 
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
-import { Button } from '../ui/button'
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../../../../components/ui/dialog'
+import { Button } from '../../../../components/ui/button'
 import { Loader2, TextSearch, Trash, X } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { formatDateToLocale } from '@/utils/format'

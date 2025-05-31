@@ -2,6 +2,7 @@
 
 import { Message } from 'ai'
 import { ChevronDown, Trash } from 'lucide-react'
+import { User } from 'next-auth'
 import { useState } from 'react'
 
 import { ContainerWrapper } from '@/components/container'
@@ -16,7 +17,6 @@ import {
 import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
-import { User } from 'next-auth'
 
 interface MessageProps {
   user: User | undefined
@@ -31,7 +31,6 @@ export function Messages({
   modelName,
   onDeleteMessageChat,
 }: MessageProps) {
-
   const [state, setState] = useState({
     isDeleting: false,
     openDropdown: false,
@@ -58,7 +57,7 @@ export function Messages({
   return (
     <div
       key={`${message.id}-${new Date()}`}
-      className="flex w-full flex-col"
+      className="flex w-full flex-col px-1.5"
     >
       <div
         className={cn(
@@ -98,7 +97,10 @@ export function Messages({
                   <DropdownMenu
                     open={state.openDropdown}
                     onOpenChange={() =>
-                      setState((prev) => ({ ...prev, openDropdown: !prev.openDropdown }))
+                      setState((prev) => ({
+                        ...prev,
+                        openDropdown: !prev.openDropdown,
+                      }))
                     }
                   >
                     <DropdownMenuTrigger asChild>

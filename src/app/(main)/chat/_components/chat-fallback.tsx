@@ -20,7 +20,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Historical } from './historical'
-import { Input } from '../ui/input'
+import { Input } from '../../../../components/ui/input'
 
 export function ChatFallback() {
   return (

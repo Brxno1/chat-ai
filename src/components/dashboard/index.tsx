@@ -10,7 +10,7 @@ export function DashboardPage({
   children,
 }: DashboardPageGenericProps) {
   return (
-    <section className={cn(['flex h-screen flex-col', className])}>
+    <section className={cn(['flex min-h-0 overflow-auto flex-col', className])}>
       {children}
     </section>
   )

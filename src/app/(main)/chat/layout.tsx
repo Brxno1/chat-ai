@@ -3,7 +3,7 @@ import { PropsWithChildren } from 'react'
 
 import { auth } from '@/services/auth'
 
-import { MainWrapperLayout } from '../_components/wrapper-layout'
+import { ChatWrapperLayout } from './_components/chat-wrapper-layout'
 
 export const metadata: Metadata = {
   title: 'Chat IA',
@@ -14,8 +14,8 @@ export default async function ChatLayout({ children }: PropsWithChildren) {
   const session = await auth()
 
   return (
-    <MainWrapperLayout initialUser={session?.user} maxWidth="1200px">
+    <ChatWrapperLayout initialUser={session?.user}>
       {children}
-    </MainWrapperLayout>
+    </ChatWrapperLayout>
   )
 }

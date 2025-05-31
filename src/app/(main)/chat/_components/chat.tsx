@@ -4,21 +4,26 @@ import { useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Ghost,
-  GlobeIcon, MessageCirclePlus,
+  GlobeIcon,
+  MessageCirclePlus,
   MicIcon,
   PlusIcon,
   SendIcon,
-  StopCircle
+  StopCircle,
 } from 'lucide-react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { User } from 'next-auth'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { ComponentSwitchTheme } from '@/components/switch-theme'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import {
+  AIButtonSubmit,
   AIForm,
   AIInputButton,
   AIInputModelSelect,
@@ -26,36 +31,22 @@ import {
   AIInputModelSelectItem,
   AIInputModelSelectTrigger,
   AIInputModelSelectValue,
-  AIButtonSubmit, AIInputToolbar,
-  AIInputTools
+  AIInputToolbar,
+  AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
 
+import { ContainerWrapper } from '../../../../components/container'
+import { TypingAnimation } from '../../../../components/magicui/typing-animation'
+import { Input } from '../../../../components/ui/input'
+import { Historical } from './historical'
 import { Messages } from './message'
 import { models } from './models'
-import Image from 'next/image'
-import { TypingAnimation } from '../magicui/typing-animation'
-import { Historical } from './historical'
-import { ContainerWrapper } from '../container'
-import { Input } from '../ui/input'
-import { User } from 'next-auth'
-import { toast } from 'sonner'
 
 interface ChatProps {
   user?: User
   initialChatId?: string
 }
 
-interface Chat {
-  id: string
-  title: string
-  createdAt: string
-  messages: Array<{
-    id: string
-    content: string
-    role: string
-    createdAt: string
-  }>
-}
 const schema = z.object({
   message: z.string().min(1, 'Digite uma mensagem'),
 })
@@ -87,7 +78,7 @@ export function Chat({ user, initialChatId }: ChatProps) {
     handleInputChange,
     handleSubmit,
     stop,
-    isLoading
+    isLoading,
   } = useChat({
     api: '/api/chat',
     body: {
@@ -135,9 +126,12 @@ export function Chat({ user, initialChatId }: ChatProps) {
   const handleGhostChatMode = () => {
     toast('', {
       action: (
-        <p className='text-sm'>
+        <p className="text-sm">
           Chat fantasma:{' '}
-          <span data-ghost={isGhostChatMode} className='font-bold data-[ghost=true]:text-red-400 data-[ghost=false]:text-green-400'>
+          <span
+            data-ghost={isGhostChatMode}
+            className="font-bold data-[ghost=false]:text-green-400 data-[ghost=true]:text-red-400"
+          >
             {!isGhostChatMode ? 'ativado' : 'desativado'}
           </span>
         </p>
@@ -172,19 +166,21 @@ export function Chat({ user, initialChatId }: ChatProps) {
   }
 
   return (
-    <div
-      className="grid size-full flex-col border border-border grid-rows-[auto_1fr_auto] max-w-4xl"
-    >
-      <header className="sticky top-0 flex h-fit items-center justify-end border-b border-border bg-card p-[0.849rem]">
+    <div className="flex h-full w-full max-w-full flex-col rounded-md border bg-card">
+      {/* <header className="flex items-center justify-end border-b border-border bg-card p-[0.849rem]">
         {user ? (
-          <ContainerWrapper className="flex items-center justify-between w-full">
+          <ContainerWrapper className="flex w-full items-center justify-between">
             <div className="flex gap-1">
               <Historical disabled={isGhostChatMode} />
               <Button
                 variant="link"
                 size="icon"
                 onClick={handleNewChat}
-                disabled={isGhostChatMode || status === 'streaming' || input.length === 0}
+                disabled={
+                  isGhostChatMode ||
+                  status === 'streaming' ||
+                  input.length === 0
+                }
               >
                 <MessageCirclePlus size={16} />
               </Button>
@@ -194,7 +190,10 @@ export function Chat({ user, initialChatId }: ChatProps) {
                 onClick={handleGhostChatMode}
                 disabled={status === 'streaming'}
               >
-                <Ghost size={16} className={isGhostChatMode ? 'text-primary' : ''} />
+                <Ghost
+                  size={16}
+                  className={isGhostChatMode ? 'text-primary' : ''}
+                />
               </Button>
             </div>
             <ComponentSwitchTheme />
@@ -204,8 +203,11 @@ export function Chat({ user, initialChatId }: ChatProps) {
             <ComponentSwitchTheme />
           </div>
         )}
-      </header>
-      <div className="overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full p-4 pb-6" ref={containerRef}>
+      </header> */}
+      <div
+        className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
+        ref={containerRef}
+      >
         {messages.map((message) => (
           <Messages
             key={`${message.id}-${message.content.substring(0, 10)}`}
@@ -218,14 +220,12 @@ export function Chat({ user, initialChatId }: ChatProps) {
         <div ref={messagesEndRef} />
       </div>
       <Form {...form}>
-        <AIForm
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
+        <AIForm onSubmit={form.handleSubmit(onSubmit)} className="">
           <FormField
             control={form.control}
             name="message"
             render={({ field }) => (
-              <FormItem className='relative'>
+              <FormItem className="relative">
                 <FormControl>
                   <Input
                     className="h-20 resize-none rounded-t-lg border-0 p-3 shadow-none outline-none ring-0 focus-visible:ring-0"
@@ -239,9 +239,7 @@ export function Chat({ user, initialChatId }: ChatProps) {
                   />
                 </FormControl>
                 {!field.value && (
-                  <TypingAnimation
-                    className="pointer-events-none text-xs text-muted-foreground absolute left-3 top-6"
-                  >
+                  <TypingAnimation className="pointer-events-none absolute left-3 top-6 text-xs text-muted-foreground">
                     Digite sua mensagem...
                   </TypingAnimation>
                 )}
@@ -274,25 +272,24 @@ export function Chat({ user, initialChatId }: ChatProps) {
                       <Image
                         src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_DEV_TOKEN}`}
                         alt={model.provider}
-                        className="inline-flex size-4 rounded-sm mr-2"
+                        className="mr-2 inline-flex size-4 rounded-sm"
                         width={16}
                         height={16}
                       />
                       {model.name}
-
                     </AIInputModelSelectItem>
                   ))}
                 </AIInputModelSelectContent>
               </AIInputModelSelect>
             </AIInputTools>
             {status === 'streaming' ? (
-              <AIButtonSubmit onClick={stop} type='button'>
+              <AIButtonSubmit onClick={stop} type="button">
                 <StopCircle size={16} />
               </AIButtonSubmit>
             ) : (
               <AIButtonSubmit
                 disabled={!input || form.formState.isSubmitting || isLoading}
-                type='submit'
+                type="submit"
               >
                 <SendIcon size={16} />
               </AIButtonSubmit>

@@ -14,9 +14,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // if (pathname === '/') {
-  //   return NextResponse.redirect(new URL(getUrl('/chat')))
-  // }
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(getUrl('/chat')))
+  }
 
   if (pathname.startsWith('/chat/')) {
     const match = pathname.match(/^\/chat\/([^/?]+)/)

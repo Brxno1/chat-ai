@@ -33,7 +33,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Initializer>
-          <main className="size-full">{children}</main>
+          <main className="h-screen w-full">{children}</main>
         </Initializer>
       </body>
     </html>
