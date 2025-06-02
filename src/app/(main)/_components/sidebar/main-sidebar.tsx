@@ -1,8 +1,9 @@
 'use client'
 
-import { LayoutDashboard, MessageSquare, Settings2 } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, Settings } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { User } from 'next-auth'
+import React from 'react'
 
 import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
@@ -17,23 +18,22 @@ import {
 } from '@/components/ui/sidebar'
 import { cn } from '@/utils/utils'
 
+import { Historical } from '../../chat/_components/historical'
 import { SidebarLinks } from './sidebar-links'
 import { SidebarTriggerComponent } from './sidebar-trigger'
+import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
 import { UserDropdown } from './user-dropdown'
 
-type AppSidebarProps = {
+type ChatSidebarProps = {
   initialUser: User
-  side?: 'left' | 'right'
   className?: string
 }
 
-export function AppSidebar({
+export function MainSidebarContent({
   initialUser,
-  side = 'left',
   className,
-}: AppSidebarProps) {
-  const { isMobile, open } = useSidebar()
-
+}: ChatSidebarProps) {
+  const { open, isMobile } = useSidebar()
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname === path
 
@@ -50,29 +50,33 @@ export function AppSidebar({
     },
     {
       href: '/dashboard/settings',
-      icon: Settings2,
+      icon: Settings,
       label: 'Configurações',
     },
   ]
 
-  if (isMobile) {
-    return null
-  }
-
   return (
     <Sidebar
       collapsible="icon"
-      className={cn(className, 'group/sidebar fixed inset-0 border')}
-      side={side}
+      className={cn(className, 'group/sidebar')}
+      side="left"
       data-sidebar={open ? 'open' : 'closed'}
     >
       <SidebarHeader className="w-full bg-card px-0">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5 group-data-[sidebar=closed]/sidebar:py-2.5">
           <Logo className="mx-auto group-data-[sidebar=open]/sidebar:ml-2" />
-          <SidebarTriggerComponent
-            variant="ghost"
-            className="!border-none text-muted-foreground group-data-[sidebar=closed]/sidebar:hidden"
-          />
+          {isMobile ? (
+            <SidebarTriggerComponentMobile
+              variant="ghost"
+              size="icon"
+              className=""
+            />
+          ) : (
+            <SidebarTriggerComponent
+              className="!border-none group-data-[sidebar=closed]/sidebar:hidden"
+              variant="ghost"
+            />
+          )}
         </SidebarHeaderTitle>
         <Separator />
       </SidebarHeader>
@@ -81,15 +85,20 @@ export function AppSidebar({
           <SidebarLinks
             links={mainLinks}
             isActiveLink={isActivePath}
-            open={open}
+            open={open || isMobile}
           />
         </SidebarGroup>
         <Separator className="group-data-[sidebar=closed]/sidebar:hidden" />
+        <SidebarGroup className="flex flex-1 flex-col overflow-hidden">
+          <Historical pathname={pathname} />
+        </SidebarGroup>
         <SidebarGroup className="mt-auto space-y-2">
-          <SidebarTriggerComponent
-            variant="ghost"
-            className="!border-none text-muted-foreground group-data-[sidebar=open]/sidebar:hidden"
-          />
+          {!isMobile && (
+            <SidebarTriggerComponent
+              variant="ghost"
+              className="!border-none group-data-[sidebar=open]/sidebar:hidden"
+            />
+          )}
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="flex w-full items-center justify-center bg-card">

@@ -1,170 +1,73 @@
 'use client'
 
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../../../../components/ui/dialog'
-import { Button } from '../../../../components/ui/button'
-import { Loader2, TextSearch, Trash, X } from 'lucide-react'
-import React, { useEffect } from 'react'
-import { formatDateToLocale } from '@/utils/format'
+import { ChevronRight, History, RefreshCcw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/axios'
+import React, { Suspense } from 'react'
 
-interface Chat {
-  id: string
-  title: string
-  createdAt: string
-  messages: Array<{
-    content: string
-    role: string
-  }>
+import { TooltipWrapper } from '@/components/tooltip-wrapper'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import { useSessionStore } from '@/store/user-store'
+
+import { Button } from '../../../../components/ui/button'
+import { HistoricalItem, HistoricalItemSkeleton } from './historical-item'
+
+type HistoricalProps = {
+  disabled?: boolean
+  pathname: string
 }
 
-async function fetchChats() {
-  const response = await api.get('/chats')
-
-  const data = response.data
-  return data.chats || []
-}
-
-async function deleteChat(id: string) {
-  const response = await api.delete(`/chats/${id}`)
-
-  return response.data
-}
-
-async function deleteAllChats() {
-  const response = await api.delete('/chats')
-
-  return response
-}
-
-export function Historical({ disabled = false }: { disabled?: boolean }) {
-  const [open, setOpen] = React.useState(false)
+export function Historical({ pathname }: HistoricalProps) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false)
   const router = useRouter()
-  const queryClient = useQueryClient()
 
-  const {
-    data: chats = [],
-    isLoading: isLoadingChats,
-    refetch
-  } = useQuery<Chat[]>({
-    queryKey: ['chats'],
-    queryFn: fetchChats,
-    enabled: open && !disabled,
-  })
-
-  const { mutateAsync: deleteChatMutation } = useMutation({
-    mutationFn: deleteChat,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats'] })
-    }
-  })
-
-  const { mutateAsync: deleteAllChatsMutation, isPending: isDeletingAllChats } = useMutation({
-    mutationFn: deleteAllChats,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats'] })
-      setOpen(false)
-    }
-  })
-
-  useEffect(() => {
-    if (open && !disabled) {
-      refetch()
-    }
-  }, [open, disabled, refetch])
+  const { user } = useSessionStore()
 
   const handleOpenChat = (chatId: string) => {
     router.push(`/chat/${chatId}`)
-    setOpen(false)
   }
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="link" size="icon" disabled={disabled}>
-          <TextSearch size={16} />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[80vh] space-y-2 py-4">
-        <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle>Histórico de Conversas</DialogTitle>
-          <DialogClose asChild>
-            <Button variant="link" size="icon">
-              <X size={16} />
-            </Button>
-          </DialogClose>
-        </DialogHeader>
-        <div className="flex flex-col overflow-y-auto max-h-[55vh] pr-4 space-y-2">
-          {chats.map((chat) => (
-            <MessageItem
-              key={chat.id}
-              chat={chat}
-              onDeleteChat={deleteChatMutation}
-              onOpenChat={handleOpenChat}
-            />
-          ))}
-        </div>
-        {chats.length > 0 && (
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => deleteAllChatsMutation()}
-              disabled={isDeletingAllChats}
-              className='border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600'
-            >
-              {isDeletingAllChats ? (
-                <Loader2 size={16} className="animate-spin mr-2" />
-              ) : (
-                <Trash size={16} className="mr-2" />
-              )}
-              Excluir todas as conversas
-            </Button>
-          </DialogFooter>
-        )}
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-interface MessageItemProps {
-  chat: Chat
-  onDeleteChat: (id: string) => void
-  onOpenChat: (id: string) => void
-}
-
-function MessageItem({ chat, onDeleteChat, onOpenChat }: MessageItemProps) {
-  const [isDeleting, setIsDeleting] = React.useState(false)
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsDeleting(true)
-
-    setTimeout(() => {
-      onDeleteChat(chat.id)
-      setIsDeleting(false)
-    }, 500)
-  }
+  if (!user) return null
 
   return (
-    <div
-      key={chat.id}
-      className="flex justify-between rounded-sm border border-border p-3 hover:bg-muted/40 cursor-pointer"
-      onClick={() => onOpenChat(chat.id)}
+    <Collapsible
+      open={isCollapsed}
+      onOpenChange={setIsCollapsed}
+      className="group/collapsible flex h-full flex-col"
+      data-collapsed={isCollapsed ? 'open' : 'closed'}
+      data-pathname={
+        pathname === '/dashboard' || pathname === '/dashboard/settings'
+      }
     >
-      <div className="flex-1 flex flex-col space-y-1">
-        <p className="font-medium text-sm">{chat.title}</p>
-        <p className="text-xs text-muted-foreground">{formatDateToLocale(new Date(chat.createdAt))}</p>
+      <div className="flex w-full items-center gap-2">
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="outline"
+            className="relative w-full justify-start rounded-md text-sm group-data-[pathname=true]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden"
+          >
+            <History size={20} />
+            Histórico
+            <ChevronRight className="absolute right-4 transition-all duration-300 animate-in group-data-[collapsed=open]/collapsible:rotate-90" />
+          </Button>
+        </CollapsibleTrigger>
+        <TooltipWrapper content="Atualizar histórico" side="right" asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="hover:bg-accent group-data-[pathname=true]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden"
+          >
+            <RefreshCcw size={16} />
+          </Button>
+        </TooltipWrapper>
       </div>
-      <Button
-        variant="link"
-        size="icon"
-        className="size-8 hover:text-red-500 my-auto"
-        onClick={handleDelete}
-        disabled={isDeleting}
-      >
-        {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash size={14} />}
-      </Button>
-    </div>
+      <CollapsibleContent className="mt-2 space-y-2 overflow-y-auto rounded-md bg-background px-1.5 py-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-300/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[pathname=true]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border">
+        <Suspense fallback={<HistoricalItemSkeleton />}>
+          <HistoricalItem onOpen={handleOpenChat} />
+        </Suspense>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

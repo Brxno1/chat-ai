@@ -61,7 +61,7 @@ function CopyTextComponent({
 
   return (
     <div
-      className={cn('flex w-full items-center', className)}
+      className={cn('flex w-full items-center gap-2', className)}
       onClick={handleCopy}
     >
       {iconPosition === 'left' && <CopyIconComponent hasCopied={hasCopied} />}

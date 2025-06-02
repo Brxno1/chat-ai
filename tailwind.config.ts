@@ -15,6 +15,7 @@ export default {
 			colors: {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				message: 'hsl(var(--message))',
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))',
@@ -129,7 +130,7 @@ export default {
 				shine: 'shine var(--duration) infinite linear',
 			},
 			fontSize: {
-				'2xs': '0.675rem',
+				'2xs': '0.665rem',
 			},
 			scrollbar: {
 				DEFAULT: {

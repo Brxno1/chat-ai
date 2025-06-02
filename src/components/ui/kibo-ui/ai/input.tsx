@@ -189,7 +189,7 @@ export type AIButtonSubmitProps = ComponentProps<typeof Button>;
 export const AIButtonSubmit = ({
   className,
   variant = 'default',
-  size = 'icon',
+  size = 'default',
   ...props
 }: AIButtonSubmitProps) => (
   <Button

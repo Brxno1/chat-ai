@@ -28,7 +28,8 @@ body {
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
-    --card: 0 0% 98%;
+    --message: 240 5.9% 10%;
+    --card: 0 0% 96.5%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
@@ -67,6 +68,7 @@ body {
     --foreground: 0 0% 98%;
     --card: 240 1% 4.4%;
     --card-foreground: 0 0% 98%;
+    --message: 240 1% 4.4%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;

@@ -134,7 +134,7 @@ export function EditProfile({ user, className }: EditProfileProps) {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="flex max-h-[75vh] flex-col overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3"
+        className="flex flex-col overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3"
         onPointerDownOutside={(ev) => {
           ev.preventDefault()
         }}
@@ -256,7 +256,9 @@ export function EditProfile({ user, className }: EditProfileProps) {
             disabled={form.formState.isSubmitting || !form.formState.isValid}
           >
             {form.formState.isSubmitting ? (
-              <>Salvando...</>
+              <>
+                Salvando...
+              </>
             ) : (
               <>Salvar alterações</>
             )}

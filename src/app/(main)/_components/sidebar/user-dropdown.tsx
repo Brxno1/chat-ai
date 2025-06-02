@@ -66,13 +66,14 @@ function UserDropdown({ user }: { user: User }) {
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <div
         data-out={isSigningOut}
-        className="fixed inset-0 z-40 backdrop-blur-sm data-[out=false]:hidden"
+        className="fixed inset-0 z-50 backdrop-blur-sm data-[out=false]:hidden"
         aria-hidden="true"
       />
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="relative z-40 mb-px flex w-full items-center justify-start gap-4 rounded-xl px-3 py-7 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:border-none"
+          size="lg"
+          className="relative z-50 mb-px flex w-full items-center justify-start space-x-2 rounded-xl px-3 py-7 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:border-none"
         >
           <Avatar className="size-9 cursor-grab rounded-md">
             <AvatarImage src={user.image || ''} alt="user avatar" />
@@ -89,9 +90,9 @@ function UserDropdown({ user }: { user: User }) {
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="z-40 mb-5 w-56" align="center">
+      <DropdownMenuContent className="z-50 mb-5 w-56" align="center">
         <DropdownMenuGroup className="flex items-center justify-between font-normal">
-          <DropdownMenuItem className="flex cursor-default flex-col items-start">
+          <DropdownMenuItem className="flex flex-1 cursor-default flex-col items-start">
             <span className="text-sm font-medium leading-none">
               {truncateText(user?.name || '', 20)}
             </span>

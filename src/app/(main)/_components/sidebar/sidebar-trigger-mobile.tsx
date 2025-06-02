@@ -6,26 +6,34 @@ import { Button, ButtonProps } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 
-interface SidebarTriggerComponentProps {
+interface SidebarTriggerComponentMobileProps {
   className?: string
   size?: ButtonProps['size']
-  variant: ButtonProps['variant']
+  variant?: ButtonProps['variant']
   side?: 'left' | 'right' | 'top' | 'bottom' | undefined
   sideOffset?: number
 }
 
-export function SidebarTriggerComponent({
+export function SidebarTriggerComponentMobile({
   variant = 'default',
   className,
   size = 'default',
   side = 'right',
   sideOffset,
-}: SidebarTriggerComponentProps) {
-  const { toggleSidebar, open } = useSidebar()
+}: SidebarTriggerComponentMobileProps) {
+  const { openMobile, setOpenMobile, isMobile } = useSidebar()
+
+  const handleToggleSidebar = () => {
+    setOpenMobile(!openMobile)
+  }
+
+  if (!isMobile) {
+    return null
+  }
 
   return (
     <TooltipWrapper
-      content={open ? 'Fechar' : 'Abrir'}
+      content={openMobile ? 'Fechar' : 'Abrir'}
       side={side}
       sideOffset={sideOffset}
       asChild
@@ -33,10 +41,10 @@ export function SidebarTriggerComponent({
       <Button
         variant={variant}
         className={className}
-        onClick={toggleSidebar}
+        onClick={handleToggleSidebar}
         size={size}
       >
-        {open ? (
+        {openMobile ? (
           <PanelLeftClose className="size-8" />
         ) : (
           <PanelLeftOpen className="size-8" />

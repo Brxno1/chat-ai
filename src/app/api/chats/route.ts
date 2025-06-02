@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 
-import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
+import { getUserSession } from '../user/profile/actions/get-user-session'
+
 export async function GET() {
-  const session = await auth()
+  const { session } = await getUserSession()
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const chats = await prisma.chat.findMany({
@@ -15,7 +16,7 @@ export async function GET() {
       userId: session.user.id,
     },
     orderBy: {
-      updatedAt: 'desc',
+      createdAt: 'desc',
     },
     include: {
       messages: {
@@ -30,11 +31,19 @@ export async function GET() {
   return NextResponse.json({ chats })
 }
 
-export async function DELETE() {
-  const session = await auth()
+export type DeleteChatResponse = {
+  success: boolean
+  error?: string
+}
+
+export async function DELETE(): Promise<NextResponse<DeleteChatResponse>> {
+  const { session } = await getUserSession()
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    return NextResponse.json<DeleteChatResponse>(
+      { success: false, error: 'Unauthorized' },
+      { status: 401 },
+    )
   }
 
   await prisma.chat.deleteMany({
@@ -43,5 +52,5 @@ export async function DELETE() {
     },
   })
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json<DeleteChatResponse>({ success: true })
 }

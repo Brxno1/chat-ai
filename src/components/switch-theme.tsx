@@ -1,25 +1,30 @@
 'use client'
 
+import React from 'react'
 import { MoonIcon, SunIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useId, useState } from 'react'
 
 import { Switch } from '@/components/ui/switch'
 
 export function ComponentSwitchTheme() {
-  const id = useId()
-  const { setTheme, theme } = useTheme()
-  const [checked, setChecked] = useState(theme === 'light')
+  const id = React.useId()
+  const { setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const toggleSwitch = () => {
-    setChecked((prev) => !prev)
-    setTheme(theme === 'light' ? 'dark' : 'light')
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
   }
+
+  const isLight = resolvedTheme === 'light'
 
   return (
     <div
       className="group inline-flex items-center gap-2"
-      data-state={checked ? 'checked' : 'unchecked'}
+      data-state={isLight || !mounted ? 'checked' : 'unchecked'}
     >
       <span
         id={`${id}-off`}
@@ -28,13 +33,23 @@ export function ComponentSwitchTheme() {
       >
         <MoonIcon size={16} aria-hidden="true" />
       </span>
-      <Switch
-        id={id}
-        checked={checked}
-        onCheckedChange={toggleSwitch}
-        aria-labelledby={`${id}-off ${id}-on`}
-        aria-label="Toggle between dark and light mode"
-      />
+      {mounted ? (
+        <Switch
+          id={id}
+          checked={isLight}
+          onCheckedChange={toggleSwitch}
+          aria-labelledby={`${id}-off ${id}-on`}
+          aria-label="Troque entre o tema claro e escuro"
+        />
+      ) : (
+        <Switch
+          id={id}
+          checked={false}
+          disabled
+          aria-labelledby={`${id}-off ${id}-on`}
+          aria-label="Troque entre o tema claro e escuro"
+        />
+      )}
       <span
         id={`${id}-on`}
         className="flex-1 text-left text-sm font-medium group-data-[state=unchecked]:text-muted-foreground/70"

@@ -57,7 +57,7 @@ export function Messages({
   return (
     <div
       key={`${message.id}-${new Date()}`}
-      className="flex w-full flex-col px-1.5"
+      className="flex w-full flex-col"
     >
       <div
         className={cn(
@@ -68,7 +68,7 @@ export function Messages({
           },
         )}
       >
-        <Badge className="bg-transparent text-sm font-semibold text-foreground hover:bg-transparent">
+        <Badge className="bg-transparent text-sm font-semibold text-muted-foreground hover:bg-transparent">
           {['user'].includes(message.role)
             ? truncateText(user?.name ?? '', 20)
             : modelName}
@@ -84,14 +84,14 @@ export function Messages({
               >
                 <div
                   className={cn(
-                    'group flex max-w-[20rem] items-center justify-between text-wrap rounded-md bg-secondary-foreground p-2',
+                    'group flex items-center max-w-[17rem] justify-center text-left sm:text-justify border text-wrap rounded-md bg-message p-1.5 transition-all sm:max-w-[24rem] md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',
                     },
                   )}
                 >
-                  <p className="size-fit max-w-md text-wrap rounded-md px-2 text-background">
+                  <p className="size-fit rounded-md px-2 text-accent dark:text-accent-foreground">
                     {formatTextWithStrong(part.text)}
                   </p>
                   <DropdownMenu
@@ -104,28 +104,32 @@ export function Messages({
                     }
                   >
                     <DropdownMenuTrigger asChild>
-                      <ChevronDown className="mb-auto h-4 w-4 cursor-pointer text-background opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      <ChevronDown className="mb-auto h-4 w-4 cursor-pointer text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                      align="end"
                       className="mt-4 flex flex-col items-center gap-2 py-2"
                       side="bottom"
+                      align="end"
                     >
                       <DropdownMenuItem className="flex cursor-pointer items-center justify-center">
                         <CopyTextComponent
                           textForCopy={part.text}
                           onCloseComponent={handleCloseComponent}
-                        />
+                          iconPosition='right'
+                        >
+                          <span className="text-xs">Copiar</span>
+                        </CopyTextComponent>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         disabled={state.isDeleting}
                         onClick={(ev) =>
                           handleDeleteMessageChat(ev, message.id)
                         }
-                        className={cn('cursor-pointer', {
+                        className={cn('flex cursor-pointer items-center gap-2', {
                           'animate-pulse text-red-500': state.isDeleting,
                         })}
                       >
+                        <span className="text-xs">Excluir</span>
                         <Trash className="h-4 w-4" />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
