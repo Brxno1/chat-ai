@@ -2,11 +2,12 @@
 
 import { User } from 'next-auth'
 
-import { AppSidebar } from './sidebar/app-sidebar'
+import { MainSidebarContent } from './sidebar/main-sidebar'
 
 type ContainerLayoutProps = {
   children: React.ReactNode
   initialUser?: User
+  maxWidth?: string
 }
 
 export function MainWrapperLayout({
@@ -14,14 +15,18 @@ export function MainWrapperLayout({
   initialUser,
 }: ContainerLayoutProps) {
   return (
-    <main className="grid h-screen w-full grid-cols-[minmax(4rem,auto)_1fr] space-x-px transition-all">
-      <AppSidebar initialUser={initialUser!} />
-      <div
-        className="flex flex-col overflow-hidden"
-        aria-label="Conteúdo principal"
-      >
-        {children}
-      </div>
-    </main>
+    <div className="flex w-full justify-center overflow-hidden">
+      <main className="relative flex h-screen min-h-0 w-full flex-row border border-border transition-all">
+        <div className="h-screen">
+          <MainSidebarContent initialUser={initialUser!} />
+        </div>
+        <div
+          className="flex min-h-0 w-full flex-col overflow-auto"
+          aria-label="Conteúdo principal"
+        >
+          {children}
+        </div>
+      </main>
+    </div>
   )
 }

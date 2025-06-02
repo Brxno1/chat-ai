@@ -17,7 +17,7 @@ import {
   CodeBlockSelectItem,
   CodeBlockSelectTrigger,
   CodeBlockSelectValue,
-} from '../code-block';
+} from '@repo/code-block';
 import { memo } from 'react';
 import type { HTMLAttributes } from 'react';
 import ReactMarkdown, { type Options } from 'react-markdown';

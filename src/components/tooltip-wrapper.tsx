@@ -6,6 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { cn } from '@/utils/utils'
 
 type TooltipWrapperProps = {
   children: ReactNode
@@ -17,6 +18,7 @@ type TooltipWrapperProps = {
   asChild?: boolean
   disabled?: boolean
   disableHoverableContent?: boolean
+  sideOffset?: number
 }
 
 export function TooltipWrapper({
@@ -28,7 +30,8 @@ export function TooltipWrapper({
   className,
   asChild = false,
   disabled = false,
-  disableHoverableContent = false,
+  disableHoverableContent = true,
+  sideOffset = 5,
 }: TooltipWrapperProps) {
   if (disabled) {
     return <>{children}</>
@@ -39,7 +42,7 @@ export function TooltipWrapper({
       <TooltipTrigger asChild={asChild}>
         {children}
       </TooltipTrigger>
-      <TooltipContent side={side} align={align} className={className}>
+      <TooltipContent side={side} align={align} sideOffset={sideOffset} className={cn(className, "bg-secondary text-secondary-foreground text-xs")}>
         {content}
       </TooltipContent>
     </Tooltip>

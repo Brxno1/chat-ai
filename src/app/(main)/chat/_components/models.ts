@@ -1,5 +1,5 @@
 export const models = [
-  { id: 'gpt-4o-mini', name: 'gpt-4o Mini', provider: 'openai.com' },
+  { id: 'gpt-4o-mini', name: 'gpt-4o mini', provider: 'openai.com' },
   { id: 'gpt-4', name: 'gpt-4', provider: 'openai.com', disabled: true },
   {
     id: 'gpt-3.5-turbo',

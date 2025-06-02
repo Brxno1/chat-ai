@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 
-import { Chat } from '@/components/chat-ai/chat'
+import { Chat } from '@/app/(main)/chat/_components/chat'
 import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 

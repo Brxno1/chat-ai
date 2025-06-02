@@ -138,7 +138,7 @@ export function TodoDataTable({
 
   return (
     <div
-      className="w-full overflow-x-auto rounded-lg border border-border bg-background p-3 drop-shadow-md"
+      className="w-full overflow-x-auto rounded-lg border border-border bg-card p-3 drop-shadow-md"
       ref={containerRef}
     >
       {hasTodos && (
@@ -146,7 +146,7 @@ export function TodoDataTable({
           <div className="flex max-w-sm items-center justify-center gap-2">
             <div className="relative flex items-center justify-center">
               <Input
-                className="w-full pr-8"
+                className="w-full bg-background pr-8"
                 placeholder="Filtrar Todos..."
                 value={filterValue ?? ''}
                 onChange={(ev) =>

@@ -9,7 +9,7 @@ import {
 import { chatConfig } from '../config'
 import { generateSystemPrompt } from '../prompts'
 
-type ProcessChatParams = {
+type ProcessChatAndSaveMessagesParams = {
   messages: Array<{ role: 'user' | 'assistant'; content: string }>
   name?: string
   locale: string
@@ -19,13 +19,13 @@ type ProcessChatParams = {
   isGhostChatMode?: boolean
 }
 
-type ProcessChatResponse = {
+type ProcessChatAndSaveMessagesResponse = {
   stream: ReturnType<typeof streamText> | null
   chatId?: string
   error?: string
 }
 
-export async function processChat({
+export async function processChatAndSaveMessages({
   messages,
   name,
   locale,
@@ -33,7 +33,7 @@ export async function processChat({
   userId,
   model,
   isGhostChatMode,
-}: ProcessChatParams): Promise<ProcessChatResponse> {
+}: ProcessChatAndSaveMessagesParams): Promise<ProcessChatAndSaveMessagesResponse> {
   if (isGhostChatMode || !userId) {
     const promptMessages: Message[] = [
       {

@@ -78,10 +78,10 @@ function SidebarNavLink({
       prefetch={false}
       onClick={() => onClick?.()}
       className={cn(
-        'flex items-center rounded-md text-primary py-1.5 text-sm transition-all hover:bg-gradient-to-r hover:from-muted/20 hover:to-indigo-600/40 hover:border-border',
+        'flex items-center text-secondary-foreground rounded-md py-2 text-sm transition-all hover:bg-card-foreground/5 hover:border-border',
         className,
         {
-          'cursor-default bg-indigo-600/40 text-primary hover:bg-indigo-600/50 font-semibold':
+          'cursor-default bg-secondary-foreground hover:bg-secondary-foreground text-secondary font-semibold':
             active,
         },
       )}
