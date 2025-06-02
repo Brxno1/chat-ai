@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { auth } from '@/services/auth'
-
+import { getUserSession } from '../user/profile/actions/get-user-session'
 import { setAiModelCookie } from './actions/set-ai-model-cookie'
 import { chatConfig, defaultErrorMessage } from './config'
 import { logChatError } from './logger'
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = schema.parse(await req.json())
 
-    const session = await auth()
+    const { session } = await getUserSession()
     const userId = session?.user?.id
 
     const model = (await setAiModelCookie()) || chatConfig.modelName

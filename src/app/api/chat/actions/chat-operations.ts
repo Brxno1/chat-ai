@@ -1,3 +1,5 @@
+'use server'
+
 import { Chat } from '@prisma/client'
 
 import { prisma } from '@/services/database/prisma'

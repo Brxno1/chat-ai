@@ -1,14 +1,23 @@
+import { Chat } from '@prisma/client'
 import { NextResponse } from 'next/server'
 
 import { prisma } from '@/services/database/prisma'
 
 import { getUserSession } from '../user/profile/actions/get-user-session'
 
-export async function GET() {
+export type ChatResponse = {
+  chats: Chat[] | null
+  error?: string
+}
+
+export async function GET(): Promise<NextResponse<ChatResponse>> {
   const { session } = await getUserSession()
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json<ChatResponse>(
+      { chats: null, error: 'User not found' },
+      { status: 401 },
+    )
   }
 
   const chats = await prisma.chat.findMany({
@@ -28,29 +37,12 @@ export async function GET() {
     },
   })
 
-  return NextResponse.json({ chats })
-}
-
-export type DeleteChatResponse = {
-  success: boolean
-  error?: string
-}
-
-export async function DELETE(): Promise<NextResponse<DeleteChatResponse>> {
-  const { session } = await getUserSession()
-
-  if (!session?.user?.id) {
-    return NextResponse.json<DeleteChatResponse>(
-      { success: false, error: 'Unauthorized' },
-      { status: 401 },
+  if (!chats) {
+    return NextResponse.json<ChatResponse>(
+      { chats: null, error: 'Chats not found' },
+      { status: 404 },
     )
   }
 
-  await prisma.chat.deleteMany({
-    where: {
-      userId: session.user.id,
-    },
-  })
-
-  return NextResponse.json<DeleteChatResponse>({ success: true })
+  return NextResponse.json<ChatResponse>({ chats })
 }

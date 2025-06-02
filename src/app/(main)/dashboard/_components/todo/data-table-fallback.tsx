@@ -34,15 +34,9 @@ function TodoDataTableFallback() {
       <ContainerWrapper className="flex items-center py-4">
         <div className="relative flex max-w-sm items-center justify-center gap-2">
           <Input placeholder="Filtrar Todos..." disabled className="w-full" />
-          <Button
-            variant="outline"
-            className="animate-pulse cursor-not-allowed"
-          >
-            <RefreshCcw
-              size={16}
-              className="animate-duration-1000 animate-spin"
-            />{' '}
-            Atualizando...
+          <Button variant="outline" className="cursor-default">
+            <RefreshCcw size={16} />
+            <Skeleton className="h-4 w-24" />
           </Button>
         </div>
         <Button variant="outline" className="ml-auto" disabled>

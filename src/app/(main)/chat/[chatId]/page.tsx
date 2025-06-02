@@ -1,8 +1,8 @@
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
 import { Chat } from '@/app/(main)/chat/_components/chat'
-import { auth } from '@/services/auth'
-import { prisma } from '@/services/database/prisma'
+import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
+import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
 
 export default async function ChatPage({
   params,
@@ -10,25 +10,21 @@ export default async function ChatPage({
   params: { chatId: string }
 }) {
   const { chatId } = params
-  const session = await auth()
+  const { session } = await getUserSession()
 
   if (!session?.user) {
     redirect('/auth')
   }
 
-  const chat = await prisma.chat.findFirst({
-    where: {
-      id: chatId,
-      userId: session.user.id,
-    },
-  })
+  const { success } = await getChatById(chatId, session.user.id)
 
-  if (!chat) {
-    notFound()
+  if (!success) {
+    console.log('chat not found')
+    redirect('/chat')
   }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center">
+    <div className="h-full w-full">
       <Chat user={session.user} initialChatId={chatId} />
     </div>
   )

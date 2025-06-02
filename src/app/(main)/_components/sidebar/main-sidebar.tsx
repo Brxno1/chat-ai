@@ -24,6 +24,24 @@ import { SidebarTriggerComponent } from './sidebar-trigger'
 import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
 import { UserDropdown } from './user-dropdown'
 
+const mainLinks = [
+  {
+    href: '/chat',
+    icon: MessageSquare,
+    label: 'Chat',
+  },
+  {
+    href: '/dashboard',
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+  },
+  {
+    href: '/dashboard/settings',
+    icon: Settings,
+    label: 'Configurações',
+  },
+]
+
 type ChatSidebarProps = {
   initialUser: User
   className?: string
@@ -36,24 +54,6 @@ export function MainSidebarContent({
   const { open, isMobile } = useSidebar()
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname === path
-
-  const mainLinks = [
-    {
-      href: '/chat',
-      icon: MessageSquare,
-      label: 'Chat',
-    },
-    {
-      href: '/dashboard',
-      icon: LayoutDashboard,
-      label: 'Dashboard',
-    },
-    {
-      href: '/dashboard/settings',
-      icon: Settings,
-      label: 'Configurações',
-    },
-  ]
 
   return (
     <Sidebar

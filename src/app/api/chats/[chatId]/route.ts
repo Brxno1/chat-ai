@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
 
-import { auth } from '@/services/auth'
+import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
 import { prisma } from '@/services/database/prisma'
 
 export async function GET(
   req: Request,
   { params }: { params: { chatId: string } },
 ) {
-  const session = await auth()
+  const { session } = await getUserSession()
   const { chatId } = params
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const chat = await prisma.chat.findUnique({
@@ -29,21 +29,29 @@ export async function GET(
   })
 
   if (!chat) {
-    return NextResponse.json({ error: 'Chat não encontrado' }, { status: 404 })
+    return NextResponse.json({ error: 'Chat not found' }, { status: 404 })
   }
 
   return NextResponse.json({ chat })
+}
+
+export type DeleteChatWithIdResponse = {
+  success: boolean
+  error?: string
 }
 
 export async function DELETE(
   req: Request,
   { params }: { params: { chatId: string } },
 ) {
-  const session = await auth()
+  const { session } = await getUserSession()
   const { chatId } = params
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    return NextResponse.json<DeleteChatWithIdResponse>(
+      { success: false, error: 'Unauthorized' },
+      { status: 401 },
+    )
   }
 
   const chat = await prisma.chat.findUnique({
@@ -54,7 +62,10 @@ export async function DELETE(
   })
 
   if (!chat) {
-    return NextResponse.json({ error: 'Chat não encontrado' }, { status: 404 })
+    return NextResponse.json<DeleteChatWithIdResponse>(
+      { success: false, error: 'Chat not found' },
+      { status: 404 },
+    )
   }
 
   await prisma.chat.delete({
@@ -63,5 +74,7 @@ export async function DELETE(
     },
   })
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json<DeleteChatWithIdResponse>({
+    success: true,
+  })
 }

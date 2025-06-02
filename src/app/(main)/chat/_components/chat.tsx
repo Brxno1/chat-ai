@@ -1,11 +1,10 @@
 'use client'
 
-import { useChat } from '@ai-sdk/react'
+import { Message, useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import {
-  Ghost,
   GlobeIcon,
-  MessageCirclePlus,
   MicIcon,
   PlusIcon,
   SendIcon,
@@ -16,12 +15,9 @@ import { useRouter } from 'next/navigation'
 import { User } from 'next-auth'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
-import { ComponentSwitchTheme } from '@/components/switch-theme'
-import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import {
   AIButtonSubmit,
@@ -35,10 +31,9 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
+import { useChatStore } from '@/store/chat-store'
 
-import { ContainerWrapper } from '../../../../components/container'
 import { Input } from '../../../../components/ui/input'
-import { Historical } from './historical'
 import { Messages } from './message'
 import { models } from './models'
 
@@ -51,11 +46,21 @@ const schema = z.object({
   message: z.string().min(1, 'Digite uma mensagem'),
 })
 
-export function Chat({ user, initialChatId }: ChatProps) {
-  const [model, setModel] = React.useState(models[0].id)
-  const [isGhostChatMode, setIsGhostChatMode] = React.useState(false)
-  const [chatId, setChatId] = React.useState(initialChatId)
-  const [isCreatingNewChat, setIsCreatingNewChat] = React.useState(false)
+export function Chat({ user }: ChatProps) {
+  const {
+    chatId,
+    setChatId,
+    isGhostChatMode,
+    setMessages,
+    isCreatingNewChat,
+    setIsCreatingNewChat,
+    onDeleteMessage,
+    model,
+    setModel,
+    resetChatState,
+  } = useChatStore()
+
+  const queryClient = useQueryClient()
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -71,10 +76,10 @@ export function Chat({ user, initialChatId }: ChatProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   const {
-    messages,
+    messages: aiMessages,
+    setMessages: setAiMessages,
     input,
     status,
-    setMessages,
     handleInputChange,
     handleSubmit,
     stop,
@@ -86,6 +91,7 @@ export function Chat({ user, initialChatId }: ChatProps) {
       locale: navigator.language,
       chatId,
       isGhostChatMode,
+      model,
     },
     onResponse: (response) => {
       const newChatId = response.headers.get('X-Chat-Id')
@@ -94,63 +100,55 @@ export function Chat({ user, initialChatId }: ChatProps) {
 
         if (isCreatingNewChat && !isGhostChatMode) {
           router.push(`/chat/${newChatId}`)
+          queryClient.invalidateQueries({ queryKey: ['chats'] })
           setIsCreatingNewChat(false)
         }
       }
     },
+    onFinish: () => {
+      queryClient.invalidateQueries({ queryKey: ['chats'] })
+    },
   })
 
   const onDeleteMessageChat = (id: string) => {
-    setMessages((prevMessages) =>
-      prevMessages.filter((message) => message.id !== id),
-    )
+    onDeleteMessage(id)
   }
 
-  const resetChat = () => {
-    setChatId(undefined)
-    setMessages([])
-    setIsCreatingNewChat(false)
-    form.reset()
-
-    if (initialChatId) {
-      router.push('/chat')
-    }
-  }
-
-  const handleNewChat = () => {
-    if (messages.length > 0) {
-      resetChat()
-    }
-  }
-
-  const handleGhostChatMode = () => {
-    toast('', {
-      action: (
-        <p className="text-sm">
-          Chat fantasma:{' '}
-          <span
-            data-ghost={isGhostChatMode}
-            className="font-bold data-[ghost=false]:text-green-400 data-[ghost=true]:text-red-400"
-          >
-            {!isGhostChatMode ? 'ativado' : 'desativado'}
-          </span>
-        </p>
-      ),
-      position: 'top-center',
-      duration: 1500,
-    })
-    setIsGhostChatMode((prev) => !prev)
-  }
+  const localResetChatState = React.useCallback(() => {
+    setAiMessages([])
+  }, [])
 
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    resetChatState()
+    localResetChatState()
+  }, [resetChatState])
 
   React.useEffect(() => {
     if (status === 'ready' && inputRef.current) {
       inputRef.current.focus()
     }
   }, [status])
+
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    setMessages(aiMessages)
+  }, [aiMessages])
+
+  React.useEffect(() => {
+    const wrappedSetAiMessages = (messages: Message[]) => {
+      setAiMessages(messages)
+    }
+
+    useChatStore.setState({
+      setAiMessages: wrappedSetAiMessages,
+    })
+
+    return () => {
+      useChatStore.setState({
+        setAiMessages: () => {},
+      })
+    }
+  }, [setAiMessages])
 
   const onSubmit = async () => {
     if (!chatId && !isGhostChatMode && user) {
@@ -171,7 +169,7 @@ export function Chat({ user, initialChatId }: ChatProps) {
         className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
-        {messages.map((message) => (
+        {aiMessages.map((message) => (
           <Messages
             key={`${message.id}-${message.content.substring(0, 10)}`}
             user={user}

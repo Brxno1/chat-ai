@@ -1,50 +1,79 @@
 'use client'
 
-import { ArrowRight } from 'lucide-react'
-import Link from 'next/link'
-import { User } from 'next-auth'
+import { Ghost, MessageSquarePlus } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import React from 'react'
+import { toast } from 'sonner'
 
+import { SidebarTriggerComponentMobile } from '@/app/(main)/_components/sidebar/sidebar-trigger-mobile'
+import { DashboardPageHeader } from '@/components/dashboard'
 import { ComponentSwitchTheme } from '@/components/switch-theme'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { useChatStore } from '@/store/chat-store'
 
-interface ChatHeaderProps {
-  user: User
-}
+function ChatHeader() {
+  const pathname = usePathname()
 
-function ChatHeader({ user }: ChatHeaderProps) {
-  const [open, setOpen] = React.useState(false)
+  const {
+    onCreateNewChat,
+    isGhostChatMode,
+    setToGhostChatMode,
+    setChatId,
+    setAiMessages,
+  } = useChatStore()
+
+  const handleGhostChatMode = () => {
+    toast('', {
+      action: (
+        <p className="text-sm">
+          Chat fantasma:{' '}
+          <span
+            data-ghost={isGhostChatMode}
+            className="font-bold data-[ghost=false]:text-green-400 data-[ghost=true]:text-red-400"
+          >
+            {!isGhostChatMode ? 'ativado' : 'desativado'}
+          </span>
+        </p>
+      ),
+      position: 'top-center',
+      duration: 1500,
+    })
+    setToGhostChatMode(!isGhostChatMode)
+  }
+
+  const handleCreateNewChat = () => {
+    setAiMessages([])
+    onCreateNewChat()
+  }
+
+  React.useEffect(() => {
+    if (!pathname.includes('/chat/')) {
+      setChatId(undefined)
+    }
+  }, [pathname])
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Avatar className="size-8 cursor-grab rounded-sm">
-          <AvatarImage src={user.image as string} alt="user avatar" />
-          <AvatarFallback className="rounded-sm">
-            {user.name?.slice(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <Link href="/dashboard">
-          <DropdownMenuItem className="flex w-full items-center justify-center gap-2 text-xs">
-            Acessar App
-            <ArrowRight className="size-4" />
-          </DropdownMenuItem>
-        </Link>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="flex items-center justify-center">
-          <ComponentSwitchTheme />
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-card pb-[1rem]">
+      <div className="ml-6 flex items-center gap-3 transition-all max-sm:ml-2">
+        <SidebarTriggerComponentMobile variant="ghost" size="icon" />
+        <Button variant="link" size="icon" onClick={handleGhostChatMode}>
+          <Ghost size={16} />
+        </Button>
+      </div>
+      <div className="mr-6 flex items-center gap-3 transition-all max-sm:mr-2">
+        <Button
+          variant="outline"
+          className="flex items-center gap-2 text-sm font-bold"
+          onClick={handleCreateNewChat}
+        >
+          <MessageSquarePlus size={16} />
+          <span className="transition-all max-sm:hidden">Nova conversa</span>
+        </Button>
+        <Separator orientation="vertical" className="h-4" />
+        <ComponentSwitchTheme />
+      </div>
+    </DashboardPageHeader>
   )
 }
 
