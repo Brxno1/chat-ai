@@ -20,7 +20,7 @@ const schema = z.object({
   isGhostChatMode: z.boolean().optional(),
 })
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = schema.parse(await req.json())
 
@@ -46,11 +46,9 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const response = stream.toDataStreamResponse()
+      if (chatId) res.headers.set('X-Chat-Id', chatId)
 
-      if (chatId) response.headers.set('X-Chat-Id', chatId)
-
-      return response
+      return stream.toDataStreamResponse()
     } catch (error) {
       return NextResponse.json(
         { error: error instanceof Error ? error.message : 'Unknown error' },

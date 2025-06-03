@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
 import { prisma } from '@/services/database/prisma'
 
 export async function GET(
-  req: Request,
-  { params }: { params: { chatId: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ chatId: string }> },
 ) {
   const { session } = await getUserSession()
-  const { chatId } = params
+  const { chatId } = await params
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -35,20 +35,21 @@ export async function GET(
   return NextResponse.json({ chat })
 }
 
-export type DeleteChatWithIdResponse = {
+export type DeleteChatByIdResponse = {
   success: boolean
   error?: string
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { chatId: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ chatId: string }> },
 ) {
   const { session } = await getUserSession()
-  const { chatId } = params
+  const resolvedParams = await params
+  const chatId = resolvedParams.chatId
 
   if (!session?.user?.id) {
-    return NextResponse.json<DeleteChatWithIdResponse>(
+    return NextResponse.json<DeleteChatByIdResponse>(
       { success: false, error: 'Unauthorized' },
       { status: 401 },
     )
@@ -62,7 +63,7 @@ export async function DELETE(
   })
 
   if (!chat) {
-    return NextResponse.json<DeleteChatWithIdResponse>(
+    return NextResponse.json<DeleteChatByIdResponse>(
       { success: false, error: 'Chat not found' },
       { status: 404 },
     )
@@ -74,7 +75,7 @@ export async function DELETE(
     },
   })
 
-  return NextResponse.json<DeleteChatWithIdResponse>({
+  return NextResponse.json<DeleteChatByIdResponse>({
     success: true,
   })
 }

@@ -55,10 +55,7 @@ export function Messages({
   }
 
   return (
-    <div
-      key={`${message.id}-${new Date()}`}
-      className="flex w-full flex-col"
-    >
+    <div key={`${message.id}-${new Date()}`} className="flex w-full flex-col">
       <div
         className={cn(
           'mb-1 flex w-fit max-w-md items-center justify-center gap-2 rounded-md',
@@ -84,7 +81,7 @@ export function Messages({
               >
                 <div
                   className={cn(
-                    'group flex items-center max-w-[17rem] justify-center text-left sm:text-justify border text-wrap rounded-md bg-message p-1.5 transition-all sm:max-w-[24rem] md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
+                    'group flex max-w-[17rem] items-center justify-center text-wrap rounded-md border bg-message p-1.5 text-left transition-all sm:max-w-[24rem] sm:text-justify md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',
@@ -115,7 +112,7 @@ export function Messages({
                         <CopyTextComponent
                           textForCopy={part.text}
                           onCloseComponent={handleCloseComponent}
-                          iconPosition='right'
+                          iconPosition="right"
                         >
                           <span className="text-xs">Copiar</span>
                         </CopyTextComponent>
@@ -125,9 +122,12 @@ export function Messages({
                         onClick={(ev) =>
                           handleDeleteMessageChat(ev, message.id)
                         }
-                        className={cn('flex cursor-pointer items-center gap-2', {
-                          'animate-pulse text-red-500': state.isDeleting,
-                        })}
+                        className={cn(
+                          'flex cursor-pointer items-center gap-2',
+                          {
+                            'animate-pulse text-red-500': state.isDeleting,
+                          },
+                        )}
                       >
                         <span className="text-xs">Excluir</span>
                         <Trash className="h-4 w-4" />
@@ -151,7 +151,25 @@ export function Messages({
               </ContainerWrapper>
             )
           default:
-            return null
+            return (
+              <ContainerWrapper
+                key={`${message.id}-${new Date()}`}
+                className="flex w-full flex-col"
+              >
+                <div
+                  className={cn(
+                    'group flex max-w-[17rem] items-center justify-center text-wrap rounded-md border bg-message p-1.5 text-left transition-all sm:max-w-[24rem] sm:text-justify md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
+                    {
+                      'mr-auto': message.role === 'assistant',
+                    },
+                  )}
+                >
+                  <p className="text-sm text-red-500">
+                    Ocorreu um erro ao processar a mensagem.
+                  </p>
+                </div>
+              </ContainerWrapper>
+            )
         }
       })}
     </div>

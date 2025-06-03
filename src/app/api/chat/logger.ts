@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 /**
- * Sistema simples de logging para o assistente virtual
+ * Simple logging system for the virtual assistant
  */
 
 export interface LogData {
@@ -13,7 +13,7 @@ export interface LogData {
 }
 
 /**
- * Registra informações sobre as interações do chat
+ * Register information about chat interactions
  */
 export function logChatInteraction(
   type: 'request' | 'response' | 'error',
@@ -36,12 +36,11 @@ export function logChatInteraction(
     )
   }
 
-  // Aqui você poderia adicionar lógica para enviar logs para
-  // um serviço externo como CloudWatch, Datadog, etc.
+  // A server side logging would be better here
 }
 
 /**
- * Registra erros específicos do chat
+ * Register specific chat errors
  */
 export function logChatError(
   error: Error | unknown,

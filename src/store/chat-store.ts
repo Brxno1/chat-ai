@@ -7,6 +7,7 @@ interface State {
   messages: Message[]
   isCreatingNewChat: boolean
   model: string
+  chatInstanceKey: string
 }
 
 interface Actions {
@@ -15,11 +16,10 @@ interface Actions {
   setToGhostChatMode: (mode: boolean) => void
   setMessages: (messages: Message[]) => void
   onDeleteMessage: (id: string) => void
-  resetChat: () => void
   onCreateNewChat: () => void
   setModel: (model: string) => void
   resetChatState: () => void
-  setAiMessages: (messages: Message[]) => void
+  resetChatInstance: () => void
 }
 
 type ChatState = State & Actions
@@ -30,6 +30,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isCreatingNewChat: false,
   model: 'gpt-4o-mini',
+  chatInstanceKey: Date.now().toString(),
 
   setChatId: (id) => set({ chatId: id }),
 
@@ -39,38 +40,30 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setMessages: (messages) => set({ messages }),
 
+  setModel: (model) => set({ model }),
+
   onDeleteMessage: (id) =>
     set((state) => ({
       messages: state.messages.filter((message) => message.id !== id),
     })),
-  resetChat: () => {
-    set({
-      chatId: undefined,
-      messages: [],
-      isCreatingNewChat: false,
-    })
-
-    const { setAiMessages } = get()
-    setAiMessages([])
-  },
 
   resetChatState: () => {
     set({
       chatId: undefined,
       messages: [],
       isCreatingNewChat: false,
+      isGhostChatMode: false,
+    })
+  },
+
+  resetChatInstance: () => {
+    set({
+      chatInstanceKey: Date.now().toString(),
     })
   },
 
   onCreateNewChat: () => {
     const { resetChatState } = get()
-    set({
-      chatId: undefined,
-      messages: [],
-      isCreatingNewChat: false,
-    })
     resetChatState()
   },
-  setModel: (model) => set({ model }),
-  setAiMessages: (messages) => set({ messages }),
 }))

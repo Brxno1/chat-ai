@@ -20,7 +20,7 @@ function ChatHeader() {
     isGhostChatMode,
     setToGhostChatMode,
     setChatId,
-    setAiMessages,
+    setMessages,
   } = useChatStore()
 
   const handleGhostChatMode = () => {
@@ -43,19 +43,20 @@ function ChatHeader() {
   }
 
   const handleCreateNewChat = () => {
-    setAiMessages([])
+    setMessages([])
     onCreateNewChat()
+    console.log('handleCreateNewChat')
   }
 
   React.useEffect(() => {
-    if (!pathname.includes('/chat/')) {
+    if (!pathname.includes('/chat')) {
       setChatId(undefined)
     }
   }, [pathname])
 
   return (
     <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-card pb-[1rem]">
-      <div className="ml-6 flex items-center gap-3 transition-all max-sm:ml-2">
+      <div className="ml-2 flex items-center gap-3 transition-all">
         <SidebarTriggerComponentMobile variant="ghost" size="icon" />
         <Button variant="link" size="icon" onClick={handleGhostChatMode}>
           <Ghost size={16} />

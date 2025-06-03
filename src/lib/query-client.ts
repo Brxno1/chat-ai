@@ -14,7 +14,6 @@ export function createQueryClient() {
 }
 
 export const queryKeys = {
-  // Todos
   todos: {
     all: ['todos'] as const,
     lists: () => [...queryKeys.todos.all, 'list'] as const,
@@ -24,13 +23,29 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.todos.details(), id] as const,
   },
 
-  // Todo Mutations
   todoMutations: {
     create: ['create-todo'] as const,
     update: ['update-todo'] as const,
     delete: ['delete-todo'] as const,
     markAsDone: ['mark-todo-done'] as const,
     cancel: ['cancel-todo'] as const,
+  },
+
+  chats: {
+    all: ['chats'] as const,
+    lists: () => [...queryKeys.chats.all, 'list'] as const,
+    list: (filters: string) =>
+      [...queryKeys.chats.lists(), { filters }] as const,
+    details: () => [...queryKeys.chats.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.chats.details(), id] as const,
+  },
+
+  chatMutations: {
+    create: ['create-chat'] as const,
+    update: ['update-chat'] as const,
+    delete: () => ['delete-chat'] as const,
+    deleteById: (id: string) =>
+      [...queryKeys.chatMutations.delete(), id] as const,
   },
 
   user: {
@@ -43,4 +58,9 @@ export const queryKeys = {
 export const todoInvalidations = {
   all: () => queryKeys.todos.all,
   lists: () => queryKeys.todos.lists(),
+}
+
+export const chatInvalidations = {
+  all: () => queryKeys.chats.all,
+  lists: () => queryKeys.chats.lists(),
 }

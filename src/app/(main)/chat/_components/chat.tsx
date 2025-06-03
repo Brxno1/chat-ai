@@ -1,6 +1,6 @@
 'use client'
 
-import { Message, useChat } from '@ai-sdk/react'
+import { useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -31,6 +31,7 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
+import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
 
 import { Input } from '../../../../components/ui/input'
@@ -47,19 +48,6 @@ const schema = z.object({
 })
 
 export function Chat({ user }: ChatProps) {
-  const {
-    chatId,
-    setChatId,
-    isGhostChatMode,
-    setMessages,
-    isCreatingNewChat,
-    setIsCreatingNewChat,
-    onDeleteMessage,
-    model,
-    setModel,
-    resetChatState,
-  } = useChatStore()
-
   const queryClient = useQueryClient()
 
   const form = useForm<z.infer<typeof schema>>({
@@ -76,15 +64,30 @@ export function Chat({ user }: ChatProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   const {
+    messages,
+    chatId,
+    setChatId,
+    model,
+    isCreatingNewChat,
+    isGhostChatMode,
+    setIsCreatingNewChat,
+    onDeleteMessage,
+    setModel,
+    chatInstanceKey,
+  } = useChatStore()
+
+  const {
+    input,
     messages: aiMessages,
     setMessages: setAiMessages,
-    input,
     status,
     handleInputChange,
     handleSubmit,
     stop,
     isLoading,
   } = useChat({
+    initialMessages: messages,
+    key: chatInstanceKey,
     api: '/api/chat',
     body: {
       name: user?.name || undefined,
@@ -100,28 +103,20 @@ export function Chat({ user }: ChatProps) {
 
         if (isCreatingNewChat && !isGhostChatMode) {
           router.push(`/chat/${newChatId}`)
-          queryClient.invalidateQueries({ queryKey: ['chats'] })
+          queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
           setIsCreatingNewChat(false)
         }
       }
     },
     onFinish: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
     },
   })
 
   const onDeleteMessageChat = (id: string) => {
     onDeleteMessage(id)
+    setAiMessages((prev) => prev.filter((message) => message.id !== id))
   }
-
-  const localResetChatState = React.useCallback(() => {
-    setAiMessages([])
-  }, [])
-
-  React.useEffect(() => {
-    resetChatState()
-    localResetChatState()
-  }, [resetChatState])
 
   React.useEffect(() => {
     if (status === 'ready' && inputRef.current) {
@@ -131,24 +126,13 @@ export function Chat({ user }: ChatProps) {
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    setMessages(aiMessages)
   }, [aiMessages])
 
   React.useEffect(() => {
-    const wrappedSetAiMessages = (messages: Message[]) => {
-      setAiMessages(messages)
+    if (chatInstanceKey) {
+      setAiMessages([])
     }
-
-    useChatStore.setState({
-      setAiMessages: wrappedSetAiMessages,
-    })
-
-    return () => {
-      useChatStore.setState({
-        setAiMessages: () => {},
-      })
-    }
-  }, [setAiMessages])
+  }, [chatInstanceKey, setAiMessages])
 
   const onSubmit = async () => {
     if (!chatId && !isGhostChatMode && user) {
@@ -171,7 +155,7 @@ export function Chat({ user }: ChatProps) {
       >
         {aiMessages.map((message) => (
           <Messages
-            key={`${message.id}-${message.content.substring(0, 10)}`}
+            key={`${message.id}-${message.content.substring(0, 10)}-${Date.now()}`}
             user={user}
             message={message}
             modelName={model}
@@ -210,7 +194,7 @@ export function Chat({ user }: ChatProps) {
               </FormItem>
             )}
           />
-          <AIInputToolbar className="bg-card p-2.5 transition-all max-sm:p-1.5">
+          <AIInputToolbar className="bg-card p-3.5 transition-all max-sm:p-1.5">
             <AIInputTools>
               <AIInputButton disabled variant={'outline'}>
                 <PlusIcon size={16} />

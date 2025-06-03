@@ -6,6 +6,7 @@ import { ChatResponse } from '@/app/api/chats/route'
 import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { queryKeys } from '@/lib/query-client'
 
 import { HistoricalItem } from './item'
 
@@ -16,7 +17,7 @@ type HistoricalListProps = {
 function HistoricalList({ onOpenChatWithId }: HistoricalListProps) {
   const { data } = useSuspenseQuery<ChatResponse>({
     queryFn: fetchChats,
-    queryKey: ['chats'],
+    queryKey: queryKeys.chats.all,
   })
 
   if (!data.chats || data.chats.length === 0) {
@@ -57,12 +58,12 @@ function HistoricalListSkeleton() {
           key={index}
           className="relative flex w-full cursor-pointer items-start justify-between rounded-md border px-2 py-2 text-left"
         >
-          <div className="flex flex-col items-start gap-1.5">
+          <div className="flex flex-col items-start gap-1">
             <Skeleton className={size} />
             <Skeleton className="h-2 w-12" />
           </div>
           <Button
-            className="absolute right-2 top-1/2 -translate-y-1/2"
+            className="absolute right-2 top-1/2 -translate-y-1/2 border-none"
             variant="outline"
             size="icon"
             disabled
