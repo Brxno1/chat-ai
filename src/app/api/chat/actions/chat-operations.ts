@@ -4,6 +4,8 @@ import { Chat } from '@prisma/client'
 
 import { prisma } from '@/services/database/prisma'
 
+import { errorHandler } from '../route'
+
 type Role = 'user' | 'assistant'
 
 type OperationResponse<T = Chat | null> = {
@@ -12,19 +14,24 @@ type OperationResponse<T = Chat | null> = {
   success: boolean
 }
 
-export async function getOrCreateChat(
+export async function findOrCreateChat(
   userId?: string,
   chatId?: string,
   messages?: Array<{ role: Role; content: string }>,
 ): Promise<OperationResponse<Chat | null>> {
   try {
-    if (!userId) return { success: true, data: null }
-
     if (chatId) {
       const chat = await prisma.chat.findFirst({
         where: {
           id: chatId,
           userId,
+        },
+        include: {
+          messages: {
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
         },
       })
 
@@ -37,7 +44,7 @@ export async function getOrCreateChat(
         .find((msg) => msg.role === 'user')
 
       const title = lastUserMessage
-        ? lastUserMessage.content.substring(0, 30)
+        ? lastUserMessage.content.substring(0, 50)
         : 'Nova conversa'
 
       const chat = await prisma.chat.create({
@@ -46,6 +53,13 @@ export async function getOrCreateChat(
           user: {
             connect: {
               id: userId,
+            },
+          },
+        },
+        include: {
+          messages: {
+            orderBy: {
+              createdAt: 'asc',
             },
           },
         },
@@ -58,7 +72,7 @@ export async function getOrCreateChat(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorHandler(error),
       data: null,
     }
   }
@@ -80,7 +94,7 @@ export async function saveMessages(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorHandler(error),
       data: null,
     }
   }
@@ -119,7 +133,7 @@ export async function saveResponseWhenComplete(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: errorHandler(error),
       data: null,
     }
   }

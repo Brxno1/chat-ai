@@ -1,6 +1,6 @@
 'use client'
 
-import { useChat } from '@ai-sdk/react'
+import { Message as MessageType, useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation'
 import { User } from 'next-auth'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
@@ -34,20 +35,21 @@ import {
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
 
-import { Input } from '../../../../components/ui/input'
+import { Input } from '../../../components/ui/input'
 import { Messages } from './message'
 import { models } from './models'
 
 interface ChatProps {
   user?: User
   initialChatId?: string
+  initialMessages?: MessageType[]
 }
 
 const schema = z.object({
   message: z.string().min(1, 'Digite uma mensagem'),
 })
 
-export function Chat({ user }: ChatProps) {
+export function Chat({ user, initialMessages }: ChatProps) {
   const queryClient = useQueryClient()
 
   const form = useForm<z.infer<typeof schema>>({
@@ -64,11 +66,8 @@ export function Chat({ user }: ChatProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   const {
-    messages,
     chatId,
-    setChatId,
     model,
-    isCreatingNewChat,
     isGhostChatMode,
     setIsCreatingNewChat,
     onDeleteMessage,
@@ -78,15 +77,15 @@ export function Chat({ user }: ChatProps) {
 
   const {
     input,
-    messages: aiMessages,
-    setMessages: setAiMessages,
+    messages,
+    setMessages,
     status,
     handleInputChange,
     handleSubmit,
     stop,
     isLoading,
   } = useChat({
-    initialMessages: messages,
+    initialMessages,
     key: chatInstanceKey,
     api: '/api/chat',
     body: {
@@ -96,15 +95,41 @@ export function Chat({ user }: ChatProps) {
       isGhostChatMode,
       model,
     },
-    onResponse: (response) => {
-      const newChatId = response.headers.get('X-Chat-Id')
-      if (newChatId && !chatId) {
-        setChatId(newChatId)
+    onResponse: async (response) => {
+      const stream = response.body
+      if (!stream) {
+        console.error('Nenhum stream encontrado na resposta')
+        return
+      }
 
-        if (isCreatingNewChat && !isGhostChatMode) {
-          router.push(`/chat/${newChatId}`)
-          queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
-          setIsCreatingNewChat(false)
+      const reader = stream.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let result = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        result += chunk
+
+        if (result.startsWith('3:"Failed after 3 attempts. Last error:')) {
+          toast.warning(
+            'Você atingiu o limite de mensagens do plano gratuito, tente novamente mais tarde.',
+            {
+              position: 'top-center',
+              duration: 3000,
+            },
+          )
+        }
+
+        const currentChatId = response.headers.get('X-Chat-Id')
+
+        if (currentChatId && !chatId) {
+          if (!isGhostChatMode) {
+            queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
+            router.push(`/chat/${currentChatId}`)
+          }
         }
       }
     },
@@ -115,7 +140,7 @@ export function Chat({ user }: ChatProps) {
 
   const onDeleteMessageChat = (id: string) => {
     onDeleteMessage(id)
-    setAiMessages((prev) => prev.filter((message) => message.id !== id))
+    setMessages((prev) => prev.filter((message) => message.id !== id))
   }
 
   React.useEffect(() => {
@@ -126,13 +151,13 @@ export function Chat({ user }: ChatProps) {
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [aiMessages])
+  }, [messages])
 
   React.useEffect(() => {
-    if (chatInstanceKey) {
-      setAiMessages([])
+    if (chatInstanceKey && !initialMessages?.length) {
+      setMessages([])
     }
-  }, [chatInstanceKey, setAiMessages])
+  }, [chatInstanceKey, setMessages, initialMessages])
 
   const onSubmit = async () => {
     if (!chatId && !isGhostChatMode && user) {
@@ -153,9 +178,9 @@ export function Chat({ user }: ChatProps) {
         className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
-        {aiMessages.map((message) => (
+        {messages.map((message, index) => (
           <Messages
-            key={`${message.id}-${message.content.substring(0, 10)}-${Date.now()}`}
+            key={`${message.id}-${index}-${Date.now()}`}
             user={user}
             message={message}
             modelName={model}
@@ -174,13 +199,13 @@ export function Chat({ user }: ChatProps) {
                 <FormControl>
                   <Input
                     className="h-20 resize-none rounded-t-lg border-0 bg-card p-3 shadow-none outline-none ring-0 focus-visible:ring-0"
+                    disabled={status === 'streaming' || isLoading}
                     value={field.value}
                     ref={inputRef}
                     onChange={(ev) => {
                       field.onChange(ev)
                       handleInputChange(ev)
                     }}
-                    disabled={status === 'streaming' || isLoading}
                   />
                 </FormControl>
                 {!field.value && (

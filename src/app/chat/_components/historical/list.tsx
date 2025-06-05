@@ -1,41 +1,34 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 
-import { fetchChats } from '@/app/(http)/chat/get-chats'
-import { ChatResponse } from '@/app/api/chats/route'
+import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { queryKeys } from '@/lib/query-client'
 
 import { HistoricalItem } from './item'
 
-type HistoricalListProps = {
-  onOpenChatWithId: (id: string) => void
+type HistoficalListProps = {
+  chats: ChatWithMessages[]
+  isLoading: boolean
 }
 
-function HistoricalList({ onOpenChatWithId }: HistoricalListProps) {
-  const { data } = useSuspenseQuery<ChatResponse>({
-    queryFn: fetchChats,
-    queryKey: queryKeys.chats.all,
-  })
+function HistoricalList({ chats, isLoading }: HistoficalListProps) {
+  if (isLoading) {
+    return <HistoricalListSkeleton />
+  }
 
-  if (!data.chats || data.chats.length === 0) {
+  if (!chats || chats.length === 0) {
     return (
       <span className="text-xs text-muted-foreground">
-        Você ainda não tem nenhum chat
+        Você ainda não possui nenhum chat
       </span>
     )
   }
 
   return (
     <>
-      {data.chats.map((chat) => (
-        <HistoricalItem
-          key={chat.id}
-          chat={chat}
-          onOpenChatWithId={onOpenChatWithId}
-        />
+      {chats.map((chat) => (
+        <HistoricalItem key={chat.id} chat={chat} />
       ))}
     </>
   )

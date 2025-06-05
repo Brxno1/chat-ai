@@ -1,14 +1,14 @@
 import { Suspense } from 'react'
 
-import { Chat } from '@/app/(main)/chat/_components/chat'
-import { ChatFallback } from '@/app/(main)/chat/_components/chat-fallback'
 import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
+import { Chat } from '@/app/chat/_components/chat'
+import { ChatFallback } from '@/app/chat/_components/chat-fallback'
 import { ContainerWrapper } from '@/components/container'
 import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
 
 import { ChatHeader } from './_components/header'
 
-export default async function PageChat() {
+export default async function ChatPage() {
   const { session } = await getUserSession()
 
   return (

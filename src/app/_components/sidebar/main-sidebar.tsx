@@ -3,7 +3,6 @@
 import { LayoutDashboard, MessageSquare, Settings } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { User } from 'next-auth'
-import React from 'react'
 
 import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
@@ -16,31 +15,13 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useChatStore } from '@/store/chat-store'
 import { cn } from '@/utils/utils'
 
-import { Historical } from '../../chat/_components/historical'
 import { SidebarLinks } from './sidebar-links'
 import { SidebarTriggerComponent } from './sidebar-trigger'
 import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
 import { UserDropdown } from './user-dropdown'
-
-const mainLinks = [
-  {
-    href: '/chat',
-    icon: MessageSquare,
-    label: 'Chat',
-  },
-  {
-    href: '/dashboard',
-    icon: LayoutDashboard,
-    label: 'Dashboard',
-  },
-  {
-    href: '/dashboard/settings',
-    icon: Settings,
-    label: 'Configurações',
-  },
-]
 
 type ChatSidebarProps = {
   initialUser: User
@@ -51,9 +32,35 @@ export function MainSidebarContent({
   initialUser,
   className,
 }: ChatSidebarProps) {
-  const { open, isMobile } = useSidebar()
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname === path
+
+  const { open, isMobile } = useSidebar()
+  const { setChatId, resetChatInstance } = useChatStore()
+
+  const handleClick = () => {
+    setChatId(undefined)
+    resetChatInstance()
+  }
+
+  const mainLinks = [
+    {
+      href: '/chat',
+      icon: MessageSquare,
+      label: 'Chat',
+      onClick: handleClick,
+    },
+    {
+      href: '/dashboard',
+      icon: LayoutDashboard,
+      label: 'Dashboard',
+    },
+    {
+      href: '/dashboard/settings',
+      icon: Settings,
+      label: 'Configurações',
+    },
+  ]
 
   return (
     <Sidebar
@@ -89,9 +96,6 @@ export function MainSidebarContent({
           />
         </SidebarGroup>
         <Separator className="group-data-[sidebar=closed]/sidebar:hidden" />
-        <SidebarGroup className="flex flex-1 flex-col overflow-hidden">
-          <Historical pathname={pathname} />
-        </SidebarGroup>
         <SidebarGroup className="mt-auto space-y-2">
           {!isMobile && (
             <SidebarTriggerComponent

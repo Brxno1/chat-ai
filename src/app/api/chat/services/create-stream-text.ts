@@ -9,17 +9,11 @@ export async function createStreamText(messages: Message[], model: string) {
     temperature: chatConfig.temperature,
     maxTokens: chatConfig.maxTokens,
     messages,
-    onError: (error) => {
-      console.error('Error creating streamText:', error)
-    },
   })
 
   if (!stream) {
-    console.error('Error creating streamText: The stream is null.', {
-      model,
-      messages,
-      chatConfig,
-    })
+    console.error('Error creating streamText: The stream is null.')
+
     return {
       stream: null,
       error: 'Error creating stream.',
@@ -28,5 +22,6 @@ export async function createStreamText(messages: Message[], model: string) {
 
   return {
     stream,
+    error: null,
   }
 }

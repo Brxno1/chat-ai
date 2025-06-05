@@ -20,7 +20,7 @@ const schema = z.object({
   isGhostChatMode: z.boolean().optional(),
 })
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     const body = schema.parse(await req.json())
 
@@ -35,26 +35,26 @@ export async function POST(req: NextRequest, res: NextResponse) {
       model,
     })
 
+    console.log('stream in server', stream?.toDataStreamResponse())
+
     if (error || !stream) {
       return NextResponse.json(
         {
           error: 'Chat processing failed',
           message: error || defaultErrorMessage,
+          rateLimitReached: true,
         },
         { status: 500 },
       )
     }
 
-    try {
-      if (chatId) res.headers.set('X-Chat-Id', chatId)
+    const response = stream.toDataStreamResponse({
+      getErrorMessage: errorHandler,
+    })
 
-      return stream.toDataStreamResponse()
-    } catch (error) {
-      return NextResponse.json(
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        { status: 500 },
-      )
-    }
+    if (chatId) response.headers.set('X-Chat-Id', chatId)
+
+    return response
   } catch (error) {
     logChatError(error)
     return NextResponse.json(
@@ -65,4 +65,20 @@ export async function POST(req: NextRequest, res: NextResponse) {
       { status: 500 },
     )
   }
+}
+
+export function errorHandler(error: unknown) {
+  if (error == null) {
+    return 'unknown error'
+  }
+
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return JSON.stringify(error)
 }

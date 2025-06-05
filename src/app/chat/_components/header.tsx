@@ -1,11 +1,11 @@
 'use client'
 
 import { Ghost, MessageSquarePlus } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 import { toast } from 'sonner'
 
-import { SidebarTriggerComponentMobile } from '@/app/(main)/_components/sidebar/sidebar-trigger-mobile'
+import { SidebarTriggerComponentMobile } from '@/app/_components/sidebar/sidebar-trigger-mobile'
 import { DashboardPageHeader } from '@/components/dashboard'
 import { ComponentSwitchTheme } from '@/components/switch-theme'
 import { Button } from '@/components/ui/button'
@@ -14,14 +14,10 @@ import { useChatStore } from '@/store/chat-store'
 
 function ChatHeader() {
   const pathname = usePathname()
+  const router = useRouter()
 
-  const {
-    onCreateNewChat,
-    isGhostChatMode,
-    setToGhostChatMode,
-    setChatId,
-    setMessages,
-  } = useChatStore()
+  const { onCreateNewChat, isGhostChatMode, setToGhostChatMode, setChatId } =
+    useChatStore()
 
   const handleGhostChatMode = () => {
     toast('', {
@@ -43,9 +39,8 @@ function ChatHeader() {
   }
 
   const handleCreateNewChat = () => {
-    setMessages([])
     onCreateNewChat()
-    console.log('handleCreateNewChat')
+    router.push('/chat')
   }
 
   React.useEffect(() => {

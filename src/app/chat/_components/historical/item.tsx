@@ -1,11 +1,10 @@
 import { Chat as ChatType } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { deleteChatById } from '@/app/(http)/chat/delete-chat'
-import { ContainerWrapper } from '@/components/container'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { queryKeys } from '@/lib/query-client'
@@ -16,23 +15,26 @@ import { cn } from '@/utils/utils'
 
 type HistoricalItemProps = {
   chat: ChatType
-  onOpenChatWithId: (id: string) => void
 }
 
-export function HistoricalItem({
-  chat,
-  onOpenChatWithId,
-}: HistoricalItemProps) {
+export function HistoricalItem({ chat }: HistoricalItemProps) {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
-  const { chatId, resetChatState, onDeleteMessage, resetChatInstance } =
-    useChatStore()
+  const router = useRouter()
+  const { chatId: currentChatId } = useParams()
+
+  const {
+    chatId,
+    setChatId,
+    resetChatState,
+    onDeleteMessage,
+    resetChatInstance,
+  } = useChatStore()
 
   const { mutateAsync: deleteChatMutation, isPending: isDeleting } =
     useMutation({
       mutationKey: queryKeys.chatMutations.deleteById(chat.id),
-      mutationFn: deleteChatById,
+      mutationFn: (id: string) => deleteChatById(id),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
 
@@ -48,7 +50,8 @@ export function HistoricalItem({
           duration: 1500,
         })
       },
-      onError: () => {
+      onError: (error: Error) => {
+        console.log(error.message, 'error')
         toast('Erro ao excluir conversa', {
           position: 'top-center',
           duration: 1500,
@@ -62,18 +65,26 @@ export function HistoricalItem({
     await deleteChatMutation(chat.id)
 
     if (chatId === chat.id) {
-      router.push(`/chat/${chat.id}`)
+      router.push('/chat')
     }
   }
 
+  const handleOpenChat = () => {
+    setChatId(chat.id)
+    router.push(`/chat/${chat.id}`)
+  }
+
+  const isCurrentChat = currentChatId === chat.id
+
   return (
-    <ContainerWrapper
-      role="button"
+    <div
+      onClick={handleOpenChat}
       className={cn(
         'relative flex w-full cursor-pointer items-start justify-between rounded-md border px-2 py-1 text-left hover:bg-accent',
         isDeleting && 'animate-pulse',
+        isCurrentChat &&
+          'cursor-default bg-primary text-primary-foreground hover:bg-primary/90',
       )}
-      onClick={() => onOpenChatWithId(chat.id)}
     >
       <div className="flex flex-col items-start">
         <TooltipWrapper
@@ -82,7 +93,7 @@ export function HistoricalItem({
           asChild
           disabled={chat.title!.length <= 18}
         >
-          <span className="text-xs">{truncateText(chat.title || '', 30)}</span>
+          <span className="text-sm">{truncateText(chat.title!, 35)}</span>
         </TooltipWrapper>
         <TooltipWrapper
           content={new Date(chat.createdAt).toLocaleString()}
@@ -96,12 +107,16 @@ export function HistoricalItem({
       </div>
       <Button
         size="icon"
-        variant="outline"
+        variant="ghost"
         onClick={handleDeleteChat}
-        className="absolute right-2 top-1/2 -translate-y-1/2 border-none hover:bg-card"
+        disabled={isDeleting}
+        className={cn(
+          'absolute right-2 top-1/2 -translate-y-1/2 border-none hover:bg-card',
+          isDeleting && 'cursor-not-allowed',
+        )}
       >
         <Trash2 size={16} />
       </Button>
-    </ContainerWrapper>
+    </div>
   )
 }

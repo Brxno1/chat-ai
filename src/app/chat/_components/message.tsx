@@ -81,14 +81,14 @@ export function Messages({
               >
                 <div
                   className={cn(
-                    'group flex max-w-[17rem] items-center justify-center text-wrap rounded-md border bg-message p-1.5 text-left transition-all sm:max-w-[24rem] sm:text-justify md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
+                    'group flex max-w-[17rem] items-center justify-center text-wrap rounded-md border bg-message p-1.5 text-left text-sm transition-all sm:max-w-[24rem] sm:text-justify sm:text-base md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',
                     },
                   )}
                 >
-                  <p className="size-fit rounded-md px-2 text-accent dark:text-accent-foreground">
+                  <p className="px-1.5 text-accent dark:text-accent-foreground">
                     {formatTextWithStrong(part.text)}
                   </p>
                   <DropdownMenu
@@ -100,8 +100,8 @@ export function Messages({
                       }))
                     }
                   >
-                    <DropdownMenuTrigger asChild>
-                      <ChevronDown className="mb-auto h-4 w-4 cursor-pointer text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <DropdownMenuTrigger className="mb-auto size-4 cursor-pointer text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <ChevronDown size={16} />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       className="mt-4 flex flex-col items-center gap-2 py-2"
@@ -143,7 +143,7 @@ export function Messages({
                     },
                   )}
                 >
-                  {new Intl.DateTimeFormat(navigator.language, {
+                  {new Intl.DateTimeFormat('pt-BR', {
                     hour: '2-digit',
                     minute: '2-digit',
                   }).format(new Date(message.createdAt!))}

@@ -2,7 +2,7 @@
 
 import { User } from 'next-auth'
 
-import { MainSidebarContent } from './sidebar/main-sidebar'
+import { MainSidebarContent } from '../../_components/sidebar/main-sidebar'
 
 type ContainerLayoutProps = {
   children: React.ReactNode
@@ -10,7 +10,7 @@ type ContainerLayoutProps = {
   maxWidth?: string
 }
 
-export function MainWrapperLayout({
+export function DashboardWrapperLayout({
   children,
   initialUser,
 }: ContainerLayoutProps) {

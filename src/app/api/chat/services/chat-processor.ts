@@ -1,7 +1,7 @@
 import { Message, streamText } from 'ai'
 
 import {
-  getOrCreateChat,
+  findOrCreateChat,
   saveMessages,
   saveResponseWhenComplete,
 } from '../actions/chat-operations'
@@ -50,10 +50,16 @@ export async function processChatAndSaveMessages({
 
   if (isGhostChatMode || !userId) {
     const { stream, error } = await createStreamText(promptMessages, model)
-    return { stream, error: error ?? undefined, chatId: undefined }
+
+    return {
+      stream,
+      error: error || undefined,
+      chatId: undefined,
+    }
   }
 
-  const chatResponse = await getOrCreateChat(userId, chatId, messages)
+  const chatResponse = await findOrCreateChat(userId, chatId, messages)
+
   if (!chatResponse.success) {
     return {
       stream: null,
@@ -67,8 +73,11 @@ export async function processChatAndSaveMessages({
   }
 
   const { stream, error } = await createStreamText(promptMessages, model)
-  if (!stream || error) {
-    return { stream: null, error: error ?? 'Error creating stream.' }
+  if (error) {
+    return {
+      stream: null,
+      error: error ?? 'Error creating stream.',
+    }
   }
 
   const { success, error: saveError } = await saveMessages(messages, chat.id)
@@ -76,7 +85,7 @@ export async function processChatAndSaveMessages({
     console.warn('Failed to save messages:', saveError)
   }
 
-  saveResponseWhenComplete(stream, chat.id, chatId, messages)
+  saveResponseWhenComplete(stream!, chat.id, chatId, messages)
     .then(({ success, error }) => {
       if (!success) {
         console.warn('Failed to save assistant response:', error)
