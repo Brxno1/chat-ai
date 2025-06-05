@@ -1,7 +1,7 @@
 'use client'
 
 import { Todo } from '@prisma/client'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import {
   ColumnFiltersState,
   flexRender,
@@ -80,12 +80,10 @@ export function TodoDataTable({
     data: todos,
     isFetching,
     refetch,
-  } = useQuery({
+  } = useSuspenseQuery({
     queryKey: queryKeys.todos.all,
     queryFn: refreshTodos,
     initialData,
-    refetchOnReconnect: true,
-    refetchOnWindowFocus: true,
   })
 
   const hasTodos = todos.length > 0

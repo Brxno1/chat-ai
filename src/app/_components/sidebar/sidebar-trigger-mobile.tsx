@@ -2,9 +2,9 @@
 
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
+import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button, ButtonProps } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
-import { TooltipWrapper } from '@/components/tooltip-wrapper'
 
 interface SidebarTriggerComponentMobileProps {
   className?: string

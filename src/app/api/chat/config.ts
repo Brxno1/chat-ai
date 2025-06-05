@@ -5,12 +5,11 @@ export interface ChatConfig {
   timeoutSeconds: number
 }
 
-// Configurações do assistente virtual
 export const chatConfig: ChatConfig = {
   modelName: 'gpt-4o-mini',
-  temperature: 0.7,
-  maxTokens: 1000,
-  timeoutSeconds: 30,
+  temperature: 0.5,
+  maxTokens: 500,
+  timeoutSeconds: 60,
 }
 
 export const defaultErrorMessage =

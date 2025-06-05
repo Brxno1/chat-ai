@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { auth } from '@/services/auth'
-
+import { getUserSession } from '../user/profile/actions/get-user-session'
 import { setAiModelCookie } from './actions/set-ai-model-cookie'
 import { chatConfig, defaultErrorMessage } from './config'
 import { logChatError } from './logger'
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = schema.parse(await req.json())
 
-    const session = await auth()
+    const { session } = await getUserSession()
     const userId = session?.user?.id
 
     const model = (await setAiModelCookie()) || chatConfig.modelName
@@ -36,28 +35,26 @@ export async function POST(req: NextRequest) {
       model,
     })
 
+    console.log('stream in server', stream?.toDataStreamResponse())
+
     if (error || !stream) {
       return NextResponse.json(
         {
           error: 'Chat processing failed',
           message: error || defaultErrorMessage,
+          rateLimitReached: true,
         },
         { status: 500 },
       )
     }
 
-    try {
-      const response = stream.toDataStreamResponse()
+    const response = stream.toDataStreamResponse({
+      getErrorMessage: errorHandler,
+    })
 
-      if (chatId) response.headers.set('X-Chat-Id', chatId)
+    if (chatId) response.headers.set('X-Chat-Id', chatId)
 
-      return response
-    } catch (error) {
-      return NextResponse.json(
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        { status: 500 },
-      )
-    }
+    return response
   } catch (error) {
     logChatError(error)
     return NextResponse.json(
@@ -68,4 +65,20 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     )
   }
+}
+
+export function errorHandler(error: unknown) {
+  if (error == null) {
+    return 'unknown error'
+  }
+
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return JSON.stringify(error)
 }

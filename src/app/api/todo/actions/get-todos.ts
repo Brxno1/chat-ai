@@ -1,10 +1,11 @@
 'use server'
 
-import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
+import { getUserSession } from '../../user/profile/actions/get-user-session'
+
 export async function getTodosAction() {
-  const session = await auth()
+  const { session } = await getUserSession()
 
   if (!session) {
     return []
