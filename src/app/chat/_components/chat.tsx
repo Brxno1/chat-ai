@@ -11,7 +11,6 @@ import {
   StopCircle,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { User } from 'next-auth'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -43,13 +42,14 @@ interface ChatProps {
   user?: User
   initialChatId?: string
   initialMessages?: MessageType[]
+  currentChatId?: string
 }
 
 const schema = z.object({
   message: z.string().min(1, 'Digite uma mensagem'),
 })
 
-export function Chat({ user, initialMessages }: ChatProps) {
+export function Chat({ user, initialMessages, currentChatId }: ChatProps) {
   const queryClient = useQueryClient()
 
   const form = useForm<z.infer<typeof schema>>({
@@ -58,8 +58,6 @@ export function Chat({ user, initialMessages }: ChatProps) {
       message: '',
     },
   })
-
-  const router = useRouter()
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -70,7 +68,6 @@ export function Chat({ user, initialMessages }: ChatProps) {
     model,
     isGhostChatMode,
     setIsCreatingNewChat,
-    onDeleteMessage,
     setModel,
     chatInstanceKey,
   } = useChatStore()
@@ -91,14 +88,13 @@ export function Chat({ user, initialMessages }: ChatProps) {
     body: {
       name: user?.name || undefined,
       locale: navigator.language,
-      chatId,
+      chatId: currentChatId || '',
       isGhostChatMode,
       model,
     },
     onResponse: async (response) => {
       const stream = response.body
       if (!stream) {
-        console.error('Nenhum stream encontrado na resposta')
         return
       }
 
@@ -122,15 +118,6 @@ export function Chat({ user, initialMessages }: ChatProps) {
             },
           )
         }
-
-        const currentChatId = response.headers.get('X-Chat-Id')
-
-        if (currentChatId && !chatId) {
-          if (!isGhostChatMode) {
-            queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
-            router.push(`/chat/${currentChatId}`)
-          }
-        }
       }
     },
     onFinish: () => {
@@ -139,7 +126,6 @@ export function Chat({ user, initialMessages }: ChatProps) {
   })
 
   const onDeleteMessageChat = (id: string) => {
-    onDeleteMessage(id)
     setMessages((prev) => prev.filter((message) => message.id !== id))
   }
 
@@ -157,7 +143,7 @@ export function Chat({ user, initialMessages }: ChatProps) {
     if (chatInstanceKey && !initialMessages?.length) {
       setMessages([])
     }
-  }, [chatInstanceKey, setMessages, initialMessages])
+  }, [chatInstanceKey, initialMessages])
 
   const onSubmit = async () => {
     if (!chatId && !isGhostChatMode && user) {

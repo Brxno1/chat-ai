@@ -5,6 +5,7 @@ import { Chat } from '@prisma/client'
 import { prisma } from '@/services/database/prisma'
 
 import { errorHandler } from '../route'
+import { generateTitleFromMessages } from '../services/generate-title'
 
 type Role = 'user' | 'assistant'
 
@@ -118,13 +119,18 @@ export async function saveResponseWhenComplete(
     })
 
     if (!originalChatId && messages?.length) {
-      const userMessage =
-        messages.find((msg) => msg.role === 'user')?.content || ''
+      const userMessages = messages
+        .filter((msg) => msg.role === 'user')
+        .map((msg) => msg.content)
+
+      console.log('userMessages', userMessages)
+
+      const title = generateTitleFromMessages(userMessages)
 
       await prisma.chat.update({
         where: { id: chatId },
         data: {
-          title: userMessage.substring(0, 30),
+          title,
         },
       })
     }

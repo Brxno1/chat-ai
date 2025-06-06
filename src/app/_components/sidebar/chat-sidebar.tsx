@@ -87,7 +87,7 @@ export function ChatSidebar({
         </SidebarHeaderTitle>
         <Separator />
       </SidebarHeader>
-      <SidebarContent className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-card">
+      <SidebarContent className="flex h-screen flex-col overflow-hidden bg-card">
         <SidebarGroup className="space-y-2">
           <SidebarLinks
             links={mainLinks}
@@ -101,14 +101,14 @@ export function ChatSidebar({
             <Historical refreshChats={refreshChats} initialData={chats} />
           )}
         </SidebarGroup>
-        <SidebarGroup className="mt-auto space-y-2">
-          {!isMobile && (
-            <SidebarTriggerComponent
-              variant="ghost"
-              className="!border-none group-data-[sidebar=open]/sidebar:hidden"
-            />
-          )}
-        </SidebarGroup>
+        {!isMobile && (
+          <SidebarGroup
+            data-mobile={isMobile}
+            className="mt-auto data-[mobile=true]:flex group-data-[sidebar=open]/sidebar:hidden"
+          >
+            <SidebarTriggerComponent variant="ghost" className="!border-none" />
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="flex w-full items-center justify-center bg-card">
         <UserDropdown user={initialUser} />

@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useChatStore } from '@/store/chat-store'
 import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
@@ -35,6 +36,8 @@ export function Messages({
     isDeleting: false,
     openDropdown: false,
   })
+
+  const { chatIsDeleting } = useChatStore()
 
   const handleCloseComponent = () => {
     setState((prev) => ({ ...prev, openDropdown: false }))
@@ -85,6 +88,7 @@ export function Messages({
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',
+                      'animate-pulse': chatIsDeleting,
                     },
                   )}
                 >
@@ -118,7 +122,7 @@ export function Messages({
                         </CopyTextComponent>
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        disabled={state.isDeleting}
+                        disabled={state.isDeleting || chatIsDeleting}
                         onClick={(ev) =>
                           handleDeleteMessageChat(ev, message.id)
                         }

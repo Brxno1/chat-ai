@@ -36,11 +36,10 @@ export function MainSidebarContent({
   const isActivePath = (path: string) => pathname === path
 
   const { open, isMobile } = useSidebar()
-  const { setChatId, resetChatInstance } = useChatStore()
+  const { resetChatState } = useChatStore()
 
-  const handleClick = () => {
-    setChatId(undefined)
-    resetChatInstance()
+  const handleResetChat = () => {
+    resetChatState()
   }
 
   const mainLinks = [
@@ -48,7 +47,7 @@ export function MainSidebarContent({
       href: '/chat',
       icon: MessageSquare,
       label: 'Chat',
-      onClick: handleClick,
+      onClick: handleResetChat,
     },
     {
       href: '/dashboard',

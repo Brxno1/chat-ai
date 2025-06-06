@@ -1,6 +1,7 @@
 import { Chat as ChatType } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
+import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
@@ -22,13 +23,14 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
 
   const router = useRouter()
   const { chatId: currentChatId } = useParams()
+  const isCurrentChat = currentChatId === chat.id
 
   const {
-    chatId,
-    setChatId,
     resetChatState,
     onDeleteMessage,
-    resetChatInstance,
+    defineChatInstanceKey,
+    setChatId,
+    setChatIsDeleting,
   } = useChatStore()
 
   const { mutateAsync: deleteChatMutation, isPending: isDeleting } =
@@ -38,9 +40,8 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
 
-        if (chatId === chat.id) {
+        if (currentChatId === chat.id) {
           resetChatState()
-          resetChatInstance()
           router.push('/chat')
         }
 
@@ -57,43 +58,48 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
           duration: 1500,
         })
       },
+      onSettled: () => {
+        setChatIsDeleting(false)
+      },
     })
 
-  const handleDeleteChat = async (ev: React.MouseEvent<HTMLButtonElement>) => {
-    ev.stopPropagation()
-
+  const handleDeleteChat = async () => {
+    setChatIsDeleting(true)
     await deleteChatMutation(chat.id)
 
-    if (chatId === chat.id) {
+    if (currentChatId === chat.id) {
       router.push('/chat')
     }
   }
 
-  const handleOpenChat = () => {
+  const handleDefineChatInstanceKey = () => {
+    defineChatInstanceKey(`chat-${chat.id}`)
     setChatId(chat.id)
-    router.push(`/chat/${chat.id}`)
   }
-
-  const isCurrentChat = currentChatId === chat.id
 
   return (
     <div
-      onClick={handleOpenChat}
+      onClick={handleDefineChatInstanceKey}
       className={cn(
-        'relative flex w-full cursor-pointer items-start justify-between rounded-md border px-2 py-1 text-left hover:bg-accent',
-        isDeleting && 'animate-pulse',
-        isCurrentChat &&
-          'cursor-default bg-primary text-primary-foreground hover:bg-primary/90',
+        'relative flex w-full cursor-pointer items-start justify-between rounded-md border p-1 text-left hover:bg-accent',
+        {
+          'animate-pulse': isDeleting,
+          'cursor-default bg-primary text-primary-foreground hover:bg-primary':
+            isCurrentChat,
+        },
       )}
     >
-      <div className="flex flex-col items-start">
+      <Link
+        href={`/chat/${chat.id}`}
+        className={cn('flex flex-1 flex-col items-start')}
+      >
         <TooltipWrapper
           content={chat.title}
           side="right"
           asChild
-          disabled={chat.title!.length <= 18}
+          disabled={chat.title!.length <= 23}
         >
-          <span className="text-sm">{truncateText(chat.title!, 35)}</span>
+          <span className="text-sm">{truncateText(chat.title!, 25)}</span>
         </TooltipWrapper>
         <TooltipWrapper
           content={new Date(chat.createdAt).toLocaleString()}
@@ -104,15 +110,18 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
             {formatDistanceToNow(new Date(chat.createdAt))}
           </span>
         </TooltipWrapper>
-      </div>
+      </Link>
       <Button
         size="icon"
-        variant="ghost"
+        variant="link"
         onClick={handleDeleteChat}
         disabled={isDeleting}
         className={cn(
-          'absolute right-2 top-1/2 -translate-y-1/2 border-none hover:bg-card',
-          isDeleting && 'cursor-not-allowed',
+          'absolute right-2 top-1/2 -translate-y-1/2 border-none transition-all duration-300 hover:bg-accent-foreground hover:text-accent',
+          {
+            'bg-primary text-primary-foreground hover:bg-card hover:text-primary':
+              isCurrentChat,
+          },
         )}
       >
         <Trash2 size={16} />

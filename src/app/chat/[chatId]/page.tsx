@@ -10,7 +10,7 @@ import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
 import { ChatFallback } from '../_components/chat-fallback'
 import { ChatHeader } from '../_components/header'
 
-export default async function ChatPageWithId({
+export async function generateMetadata({
   params,
 }: {
   params: Promise<{ chatId: string }>
@@ -20,9 +20,25 @@ export default async function ChatPageWithId({
 
   const { success, chat } = await getChatById(chatId, session!.user.id)
 
-  if (!success) {
+  if (!success && !chat) {
     redirect('/chat')
   }
+
+  return {
+    title: `Chat - ${chat!.title}`,
+    description: chat?.createdAt.toLocaleDateString('pt-BR'),
+  }
+}
+
+export default async function ChatPageWithId({
+  params,
+}: {
+  params: { chatId: string }
+}) {
+  const { chatId } = params
+  const { session } = await getUserSession()
+
+  const { chat } = await getChatById(chatId, session!.user.id)
 
   return (
     <DashboardPage className="flex h-full w-full max-w-full flex-col">
@@ -31,6 +47,7 @@ export default async function ChatPageWithId({
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<ChatFallback />}>
             <Chat
+              currentChatId={chatId}
               user={session?.user}
               initialMessages={chat!.messages.map((message) => ({
                 id: message.id,
