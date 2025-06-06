@@ -42,6 +42,7 @@ function HistoricalListSkeleton() {
     'h-3 w-32',
     'h-3 w-8',
     'h-3 w-16',
+    'h-3 w-36',
   ]
 
   return (
@@ -49,9 +50,9 @@ function HistoricalListSkeleton() {
       {skeletonSize.map((size, index) => (
         <ContainerWrapper
           key={index}
-          className="relative flex w-full cursor-pointer items-start justify-between rounded-md border px-2 py-2 text-left"
+          className="relative flex w-full cursor-pointer items-start justify-between rounded-md border text-left"
         >
-          <div className="flex flex-col items-start gap-1">
+          <div className="flex flex-col items-start gap-2 p-2">
             <Skeleton className={size} />
             <Skeleton className="h-2 w-12" />
           </div>

@@ -1,8 +1,7 @@
 'use client'
 
 import { Ghost, MessageSquarePlus } from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
-import React from 'react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { SidebarTriggerComponentMobile } from '@/app/_components/sidebar/sidebar-trigger-mobile'
@@ -13,11 +12,9 @@ import { Separator } from '@/components/ui/separator'
 import { useChatStore } from '@/store/chat-store'
 
 function ChatHeader() {
-  const pathname = usePathname()
   const router = useRouter()
 
-  const { onCreateNewChat, isGhostChatMode, setToGhostChatMode, setChatId } =
-    useChatStore()
+  const { isGhostChatMode, setToGhostChatMode, resetChatState } = useChatStore()
 
   const handleGhostChatMode = () => {
     toast('', {
@@ -39,15 +36,9 @@ function ChatHeader() {
   }
 
   const handleCreateNewChat = () => {
-    onCreateNewChat()
+    resetChatState()
     router.push('/chat')
   }
-
-  React.useEffect(() => {
-    if (!pathname.includes('/chat')) {
-      setChatId(undefined)
-    }
-  }, [pathname])
 
   return (
     <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-card pb-[1rem]">

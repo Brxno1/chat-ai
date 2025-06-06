@@ -35,8 +35,6 @@ export async function POST(req: NextRequest) {
       model,
     })
 
-    console.log('stream in server', stream?.toDataStreamResponse())
-
     if (error || !stream) {
       return NextResponse.json(
         {

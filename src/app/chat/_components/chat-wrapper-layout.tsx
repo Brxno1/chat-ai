@@ -1,5 +1,3 @@
-'use client'
-
 import { User } from 'next-auth'
 
 import { ChatSidebar } from '@/app/_components/sidebar/chat-sidebar'

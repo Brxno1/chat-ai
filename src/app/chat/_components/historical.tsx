@@ -52,10 +52,10 @@ function Historical({
         <CollapsibleTrigger asChild>
           <Button
             variant="outline"
-            className="relative w-full justify-start rounded-md text-xs group-data-[sidebar=closed]/sidebar:hidden"
+            className="relative mb-1 w-full justify-start rounded-md group-data-[sidebar=closed]/sidebar:hidden"
           >
             <History size={20} />
-            Histórico de conversas
+            Histórico
             <ChevronRight className="absolute right-2 transition-all duration-300 animate-in group-data-[collapsed=open]/collapsible:rotate-90" />
           </Button>
         </CollapsibleTrigger>
@@ -75,7 +75,7 @@ function Historical({
           </Button>
         </TooltipWrapper>
       </div>
-      <CollapsibleContent className="mt-2 w-full items-center space-y-2 overflow-y-auto rounded-md bg-background px-1.5 py-2 text-center scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-300/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border">
+      <CollapsibleContent className="w-full items-center space-y-2 overflow-y-auto rounded-md bg-background p-2 text-center scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-400/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border">
         <HistoricalList chats={chats!} isLoading={isFetching} />
       </CollapsibleContent>
     </Collapsible>

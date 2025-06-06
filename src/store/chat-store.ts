@@ -24,6 +24,7 @@ interface State {
   model: string
   chatInstanceKey: string
   isRateLimitReached: boolean
+  chatIsDeleting: boolean
 }
 
 interface Actions {
@@ -32,17 +33,17 @@ interface Actions {
   setToGhostChatMode: (mode: boolean) => void
   setMessages: (messages: Message[]) => void
   onDeleteMessage: (id: string) => void
-  onCreateNewChat: () => void
   setModel: (model: string) => void
   resetChatState: () => void
-  resetChatInstance: () => void
   setIsRateLimitReached: (value: boolean) => void
   setChats: (chats: Chats['chats']) => void
+  defineChatInstanceKey: (key: string) => void
+  setChatIsDeleting: (value: boolean) => void
 }
 
 type ChatState = State & Actions
 
-export const useChatStore = create<ChatState>((set, get) => ({
+export const useChatStore = create<ChatState>((set) => ({
   chats: null,
   chatId: undefined,
   isRateLimitReached: false,
@@ -50,7 +51,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isCreatingNewChat: false,
   model: 'gpt-4o-mini',
-  chatInstanceKey: Date.now().toString(),
+  chatInstanceKey: '',
+  chatIsDeleting: false,
 
   setChats: (chats) => set({ chats }),
 
@@ -66,6 +68,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setIsRateLimitReached: (value) => set({ isRateLimitReached: value }),
 
+  defineChatInstanceKey: (key) => set({ chatInstanceKey: key }),
+
   onDeleteMessage: (id) =>
     set((state) => ({
       messages: state.messages.filter((message) => message.id !== id),
@@ -77,18 +81,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       messages: [],
       isCreatingNewChat: false,
       isGhostChatMode: false,
+      chatInstanceKey: '',
     })
   },
-
-  resetChatInstance: () => {
-    set({
-      chatInstanceKey: Date.now().toString(),
-    })
-  },
-
-  onCreateNewChat: () => {
-    const { resetChatState, resetChatInstance } = get()
-    resetChatInstance()
-    resetChatState()
-  },
+  setChatIsDeleting: (value) => set({ chatIsDeleting: value }),
 }))
