@@ -8,7 +8,7 @@ import {
   DashboardPageHeader,
   DashboardPageMain,
 } from '@/components/dashboard'
-import { ComponentSwitchTheme } from '@/components/switch-theme'
+import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { Separator } from '@/components/ui/separator'
 
 import { SidebarTriggerComponentMobile } from '../_components/sidebar/sidebar-trigger-mobile'
@@ -35,7 +35,7 @@ export default async function Page() {
         <div className="mr-2 flex items-center gap-3">
           <TodoCreateForm />
           <Separator orientation="vertical" className="h-4" />
-          <ComponentSwitchTheme />
+          <ToggleTheme />
         </div>
       </DashboardPageHeader>
       <DashboardPageMain>

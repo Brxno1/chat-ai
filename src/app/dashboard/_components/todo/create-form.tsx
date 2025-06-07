@@ -1,5 +1,6 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Todo } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import React from 'react'
@@ -26,7 +27,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { queryKeys, todoInvalidations } from '@/lib/query-client'
+import { queryKeys } from '@/lib/query-client'
 import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
@@ -37,9 +38,10 @@ const schema = z.object({
 type TodoFormData = z.infer<typeof schema>
 
 export function TodoCreateForm() {
-  const { user } = useSessionStore()
-  const queryClient = useQueryClient()
   const [open, setOpen] = React.useState(false)
+  const { user } = useSessionStore()
+
+  const queryClient = useQueryClient()
 
   const form = useForm<TodoFormData>({
     resolver: zodResolver(schema),
@@ -49,25 +51,64 @@ export function TodoCreateForm() {
     },
   })
 
-  const { mutateAsync: createTodoFn, isPending } = useMutation({
+  const {
+    mutateAsync: createTodoFn,
+    isPending,
+    reset: resetCreateTodo,
+  } = useMutation({
     mutationFn: createTodo,
     mutationKey: queryKeys.todoMutations.create,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
 
-      toast(`Tarefa "${variables.title}" criada com sucesso`, {
+    onMutate: async (newTodo) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.todos.all })
+
+      const previousTodos = queryClient.getQueryData(queryKeys.todos.all)
+
+      const optimisticTodo: Todo = {
+        ...newTodo,
+        id: 'temp-id',
+        status: 'PENDING',
+        completed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        doneAt: null,
+        cancelledAt: null,
+        userId: user!.id!,
+      }
+
+      queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[]) => [
+        optimisticTodo,
+        ...oldTodos,
+      ])
+
+      return { previousTodos }
+    },
+
+    onSuccess: (data) => {
+      // queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[]) => [
+      //   ...oldTodos.filter((todo) => todo.id !== 'temp-id'),
+      //   data.todo,
+      // ])
+
+      toast(`Tarefa "${data.todo.title}" criada com sucesso`, {
         position: 'top-center',
         duration: 2000,
       })
-      form.reset()
+      resetCreateTodo()
       setOpen(false)
     },
-    onError: (_error, variables) => {
-      toast.error(`Erro ao criar a tarefa "${variables.title}"`, {
+    onError: (_error, data, context) => {
+      queryClient.setQueryData(queryKeys.todos.all, context?.previousTodos)
+
+      toast.error(`Erro ao criar a tarefa "${data.title}"`, {
         position: 'top-center',
         duration: 2000,
       })
-      form.reset()
+    },
+    onSettled: () => {
+      // queryClient.invalidateQueries({
+      //   queryKey: queryKeys.todos.all,
+      // })
     },
   })
 

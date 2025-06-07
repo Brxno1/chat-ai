@@ -29,7 +29,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { queryKeys, todoInvalidations } from '@/lib/query-client'
+import { queryKeys } from '@/lib/query-client'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({
@@ -73,7 +73,9 @@ function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateProps) {
     mutationFn: updateTodoAction,
     mutationKey: queryKeys.todoMutations.update,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.todos.all,
+      })
       toast(`Tarefa "${variables.title}" atualizada com sucesso`, {
         duration: 2000,
         position: 'top-center',

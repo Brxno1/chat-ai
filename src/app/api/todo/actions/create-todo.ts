@@ -4,7 +4,7 @@ import { Todo } from '@prisma/client'
 
 import { prisma } from '@/services/database/prisma'
 
-type TodoData = {
+type TodoDataProps = {
   title: string
   id: string
 }
@@ -17,7 +17,7 @@ type CreateTodoResponse = {
 export async function createTodoAction({
   title,
   id,
-}: TodoData): Promise<CreateTodoResponse> {
+}: TodoDataProps): Promise<CreateTodoResponse> {
   try {
     const todo = await prisma.todo.create({
       data: {

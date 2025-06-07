@@ -27,6 +27,8 @@ export const queryKeys = {
     create: ['create-todo'] as const,
     update: ['update-todo'] as const,
     delete: ['delete-todo'] as const,
+    deleteById: (id: string) =>
+      [...queryKeys.todoMutations.delete, id] as const,
     markAsDone: ['mark-todo-done'] as const,
     cancel: ['cancel-todo'] as const,
   },
@@ -58,6 +60,7 @@ export const queryKeys = {
 export const todoInvalidations = {
   all: () => queryKeys.todos.all,
   lists: () => queryKeys.todos.lists(),
+  detail: (id: string) => queryKeys.todos.detail(id),
 }
 
 export const chatInvalidations = {

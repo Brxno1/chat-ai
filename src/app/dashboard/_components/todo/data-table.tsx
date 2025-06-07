@@ -27,7 +27,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -40,10 +39,6 @@ import { queryKeys } from '@/lib/query-client'
 import { cn } from '@/utils/utils'
 
 import { columns } from './columns'
-import {
-  SkeletonTableBodyFallback,
-  TableHeaderFallback,
-} from './data-table-fallback'
 
 interface SelectionTextProps {
   table: TableInstance<Todo>
@@ -79,6 +74,7 @@ export function TodoDataTable({
   const {
     data: todos,
     isFetching,
+    isLoading,
     refetch,
   } = useSuspenseQuery({
     queryKey: queryKeys.todos.all,
@@ -163,7 +159,7 @@ export function TodoDataTable({
             </div>
             <Button
               onClick={handleRefreshTodos}
-              disabled={isFetching}
+              disabled={isFetching || isLoading}
               variant="outline"
               className={cn('w-[8rem] gap-2', isFetching && 'animate-pulse')}
             >
@@ -171,7 +167,11 @@ export function TodoDataTable({
                 size={16}
                 className={cn(isFetching && 'animate-spin')}
               />
-              {isFetching ? 'Atualizando...' : 'Atualizar'}
+              {isLoading
+                ? 'Atualizar'
+                : isFetching
+                  ? 'Atualizando...'
+                  : 'Atualizar'}
             </Button>
           </div>
           <DropdownMenu>
@@ -179,7 +179,7 @@ export function TodoDataTable({
               <Button
                 variant="outline"
                 className="ml-auto"
-                disabled={isFetching}
+                disabled={isFetching || isLoading}
               >
                 Colunas <ChevronDown />
               </Button>
@@ -207,54 +207,43 @@ export function TodoDataTable({
 
       <Table className="min-w-[75rem]">
         <TableHeader>
-          {isFetching ? (
-            <TableRow>
-              {TableHeaderFallback().map((fallback, index) => (
-                <TableHead key={index} className="text-center">
-                  {fallback.component}
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className={cn('text-center')}>
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),
+                  )}
                 </TableHead>
               ))}
             </TableRow>
-          ) : (
-            table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className={cn('text-center')}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))
-          )}
+          ))}
         </TableHeader>
         <TableBody>
-          {isFetching ? (
-            <SkeletonTableBodyFallback />
-          ) : (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className={'text-center'}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          )}
+          {table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && 'selected'}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell
+                  key={cell.id}
+                  className={cn('text-center', {
+                    'animate-pulse': cell.id === 'temp-id',
+                  })}
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
       <div className="overflow-x-auto">
         <ContainerWrapper className="flex flex-wrap items-center justify-between gap-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            {isFetching ? (
-              <Skeleton className="h-5 w-40" />
-            ) : hasTodos ? (
+            {hasTodos ? (
               <SelectionText table={table} />
             ) : (
               <p className="text-center text-muted-foreground">
