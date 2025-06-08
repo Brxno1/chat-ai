@@ -13,7 +13,7 @@ interface SidebarNavItem {
 }
 
 interface SidebarLinksProps {
-  links: SidebarNavItem[]
+  link: SidebarNavItem
   className?: string
   isActiveLink: (path: string) => boolean
   sideOffset?: number
@@ -21,38 +21,34 @@ interface SidebarLinksProps {
 }
 
 export function SidebarLinks({
-  links,
+  link,
   isActiveLink,
   sideOffset,
   open = true,
 }: SidebarLinksProps) {
   return (
-    <>
-      {links.map((link) => (
-        <TooltipWrapper
-          key={link.href}
-          content={link.label}
-          side="right"
-          disableHoverableContent
-          disabled={open}
-          sideOffset={sideOffset}
-          asChild
+    <TooltipWrapper
+      key={link.href}
+      content={link.label}
+      side="right"
+      disableHoverableContent
+      disabled={open}
+      sideOffset={sideOffset}
+      asChild
+    >
+      <div>
+        <SidebarNavLink
+          href={link.href}
+          active={isActiveLink(link.href)}
+          onClick={link.onClick}
+          className="group-data-[sidebar=closed]/sidebar:flex group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=open]/sidebar:gap-2 group-data-[sidebar=open]/sidebar:pl-3"
         >
-          <div>
-            <SidebarNavLink
-              href={link.href}
-              active={isActiveLink(link.href)}
-              onClick={link.onClick}
-              className="group-data-[sidebar=closed]/sidebar:flex group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=open]/sidebar:gap-2 group-data-[sidebar=open]/sidebar:pl-3"
-            >
-              <link.icon size={20} />
-              <span className="group-data-[sidebar=open]/sidebar:block group-data-[sidebar=closed]/sidebar:hidden">
-                {link.label}
-              </span>
-            </SidebarNavLink>
-          </div>
-        </TooltipWrapper>
-      ))}
-    </>
+          <link.icon size={20} />
+          <span className="group-data-[sidebar=open]/sidebar:block group-data-[sidebar=closed]/sidebar:hidden">
+            {link.label}
+          </span>
+        </SidebarNavLink>
+      </div>
+    </TooltipWrapper>
   )
 }

@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-import { useSessionStore } from '@/store/user-store'
+import { useUser } from '@/context/user-provider'
 
 export default function NotFound() {
-  const { user } = useSessionStore()
+  const { user } = useUser()
   const router = useRouter()
 
   useEffect(() => {

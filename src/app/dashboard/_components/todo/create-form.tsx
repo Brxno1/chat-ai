@@ -27,8 +27,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
-import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({
@@ -39,7 +39,7 @@ type TodoFormData = z.infer<typeof schema>
 
 export function TodoCreateForm() {
   const [open, setOpen] = React.useState(false)
-  const { user } = useSessionStore()
+  const { user } = useUser()
 
   const queryClient = useQueryClient()
 
@@ -51,18 +51,15 @@ export function TodoCreateForm() {
     },
   })
 
-  const {
-    mutateAsync: createTodoFn,
-    isPending,
-    reset: resetCreateTodo,
-  } = useMutation({
+  const { mutateAsync: createTodoFn, isPending } = useMutation({
     mutationFn: createTodo,
     mutationKey: queryKeys.todoMutations.create,
 
     onMutate: async (newTodo) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.todos.all })
 
-      const previousTodos = queryClient.getQueryData(queryKeys.todos.all)
+      const previousTodos: Todo[] =
+        queryClient.getQueryData(queryKeys.todos.all) || []
 
       const optimisticTodo: Todo = {
         ...newTodo,
@@ -84,17 +81,16 @@ export function TodoCreateForm() {
       return { previousTodos }
     },
 
-    onSuccess: (data) => {
-      // queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[]) => [
-      //   ...oldTodos.filter((todo) => todo.id !== 'temp-id'),
-      //   data.todo,
-      // ])
+    onSuccess: ({ todo }) => {
+      queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[]) => [
+        todo,
+        ...oldTodos.filter((todo) => todo.id !== 'temp-id'),
+      ])
 
-      toast(`Tarefa "${data.todo.title}" criada com sucesso`, {
+      toast(`Tarefa "${todo.title}" criada com sucesso`, {
         position: 'top-center',
         duration: 2000,
       })
-      resetCreateTodo()
       setOpen(false)
     },
     onError: (_error, data, context) => {
@@ -106,15 +102,12 @@ export function TodoCreateForm() {
       })
     },
     onSettled: () => {
-      // queryClient.invalidateQueries({
-      //   queryKey: queryKeys.todos.all,
-      // })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.todos.all,
+      })
+      form.reset()
     },
   })
-
-  React.useEffect(() => {
-    open ? form.setFocus('title') : form.reset()
-  }, [open, form])
 
   async function handleCreateTodo(data: TodoFormData) {
     await createTodoFn({ title: data.title })

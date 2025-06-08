@@ -1,5 +1,6 @@
 'use server'
 
+import { Todo } from '@prisma/client'
 import { z } from 'zod'
 
 import { prisma } from '@/services/database/prisma'
@@ -18,26 +19,31 @@ const updateTodoSchema = z.object({
 
 type UpdateTodoActionProps = z.infer<typeof updateTodoSchema>
 
+type UpdateTodoActionResponse = {
+  todo: Todo | null
+  success: boolean
+  error?: string
+}
+
 export async function updateTodoAction({
   userId,
   id,
   title,
-}: UpdateTodoActionProps) {
+}: UpdateTodoActionProps): Promise<UpdateTodoActionResponse> {
   try {
     const validatedData = updateTodoSchema.parse({ id, title, userId })
 
     const updatedTodo = await prisma.todo.update({
       where: { id: validatedData.id, userId: validatedData.userId },
       data: { title: validatedData.title },
-      select: { id: true, title: true },
     })
 
     return { success: true, todo: updatedTodo }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: error.message }
+      return { success: false, error: error.message, todo: null }
     }
 
-    return { success: false, error: 'Error updating todo' }
+    return { success: false, error: 'Error updating todo', todo: null }
   }
 }

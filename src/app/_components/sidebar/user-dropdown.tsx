@@ -10,7 +10,6 @@ import {
   UserPlus,
 } from 'lucide-react'
 import Link from 'next/link'
-import { User } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import React from 'react'
 import { toast } from 'sonner'
@@ -25,17 +24,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useUser } from '@/context/user-provider'
 import { truncateText } from '@/utils/truncate-text'
 
 import { EditProfile } from '../../dashboard/_components/profile/edit-profile'
 
-function UserDropdown({ user }: { user: User }) {
+function UserDropdown() {
   const [open, setOpen] = React.useState(false)
+
+  const { user } = useUser()
 
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: async () => {
       await signOut({
-        redirectTo: `/auth?mode=login&name=${user.name}`,
+        redirectTo: `/auth?mode=login&name=${user?.name}`,
       })
     },
     onSuccess: () => {
@@ -91,7 +93,7 @@ function UserDropdown({ user }: { user: User }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="z-50 mb-5 w-56" align="center">
-        <DropdownMenuGroup className="flex items-center justify-between font-normal">
+        <DropdownMenuGroup className="flex w-full items-center justify-between font-normal">
           <DropdownMenuItem className="flex flex-1 cursor-default flex-col items-start">
             <span className="text-sm font-medium leading-none">
               {truncateText(user?.name || '', 20)}
@@ -100,7 +102,7 @@ function UserDropdown({ user }: { user: User }) {
               {user?.email}
             </span>
           </DropdownMenuItem>
-          <EditProfile user={user} className="mr-1" />
+          <EditProfile className="mr-1" />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -141,7 +143,8 @@ function NotFoundUserDropdown() {
     <Link href="/auth" className="w-full">
       <Button
         variant="secondary"
-        className="mb-px flex w-full items-center justify-center rounded-md"
+        size="lg"
+        className="mb-px flex w-full items-center justify-center rounded-lg p-4"
       >
         <UserPlus size={20} />
         <span className="group-data-[sidebar=closed]/sidebar:hidden">

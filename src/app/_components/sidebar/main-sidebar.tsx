@@ -2,7 +2,6 @@
 
 import { LayoutDashboard, MessageSquare, Settings } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { User } from 'next-auth'
 
 import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
@@ -24,14 +23,10 @@ import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
 import { UserDropdown } from './user-dropdown'
 
 type ChatSidebarProps = {
-  initialUser: User
   className?: string
 }
 
-export function MainSidebarContent({
-  initialUser,
-  className,
-}: ChatSidebarProps) {
+export function MainSidebarContent({ className }: ChatSidebarProps) {
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname === path
 
@@ -88,11 +83,14 @@ export function MainSidebarContent({
       </SidebarHeader>
       <SidebarContent className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-card">
         <SidebarGroup className="space-y-2">
-          <SidebarLinks
-            links={mainLinks}
-            isActiveLink={isActivePath}
-            open={open || isMobile}
-          />
+          {mainLinks.map((link) => (
+            <SidebarLinks
+              key={link.href}
+              link={link}
+              isActiveLink={isActivePath}
+              open={open || isMobile}
+            />
+          ))}
         </SidebarGroup>
         <Separator className="group-data-[sidebar=closed]/sidebar:hidden" />
         <SidebarGroup className="mt-auto space-y-2">
@@ -105,7 +103,7 @@ export function MainSidebarContent({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="flex w-full items-center justify-center bg-card">
-        <UserDropdown user={initialUser} />
+        <UserDropdown />
       </SidebarFooter>
     </Sidebar>
   )

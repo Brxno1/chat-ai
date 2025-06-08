@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useChatStore } from '@/store/chat-store'
+import { formatDateToLocaleWithHour } from '@/utils/format'
 import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
@@ -147,10 +148,7 @@ export function Messages({
                     },
                   )}
                 >
-                  {new Intl.DateTimeFormat('pt-BR', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }).format(new Date(message.createdAt!))}
+                  {formatDateToLocaleWithHour(new Date(message.createdAt!))}
                 </Badge>
               </ContainerWrapper>
             )

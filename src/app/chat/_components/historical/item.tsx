@@ -7,18 +7,20 @@ import { toast } from 'sonner'
 
 import { deleteChatById } from '@/app/(http)/chat/delete-chat'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
-import { formatDistanceToNow } from '@/utils/format'
+import { formatDateToLocale, formatDistanceToNow } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
 type HistoricalItemProps = {
   chat: ChatType
+  isLoading: boolean
 }
 
-export function HistoricalItem({ chat }: HistoricalItemProps) {
+export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
   const queryClient = useQueryClient()
 
   const router = useRouter()
@@ -78,20 +80,24 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
   }
 
   return (
-    <div
+    <Badge
       onClick={handleDefineChatInstanceKey}
+      variant={'chat'}
       className={cn(
-        'relative flex w-full cursor-pointer items-start justify-between rounded-md border p-1 text-left hover:bg-accent',
+        'relative flex w-full cursor-pointer items-start justify-between rounded-md p-1 text-left',
         {
           'animate-pulse': isDeleting,
-          'cursor-default bg-primary text-primary-foreground hover:bg-primary':
+          'opacity-50': isLoading,
+          'cursor-default bg-secondary-foreground/15 hover:bg-secondary-foreground/15':
             isCurrentChat,
         },
       )}
     >
       <Link
         href={`/chat/${chat.id}`}
-        className={cn('flex flex-1 flex-col items-start')}
+        className={cn('flex flex-1 flex-col items-start', {
+          'cursor-default': isCurrentChat,
+        })}
       >
         <TooltipWrapper
           content={chat.title}
@@ -99,10 +105,16 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
           asChild
           disabled={chat.title!.length <= 23}
         >
-          <span className="text-sm">{truncateText(chat.title!, 25)}</span>
+          <span
+            className={cn('text-xs', {
+              'text-accent-foreground': isCurrentChat,
+            })}
+          >
+            {truncateText(chat.title!, 25)}
+          </span>
         </TooltipWrapper>
         <TooltipWrapper
-          content={new Date(chat.createdAt).toLocaleString()}
+          content={formatDateToLocale(new Date(chat.createdAt))}
           side="right"
           asChild
         >
@@ -116,16 +128,10 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
         variant="link"
         onClick={handleDeleteChat}
         disabled={isDeleting}
-        className={cn(
-          'absolute right-2 top-1/2 -translate-y-1/2 border-none transition-all duration-300 hover:bg-accent-foreground hover:text-accent',
-          {
-            'bg-primary text-primary-foreground hover:bg-card hover:text-primary':
-              isCurrentChat,
-          },
-        )}
+        className="absolute right-2 top-1/2 -translate-y-1/2 border-none transition-all duration-300 hover:bg-background"
       >
         <Trash2 size={16} />
       </Button>
-    </div>
+    </Badge>
   )
 }

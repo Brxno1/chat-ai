@@ -10,6 +10,38 @@ import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
 import { ChatFallback } from '../_components/chat-fallback'
 import { ChatHeader } from '../_components/header'
 
+export default async function ChatPageWithId({
+  params,
+}: {
+  params: Promise<{ chatId: string }>
+}) {
+  const { chatId } = await params
+  const { session } = await getUserSession()
+
+  const { chat } = await getChatById(chatId, session!.user.id)
+
+  return (
+    <DashboardPage className="flex h-full w-full max-w-full flex-col">
+      <ChatHeader />
+      <DashboardPageMain>
+        <ContainerWrapper className="h-full min-h-0 flex-1">
+          <Suspense fallback={<ChatFallback />}>
+            <Chat
+              currentChatId={chatId}
+              initialMessages={chat!.messages.map((message) => ({
+                id: message.id,
+                role: message.role.toLowerCase() as 'user' | 'assistant',
+                content: message.content,
+                createdAt: message.createdAt,
+              }))}
+            />
+          </Suspense>
+        </ContainerWrapper>
+      </DashboardPageMain>
+    </DashboardPage>
+  )
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -28,37 +60,4 @@ export async function generateMetadata({
     title: `Chat - ${chat!.title}`,
     description: chat?.createdAt.toLocaleDateString('pt-BR'),
   }
-}
-
-export default async function ChatPageWithId({
-  params,
-}: {
-  params: { chatId: string }
-}) {
-  const { chatId } = params
-  const { session } = await getUserSession()
-
-  const { chat } = await getChatById(chatId, session!.user.id)
-
-  return (
-    <DashboardPage className="flex h-full w-full max-w-full flex-col">
-      <ChatHeader />
-      <DashboardPageMain>
-        <ContainerWrapper className="h-full min-h-0 flex-1">
-          <Suspense fallback={<ChatFallback />}>
-            <Chat
-              currentChatId={chatId}
-              user={session?.user}
-              initialMessages={chat!.messages.map((message) => ({
-                id: message.id,
-                role: message.role.toLowerCase() as 'user' | 'assistant',
-                content: message.content,
-                createdAt: message.createdAt,
-              }))}
-            />
-          </Suspense>
-        </ContainerWrapper>
-      </DashboardPageMain>
-    </DashboardPage>
-  )
 }

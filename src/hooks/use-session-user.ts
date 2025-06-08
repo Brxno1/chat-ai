@@ -6,7 +6,7 @@ export const useSessionUser = () => {
   const context = useContext(UserContext)
 
   if (!context) {
-    throw new Error('useSessionUser must be used within a UserProvider')
+    throw new Error('useSessionUser must be used within a UserChatProvider')
   }
 
   return context

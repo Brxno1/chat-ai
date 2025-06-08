@@ -69,30 +69,88 @@ function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateProps) {
     },
   })
 
-  const { mutateAsync: updateTodoFn, isPending: isUpdating } = useMutation({
-    mutationFn: updateTodoAction,
-    mutationKey: queryKeys.todoMutations.update,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.todos.all,
-      })
-      toast(`Tarefa "${variables.title}" atualizada com sucesso`, {
-        duration: 2000,
-        position: 'top-center',
-      })
-      form.reset()
-      onCloseDropdown()
-    },
-    onError: (error) => {
-      toast.warning(error.message, {
-        duration: 2000,
-        position: 'top-center',
-      })
-    },
-  })
+  const { mutateAsync: todoUpdateMutation, isPending: isUpdating } =
+    useMutation({
+      mutationFn: updateTodoAction,
+      mutationKey: queryKeys.todoMutations.update,
+
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries({
+          queryKey: queryKeys.todos.detail(variables.id),
+        })
+
+        let previousTodo: Todo | undefined = queryClient.getQueryData(
+          queryKeys.todos.detail(variables.id),
+        )
+
+        if (!previousTodo) {
+          const allTodos: Todo[] =
+            queryClient.getQueryData(queryKeys.todos.all) || []
+          previousTodo = allTodos.find((t) => t.id === variables.id)
+        }
+
+        /* eslint-disable */
+        const optimisticTodo: Todo = previousTodo
+          ? {
+            ...previousTodo,
+            title: variables.title,
+            updatedAt: new Date(),
+          }
+          : {
+            ...todo,
+            title: variables.title,
+            updatedAt: new Date(),
+          }
+        /* eslint-enable */
+
+        queryClient.setQueryData(
+          queryKeys.todos.detail(variables.id),
+          optimisticTodo,
+        )
+
+        queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[] = []) =>
+          oldTodos.map((t) => (t.id === variables.id ? optimisticTodo : t)),
+        )
+
+        return { previousTodo }
+      },
+      onSuccess: (data, variables) => {
+        if (data?.todo) {
+          queryClient.setQueryData(
+            queryKeys.todos.detail(variables.id),
+            data.todo,
+          )
+
+          toast(`Tarefa "${data.todo!.title}" atualizada com sucesso`, {
+            duration: 2000,
+            position: 'top-center',
+          })
+          onCloseDropdown()
+        }
+      },
+      onError: (_error, variables, context) => {
+        queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[] = []) =>
+          oldTodos.map((todo) =>
+            todo.id === variables.id ? context?.previousTodo || todo : todo,
+          ),
+        )
+
+        toast.warning(`Erro ao atualizar a tarefa "${variables.title}"`, {
+          duration: 2000,
+          position: 'top-center',
+        })
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.todos.all,
+        })
+
+        form.reset()
+      },
+    })
 
   async function onUpdateTodo(data: z.infer<typeof schema>) {
-    await updateTodoFn({
+    await todoUpdateMutation({
       userId: todo.userId,
       id: todo.id,
       title: data.title,

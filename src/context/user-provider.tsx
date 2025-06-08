@@ -1,23 +1,52 @@
 'use client'
 
-import { Session } from 'next-auth'
-import { createContext, ReactNode } from 'react'
+import { Session, User } from 'next-auth'
+import { createContext, ReactNode, useContext } from 'react'
+
+import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 
 type UserContextType = {
-  user: Session['user'] | null
+  session: Session | null
+  user: User | undefined
+  chats?: ChatWithMessages[]
+  refreshChats?: () => Promise<ChatWithMessages[]>
 }
 
 export const UserContext = createContext<UserContextType>({
-  user: null,
+  session: null,
+  user: undefined,
+  chats: [],
+  refreshChats: async () => [],
 })
 
-type UserProviderProps = {
+type UserChatProviderProps = {
   children: ReactNode
-  user: Session['user'] | null
+  session: Session | null
+  user: User | undefined
+  chats?: ChatWithMessages[]
+  refreshChats?: () => Promise<ChatWithMessages[]>
 }
 
-export function UserProvider({ children, user }: UserProviderProps) {
+export function UserChatProvider({
+  children,
+  session,
+  user,
+  chats = [],
+  refreshChats = async () => [],
+}: UserChatProviderProps) {
   return (
-    <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
+    <UserContext.Provider value={{ session, user, chats, refreshChats }}>
+      {children}
+    </UserContext.Provider>
   )
+}
+
+export function useUser() {
+  const context = useContext(UserContext)
+
+  if (!context) {
+    throw new Error('useUser must be used within a UserChatProvider')
+  }
+
+  return context
 }
