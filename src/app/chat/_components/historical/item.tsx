@@ -84,7 +84,7 @@ export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
       onClick={handleDefineChatInstanceKey}
       variant={'chat'}
       className={cn(
-        'relative flex w-full cursor-pointer items-start justify-between rounded-md p-1 text-left',
+        'relative flex w-full cursor-pointer items-start justify-between rounded-md bg-card p-1 text-left',
         {
           'animate-pulse': isDeleting,
           'opacity-50': isLoading,

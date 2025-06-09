@@ -1,6 +1,16 @@
 export const models = [
-  { id: 'gpt-4o-mini', name: 'gpt-4o mini', provider: 'openai.com' },
-  { id: 'gpt-4', name: 'gpt-4', provider: 'openai.com', disabled: true },
+  {
+    id: 'gpt-4o-mini',
+    name: 'gpt-4o mini',
+    provider: 'openai.com',
+    disabled: false,
+  },
+  {
+    id: 'gpt-4',
+    name: 'gpt-4',
+    provider: 'openai.com',
+    disabled: true,
+  },
   {
     id: 'gpt-3.5-turbo',
     name: 'gpt-3.5 Turbo',
@@ -19,7 +29,12 @@ export const models = [
     provider: 'anthropic.com',
     disabled: true,
   },
-  { id: 'palm-2', name: 'PaLM 2', provider: 'google.com', disabled: true },
+  {
+    id: 'palm-2',
+    name: 'PaLM 2',
+    provider: 'google.com',
+    disabled: true,
+  },
   {
     id: 'llama-2-70b',
     name: 'Llama 2 70B',

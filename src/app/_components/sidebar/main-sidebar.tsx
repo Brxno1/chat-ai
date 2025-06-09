@@ -63,7 +63,7 @@ export function MainSidebarContent({ className }: ChatSidebarProps) {
       side="left"
       data-sidebar={open ? 'open' : 'closed'}
     >
-      <SidebarHeader className="w-full bg-card px-0">
+      <SidebarHeader className="w-full !border-r-0 bg-card px-0">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5 group-data-[sidebar=closed]/sidebar:py-2.5">
           <Logo className="mx-auto group-data-[sidebar=open]/sidebar:ml-2" />
           {isMobile ? (
@@ -79,9 +79,9 @@ export function MainSidebarContent({ className }: ChatSidebarProps) {
             />
           )}
         </SidebarHeaderTitle>
-        <Separator />
       </SidebarHeader>
-      <SidebarContent className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-card">
+      <Separator />
+      <SidebarContent className="flex flex-col overflow-hidden bg-card">
         <SidebarGroup className="space-y-2">
           {mainLinks.map((link) => (
             <SidebarLinks
@@ -92,15 +92,14 @@ export function MainSidebarContent({ className }: ChatSidebarProps) {
             />
           ))}
         </SidebarGroup>
-        <Separator className="group-data-[sidebar=closed]/sidebar:hidden" />
-        <SidebarGroup className="mt-auto space-y-2">
-          {!isMobile && (
+        {!isMobile && (
+          <SidebarGroup className="mt-auto data-[mobile=true]:flex group-data-[sidebar=open]/sidebar:hidden">
             <SidebarTriggerComponent
               variant="ghost"
               className="!border-none group-data-[sidebar=open]/sidebar:hidden"
             />
-          )}
-        </SidebarGroup>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="flex w-full items-center justify-center bg-card">
         <UserDropdown />

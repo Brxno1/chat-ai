@@ -55,6 +55,11 @@ export const queryKeys = {
     profile: () => [...queryKeys.user.all, 'profile'] as const,
     session: () => [...queryKeys.user.all, 'session'] as const,
   },
+
+  profile: {
+    all: ['profile'] as const,
+    update: () => [...queryKeys.profile.all, 'update'] as const,
+  },
 } as const
 
 export const todoInvalidations = {
@@ -66,4 +71,9 @@ export const todoInvalidations = {
 export const chatInvalidations = {
   all: () => queryKeys.chats.all,
   lists: () => queryKeys.chats.lists(),
+}
+
+export const profileInvalidations = {
+  all: () => queryKeys.profile.all,
+  update: () => queryKeys.profile.update(),
 }

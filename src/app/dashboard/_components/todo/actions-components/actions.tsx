@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { UpdateTodo } from '../update-form'
+import { UpdateTodo } from './update-todo'
 import { CancelTodo } from './cancel-todo'
 import { DeleteTodo } from './delete-todo'
 import { MarkTodoAsDone } from './todo-as-done'

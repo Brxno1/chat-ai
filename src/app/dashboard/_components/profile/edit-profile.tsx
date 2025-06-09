@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { UserPen } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -34,6 +33,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useUser } from '@/context/user-provider'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
+import { queryKeys } from '@/lib/query-client'
 import { updateProfileSchema } from '@/schemas'
 import { cn } from '@/utils/utils'
 
@@ -45,14 +45,12 @@ interface EditProfileProps {
 }
 
 export function EditProfile({ className }: EditProfileProps) {
-  const { user } = useUser()
+  const { user, setUserData } = useUser()
 
   if (!user) return null
 
   const id = React.useId()
   const [open, setOpen] = React.useState(false)
-
-  const router = useRouter()
 
   const { update } = useSession()
 
@@ -69,19 +67,50 @@ export function EditProfile({ className }: EditProfileProps) {
 
   const { mutateAsync: updateProfileFn } = useMutation({
     mutationFn: updateProfile,
+    mutationKey: queryKeys.profile.update(),
+
+    onMutate: async (formData) => {
+      const previousUser = { ...user }
+
+      const name = formData.get('name') as string
+      const bio = formData.get('bio') as string
+      const avatar = formData.get('avatar') as File | null
+      const background = formData.get('background') as File | null
+
+      setUserData((prev) => {
+        if (!prev) return user
+
+        return {
+          ...prev,
+          name: name || prev.name,
+          bio: bio || prev.bio,
+          image: avatar ? URL.createObjectURL(avatar) : prev.image,
+          background: background
+            ? URL.createObjectURL(background)
+            : prev.background,
+        }
+      })
+
+      return { previousUser }
+    },
+
     onSuccess: async (data) => {
       await update({
         trigger: 'update',
         data,
       })
 
-      toast('Perfil atualizado com sucesso!', {
+      toast.success('Perfil atualizado com sucesso!', {
         duration: 3000,
         position: 'top-center',
       })
-      router.refresh()
+
+      setOpen(false)
     },
-    onError: () => {
+
+    onError: (_error, _variables, context) => {
+      setUserData(context?.previousUser ?? user)
+
       toast.error('Erro ao atualizar perfil', {
         duration: 3000,
         position: 'top-center',
