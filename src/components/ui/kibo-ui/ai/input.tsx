@@ -196,7 +196,7 @@ export const AIButtonSubmit = ({
     type="submit"
     variant={variant}
     size={size}
-    className={cn('gap-1.5 rounded-lg rounded-br-xl', className)}
+    className={cn('gap-1.5 rounded-lg', className)}
     {...props}
   />
 );
@@ -217,7 +217,7 @@ export const AIInputModelSelectTrigger = ({
 }: AIInputModelSelectTriggerProps) => (
   <SelectTrigger
     className={cn(
-      'border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors',
+      'bg-transparent font-medium text-muted-foreground shadow-none transition-colors',
       'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground',
       className
     )}

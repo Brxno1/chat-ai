@@ -2,11 +2,11 @@
 
 import { Message } from 'ai'
 import { ChevronDown, Trash } from 'lucide-react'
-import { User } from 'next-auth'
 import { useState } from 'react'
 
 import { ContainerWrapper } from '@/components/container'
 import { CopyTextComponent } from '@/components/copy-text-component'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
@@ -14,21 +14,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useUser } from '@/context/user-provider'
 import { useChatStore } from '@/store/chat-store'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { formatTextWithStrong } from '@/utils/format-text-strong'
 import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
+import { models } from './models'
+
 interface MessageProps {
-  user: User | undefined
   message: Message
   modelName: string
   onDeleteMessageChat: (id: string) => void
 }
 
 export function Messages({
-  user,
   message,
   modelName,
   onDeleteMessageChat,
@@ -37,6 +38,8 @@ export function Messages({
     isDeleting: false,
     openDropdown: false,
   })
+
+  const { user } = useUser()
 
   const { chatIsDeleting } = useChatStore()
 
@@ -61,19 +64,36 @@ export function Messages({
   return (
     <div key={`${message.id}-${new Date()}`} className="flex w-full flex-col">
       <div
-        className={cn(
-          'mb-1 flex w-fit max-w-md items-center justify-center gap-2 rounded-md',
-          {
-            'ml-auto': message.role === 'user',
-            'mr-auto': message.role === 'assistant',
-          },
-        )}
+        className={cn('mb-1 flex w-fit items-center justify-center gap-1', {
+          'ml-auto': message.role === 'user',
+          'mr-auto': message.role === 'assistant',
+        })}
       >
-        <Badge className="bg-transparent text-sm font-semibold text-muted-foreground hover:bg-transparent">
-          {['user'].includes(message.role)
-            ? truncateText(user?.name ?? '', 20)
-            : modelName}
-        </Badge>
+        {message.role === 'user' ? (
+          <>
+            <Badge className="bg-transparent p-0 text-sm text-muted-foreground hover:bg-transparent">
+              {truncateText(user?.name ?? '', 20)}
+            </Badge>
+            <Avatar className="mb-1 size-5 rounded-md">
+              <AvatarImage src={user?.image ?? ''} />
+              <AvatarFallback className="rounded-md">
+                {user?.name?.slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+          </>
+        ) : (
+          <>
+            <Avatar className="mb-1 size-5 rounded-md">
+              <AvatarImage
+                src={`https://img.logo.dev/${models[0].provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+              />
+              <AvatarFallback className="rounded-md">AI</AvatarFallback>
+            </Avatar>
+            <Badge className="bg-transparent p-0 text-sm text-muted-foreground hover:bg-transparent">
+              {modelName}
+            </Badge>
+          </>
+        )}
       </div>
       {message.parts?.map((part) => {
         switch (part.type) {
@@ -153,25 +173,7 @@ export function Messages({
               </ContainerWrapper>
             )
           default:
-            return (
-              <ContainerWrapper
-                key={`${message.id}-${new Date()}`}
-                className="flex w-full flex-col"
-              >
-                <div
-                  className={cn(
-                    'group flex max-w-[17rem] items-center justify-center text-wrap rounded-md border bg-message p-1.5 text-left transition-all sm:max-w-[24rem] sm:text-justify md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
-                    {
-                      'mr-auto': message.role === 'assistant',
-                    },
-                  )}
-                >
-                  <p className="text-sm text-red-500">
-                    Ocorreu um erro ao processar a mensagem.
-                  </p>
-                </div>
-              </ContainerWrapper>
-            )
+            return null
         }
       })}
     </div>

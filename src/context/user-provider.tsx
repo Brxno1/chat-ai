@@ -1,7 +1,7 @@
 'use client'
 
 import { Session, User } from 'next-auth'
-import { createContext, ReactNode, useContext } from 'react'
+import { createContext, ReactNode, useContext, useState } from 'react'
 
 import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 
@@ -10,6 +10,7 @@ type UserContextType = {
   user: User | undefined
   chats?: ChatWithMessages[]
   refreshChats?: () => Promise<ChatWithMessages[]>
+  setUserData: React.Dispatch<React.SetStateAction<User | undefined>>
 }
 
 export const UserContext = createContext<UserContextType>({
@@ -17,6 +18,7 @@ export const UserContext = createContext<UserContextType>({
   user: undefined,
   chats: [],
   refreshChats: async () => [],
+  setUserData: () => {},
 })
 
 type UserChatProviderProps = {
@@ -34,8 +36,12 @@ export function UserChatProvider({
   chats = [],
   refreshChats = async () => [],
 }: UserChatProviderProps) {
+  const [userData, setUserData] = useState<User | undefined>(user)
+
   return (
-    <UserContext.Provider value={{ session, user, chats, refreshChats }}>
+    <UserContext.Provider
+      value={{ session, user: userData, chats, refreshChats, setUserData }}
+    >
       {children}
     </UserContext.Provider>
   )

@@ -41,20 +41,20 @@ function ChatHeader() {
   }
 
   return (
-    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-card pb-[1rem]">
+    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-background pb-[1rem]">
       <div className="ml-2 flex items-center gap-3 transition-all">
         <SidebarTriggerComponentMobile variant="ghost" size="icon" />
         <Button variant="link" size="icon" onClick={handleGhostChatMode}>
           <Ghost size={16} />
         </Button>
       </div>
-      <div className="mr-6 flex items-center gap-3 transition-all max-sm:mr-2">
+      <div className="mr-2 flex items-center gap-2">
         <Button
           variant="outline"
-          className="flex items-center gap-2 text-sm font-bold"
+          className="flex items-center text-sm font-bold max-sm:p-2 sm:gap-2"
           onClick={handleCreateNewChat}
         >
-          <MessageSquarePlus size={16} />
+          <MessageSquarePlus className="size-6" />
           <span className="transition-all max-sm:hidden">Nova conversa</span>
         </Button>
         <Separator orientation="vertical" className="h-4" />

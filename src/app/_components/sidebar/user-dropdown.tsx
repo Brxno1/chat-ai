@@ -92,7 +92,10 @@ function UserDropdown() {
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="z-50 mb-5 w-56" align="center">
+      <DropdownMenuContent
+        className="z-50 mb-5 w-56 bg-background"
+        align="center"
+      >
         <DropdownMenuGroup className="flex w-full items-center justify-between font-normal">
           <DropdownMenuItem className="flex flex-1 cursor-default flex-col items-start">
             <span className="text-sm font-medium leading-none">

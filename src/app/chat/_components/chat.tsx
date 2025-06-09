@@ -4,6 +4,7 @@ import { Message, useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import {
+  ChevronsUpDown,
   GlobeIcon,
   MicIcon,
   PlusIcon,
@@ -53,11 +54,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  console.log({
-    initialMessages,
-    currentChatId,
-  })
-
   const { user } = useUser()
 
   const form = useForm<z.infer<typeof schema>>({
@@ -74,9 +70,9 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   const {
     chatId,
     model,
+    setModel,
     isGhostChatMode,
     setIsCreatingNewChat,
-    setModel,
     chatInstanceKey,
     defineChatInstanceKey,
   } = useChatStore()
@@ -189,7 +185,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
         {messages.map((message, index) => (
           <Messages
             key={`${message.id}-${index}-${Date.now()}`}
-            user={user}
             message={message}
             modelName={model}
             onDeleteMessageChat={onDeleteMessageChat}
@@ -206,7 +201,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               <FormItem className="relative">
                 <FormControl>
                   <Input
-                    className="h-20 resize-none rounded-t-lg border-0 bg-card p-3 shadow-none outline-none ring-0 focus-visible:ring-0"
+                    className="h-14 resize-none rounded-t-lg border-0 bg-card p-3 shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16 lg:h-20"
                     disabled={status === 'streaming' || isLoading}
                     value={field.value}
                     ref={inputRef}
@@ -218,7 +213,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                 </FormControl>
                 {!field.value && (
                   <TypingText
-                    className="pointer-events-none absolute left-3 top-6 text-xs text-muted-foreground"
+                    className="pointer-events-none absolute left-2 top-[40%] -translate-y-1/2 text-xs text-muted-foreground transition-all duration-300 sm:text-sm"
                     text="Pergunte-me qualquer coisa..."
                     delay={200}
                     loop
@@ -227,7 +222,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               </FormItem>
             )}
           />
-          <AIInputToolbar className="bg-card p-3.5 transition-all max-sm:p-1.5">
+          <AIInputToolbar className="bg-card p-1.5 transition-all sm:p-3.5">
             <AIInputTools>
               <AIInputButton disabled variant={'outline'}>
                 <PlusIcon size={16} />
@@ -237,14 +232,17 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               </AIInputButton>
               <AIInputButton disabled variant={'outline'}>
                 <GlobeIcon size={16} />
-                <span className="transition-all max-sm:hidden">Search</span>
+                <span className="hidden transition-all sm:inline-block">
+                  Search
+                </span>
               </AIInputButton>
               <AIInputModelSelect value={model} onValueChange={setModel}>
                 <AIInputModelSelectTrigger
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1 text-sm transition-all max-sm:px-1.5 max-sm:text-xs [&_img]:max-sm:hidden"
                   disabled={status === 'streaming'}
                 >
                   <AIInputModelSelectValue />
+                  <ChevronsUpDown className="size-4 opacity-50" />
                 </AIInputModelSelectTrigger>
                 <AIInputModelSelectContent>
                   {models.map((model) => (
@@ -252,12 +250,12 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                       key={model.id}
                       value={model.id}
                       disabled={model.disabled}
-                      className="text:sm transition-all max-sm:text-2xs"
+                      className="text:xs transition-all sm:text-sm"
                     >
                       <Image
                         src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
                         alt={model.provider}
-                        className="mr-2 inline-flex size-4 rounded-sm transition-all max-sm:hidden"
+                        className="mr-2 inline-flex size-4 rounded-sm"
                         width={16}
                         height={16}
                       />
@@ -271,18 +269,22 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               <AIButtonSubmit
                 onClick={stop}
                 type="button"
-                className="font-bold"
+                className="max-sm:p-2"
               >
-                <span className="transition-all max-sm:hidden">Parar</span>
+                <span className="font-bold transition-all max-sm:hidden">
+                  Parar
+                </span>
                 <StopCircle size={16} />
               </AIButtonSubmit>
             ) : (
               <AIButtonSubmit
                 disabled={!input || form.formState.isSubmitting || isLoading}
                 type="submit"
-                className="font-bold"
+                className="max-sm:p-2"
               >
-                <span className="transition-all max-sm:hidden">Enviar</span>
+                <span className="font-bold transition-all max-sm:hidden">
+                  Enviar
+                </span>
                 <SendIcon size={16} />
               </AIButtonSubmit>
             )}

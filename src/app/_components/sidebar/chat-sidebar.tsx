@@ -61,7 +61,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
       side="left"
       data-sidebar={open ? 'open' : 'closed'}
     >
-      <SidebarHeader className="w-full bg-card px-0">
+      <SidebarHeader className="w-full border-red-500 bg-background px-0">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5 group-data-[sidebar=closed]/sidebar:py-2.5">
           <Logo className="mx-auto group-data-[sidebar=open]/sidebar:ml-2" />
           {isMobile ? (
@@ -77,10 +77,10 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
             />
           )}
         </SidebarHeaderTitle>
-        <Separator />
       </SidebarHeader>
-      <SidebarContent className="flex h-screen flex-col overflow-hidden bg-card">
-        <SidebarGroup className="space-y-2">
+      <Separator />
+      <SidebarContent className="flex h-screen flex-col overflow-hidden bg-background">
+        <SidebarGroup className="space-y-1">
           {mainLinks.map((link) => (
             <SidebarLinks
               key={link.href}
@@ -93,7 +93,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         {user && (
           <>
             <Separator className="group-data-[sidebar=closed]/sidebar:hidden" />
-            <SidebarGroup className="flex flex-1 flex-col overflow-hidden">
+            <SidebarGroup className="flex max-h-full flex-1 flex-col overflow-hidden">
               <Historical />
             </SidebarGroup>
           </>
@@ -101,13 +101,13 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         {!isMobile && (
           <SidebarGroup
             data-mobile={isMobile}
-            className="mt-auto data-[mobile=true]:flex group-data-[sidebar=open]/sidebar:hidden"
+            className="mt-auto group-data-[sidebar=open]/sidebar:hidden"
           >
             <SidebarTriggerComponent variant="ghost" className="!border-none" />
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter className="flex w-full items-center justify-center bg-card">
+      <SidebarFooter className="flex w-full items-center justify-center bg-background">
         <UserDropdown />
       </SidebarFooter>
     </Sidebar>
