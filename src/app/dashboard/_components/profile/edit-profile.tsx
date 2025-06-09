@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { UserPen } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { User } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -33,6 +32,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { useUser } from '@/context/user-provider'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
 import { updateProfileSchema } from '@/schemas'
 import { cn } from '@/utils/utils'
@@ -41,11 +41,14 @@ import { BackgroundProfile } from './avatar-background'
 import { AvatarProfile } from './avatar-profile'
 
 interface EditProfileProps {
-  user: User
   className?: string
 }
 
-export function EditProfile({ user, className }: EditProfileProps) {
+export function EditProfile({ className }: EditProfileProps) {
+  const { user } = useUser()
+
+  if (!user) return null
+
   const id = React.useId()
   const [open, setOpen] = React.useState(false)
 
@@ -156,10 +159,9 @@ export function EditProfile({ user, className }: EditProfileProps) {
             onSubmit={form.handleSubmit(handleProfileUpdate)}
             id="update-profile-form"
           >
-            <BackgroundProfile user={user} onFileChange={onFileChange} />
+            <BackgroundProfile onFileChange={onFileChange} />
             <AvatarProfile
               onFileChange={onFileChange}
-              user={user}
               error={form.formState.errors.avatar?.message}
             />
             <div className="my-6 px-3">
@@ -256,9 +258,7 @@ export function EditProfile({ user, className }: EditProfileProps) {
             disabled={form.formState.isSubmitting || !form.formState.isValid}
           >
             {form.formState.isSubmitting ? (
-              <>
-                Salvando...
-              </>
+              <>Salvando...</>
             ) : (
               <>Salvar alterações</>
             )}

@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
 import { PropsWithChildren } from 'react'
 
-import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
-import { SyncChat } from '@/store/chat/sync-chat'
+import { ChatSidebar } from '@/app/_components/sidebar/chat-sidebar'
 
 import { getChats } from '../api/chat/actions/get-chats'
-import { ChatWrapperLayout } from './_components/chat-wrapper-layout'
 
 export const metadata: Metadata = {
   title: 'Chat',
@@ -13,8 +11,6 @@ export const metadata: Metadata = {
 }
 
 export default async function ChatLayout({ children }: PropsWithChildren) {
-  const { session } = await getUserSession()
-
   const chats = await getChats()
 
   const refreshChats = async () => {
@@ -26,13 +22,18 @@ export default async function ChatLayout({ children }: PropsWithChildren) {
   }
 
   return (
-    <ChatWrapperLayout
-      initialUser={session?.user}
-      refreshChats={refreshChats}
-      chats={chats}
-    >
-      <SyncChat initialChats={chats} />
-      {children}
-    </ChatWrapperLayout>
+    <div className="flex w-full justify-center overflow-hidden">
+      <main className="relative flex h-screen min-h-0 w-full flex-row border border-border transition-all">
+        <div className="h-screen">
+          <ChatSidebar refreshChats={refreshChats} chats={chats} />
+        </div>
+        <div
+          className="flex min-h-0 w-full flex-col overflow-auto"
+          aria-label="Conteúdo principal"
+        >
+          {children}
+        </div>
+      </main>
+    </div>
   )
 }

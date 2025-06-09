@@ -13,7 +13,7 @@ type CreateTodoResponse = {
 export async function createTodo({
   title,
 }: CreateTodoProps): Promise<CreateTodoResponse> {
-  const response = await api.post('/todo', { title })
+  const { data } = await api.post<CreateTodoResponse>('/todo', { title })
 
-  return response.data
+  return data
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Message as MessageType, useChat } from '@ai-sdk/react'
+import { Message, useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -11,7 +11,7 @@ import {
   StopCircle,
 } from 'lucide-react'
 import Image from 'next/image'
-import { User } from 'next-auth'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -31,6 +31,7 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
+import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
 
@@ -39,9 +40,8 @@ import { Messages } from './message'
 import { models } from './models'
 
 interface ChatProps {
-  user?: User
   initialChatId?: string
-  initialMessages?: MessageType[]
+  initialMessages?: Message[]
   currentChatId?: string
 }
 
@@ -49,8 +49,16 @@ const schema = z.object({
   message: z.string().min(1, 'Digite uma mensagem'),
 })
 
-export function Chat({ user, initialMessages, currentChatId }: ChatProps) {
+export function Chat({ initialMessages, currentChatId }: ChatProps) {
   const queryClient = useQueryClient()
+  const router = useRouter()
+
+  console.log({
+    initialMessages,
+    currentChatId,
+  })
+
+  const { user } = useUser()
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -70,6 +78,7 @@ export function Chat({ user, initialMessages, currentChatId }: ChatProps) {
     setIsCreatingNewChat,
     setModel,
     chatInstanceKey,
+    defineChatInstanceKey,
   } = useChatStore()
 
   const {
@@ -93,6 +102,17 @@ export function Chat({ user, initialMessages, currentChatId }: ChatProps) {
       model,
     },
     onResponse: async (response) => {
+      const chatId = response.headers.get('X-Chat-Id')
+
+      if (!currentChatId && chatId && !isGhostChatMode) {
+        defineChatInstanceKey(`chat-${chatId}`)
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.chats.all,
+        })
+
+        router.push(`/chat/${chatId}`)
+      }
+
       const stream = response.body
       if (!stream) {
         return
@@ -120,8 +140,10 @@ export function Chat({ user, initialMessages, currentChatId }: ChatProps) {
         }
       }
     },
-    onFinish: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
+    onFinish: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chats.all,
+      })
     },
   })
 
@@ -198,7 +220,7 @@ export function Chat({ user, initialMessages, currentChatId }: ChatProps) {
                   <TypingText
                     className="pointer-events-none absolute left-3 top-6 text-xs text-muted-foreground"
                     text="Pergunte-me qualquer coisa..."
-                    delay={300}
+                    delay={200}
                     loop
                   />
                 )}

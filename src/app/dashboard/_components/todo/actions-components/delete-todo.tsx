@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 
 import { deleteTodoAction } from '@/app/api/todo/actions/delete-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { queryKeys, todoInvalidations } from '@/lib/query-client'
+import { queryKeys } from '@/lib/query-client'
 
 import { ActionsStatusProps } from './types'
 
@@ -13,10 +13,12 @@ export function DeleteTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
 
   const { mutateAsync: deleteTodoFn, isPending: isDeleting } = useMutation({
     mutationFn: deleteTodoAction,
-    mutationKey: queryKeys.todoMutations.delete,
+    mutationKey: queryKeys.todoMutations.deleteById(todo.id),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: todoInvalidations.all() })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.todos.all,
+      })
       toast(`Tarefa "${todo.title}" deletada`, {
         position: 'top-center',
         duration: 2000,

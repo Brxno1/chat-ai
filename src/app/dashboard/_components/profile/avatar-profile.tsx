@@ -1,7 +1,6 @@
 'use client'
 
 import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
-import { User } from 'next-auth'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
@@ -12,17 +11,19 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 import { Input } from '@/components/ui/input'
+import { useUser } from '@/context/user-provider'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { formatDateToLocale, formatFileSize } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'
 
 interface AvatarProps {
-  user: User
   error?: string
   onFileChange: (name: 'avatar', file: File | null) => void
 }
 
-function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
+function AvatarProfile({ onFileChange, error }: AvatarProps) {
+  const { user } = useUser()
+
   const {
     file,
     previewUrl,
@@ -36,7 +37,7 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
     onFileChange('avatar', file)
   }, [file])
 
-  const currentImage = previewUrl || user.image
+  const currentImage = previewUrl || user!.image
 
   const handleRemoveImage = () => {
     handleRemove()
@@ -50,7 +51,7 @@ function AvatarProfile({ user, onFileChange, error }: AvatarProps) {
           currentImage={currentImage || ''}
           previewUrl={previewUrl!}
           file={file}
-          name={user.name || ''}
+          name={user!.name || ''}
         />
         <button
           type="button"

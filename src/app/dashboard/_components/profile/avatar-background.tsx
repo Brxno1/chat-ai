@@ -1,5 +1,4 @@
 import { ArrowRightLeft, ImagePlusIcon, XIcon } from 'lucide-react'
-import { User } from 'next-auth'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
@@ -8,14 +7,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useUser } from '@/context/user-provider'
 import { useImageUpload } from '@/hooks/use-image-upload'
 
 interface FileUploadProps {
-  user: User
   onFileChange: (name: 'background', file: File | null) => void
 }
 
-function BackgroundProfile({ user, onFileChange }: FileUploadProps) {
+function BackgroundProfile({ onFileChange }: FileUploadProps) {
+  const { user } = useUser()
+
   const {
     file,
     previewUrl,
@@ -29,7 +30,7 @@ function BackgroundProfile({ user, onFileChange }: FileUploadProps) {
     onFileChange('background', file)
   }, [file])
 
-  const currentBackground = previewUrl || user.background
+  const currentBackground = previewUrl || user!.background
 
   const handleRemoveImage = () => {
     handleRemove()

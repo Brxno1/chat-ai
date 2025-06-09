@@ -2,7 +2,11 @@ import { format, formatDistance } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 export function formatDateToLocale(date: Date): string {
-  return format(date, 'dd/MM/yyyy', { locale: ptBR })
+  return format(date, 'dd/MM/yyyy HH:mm', { locale: ptBR })
+}
+
+export function formatDateToLocaleWithHour(date: Date): string {
+  return format(date, 'HH:mm', { locale: ptBR })
 }
 
 export function formatDistanceToNow(date: Date): string {

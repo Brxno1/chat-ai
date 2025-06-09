@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 
 import { SidebarTriggerComponentMobile } from '@/app/_components/sidebar/sidebar-trigger-mobile'
 import { DashboardPageHeader } from '@/components/dashboard'
-import { ComponentSwitchTheme } from '@/components/switch-theme'
+import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useChatStore } from '@/store/chat-store'
@@ -58,7 +58,7 @@ function ChatHeader() {
           <span className="transition-all max-sm:hidden">Nova conversa</span>
         </Button>
         <Separator orientation="vertical" className="h-4" />
-        <ComponentSwitchTheme />
+        <ToggleTheme />
       </div>
     </DashboardPageHeader>
   )

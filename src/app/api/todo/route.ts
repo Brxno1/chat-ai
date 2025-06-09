@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { auth } from '@/services/auth'
-
+import { getUserSession } from '../user/profile/actions/get-user-session'
 import { createTodoAction } from './actions/create-todo'
 
 const createTodoSchemaBody = z.object({
@@ -10,9 +9,9 @@ const createTodoSchemaBody = z.object({
 })
 
 export async function POST(request: NextRequest) {
-  const session = await auth()
+  const { session, error } = await getUserSession()
 
-  if (!session) {
+  if (error) {
     return NextResponse.json(
       { error: 'Unauthorized', message: 'Unauthorized' },
       { status: 401 },
@@ -22,16 +21,16 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { title } = createTodoSchemaBody.parse(body)
 
-  const response = await createTodoAction({
+  const { todo, error: createTodoError } = await createTodoAction({
     title,
-    id: session.user.id,
+    id: session!.user.id,
   })
 
-  if (response.error) {
-    return NextResponse.json({ error: response.error }, { status: 400 })
+  if (createTodoError) {
+    return NextResponse.json({ error: createTodoError }, { status: 400 })
   }
 
-  return NextResponse.json({ todo: response.todo }, { status: 200 })
+  return NextResponse.json({ todo }, { status: 200 })
 }
 
 // export async function DELETE(request: NextRequest) {

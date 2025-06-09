@@ -2,9 +2,7 @@
 
 import { LayoutDashboard, MessageSquare } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { User } from 'next-auth'
 
-import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
 import { Separator } from '@/components/ui/separator'
@@ -16,6 +14,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useUser } from '@/context/user-provider'
 import { useChatStore } from '@/store/chat-store'
 import { cn } from '@/utils/utils'
 
@@ -26,26 +25,19 @@ import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
 import { UserDropdown } from './user-dropdown'
 
 type ChatSidebarProps = {
-  initialUser: User
   className?: string
-  refreshChats: () => Promise<ChatWithMessages[]>
-  chats: ChatWithMessages[]
 }
 
-export function ChatSidebar({
-  initialUser,
-  className,
-  refreshChats,
-  chats,
-}: ChatSidebarProps) {
+export function ChatSidebar({ className }: ChatSidebarProps) {
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname === path
 
   const { open, isMobile } = useSidebar()
-  const { setChatId } = useChatStore()
+  const { resetChatState } = useChatStore()
+  const { user } = useUser()
 
   const handleClick = () => {
-    setChatId(undefined)
+    resetChatState()
   }
 
   const mainLinks = [
@@ -89,18 +81,23 @@ export function ChatSidebar({
       </SidebarHeader>
       <SidebarContent className="flex h-screen flex-col overflow-hidden bg-card">
         <SidebarGroup className="space-y-2">
-          <SidebarLinks
-            links={mainLinks}
-            isActiveLink={isActivePath}
-            open={open || isMobile}
-          />
+          {mainLinks.map((link) => (
+            <SidebarLinks
+              key={link.href}
+              link={link}
+              isActiveLink={isActivePath}
+              open={open}
+            />
+          ))}
         </SidebarGroup>
-        <Separator className="group-data-[sidebar=closed]/sidebar:hidden" />
-        <SidebarGroup className="flex flex-1 flex-col overflow-hidden">
-          {initialUser && (
-            <Historical refreshChats={refreshChats} initialData={chats} />
-          )}
-        </SidebarGroup>
+        {user && (
+          <>
+            <Separator className="group-data-[sidebar=closed]/sidebar:hidden" />
+            <SidebarGroup className="flex flex-1 flex-col overflow-hidden">
+              <Historical />
+            </SidebarGroup>
+          </>
+        )}
         {!isMobile && (
           <SidebarGroup
             data-mobile={isMobile}
@@ -111,7 +108,7 @@ export function ChatSidebar({
         )}
       </SidebarContent>
       <SidebarFooter className="flex w-full items-center justify-center bg-card">
-        <UserDropdown user={initialUser} />
+        <UserDropdown />
       </SidebarFooter>
     </Sidebar>
   )
