@@ -22,6 +22,7 @@ interface State {
   messages: Message[]
   isCreatingNewChat: boolean
   model: string
+  modelProvider: string
   chatInstanceKey: string
   isRateLimitReached: boolean
   chatIsDeleting: boolean
@@ -34,23 +35,24 @@ interface Actions {
   setMessages: (messages: Message[]) => void
   onDeleteMessage: (id: string) => void
   setModel: (model: string) => void
+  setModelProvider: (provider: string) => void
   resetChatState: () => void
   setIsRateLimitReached: (value: boolean) => void
   setChats: (chats: Chats['chats']) => void
   defineChatInstanceKey: (key: string) => void
+  getChatInstanceKey: () => string
   setChatIsDeleting: (value: boolean) => void
 }
 
-type ChatState = State & Actions
-
-export const useChatStore = create<ChatState>((set) => ({
+export const useChatStore = create<State & Actions>((set, get) => ({
   chats: null,
   chatId: undefined,
   isRateLimitReached: false,
   isGhostChatMode: false,
   messages: [],
   isCreatingNewChat: false,
-  model: 'gpt-4o-mini',
+  model: 'gemini-1.5-flash-001',
+  modelProvider: 'google.com',
   chatInstanceKey: '',
   chatIsDeleting: false,
 
@@ -66,9 +68,13 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setModel: (model) => set({ model }),
 
+  setModelProvider: (provider) => set({ modelProvider: provider }),
+
   setIsRateLimitReached: (value) => set({ isRateLimitReached: value }),
 
   defineChatInstanceKey: (key) => set({ chatInstanceKey: key }),
+
+  getChatInstanceKey: () => get().chatInstanceKey,
 
   onDeleteMessage: (id) =>
     set((state) => ({

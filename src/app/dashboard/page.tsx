@@ -1,4 +1,3 @@
-import { Todo } from '@prisma/client'
 import { Suspense } from 'react'
 
 import { getTodosAction } from '@/app/api/todo/actions/get-todos'
@@ -19,11 +18,6 @@ import { TodoDataTableFallback } from './_components/todo/data-table-fallback'
 export default async function Page() {
   const initialData = await getTodosAction()
 
-  async function refreshTodos(): Promise<Todo[]> {
-    'use server'
-    return getTodosAction()
-  }
-
   return (
     <DashboardPage className="flex size-full flex-col">
       <DashboardPageHeader className="relative flex w-full items-center justify-end border-b border-border bg-card pb-[1rem]">
@@ -41,10 +35,7 @@ export default async function Page() {
       <DashboardPageMain>
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<TodoDataTableFallback />}>
-            <TodoDataTable
-              initialData={initialData}
-              refreshTodos={refreshTodos}
-            />
+            <TodoDataTable initialData={initialData} />
           </Suspense>
         </ContainerWrapper>
       </DashboardPageMain>

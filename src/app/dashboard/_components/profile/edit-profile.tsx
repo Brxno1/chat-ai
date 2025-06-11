@@ -45,7 +45,7 @@ interface EditProfileProps {
 }
 
 export function EditProfile({ className }: EditProfileProps) {
-  const { user, setUserData } = useUser()
+  const { user, setUser } = useUser()
 
   if (!user) return null
 
@@ -77,7 +77,7 @@ export function EditProfile({ className }: EditProfileProps) {
       const avatar = formData.get('avatar') as File | null
       const background = formData.get('background') as File | null
 
-      setUserData((prev) => {
+      setUser((prev) => {
         if (!prev) return user
 
         return {
@@ -109,7 +109,11 @@ export function EditProfile({ className }: EditProfileProps) {
     },
 
     onError: (_error, _variables, context) => {
-      setUserData(context?.previousUser ?? user)
+      setUser((prev) => {
+        if (!prev) return user
+
+        return context?.previousUser ?? prev
+      })
 
       toast.error('Erro ao atualizar perfil', {
         duration: 3000,

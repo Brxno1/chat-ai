@@ -1,16 +1,22 @@
 'use client'
 
 import { Session, User } from 'next-auth'
-import { createContext, ReactNode, useContext, useState } from 'react'
+import { createContext, ReactNode, useContext, useReducer } from 'react'
 
 import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
+
+import { userReducer } from './reducer'
 
 type UserContextType = {
   session: Session | null
   user: User | undefined
   chats?: ChatWithMessages[]
   refreshChats?: () => Promise<ChatWithMessages[]>
-  setUserData: React.Dispatch<React.SetStateAction<User | undefined>>
+  isCreatingChat: boolean
+  setUser: (
+    userOrFn: User | undefined | ((prev: User | undefined) => User | undefined),
+  ) => void
+  setCreatingChat: (isCreating: boolean) => void
 }
 
 export const UserContext = createContext<UserContextType>({
@@ -18,7 +24,9 @@ export const UserContext = createContext<UserContextType>({
   user: undefined,
   chats: [],
   refreshChats: async () => [],
-  setUserData: () => {},
+  isCreatingChat: false,
+  setUser: () => {},
+  setCreatingChat: () => {},
 })
 
 type UserChatProviderProps = {
@@ -36,11 +44,39 @@ export function UserChatProvider({
   chats = [],
   refreshChats = async () => [],
 }: UserChatProviderProps) {
-  const [userData, setUserData] = useState<User | undefined>(user)
+  const [state, dispatch] = useReducer(userReducer, {
+    user,
+    isCreatingChat: false,
+  })
+
+  const setUser = (
+    userOrFn: User | undefined | ((prev: User | undefined) => User | undefined),
+  ) => {
+    if (typeof userOrFn === 'function') {
+      dispatch({
+        type: 'UPDATE_USER',
+        payload: userOrFn as (prev: User | undefined) => User | undefined,
+      })
+    } else {
+      dispatch({ type: 'SET_USER', payload: userOrFn as User | undefined })
+    }
+  }
+
+  const setCreatingChat = (isCreating: boolean) => {
+    dispatch({ type: 'SET_CREATING_CHAT', payload: isCreating })
+  }
 
   return (
     <UserContext.Provider
-      value={{ session, user: userData, chats, refreshChats, setUserData }}
+      value={{
+        session,
+        chats,
+        user: state.user,
+        isCreatingChat: state.isCreatingChat,
+        refreshChats,
+        setUser,
+        setCreatingChat,
+      }}
     >
       {children}
     </UserContext.Provider>

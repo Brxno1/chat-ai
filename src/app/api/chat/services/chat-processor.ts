@@ -1,11 +1,12 @@
-import { Message, streamText } from 'ai'
+import { Message, StreamTextResult } from 'ai'
 
 import {
   findOrCreateChat,
+  saveChatResponse,
   saveMessages,
-  saveResponseWhenComplete,
 } from '../actions/chat-operations'
 import { generateSystemPrompt } from '../prompts'
+import { countTodosTool } from './counter-todos-tool'
 import { createStreamText } from './create-stream-text'
 
 type Role = 'user' | 'assistant'
@@ -13,15 +14,19 @@ type Role = 'user' | 'assistant'
 type ProcessChatAndSaveMessagesParams = {
   messages: Array<{ role: Role; content: string }>
   name?: string
-  locale: string
   chatId?: string
-  userId?: string
-  model: string
   isGhostChatMode?: boolean
+
+  userId?: string
+  model?: string
+}
+
+type TodoTools = {
+  count_todos: typeof countTodosTool
 }
 
 type ProcessChatAndSaveMessagesResponse = {
-  stream: ReturnType<typeof streamText> | null
+  stream: StreamTextResult<TodoTools, never> | null
   chatId?: string
   error?: string
 }
@@ -29,19 +34,24 @@ type ProcessChatAndSaveMessagesResponse = {
 export async function processChatAndSaveMessages({
   messages,
   name,
-  locale,
   chatId,
   userId,
-  model,
   isGhostChatMode,
 }: ProcessChatAndSaveMessagesParams): Promise<ProcessChatAndSaveMessagesResponse> {
+  const validMessages = messages.filter(
+    (msg) => msg.content && msg.content.trim() !== '',
+  )
+
   const promptMessages: Message[] = [
     {
       id: 'system',
       role: 'system',
-      content: generateSystemPrompt(name ?? '', locale),
-    } as Message,
-    ...messages.map((message, index) => ({
+      content: generateSystemPrompt({
+        name: name || '',
+        isLoggedIn: !!userId,
+      }),
+    },
+    ...validMessages.map((message, index) => ({
       id: `message-${index}`,
       role: message.role,
       content: message.content,
@@ -49,16 +59,19 @@ export async function processChatAndSaveMessages({
   ]
 
   if (isGhostChatMode || !userId) {
-    const { stream, error } = await createStreamText(promptMessages, model)
+    const { stream, error } = await createStreamText({
+      messages: promptMessages,
+      userId,
+    })
 
     return {
-      stream,
+      stream: stream as StreamTextResult<TodoTools, never>,
       error: error || undefined,
       chatId: undefined,
     }
   }
 
-  const chatResponse = await findOrCreateChat(userId, chatId, messages)
+  const chatResponse = await findOrCreateChat(userId, chatId, validMessages)
 
   if (!chatResponse.success) {
     return {
@@ -68,11 +81,12 @@ export async function processChatAndSaveMessages({
   }
 
   const chat = chatResponse.data
-  if (!chat) {
-    return { stream: null, error: 'Chat not found.' }
-  }
 
-  const { stream, error } = await createStreamText(promptMessages, model)
+  const { stream, error } = await createStreamText({
+    messages: promptMessages,
+    userId,
+  })
+
   if (error) {
     return {
       stream: null,
@@ -80,18 +94,33 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const { success, error: saveError } = await saveMessages(messages, chat.id)
-  if (!success) {
-    console.warn('Failed to save messages:', saveError)
+  if (validMessages.length > 0) {
+    const lastUserMessage = validMessages[validMessages.length - 1]
+
+    if (lastUserMessage.role === 'user') {
+      const { success, error: saveError } = await saveMessages(
+        [lastUserMessage],
+        chat!.id,
+      )
+      if (!success) {
+        console.warn('Failed to save user message:', saveError)
+      }
+    }
   }
 
-  saveResponseWhenComplete(stream!, chat.id, chatId, messages)
-    .then(({ success, error }) => {
-      if (!success) {
-        console.warn('Failed to save assistant response:', error)
-      }
-    })
-    .catch(console.error)
+  try {
+    await saveChatResponse(
+      stream! as StreamTextResult<TodoTools, never>,
+      chat!.id,
+      chatId,
+      validMessages,
+    )
+  } catch (error) {
+    console.error('Error saving response:', error)
+  }
 
-  return { stream, chatId: chat.id }
+  return {
+    stream: stream as StreamTextResult<TodoTools, never>,
+    chatId: chat!.id,
+  }
 }

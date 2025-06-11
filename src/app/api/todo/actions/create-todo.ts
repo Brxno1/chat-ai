@@ -4,26 +4,26 @@ import { Todo } from '@prisma/client'
 
 import { prisma } from '@/services/database/prisma'
 
-type TodoDataProps = {
+type CreateTodoDataProps = {
   title: string
-  id: string
+  userId: string
 }
 
 type CreateTodoResponse = {
   todo: Todo | null
-  error: string | null
+  error?: string
 }
 
 export async function createTodoAction({
   title,
-  id,
-}: TodoDataProps): Promise<CreateTodoResponse> {
+  userId,
+}: CreateTodoDataProps): Promise<CreateTodoResponse> {
   try {
     const todo = await prisma.todo.create({
       data: {
         title,
         user: {
-          connect: { id },
+          connect: { id: userId },
         },
       },
     })
@@ -31,13 +31,12 @@ export async function createTodoAction({
     if (!todo) {
       return {
         todo: null,
-        error: 'Todo not created',
+        error: 'Error to create todo',
       }
     }
 
     return {
       todo,
-      error: null,
     }
   } catch (error) {
     return {

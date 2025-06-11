@@ -30,7 +30,7 @@ type ChatSidebarProps = {
 
 export function ChatSidebar({ className }: ChatSidebarProps) {
   const pathname = usePathname()
-  const isActivePath = (path: string) => pathname === path
+  const isActivePath = (path: string) => pathname.startsWith(path)
 
   const { open, isMobile } = useSidebar()
   const { resetChatState } = useChatStore()
@@ -61,7 +61,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
       side="left"
       data-sidebar={open ? 'open' : 'closed'}
     >
-      <SidebarHeader className="w-full border-red-500 bg-background px-0">
+      <SidebarHeader className="w-full border-red-500 bg-card px-0">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5 group-data-[sidebar=closed]/sidebar:py-2.5">
           <Logo className="mx-auto group-data-[sidebar=open]/sidebar:ml-2" />
           {isMobile ? (
@@ -79,8 +79,8 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         </SidebarHeaderTitle>
       </SidebarHeader>
       <Separator />
-      <SidebarContent className="flex h-screen flex-col overflow-hidden bg-background">
-        <SidebarGroup className="space-y-1">
+      <SidebarContent className="flex h-screen flex-col overflow-hidden bg-card">
+        <SidebarGroup className="space-y-2">
           {mainLinks.map((link) => (
             <SidebarLinks
               key={link.href}
@@ -107,7 +107,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter className="flex w-full items-center justify-center bg-background">
+      <SidebarFooter className="flex w-full items-center justify-center bg-card">
         <UserDropdown />
       </SidebarFooter>
     </Sidebar>

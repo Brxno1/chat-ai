@@ -15,7 +15,6 @@ const schema = z.object({
     }),
   ),
   name: z.string().optional(),
-  locale: z.string(),
   chatId: z.string().optional(),
   isGhostChatMode: z.boolean().optional(),
 })
@@ -26,11 +25,13 @@ export async function POST(req: NextRequest) {
 
     const { session } = await getUserSession()
     const userId = session?.user?.id
+    const userName = session?.user?.name
 
     const model = (await setAiModelCookie()) || chatConfig.modelName
 
     const { stream, chatId, error } = await processChatAndSaveMessages({
       ...body,
+      name: userName ?? body.name,
       userId,
       model,
     })
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
       getErrorMessage: errorHandler,
     })
 
-    if (chatId) response.headers.set('X-Chat-Id', chatId)
+    if (chatId) response.headers.set('x-chat-id', chatId)
 
     return response
   } catch (error) {

@@ -17,6 +17,7 @@ import {
 import { ChevronDown, RefreshCcw, X } from 'lucide-react'
 import React from 'react'
 
+import { getTodosAction } from '@/app/api/todo/actions/get-todos'
 import { ContainerWrapper } from '@/components/container'
 import { NumberTicker } from '@/components/magicui/number-ticker'
 import { Button } from '@/components/ui/button'
@@ -64,13 +65,9 @@ function SelectionText({ table }: SelectionTextProps) {
 
 interface TodoDataTableProps {
   initialData: Todo[]
-  refreshTodos: () => Promise<Todo[]>
 }
 
-export function TodoDataTable({
-  initialData,
-  refreshTodos,
-}: TodoDataTableProps) {
+export function TodoDataTable({ initialData }: TodoDataTableProps) {
   const {
     data: todos,
     isFetching,
@@ -78,13 +75,11 @@ export function TodoDataTable({
     refetch,
   } = useSuspenseQuery({
     queryKey: queryKeys.todos.all,
-    queryFn: refreshTodos,
+    queryFn: getTodosAction,
     initialData,
   })
 
   const hasTodos = todos.length > 0
-
-  const containerRef = React.useRef<HTMLDivElement>(null)
 
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -118,23 +113,10 @@ export function TodoDataTable({
     | string
     | undefined
 
-  const scrollToBottom = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-
   const handleRefreshTodos = async () => await refetch()
 
-  React.useEffect(() => {
-    scrollToBottom()
-  }, [scrollToBottom, todos])
-
   return (
-    <div
-      className="w-full overflow-x-auto rounded-lg border border-border bg-card p-3 drop-shadow-md"
-      ref={containerRef}
-    >
+    <div className="w-full overflow-x-auto rounded-lg border border-border bg-card p-3 drop-shadow-md">
       {hasTodos && (
         <ContainerWrapper className="flex flex-wrap items-center gap-2 py-4">
           <div className="flex max-w-sm items-center justify-center gap-2">
