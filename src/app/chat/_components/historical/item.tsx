@@ -17,10 +17,10 @@ import { cn } from '@/utils/utils'
 
 type HistoricalItemProps = {
   chat: ChatType
-  isLoading: boolean
+  isLoading?: boolean
 }
 
-export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
+export function HistoricalItem({ chat }: HistoricalItemProps) {
   const queryClient = useQueryClient()
 
   const router = useRouter()
@@ -38,7 +38,8 @@ export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
   const { mutateAsync: deleteChatMutation, isPending: isDeleting } =
     useMutation({
       mutationKey: queryKeys.chatMutations.deleteById(chat.id),
-      mutationFn: (id: string) => deleteChatById(id),
+      mutationFn: deleteChatById,
+
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
 
@@ -65,6 +66,11 @@ export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
       },
     })
 
+  const handleDefineChatInstanceKey = () => {
+    defineChatInstanceKey(chat.id)
+    setChatId(chat.id)
+  }
+
   const handleDeleteChat = async () => {
     setChatIsDeleting(true)
     await deleteChatMutation(chat.id)
@@ -74,20 +80,14 @@ export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
     }
   }
 
-  const handleDefineChatInstanceKey = () => {
-    defineChatInstanceKey(`chat-${chat.id}`)
-    setChatId(chat.id)
-  }
-
   return (
     <Badge
       onClick={handleDefineChatInstanceKey}
       variant={'chat'}
       className={cn(
-        'relative flex w-full cursor-pointer items-start justify-between rounded-md bg-card p-1 text-left',
+        'relative flex w-full cursor-pointer items-start justify-between rounded-md border-input bg-card p-1 text-left',
         {
           'animate-pulse': isDeleting,
-          'opacity-50': isLoading,
           'cursor-default bg-secondary-foreground/15 hover:bg-secondary-foreground/15':
             isCurrentChat,
         },
@@ -103,14 +103,14 @@ export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
           content={chat.title}
           side="right"
           asChild
-          disabled={chat.title!.length <= 23}
+          disabled={chat.title!.length <= 28}
         >
           <span
             className={cn('text-xs', {
               'text-accent-foreground': isCurrentChat,
             })}
           >
-            {truncateText(chat.title!, 25)}
+            {truncateText(chat.title!, 28)}
           </span>
         </TooltipWrapper>
         <TooltipWrapper
@@ -127,7 +127,6 @@ export function HistoricalItem({ chat, isLoading }: HistoricalItemProps) {
         size="icon"
         variant="link"
         onClick={handleDeleteChat}
-        disabled={isDeleting}
         className="absolute right-2 top-1/2 -translate-y-1/2 border-none transition-all duration-300 hover:bg-background"
       >
         <Trash2 size={16} />

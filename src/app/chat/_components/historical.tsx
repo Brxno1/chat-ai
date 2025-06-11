@@ -4,6 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { ChevronRight, History, RefreshCcw } from 'lucide-react'
 import React from 'react'
 
+import { getChats } from '@/app/api/chat/actions/get-chats'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,14 +20,14 @@ import { HistoricalItem } from './historical/item'
 
 function Historical() {
   const [isCollapsed, setIsCollapsed] = React.useState(false)
-  const { refreshChats, chats: initialData } = useUser()
+  const { chats: initialData } = useUser()
 
   const {
     data: chats,
     isFetching,
     refetch,
   } = useSuspenseQuery({
-    queryFn: refreshChats,
+    queryFn: getChats,
     queryKey: queryKeys.chats.all,
     initialData,
   })
@@ -57,8 +58,8 @@ function Historical() {
           <Button
             variant="outline"
             size="icon"
-            className="hover:bg-accent group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden"
-            disabled={isFetching || chats.length === 0}
+            className="hover:bg-accent group-data-[sidebar=closed]/sidebar:hidden"
+            disabled={!isCollapsed || isFetching || chats.length === 0}
             onClick={handleRefreshChats}
           >
             <RefreshCcw
@@ -70,7 +71,7 @@ function Historical() {
           </Button>
         </TooltipWrapper>
       </div>
-      <CollapsibleContent className="w-full items-center space-y-2 overflow-y-auto rounded-md p-1.5 text-center scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-400/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border">
+      <CollapsibleContent className="w-full items-center space-y-2 overflow-y-auto rounded-md p-1.5 text-center scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-400/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border group-data-[collapsed=open]/collapsible:border-input">
         {chats.length > 0 ? (
           chats?.map((chat) => (
             <HistoricalItem key={chat.id} chat={chat} isLoading={isFetching} />

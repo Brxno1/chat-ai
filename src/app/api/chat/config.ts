@@ -6,9 +6,9 @@ export interface ChatConfig {
 }
 
 export const chatConfig: ChatConfig = {
-  modelName: 'gpt-4o-mini',
-  temperature: 0.5,
-  maxTokens: 500,
+  modelName: 'gemini-1.5-flash-001',
+  temperature: 0.6,
+  maxTokens: 1000,
   timeoutSeconds: 60,
 }
 

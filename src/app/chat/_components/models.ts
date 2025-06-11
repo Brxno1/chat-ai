@@ -1,5 +1,23 @@
 export const models = [
   {
+    id: 'gemini-1.5-flash-001',
+    name: 'Gemini 1.5 Flash 001',
+    provider: 'google.com',
+    disabled: false,
+  },
+  {
+    id: 'gemini-1.5-flash-002',
+    name: 'Gemini 1.5 Flash 002',
+    provider: 'google.com',
+    disabled: false,
+  },
+  {
+    id: 'palm-2',
+    name: 'PaLM 2',
+    provider: 'google.com',
+    disabled: true,
+  },
+  {
     id: 'gpt-4o-mini',
     name: 'gpt-4o mini',
     provider: 'openai.com',
@@ -21,7 +39,7 @@ export const models = [
     id: 'claude-2',
     name: 'Claude 2',
     provider: 'anthropic.com',
-    disabled: true,
+    disabled: false,
   },
   {
     id: 'claude-instant',
@@ -30,16 +48,10 @@ export const models = [
     disabled: true,
   },
   {
-    id: 'palm-2',
-    name: 'PaLM 2',
-    provider: 'google.com',
-    disabled: true,
-  },
-  {
     id: 'llama-2-70b',
     name: 'Llama 2 70B',
     provider: 'meta.com',
-    disabled: true,
+    disabled: false,
   },
   {
     id: 'llama-2-13b',
@@ -57,6 +69,6 @@ export const models = [
     id: 'mistral-7b',
     name: 'Mistral 7B',
     provider: 'mistral.ai',
-    disabled: true,
+    disabled: false,
   },
 ]

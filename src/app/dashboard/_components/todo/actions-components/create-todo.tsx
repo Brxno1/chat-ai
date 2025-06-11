@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createTodo } from '@/app/(http)/todo/create-todo'
+import { createTodoAction } from '@/app/api/todo/actions/create-todo'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -52,7 +52,7 @@ export function TodoCreateForm() {
   })
 
   const { mutateAsync: createTodoFn, isPending } = useMutation({
-    mutationFn: createTodo,
+    mutationFn: createTodoAction,
     mutationKey: queryKeys.todoMutations.create,
 
     onMutate: async (newTodo) => {
@@ -87,7 +87,7 @@ export function TodoCreateForm() {
         ...oldTodos.filter((todo) => todo.id !== 'temp-id'),
       ])
 
-      toast(`Tarefa "${todo.title}" criada com sucesso`, {
+      toast(`Tarefa "${todo!.title}" criada com sucesso`, {
         position: 'top-center',
         duration: 2000,
       })
@@ -110,7 +110,7 @@ export function TodoCreateForm() {
   })
 
   async function handleCreateTodo(data: TodoFormData) {
-    await createTodoFn({ title: data.title })
+    await createTodoFn({ title: data.title, userId: user!.id! })
   }
 
   return (

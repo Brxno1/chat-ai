@@ -81,7 +81,7 @@ function SidebarNavLink({
         'flex items-center text-secondary-foreground rounded-md py-2 text-sm transition-all hover:bg-card-foreground/5 hover:border-border',
         className,
         {
-          'cursor-default bg-secondary-foreground hover:bg-secondary-foreground text-secondary font-semibold':
+          'cursor-default bg-primary hover:bg-primary text-primary-foreground font-semibold':
             active,
         },
       )}

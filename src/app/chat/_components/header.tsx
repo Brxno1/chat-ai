@@ -1,22 +1,22 @@
 'use client'
 
 import { Ghost, MessageSquarePlus } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { toast } from 'sonner'
 
 import { SidebarTriggerComponentMobile } from '@/app/_components/sidebar/sidebar-trigger-mobile'
 import { DashboardPageHeader } from '@/components/dashboard'
 import { ToggleTheme } from '@/components/theme/toggle-theme'
+import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useChatStore } from '@/store/chat-store'
 
 function ChatHeader() {
-  const router = useRouter()
-
   const { isGhostChatMode, setToGhostChatMode, resetChatState } = useChatStore()
 
   const handleGhostChatMode = () => {
+    setToGhostChatMode(!isGhostChatMode)
     toast('', {
       action: (
         <p className="text-sm">
@@ -32,31 +32,30 @@ function ChatHeader() {
       position: 'top-center',
       duration: 1500,
     })
-    setToGhostChatMode(!isGhostChatMode)
   }
 
   const handleCreateNewChat = () => {
     resetChatState()
-    router.push('/chat')
   }
 
   return (
-    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-background pb-[1rem]">
+    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-card pb-[1rem]">
       <div className="ml-2 flex items-center gap-3 transition-all">
         <SidebarTriggerComponentMobile variant="ghost" size="icon" />
-        <Button variant="link" size="icon" onClick={handleGhostChatMode}>
-          <Ghost size={16} />
-        </Button>
+        <TooltipWrapper content="Chat fantasma" asChild side="bottom">
+          <Button variant="link" size="icon" onClick={handleGhostChatMode}>
+            <Ghost size={16} />
+          </Button>
+        </TooltipWrapper>
       </div>
       <div className="mr-2 flex items-center gap-2">
-        <Button
-          variant="outline"
-          className="flex items-center text-sm font-bold max-sm:p-2 sm:gap-2"
-          onClick={handleCreateNewChat}
-        >
-          <MessageSquarePlus className="size-6" />
-          <span className="transition-all max-sm:hidden">Nova conversa</span>
-        </Button>
+        <TooltipWrapper content="Nova conversa" asChild>
+          <Link href="/chat">
+            <Button variant="outline" onClick={handleCreateNewChat} size="icon">
+              <MessageSquarePlus className="size-6" />
+            </Button>
+          </Link>
+        </TooltipWrapper>
         <Separator orientation="vertical" className="h-4" />
         <ToggleTheme />
       </div>

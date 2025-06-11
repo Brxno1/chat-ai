@@ -7,7 +7,7 @@ type StatusType = 'PENDING' | 'FINISHED' | 'CANCELLED'
 
 type BadgeConfig = {
   label: string
-  color: string
+  color?: string
   icon?: React.ReactNode
 }
 
@@ -18,21 +18,15 @@ type BadgeStatusProps = {
 const badge: Record<StatusType, BadgeConfig> = {
   FINISHED: {
     label: 'Finalizado',
-    color:
-      'bg-emerald-50 dark:bg-emerald-300/10 text-emerald-500 border-emerald-500 dark:text-emerald-400',
-    icon: <CheckCircleIcon size={16} />,
+    icon: <CheckCircleIcon size={16} className="text-emerald-500" />,
   },
   PENDING: {
     label: 'Pendente',
-    color:
-      'bg-yellow-50 dark:bg-yellow-300/10 text-yellow-500 border-yellow-500 dark:text-yellow-400',
-    icon: <ClockIcon size={16} />,
+    icon: <ClockIcon size={16} className="text-yellow-500" />,
   },
   CANCELLED: {
     label: 'Cancelado',
-    color:
-      'bg-rose-50 dark:bg-rose-300/10 text-rose-500 border-rose-500 dark:text-rose-400',
-    icon: <XCircleIcon size={16} />,
+    icon: <XCircleIcon size={16} className="text-rose-500" />,
   },
 }
 
@@ -41,8 +35,7 @@ export function BadgeStatus({ status }: BadgeStatusProps) {
     <Badge
       variant="outline"
       className={cn(
-        'flex min-w-[7rem] items-center justify-center gap-4 border p-1.5 capitalize',
-        badge[status].color,
+        'flex min-w-[7.5rem] items-center justify-around border p-2 capitalize',
       )}
     >
       {badge[status].icon}

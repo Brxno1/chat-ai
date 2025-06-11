@@ -15,7 +15,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
@@ -41,7 +40,6 @@ import { Messages } from './message'
 import { models } from './models'
 
 interface ChatProps {
-  initialChatId?: string
   initialMessages?: Message[]
   currentChatId?: string
 }
@@ -56,6 +54,8 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
   const { user } = useUser()
 
+  const id = React.useId()
+
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -68,13 +68,14 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   const {
-    chatId,
     model,
+    modelProvider,
     setModel,
+    setModelProvider,
     isGhostChatMode,
-    setIsCreatingNewChat,
     chatInstanceKey,
     defineChatInstanceKey,
+    getChatInstanceKey,
   } = useChatStore()
 
   const {
@@ -88,58 +89,30 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     isLoading,
   } = useChat({
     initialMessages,
-    key: chatInstanceKey,
+    key: currentChatId || getChatInstanceKey(),
     api: '/api/chat',
     body: {
       name: user?.name || undefined,
-      locale: navigator.language,
       chatId: currentChatId || '',
       isGhostChatMode,
       model,
     },
-    onResponse: async (response) => {
-      const chatId = response.headers.get('X-Chat-Id')
+    onResponse: (response) => {
+      const headerChatId = response.headers?.get('x-chat-id')
 
-      if (!currentChatId && chatId && !isGhostChatMode) {
-        defineChatInstanceKey(`chat-${chatId}`)
-        await queryClient.invalidateQueries({
-          queryKey: queryKeys.chats.all,
-        })
-
-        router.push(`/chat/${chatId}`)
-      }
-
-      const stream = response.body
-      if (!stream) {
-        return
-      }
-
-      const reader = stream.getReader()
-      const decoder = new TextDecoder('utf-8')
-      let result = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value, { stream: true })
-        result += chunk
-
-        if (result.startsWith('3:"Failed after 3 attempts. Last error:')) {
-          toast.warning(
-            'Você atingiu o limite de mensagens do plano gratuito, tente novamente mais tarde.',
-            {
-              position: 'top-center',
-              duration: 3000,
-            },
-          )
-        }
+      if (headerChatId) {
+        defineChatInstanceKey(headerChatId)
       }
     },
     onFinish: async () => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.chats.all,
       })
+
+      const currentKey = getChatInstanceKey()
+      if (currentKey && !isGhostChatMode) {
+        router.push(`/chat/${currentKey}`)
+      }
     },
   })
 
@@ -163,37 +136,43 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     }
   }, [chatInstanceKey, initialMessages])
 
-  const onSubmit = async () => {
-    if (!chatId && !isGhostChatMode && user) {
-      setIsCreatingNewChat(true)
-    }
+  const handleChatSubmit = () => {
+    handleSubmit()
+  }
 
-    try {
-      handleSubmit()
-      form.reset()
-    } catch (error) {
-      console.error('Error sending message:', error)
+  const handleModelChange = (value: string) => {
+    const model = models.find((model) => model.id === value)
+    if (model) {
+      setModel(model.id)
+      setModelProvider(model.provider)
     }
   }
 
   return (
     <div className="flex h-full w-full flex-col rounded-md border">
       <div
-        className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
+        className="flex-1 overflow-auto p-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
-        {messages.map((message, index) => (
-          <Messages
-            key={`${message.id}-${index}-${Date.now()}`}
-            message={message}
-            modelName={model}
-            onDeleteMessageChat={onDeleteMessageChat}
-          />
-        ))}
+        {messages.length > 0 ? (
+          messages.map((message, index) => (
+            <Messages
+              key={`${index}-${id}`}
+              message={message}
+              modelName={model}
+              modelProvider={modelProvider}
+              onDeleteMessageChat={onDeleteMessageChat}
+            />
+          ))
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <p className="text-muted-foreground">Inicie uma conversa...</p>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       <Form {...form}>
-        <AIForm onSubmit={form.handleSubmit(onSubmit)}>
+        <AIForm onSubmit={form.handleSubmit(handleChatSubmit)}>
           <FormField
             control={form.control}
             name="message"
@@ -201,9 +180,9 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               <FormItem className="relative">
                 <FormControl>
                   <Input
-                    className="h-14 resize-none rounded-t-lg border-0 bg-card p-3 shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16 lg:h-20"
+                    className="h-14 resize-none rounded-t-lg border-0 bg-card shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16 lg:h-20"
                     disabled={status === 'streaming' || isLoading}
-                    value={field.value}
+                    value={input}
                     ref={inputRef}
                     onChange={(ev) => {
                       field.onChange(ev)
@@ -211,7 +190,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                     }}
                   />
                 </FormControl>
-                {!field.value && (
+                {!input && (
                   <TypingText
                     className="pointer-events-none absolute left-2 top-[40%] -translate-y-1/2 text-xs text-muted-foreground transition-all duration-300 sm:text-sm"
                     text="Pergunte-me qualquer coisa..."
@@ -236,7 +215,10 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                   Search
                 </span>
               </AIInputButton>
-              <AIInputModelSelect value={model} onValueChange={setModel}>
+              <AIInputModelSelect
+                value={model}
+                onValueChange={handleModelChange}
+              >
                 <AIInputModelSelectTrigger
                   className="flex items-center gap-1 text-sm transition-all max-sm:px-1.5 max-sm:text-xs [&_img]:max-sm:hidden"
                   disabled={status === 'streaming'}
