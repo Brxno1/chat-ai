@@ -55,7 +55,7 @@ export function DashboardPageMain({
   children,
 }: DashboardPageGenericProps) {
   return (
-    <main className={cn(['flex-1 overflow-auto p-4', className])}>
+    <main className={cn(['flex-1 overflow-auto p-6', className])}>
       {children}
     </main>
   )

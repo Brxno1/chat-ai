@@ -142,12 +142,9 @@ export function CreateAccountForm() {
                       )}
                     >
                       <span
-                        className={cn(
-                          'inline-flex bg-muted px-2 dark:bg-background',
-                          {
-                            'text-red-500': fieldState.error,
-                          },
-                        )}
+                        className={cn('inline-flex bg-card px-2', {
+                          'text-red-500': fieldState.error,
+                        })}
                       >
                         Nome
                       </span>
@@ -175,12 +172,9 @@ export function CreateAccountForm() {
                       )}
                     >
                       <span
-                        className={cn(
-                          'inline-flex bg-muted px-2 dark:bg-background',
-                          {
-                            'text-red-500': fieldState.error,
-                          },
-                        )}
+                        className={cn('inline-flex bg-card px-2', {
+                          'text-red-500': fieldState.error,
+                        })}
                       >
                         Email
                       </span>

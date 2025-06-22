@@ -187,12 +187,15 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
         </ContainerWrapper>
       )}
 
-      <Table className="min-w-[75rem]">
+      <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className={cn('text-center')}>
+                <TableHead
+                  key={header.id}
+                  className="max-w-[3.5rem] text-center md:max-w-[10rem]"
+                >
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext(),
@@ -211,7 +214,7 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
-                  className={cn('text-center', {
+                  className={cn('max-w-[3.5rem] text-center md:max-w-[10rem]', {
                     'animate-pulse': cell.id === 'temp-id',
                   })}
                 >

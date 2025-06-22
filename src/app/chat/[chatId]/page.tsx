@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { Message } from '@ai-sdk/react'
 import { cache, Suspense } from 'react'
 
 import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
@@ -17,12 +17,11 @@ const getChatByIdCached = cache(async (chatId: string, userId: string) => {
 export default async function ChatPageWithId({
   params,
 }: {
-  params: Promise<{ chatId: string }>
+  params: { chatId: string }
 }) {
-  const { chatId } = await params
   const { session } = await getUserSession()
 
-  const { chat } = await getChatByIdCached(chatId, session!.user.id)
+  const { chat } = await getChatByIdCached(params.chatId, session!.user.id)
 
   return (
     <DashboardPage className="flex h-full w-full max-w-full flex-col">
@@ -31,13 +30,8 @@ export default async function ChatPageWithId({
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<ChatFallback />}>
             <Chat
-              currentChatId={chatId}
-              initialMessages={chat!.messages.map((message) => ({
-                id: message.id,
-                role: message.role.toLowerCase() as 'user' | 'assistant',
-                content: message.content,
-                createdAt: message.createdAt,
-              }))}
+              currentChatId={params.chatId}
+              initialMessages={chat!.messages as Message[]}
             />
           </Suspense>
         </ContainerWrapper>
@@ -49,19 +43,24 @@ export default async function ChatPageWithId({
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ chatId: string }>
+  params: { chatId: string }
 }) {
-  const { chatId } = await params
   const { session } = await getUserSession()
 
-  const { success, chat } = await getChatByIdCached(chatId, session!.user.id)
+  const { success, chat } = await getChatByIdCached(
+    params.chatId,
+    session!.user.id,
+  )
 
   if (!success && !chat) {
-    redirect('/chat')
+    return {
+      title: `Chat`,
+      description: 'Chat não encontrado',
+    }
   }
 
   return {
-    title: `Chat - ${chat!.title}`,
+    title: `Chat - ${chat?.title}`,
     description: chat?.createdAt.toLocaleDateString('pt-BR'),
   }
 }

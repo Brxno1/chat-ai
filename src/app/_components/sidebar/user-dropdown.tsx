@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query'
 import {
-  ChevronsUpDown,
+  ChevronUp,
   Loader2,
   LogOut,
   Rocket,
@@ -25,7 +25,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useUser } from '@/context/user-provider'
-import { truncateText } from '@/utils/truncate-text'
 
 import { EditProfile } from '../../dashboard/_components/profile/edit-profile'
 
@@ -75,7 +74,8 @@ function UserDropdown() {
         <Button
           variant="outline"
           size="lg"
-          className="relative z-50 mb-px flex w-full items-center justify-start space-x-2 rounded-xl px-3 py-7 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:border-none"
+          data-dropdown={open ? 'open' : 'closed'}
+          className="group relative z-50 mb-px flex w-full items-center justify-start space-x-2 rounded-xl px-3 py-7 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:border-none"
         >
           <Avatar className="size-9 cursor-grab rounded-md">
             <AvatarImage src={user.image || ''} alt="user avatar" />
@@ -83,11 +83,11 @@ function UserDropdown() {
               {user.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <p className="group-data-[sidebar=closed]/sidebar:hidden">
-            {truncateText(user.name || '', 20)}
+          <p className="max-w-[8rem] truncate group-data-[sidebar=closed]/sidebar:hidden">
+            {user.name}
           </p>
-          <ChevronsUpDown
-            className="absolute right-3 group-data-[sidebar=closed]/sidebar:hidden"
+          <ChevronUp
+            className="absolute right-4 transition-transform duration-300 group-data-[sidebar=closed]/sidebar:hidden group-data-[dropdown=open]:rotate-180"
             size={20}
           />
         </Button>
@@ -98,10 +98,10 @@ function UserDropdown() {
       >
         <DropdownMenuGroup className="flex w-full items-center justify-between font-normal">
           <DropdownMenuItem className="flex flex-1 cursor-default flex-col items-start">
-            <span className="text-sm font-medium leading-none">
-              {truncateText(user?.name || '', 20)}
+            <span className="max-w-[8.5rem] truncate text-sm font-medium leading-none">
+              {user?.name}
             </span>
-            <span className="text-xs leading-none text-muted-foreground">
+            <span className="max-w-[8.5rem] truncate text-xs leading-none text-muted-foreground">
               {user?.email}
             </span>
           </DropdownMenuItem>
