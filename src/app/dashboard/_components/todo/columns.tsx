@@ -93,12 +93,13 @@ export const columns: ColumnDef<Todo>[] = [
     id: 'title',
     accessorKey: 'title',
     enableSorting: true,
-    size: 300,
+    size: 200,
+    maxSize: 200,
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
-          className="text-center hover:bg-transparent"
+          className="w-full text-center hover:bg-transparent"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           aria-label="Título"
         >
@@ -110,7 +111,11 @@ export const columns: ColumnDef<Todo>[] = [
     cell: ({ row }) => {
       const { title } = row.original
 
-      return <div className="capitalize">{title}</div>
+      return (
+        <ContainerWrapper className="flex items-center justify-center">
+          <span className="truncate capitalize">{title}</span>
+        </ContainerWrapper>
+      )
     },
   },
   {
@@ -121,7 +126,7 @@ export const columns: ColumnDef<Todo>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
-        className="text-center hover:bg-transparent"
+        className="hover:bg-transparent"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         aria-label="Criado em"
       >
@@ -135,7 +140,7 @@ export const columns: ColumnDef<Todo>[] = [
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="text-center font-medium">
+            <span className="font-medium">
               {formatDistanceToNow(createdAt)}
             </span>
           </TooltipTrigger>
@@ -170,7 +175,7 @@ export const columns: ColumnDef<Todo>[] = [
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="ml-auto text-center font-medium">
+            <span className="font-medium">
               {formatDistanceToNow(updatedAt)}
             </span>
           </TooltipTrigger>

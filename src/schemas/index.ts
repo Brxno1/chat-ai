@@ -6,7 +6,8 @@ export const updateProfileSchema = z.object({
   name: z
     .string()
     .nonempty('O nome não pode estar vazio')
-    .min(3, 'Nome deve ter no mínimo 3 carácteres'),
+    .min(3, 'Nome deve ter no mínimo 3 carácteres')
+    .max(36, 'Nome deve ter no máximo 36 carácteres'),
   bio: z.string().max(180, 'Biografia deve ter no máximo 180 carácteres'),
   avatar: z.union([
     z

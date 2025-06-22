@@ -2,6 +2,8 @@ import { Message } from '@ai-sdk/react'
 import { Chat } from '@prisma/client'
 import { create } from 'zustand'
 
+import { models } from '@/app/chat/_components/models'
+
 type MessageFromChat = {
   id: string
   createdAt: Date
@@ -51,7 +53,7 @@ export const useChatStore = create<State & Actions>((set, get) => ({
   isGhostChatMode: false,
   messages: [],
   isCreatingNewChat: false,
-  model: 'gemini-1.5-flash-001',
+  model: models[0].id,
   modelProvider: 'google.com',
   chatInstanceKey: '',
   chatIsDeleting: false,

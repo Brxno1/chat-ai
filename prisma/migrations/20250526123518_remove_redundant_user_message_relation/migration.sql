@@ -4,9 +4,6 @@
   - You are about to drop the `messages` table. If the table is not empty, all the data it contains will be lost.
 
 */
--- CreateEnum
-CREATE TYPE "MessageRole" AS ENUM ('USER', 'ASSISTANT');
-
 -- DropForeignKey
 ALTER TABLE "messages" DROP CONSTRAINT "messages_chatId_fkey";
 
@@ -20,7 +17,7 @@ DROP TABLE "messages";
 CREATE TABLE "Message" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "role" "MessageRole" NOT NULL,
+    "role" TEXT NOT NULL CHECK ("role" IN ('USER', 'ASSISTANT')),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "chatId" TEXT NOT NULL,
     "userId" TEXT,

@@ -1,20 +1,11 @@
 'use server'
 
-import { Chat } from '@prisma/client'
+import { Chat, Message } from '@prisma/client'
 
 import { prisma } from '@/services/database/prisma'
 
-type Message = {
-  id: string
-  createdAt: Date
-  userId: string | null
-  content: string
-  role: string
-  chatId: string
-}
-
 type GetChatByIdResponse = {
-  chat: (Chat & { messages: Message[] }) | null
+  chat?: Chat & { messages: Message[] }
   error?: string
   success: boolean
 }
@@ -35,14 +26,21 @@ export async function getChatById(
 
   if (!chat) {
     return {
-      chat: null,
+      chat: undefined,
       success: false,
       error: 'Chat not found',
     }
   }
 
   return {
-    chat,
+    chat: {
+      ...chat,
+      messages: chat.messages.map((message) => ({
+        ...message,
+        userId: message.userId || userId,
+        role: message.role.toLowerCase() as 'USER' | 'ASSISTANT',
+      })),
+    },
     success: true,
   }
 }

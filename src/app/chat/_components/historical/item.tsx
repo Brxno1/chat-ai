@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
 import { formatDateToLocale, formatDistanceToNow } from '@/utils/format'
-import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
 type HistoricalItemProps = {
@@ -106,11 +105,11 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
           disabled={chat.title!.length <= 28}
         >
           <span
-            className={cn('text-xs', {
+            className={cn('max-w-[10.5rem] truncate text-xs', {
               'text-accent-foreground': isCurrentChat,
             })}
           >
-            {truncateText(chat.title!, 28)}
+            {chat.title}
           </span>
         </TooltipWrapper>
         <TooltipWrapper

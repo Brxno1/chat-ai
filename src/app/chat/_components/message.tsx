@@ -1,6 +1,6 @@
 'use client'
 
-import { Message } from 'ai'
+import { Message } from '@ai-sdk/react'
 import { ChevronDown, Trash } from 'lucide-react'
 import { useId, useState } from 'react'
 
@@ -17,7 +17,6 @@ import {
 import { useUser } from '@/context/user-provider'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { formatTextWithStrong } from '@/utils/format-text-strong'
-import { truncateText } from '@/utils/truncate-text'
 import { cn } from '@/utils/utils'
 
 interface MessageProps {
@@ -43,7 +42,7 @@ export function Messages({
   const { user } = useUser()
 
   const handleCloseComponent = () => {
-    setState((prev) => ({ ...prev, openDropdown: false }))
+    setState((state) => ({ ...state, openDropdown: false }))
   }
 
   function handleDeleteMessageChat(
@@ -52,10 +51,10 @@ export function Messages({
   ) {
     ev.preventDefault()
 
-    setState((prev) => ({ ...prev, isDeleting: true }))
+    setState((state) => ({ ...state, isDeleting: true }))
 
     setTimeout(() => {
-      setState((prev) => ({ ...prev, isDeleting: false }))
+      setState((state) => ({ ...state, isDeleting: false }))
       onDeleteMessageChat(id)
     }, 500)
   }
@@ -70,13 +69,15 @@ export function Messages({
       >
         {message.role === 'user' ? (
           <>
-            <Badge className="bg-transparent p-0 text-sm text-muted-foreground hover:bg-transparent max-sm:text-xs">
-              {truncateText(user?.name ?? '', 20)}
+            <Badge className="bg-transparent p-0 text-sm text-muted-foreground hover:bg-transparent lg:text-base">
+              <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
+                {user?.name}
+              </span>
             </Badge>
             <Avatar className="size-6 rounded-sm max-sm:size-5">
               <AvatarImage src={user?.image ?? ''} />
               <AvatarFallback className="rounded-sm">
-                {user?.name?.slice(0, 2)}
+                {user?.name?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </>
@@ -102,7 +103,7 @@ export function Messages({
               <ContainerWrapper key={`${id}`} className="flex w-full flex-col">
                 <div
                   className={cn(
-                    'group flex max-w-[17rem] items-center justify-center text-wrap rounded-md border bg-message p-1.5 text-left text-sm transition-all sm:max-w-[24rem] sm:text-justify sm:text-base md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
+                    'group flex max-w-[17rem] items-center justify-center text-wrap break-all rounded-md border bg-message p-1 text-sm transition-all sm:max-w-[24rem] sm:text-justify sm:text-base md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
                     {
                       'ml-auto': message.role === 'user',
                       'mr-auto': message.role === 'assistant',
@@ -180,7 +181,7 @@ export function Messages({
         >
           <div
             className={cn(
-              'group flex max-w-[17rem] items-center justify-center text-wrap rounded-md border bg-message p-1.5 text-left text-sm transition-all sm:max-w-[24rem] sm:text-justify sm:text-base md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
+              'group flex max-w-[17rem] items-center justify-center text-wrap break-all rounded-md border bg-message p-1.5 text-left text-sm transition-all sm:max-w-[24rem] sm:text-justify sm:text-base md:max-w-[23rem] lg:max-w-[35rem] xl:max-w-[50rem] 2xl:max-w-[60rem]',
               {
                 'ml-auto': message.role === 'user',
                 'mr-auto': message.role === 'assistant',

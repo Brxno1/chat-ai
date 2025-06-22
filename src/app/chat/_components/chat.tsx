@@ -45,7 +45,7 @@ interface ChatProps {
 }
 
 const schema = z.object({
-  message: z.string().min(1, 'Digite uma mensagem'),
+  message: z.string().min(1),
 })
 
 export function Chat({ initialMessages, currentChatId }: ChatProps) {
@@ -142,6 +142,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
   const handleModelChange = (value: string) => {
     const model = models.find((model) => model.id === value)
+
     if (model) {
       setModel(model.id)
       setModelProvider(model.provider)
@@ -154,25 +155,22 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
         className="flex-1 overflow-auto p-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
-        {messages.length > 0 ? (
-          messages.map((message, index) => (
-            <Messages
-              key={`${index}-${id}`}
-              message={message}
-              modelName={model}
-              modelProvider={modelProvider}
-              onDeleteMessageChat={onDeleteMessageChat}
-            />
-          ))
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-muted-foreground">Inicie uma conversa...</p>
-          </div>
-        )}
+        {messages.map((message, index) => (
+          <Messages
+            key={`${index}-${id}`}
+            message={message}
+            modelName={model}
+            modelProvider={modelProvider}
+            onDeleteMessageChat={onDeleteMessageChat}
+          />
+        ))}
         <div ref={messagesEndRef} />
       </div>
       <Form {...form}>
-        <AIForm onSubmit={form.handleSubmit(handleChatSubmit)}>
+        <AIForm
+          onSubmit={form.handleSubmit(handleChatSubmit)}
+          className="border-t bg-card"
+        >
           <FormField
             control={form.control}
             name="message"
@@ -180,7 +178,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               <FormItem className="relative">
                 <FormControl>
                   <Input
-                    className="h-14 resize-none rounded-t-lg border-0 bg-card shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16 lg:h-20"
+                    className="h-14 resize-none rounded-t-lg border-0 shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
                     disabled={status === 'streaming' || isLoading}
                     value={input}
                     ref={inputRef}
@@ -201,7 +199,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               </FormItem>
             )}
           />
-          <AIInputToolbar className="bg-card p-1.5 transition-all sm:p-3.5">
+          <AIInputToolbar className="p-1.5 transition-all sm:p-3.5">
             <AIInputTools>
               <AIInputButton disabled variant={'outline'}>
                 <PlusIcon size={16} />
@@ -220,7 +218,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                 onValueChange={handleModelChange}
               >
                 <AIInputModelSelectTrigger
-                  className="flex items-center gap-1 text-sm transition-all max-sm:px-1.5 max-sm:text-xs [&_img]:max-sm:hidden"
+                  className="flex items-center gap-1 border-none text-sm transition-all max-sm:px-1.5 max-sm:text-xs [&_img]:max-sm:hidden"
                   disabled={status === 'streaming'}
                 >
                   <AIInputModelSelectValue />
@@ -229,10 +227,10 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                 <AIInputModelSelectContent>
                   {models.map((model) => (
                     <AIInputModelSelectItem
-                      key={model.id}
                       value={model.id}
+                      key={model.id}
                       disabled={model.disabled}
-                      className="text:xs transition-all sm:text-sm"
+                      className="text:xs flex flex-row items-center gap-2 transition-all sm:text-sm"
                     >
                       <Image
                         src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
@@ -241,7 +239,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                         width={16}
                         height={16}
                       />
-                      {model.name}
+                      <span className="truncate">{model.name}</span>
                     </AIInputModelSelectItem>
                   ))}
                 </AIInputModelSelectContent>
