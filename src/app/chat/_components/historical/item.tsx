@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { deleteChatById } from '@/app/(http)/chat/delete-chat'
+import { ChatResponse } from '@/app/api/chats/route'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,44 +27,56 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
   const { chatId: currentChatId } = useParams()
   const isCurrentChat = currentChatId === chat.id
 
-  const {
-    resetChatState,
-    onDeleteMessage,
-    defineChatInstanceKey,
-    setChatId,
-    setChatIsDeleting,
-  } = useChatStore()
+  const { resetChatState, onDeleteMessage, defineChatInstanceKey, setChatId } =
+    useChatStore()
 
-  const { mutateAsync: deleteChatMutation, isPending: isDeleting } =
-    useMutation({
-      mutationKey: queryKeys.chatMutations.deleteById(chat.id),
-      mutationFn: deleteChatById,
+  const { mutateAsync: deleteChatMutation } = useMutation({
+    mutationKey: queryKeys.chatMutations.deleteById(chat.id),
+    mutationFn: deleteChatById,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.chats.all })
 
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
+      const previousChats = queryClient.getQueryData<ChatResponse>(
+        queryKeys.chats.all,
+      )
 
-        if (currentChatId === chat.id) {
-          resetChatState()
-          router.push('/chat')
+      queryClient.setQueryData<ChatResponse>(queryKeys.chats.all, (old) => {
+        if (!old?.chats) return old
+
+        return {
+          ...old,
+          chats: old.chats.filter((c) => c.id !== chat.id),
         }
+      })
 
-        onDeleteMessage(chat.id)
-        toast('Conversa excluída', {
-          position: 'top-center',
-          duration: 1500,
-        })
-      },
-      onError: (error: Error) => {
-        console.log(error.message, 'error')
-        toast('Erro ao excluir conversa', {
-          position: 'top-center',
-          duration: 1500,
-        })
-      },
-      onSettled: () => {
-        setChatIsDeleting(false)
-      },
-    })
+      return { previousChats }
+    },
+    onSuccess: () => {
+      if (currentChatId === chat.id) {
+        resetChatState()
+        router.push('/chat')
+      }
+
+      onDeleteMessage(chat.id)
+      toast('Conversa excluída', {
+        position: 'top-center',
+        duration: 1500,
+      })
+    },
+    onError: (_error: Error, _variables, context) => {
+      if (context?.previousChats) {
+        queryClient.setQueryData(queryKeys.chats.all, context.previousChats)
+      }
+
+      toast('Erro ao excluir conversa', {
+        position: 'top-center',
+        duration: 1500,
+      })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.chats.all })
+    },
+  })
 
   const handleDefineChatInstanceKey = () => {
     defineChatInstanceKey(chat.id)
@@ -71,12 +84,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
   }
 
   const handleDeleteChat = async () => {
-    setChatIsDeleting(true)
     await deleteChatMutation(chat.id)
-
-    if (currentChatId === chat.id) {
-      router.push('/chat')
-    }
   }
 
   return (
@@ -86,7 +94,6 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
       className={cn(
         'relative flex w-full cursor-pointer items-start justify-between rounded-md border-input bg-card p-1 text-left',
         {
-          'animate-pulse': isDeleting,
           'cursor-default bg-secondary-foreground/15 hover:bg-secondary-foreground/15':
             isCurrentChat,
         },

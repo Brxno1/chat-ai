@@ -6,8 +6,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   ChevronsUpDown,
   GlobeIcon,
+  ImageUp,
   MicIcon,
-  PlusIcon,
+  MoreVertical,
   SendIcon,
   StopCircle,
 } from 'lucide-react'
@@ -18,7 +19,15 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   AIButtonSubmit,
   AIForm,
@@ -31,11 +40,11 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
 
-import { Input } from '../../../components/ui/input'
 import { Messages } from './message'
 import { models } from './models'
 
@@ -53,6 +62,8 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   const router = useRouter()
 
   const { user } = useUser()
+
+  const { isMobile } = useSidebar()
 
   const id = React.useId()
 
@@ -150,7 +161,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   }
 
   return (
-    <div className="flex h-full w-full flex-col rounded-md border">
+    <div className="flex h-full w-full flex-col rounded-md rounded-b-xl border">
       <div
         className="flex-1 overflow-auto p-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
@@ -169,7 +180,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       <Form {...form}>
         <AIForm
           onSubmit={form.handleSubmit(handleChatSubmit)}
-          className="border-t bg-card"
+          className="rounded-xl border bg-card dark:bg-message"
         >
           <FormField
             control={form.control}
@@ -178,7 +189,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               <FormItem className="relative">
                 <FormControl>
                   <Input
-                    className="h-14 resize-none rounded-t-lg border-0 shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
+                    className="h-14 resize-none border-0 shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
                     disabled={status === 'streaming' || isLoading}
                     value={input}
                     ref={inputRef}
@@ -190,7 +201,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                 </FormControl>
                 {!input && (
                   <TypingText
-                    className="pointer-events-none absolute left-2 top-[40%] -translate-y-1/2 text-xs text-muted-foreground transition-all duration-300 sm:text-sm"
+                    className="pointer-events-none absolute left-2 top-[40%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
                     text="Pergunte-me qualquer coisa..."
                     delay={200}
                     loop
@@ -199,30 +210,65 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               </FormItem>
             )}
           />
-          <AIInputToolbar className="p-1.5 transition-all sm:p-3.5">
+          <AIInputToolbar className="p-3 transition-all duration-300">
             <AIInputTools>
-              <AIInputButton disabled variant={'outline'}>
-                <PlusIcon size={16} />
-              </AIInputButton>
-              <AIInputButton disabled variant={'outline'}>
-                <MicIcon size={16} />
-              </AIInputButton>
-              <AIInputButton disabled variant={'outline'}>
-                <GlobeIcon size={16} />
-                <span className="hidden transition-all sm:inline-block">
-                  Search
-                </span>
-              </AIInputButton>
+              {isMobile ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical size={16} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem disabled>
+                      <ImageUp size={16} className="mr-2" />
+                      <span>Imagem</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled>
+                      <MicIcon size={16} className="mr-2" />
+                      <span>Áudio</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled>
+                      <GlobeIcon size={16} className="mr-2" />
+                      <span>Busca</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <AIInputButton
+                    disabled
+                    variant={'outline'}
+                    className="bg-card dark:bg-message"
+                  >
+                    <ImageUp size={16} />
+                  </AIInputButton>
+                  <AIInputButton
+                    disabled
+                    variant={'outline'}
+                    className="bg-card dark:bg-message"
+                  >
+                    <MicIcon size={16} />
+                  </AIInputButton>
+                  <AIInputButton
+                    disabled
+                    variant={'outline'}
+                    className="bg-card dark:bg-message"
+                  >
+                    <GlobeIcon size={16} />
+                  </AIInputButton>
+                </div>
+              )}
               <AIInputModelSelect
                 value={model}
                 onValueChange={handleModelChange}
               >
                 <AIInputModelSelectTrigger
-                  className="flex items-center gap-1 border-none text-sm transition-all max-sm:px-1.5 max-sm:text-xs [&_img]:max-sm:hidden"
+                  className="gap-1 border-none px-1.5 text-xs transition-all sm:text-sm"
                   disabled={status === 'streaming'}
                 >
                   <AIInputModelSelectValue />
-                  <ChevronsUpDown className="size-4 opacity-50" />
+                  <ChevronsUpDown size={16} />
                 </AIInputModelSelectTrigger>
                 <AIInputModelSelectContent>
                   {models.map((model) => (
@@ -230,7 +276,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                       value={model.id}
                       key={model.id}
                       disabled={model.disabled}
-                      className="text:xs flex flex-row items-center gap-2 transition-all sm:text-sm"
+                      className="flex items-center text-sm transition-all"
                     >
                       <Image
                         src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
@@ -239,18 +285,14 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                         width={16}
                         height={16}
                       />
-                      <span className="truncate">{model.name}</span>
+                      <span>{model.name}</span>
                     </AIInputModelSelectItem>
                   ))}
                 </AIInputModelSelectContent>
               </AIInputModelSelect>
             </AIInputTools>
             {status === 'streaming' ? (
-              <AIButtonSubmit
-                onClick={stop}
-                type="button"
-                className="max-sm:p-2"
-              >
+              <AIButtonSubmit onClick={stop} type="button">
                 <span className="font-bold transition-all max-sm:hidden">
                   Parar
                 </span>
@@ -260,7 +302,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               <AIButtonSubmit
                 disabled={!input || form.formState.isSubmitting || isLoading}
                 type="submit"
-                className="max-sm:p-2"
               >
                 <span className="font-bold transition-all max-sm:hidden">
                   Enviar

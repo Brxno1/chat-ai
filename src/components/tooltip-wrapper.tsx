@@ -42,7 +42,15 @@ export function TooltipWrapper({
       <TooltipTrigger asChild={asChild}>
         {children}
       </TooltipTrigger>
-      <TooltipContent side={side} align={align} sideOffset={sideOffset} className={cn(className, "bg-secondary text-secondary-foreground text-xs")}>
+      <TooltipContent
+        side={side}
+        align={align}
+        sideOffset={sideOffset}
+        className={cn(
+          className,
+          'bg-secondary text-secondary-foreground text-xs border border-input',
+        )}
+      >
         {content}
       </TooltipContent>
     </Tooltip>

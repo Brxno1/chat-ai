@@ -151,7 +151,6 @@ export const AIInputTools = ({ className, ...props }: AIInputToolsProps) => (
   <div
     className={cn(
       'flex items-center gap-1',
-      '[&_button:first-child]:rounded-bl-xl',
       className
     )}
     {...props}
@@ -196,7 +195,7 @@ export const AIButtonSubmit = ({
     type="submit"
     variant={variant}
     size={size}
-    className={cn('gap-1.5 rounded-lg', className)}
+    className={cn(className)}
     {...props}
   />
 );
@@ -219,6 +218,7 @@ export const AIInputModelSelectTrigger = ({
     className={cn(
       'bg-transparent font-medium text-muted-foreground shadow-none transition-colors',
       'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground',
+      'flex items-center whitespace-nowrap',
       className
     )}
     {...props}

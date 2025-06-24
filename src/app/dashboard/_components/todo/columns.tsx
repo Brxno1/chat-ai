@@ -3,13 +3,9 @@ import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 
 import { ContainerWrapper } from '@/components/container'
+import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { formatDistanceToNow } from '@/utils/format'
 
 import { ActionsForTodo } from './actions-components/actions'
@@ -138,16 +134,13 @@ export const columns: ColumnDef<Todo>[] = [
       const { createdAt } = row.original
 
       return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="font-medium">
-              {formatDistanceToNow(createdAt)}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent aria-label="Data de criação" className="font-bold">
-            {new Date(createdAt).toLocaleString()}
-          </TooltipContent>
-        </Tooltip>
+        <TooltipWrapper
+          content={new Date(createdAt).toLocaleString()}
+          side="top"
+          disableHoverableContent={false}
+        >
+          <span className="font-medium">{formatDistanceToNow(createdAt)}</span>
+        </TooltipWrapper>
       )
     },
   },
@@ -173,19 +166,13 @@ export const columns: ColumnDef<Todo>[] = [
       const { updatedAt } = row.original
 
       return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="font-medium">
-              {formatDistanceToNow(updatedAt)}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent
-            aria-label="Data de atualização"
-            className="font-bold"
-          >
-            {new Date(updatedAt).toLocaleString()}
-          </TooltipContent>
-        </Tooltip>
+        <TooltipWrapper
+          content={new Date(updatedAt).toLocaleString()}
+          side="top"
+          disableHoverableContent={false}
+        >
+          <span className="font-medium">{formatDistanceToNow(updatedAt)}</span>
+        </TooltipWrapper>
       )
     },
   },
