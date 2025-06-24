@@ -20,7 +20,11 @@ export async function getChatById(
       userId,
     },
     include: {
-      messages: true,
+      messages: {
+        orderBy: {
+          createdAt: 'asc',
+        },
+      },
     },
   })
 

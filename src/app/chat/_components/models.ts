@@ -8,6 +8,22 @@ type Model = {
 
 export const models: Model[] = [
   {
+    id: 'gemini-2.0-flash-thinking-exp',
+    name: 'Gemini 2.0 Flash Thinking Exp',
+    provider: 'google.com',
+    disabled: false,
+    description:
+      'Modelo experimental Gemini 2.0 Flash Thinking, projetado para explorar novas abordagens em IA generativa.',
+  },
+  {
+    id: 'gemini-2.0-flash-exp',
+    name: 'Gemini 2.0 Flash Exp',
+    provider: 'google.com',
+    disabled: false,
+    description:
+      'Modelo experimental Gemini 2.0 Flash, projetado para explorar novas abordagens em IA generativa.',
+  },
+  {
     id: 'gemini-1.5-flash-8b-latest',
     name: 'Gemini 1.5 Flash 8B Latest',
     provider: 'google.com',
@@ -38,14 +54,6 @@ export const models: Model[] = [
     disabled: false,
     description:
       'Modelo Gemini 1.5 Flash 002, otimizado para geração de texto e compreensão contextual.',
-  },
-  {
-    id: 'gemini-2.0-flash-exp',
-    name: 'Gemini 2.0 Flash Exp',
-    provider: 'google.com',
-    disabled: false,
-    description:
-      'Modelo experimental Gemini 2.0 Flash, projetado para explorar novas abordagens em IA generativa.',
   },
   {
     id: 'palm-2',

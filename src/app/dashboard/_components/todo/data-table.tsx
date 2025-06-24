@@ -116,7 +116,7 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
   const handleRefreshTodos = async () => await refetch()
 
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-border bg-card p-3 drop-shadow-md">
+    <div className="w-full overflow-x-auto rounded-lg border border-border bg-card p-3">
       {hasTodos && (
         <ContainerWrapper className="flex flex-wrap items-center gap-2 py-4">
           <div className="flex max-w-sm items-center justify-center gap-2">

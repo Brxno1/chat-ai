@@ -33,7 +33,7 @@ const components: Options['components'] = {
     return <>{children}</>;
   },
   ol: ({ node, children, className, ...props }) => (
-    <ol className={cn('ml-4 list-inside list-decimal', className)} {...props}>
+    <ol className={cn('ml-4 list-outside list-decimal', className)} {...props}>
       {children}
     </ol>
   ),
@@ -43,7 +43,7 @@ const components: Options['components'] = {
     </li>
   ),
   ul: ({ node, children, className, ...props }) => (
-    <ul className={cn('ml-4 list-inside list-decimal', className)} {...props}>
+    <ul className={cn('ml-4 list-outside list-decimal', className)} {...props}>
       {children}
     </ul>
   ),
@@ -129,8 +129,8 @@ const components: Options['components'] = {
         data={data}
         defaultValue={data[0].language}
       >
-        <CodeBlockHeader>
-          <CodeBlockFiles>
+        <CodeBlockHeader className="flex items-center bg-card/60 justify-end">
+          <CodeBlockFiles className="hidden">
             {(item) => (
               <CodeBlockFilename key={item.language} value={item.language}>
                 {item.filename}
@@ -138,7 +138,7 @@ const components: Options['components'] = {
             )}
           </CodeBlockFiles>
           <CodeBlockSelect>
-            <CodeBlockSelectTrigger>
+            <CodeBlockSelectTrigger className="hidden">
               <CodeBlockSelectValue />
             </CodeBlockSelectTrigger>
             <CodeBlockSelectContent>
@@ -149,10 +149,7 @@ const components: Options['components'] = {
               )}
             </CodeBlockSelectContent>
           </CodeBlockSelect>
-          <CodeBlockCopyButton
-            onCopy={() => console.log('Copied code to clipboard')}
-            onError={() => console.error('Failed to copy code to clipboard')}
-          />
+          <CodeBlockCopyButton />
         </CodeBlockHeader>
         <CodeBlockBody>
           {(item) => (
@@ -172,7 +169,7 @@ export const AIResponse = memo(
   ({ className, options, children, ...props }: AIResponseProps) => (
     <div
       className={cn(
-        'size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 p-3',
+        'size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 ml-2.5',
         className
       )}
       {...props}

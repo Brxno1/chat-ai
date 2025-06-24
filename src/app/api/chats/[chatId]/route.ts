@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { deleteChatById } from '@/app/api/chat/actions/delete-chat-by-id'
+import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
 import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
-import { prisma } from '@/services/database/prisma'
 
 export async function GET(
   req: NextRequest,
@@ -14,22 +15,13 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const chat = await prisma.chat.findUnique({
-    where: {
-      id: chatId,
-      userId: session.user.id,
-    },
-    include: {
-      messages: {
-        orderBy: {
-          createdAt: 'asc',
-        },
-      },
-    },
-  })
+  const { chat, error, success } = await getChatById(chatId, session.user.id)
 
-  if (!chat) {
-    return NextResponse.json({ error: 'Chat not found' }, { status: 404 })
+  if (!success || !chat) {
+    return NextResponse.json(
+      { error: error || 'Chat not found' },
+      { status: 404 },
+    )
   }
 
   return NextResponse.json({ chat })
@@ -45,8 +37,7 @@ export async function DELETE(
   { params }: { params: Promise<{ chatId: string }> },
 ) {
   const { session } = await getUserSession()
-  const resolvedParams = await params
-  const chatId = resolvedParams.chatId
+  const { chatId } = await params
 
   if (!session?.user?.id) {
     return NextResponse.json<DeleteChatByIdResponse>(
@@ -55,25 +46,14 @@ export async function DELETE(
     )
   }
 
-  const chat = await prisma.chat.findUnique({
-    where: {
-      id: chatId,
-      userId: session.user.id,
-    },
-  })
+  const { success, error } = await deleteChatById(chatId, session.user.id)
 
-  if (!chat) {
+  if (!success) {
     return NextResponse.json<DeleteChatByIdResponse>(
-      { success: false, error: 'Chat not found' },
-      { status: 404 },
+      { success: false, error: error || 'Failed to delete chat' },
+      { status: error === 'Chat not found' ? 404 : 500 },
     )
   }
-
-  await prisma.chat.delete({
-    where: {
-      id: chatId,
-    },
-  })
 
   return NextResponse.json<DeleteChatByIdResponse>({
     success: true,
