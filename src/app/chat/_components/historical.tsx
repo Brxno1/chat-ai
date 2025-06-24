@@ -4,7 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { ChevronRight, History, RefreshCcw } from 'lucide-react'
 import React from 'react'
 
-import { getChats } from '@/app/api/chat/actions/get-chats'
+import { fetchChats } from '@/app/(http)/chat/fetch-chats'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,7 +27,7 @@ function Historical() {
     isFetching,
     refetch,
   } = useSuspenseQuery({
-    queryFn: getChats,
+    queryFn: fetchChats,
     queryKey: queryKeys.chats.all,
     initialData,
   })

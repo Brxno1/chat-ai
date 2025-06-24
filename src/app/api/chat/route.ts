@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { getUserSession } from '../user/profile/actions/get-user-session'
-import { setAiModelCookie } from './actions/set-ai-model-cookie'
-import { chatConfig, defaultErrorMessage } from './config'
+import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
 
@@ -27,13 +26,10 @@ export async function POST(req: NextRequest) {
     const userId = session?.user?.id
     const userName = session?.user?.name
 
-    const model = (await setAiModelCookie()) || chatConfig.modelName
-
     const { stream, chatId, error } = await processChatAndSaveMessages({
       ...body,
       name: userName ?? body.name,
       userId,
-      model,
     })
 
     if (error || !stream) {

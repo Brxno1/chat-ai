@@ -152,18 +152,18 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   }
 
   const handleModelChange = (value: string) => {
-    const model = models.find((model) => model.id === value)
+    const selectedModel = models.find((m) => m.name === value)
 
-    if (model) {
-      setModel(model.id)
-      setModelProvider(model.provider)
+    if (selectedModel) {
+      setModel(selectedModel.name)
+      setModelProvider(selectedModel.provider)
     }
   }
 
   return (
     <div className="flex h-full w-full flex-col rounded-md rounded-b-xl border">
       <div
-        className="flex-1 overflow-auto p-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
+        className="flex-1 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
         {messages.map((message, index) => (
@@ -273,7 +273,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                 <AIInputModelSelectContent>
                   {models.map((model) => (
                     <AIInputModelSelectItem
-                      value={model.id}
+                      value={model.name}
                       key={model.id}
                       disabled={model.disabled}
                       className="flex items-center text-sm transition-all"

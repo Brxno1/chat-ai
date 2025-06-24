@@ -31,7 +31,7 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
   })
 
   const stream = streamText({
-    model: google('gemini-1.5-flash-8b-latest'),
+    model: google('gemini-2.0-flash-thinking-exp-01-21'),
     temperature: chatConfig.temperature,
     maxTokens: chatConfig.maxTokens,
     messages: sanitizedMessages,

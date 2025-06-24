@@ -1,4 +1,4 @@
-import { Chat as ChatType } from '@prisma/client'
+import { Chat } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import Link from 'next/link'
@@ -16,7 +16,7 @@ import { formatDateToLocale, formatDistanceToNow } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
 type HistoricalItemProps = {
-  chat: ChatType
+  chat: Chat
   isLoading?: boolean
 }
 
@@ -33,21 +33,20 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
   const { mutateAsync: deleteChatMutation } = useMutation({
     mutationKey: queryKeys.chatMutations.deleteById(chat.id),
     mutationFn: deleteChatById,
+
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: queryKeys.chats.all })
 
-      const previousChats = queryClient.getQueryData<ChatResponse>(
+      const previousChats = queryClient.getQueryData<ChatResponse['chats']>(
         queryKeys.chats.all,
       )
 
-      queryClient.setQueryData<ChatResponse>(queryKeys.chats.all, (old) => {
-        if (!old?.chats) return old
-
-        return {
-          ...old,
-          chats: old.chats.filter((c) => c.id !== chat.id),
-        }
-      })
+      queryClient.setQueryData<ChatResponse['chats']>(
+        queryKeys.chats.all,
+        (old) => {
+          return old?.filter((c) => c.id !== chat.id)
+        },
+      )
 
       return { previousChats }
     },

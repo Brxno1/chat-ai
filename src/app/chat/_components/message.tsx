@@ -71,7 +71,7 @@ export function Messages({
                     'mb-1 flex w-fit items-center justify-center gap-1',
                     {
                       'ml-auto': message.role === 'user',
-                      'mr-auto': message.role === 'assistant',
+                      'mr-auto p-1': message.role === 'assistant',
                     },
                   )}
                 >
@@ -107,11 +107,11 @@ export function Messages({
                 </div>
                 <div
                   className={cn(
-                    'group flex max-w-full items-center justify-center gap-1 overflow-y-auto rounded-md border transition-all xl:max-w-[65rem]',
+                    'group flex max-w-full items-center justify-center gap-1 overflow-y-auto text-balance rounded-md border transition-all xl:max-w-[80rem]',
                     {
-                      'ml-auto bg-message p-1.5 text-accent dark:text-accent-foreground':
+                      'ml-auto bg-message p-2 text-accent dark:text-accent-foreground':
                         message.role === 'user',
-                      'mr-auto text-balance bg-card dark:bg-message':
+                      'mr-auto bg-card dark:bg-message max-lg:p-3 lg:p-2':
                         message.role === 'assistant',
                     },
                   )}
