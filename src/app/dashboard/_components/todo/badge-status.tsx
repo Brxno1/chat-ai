@@ -11,10 +11,6 @@ type BadgeConfig = {
   icon?: React.ReactNode
 }
 
-type BadgeStatusProps = {
-  status: StatusType
-}
-
 const badge: Record<StatusType, BadgeConfig> = {
   FINISHED: {
     label: 'Finalizado',
@@ -36,7 +32,7 @@ const badge: Record<StatusType, BadgeConfig> = {
   },
 }
 
-export function BadgeStatus({ status }: BadgeStatusProps) {
+export function BadgeStatus({ status }: { status: StatusType }) {
   return (
     <Badge
       variant="outline"

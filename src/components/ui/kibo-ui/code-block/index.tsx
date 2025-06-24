@@ -268,8 +268,8 @@ const highlight = (
   codeToHtml(html, {
     lang: language ?? 'typescript',
     themes: themes ?? {
-      light: 'github-light',
-      dark: 'github-dark-default',
+      light: 'min-dark',
+      dark: 'vesper',
     },
     transformers: [
       transformerNotationDiff({
@@ -308,7 +308,7 @@ const CodeBlockContext = createContext<CodeBlockContextType>({
   data: [],
 });
 
-export type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
+export type CodeBlockProps = HTMLAttributes<HTMLElement> & {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
@@ -331,7 +331,7 @@ export const CodeBlock = ({
 
   return (
     <CodeBlockContext.Provider value={{ value, onValueChange, data }}>
-      <div
+      <article
         className={cn('size-full overflow-hidden rounded-md border', className)}
         {...props}
       />
@@ -526,23 +526,21 @@ export const CodeBlockCopyButton = ({
   );
 };
 
-type CodeBlockFallbackProps = HTMLAttributes<HTMLDivElement>;
+type CodeBlockFallbackProps = HTMLAttributes<HTMLPreElement>;
 
-const CodeBlockFallback = ({ children, ...props }: CodeBlockFallbackProps) => (
-  <div {...props}>
-    <pre className="w-full">
-      <code>
-        {children
-          ?.toString()
-          .split('\n')
-          .map((line, i) => (
-            <span key={i} className="line">
-              {line}
-            </span>
-          ))}
-      </code>
-    </pre>
-  </div>
+export const CodeBlockFallback = ({ children, ...props }: CodeBlockFallbackProps) => (
+  <pre className="w-full" {...props}>
+    <code>
+      {children
+        ?.toString()
+        .split('\n')
+        .map((line, i) => (
+          <span key={i} className="line">
+            {line}
+          </span>
+        ))}
+    </code>
+  </pre>
 );
 
 export type CodeBlockBodyProps = Omit<

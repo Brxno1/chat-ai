@@ -16,6 +16,14 @@ export const models: Model[] = [
       'Última versão do modelo Gemini 1.5 Flash 8B, com melhorias em eficiência e capacidade de resposta.',
   },
   {
+    id: 'gemini-2.0-flash-lite',
+    name: 'Gemini 2.0 Flash Lite',
+    provider: 'google.com',
+    disabled: false,
+    description:
+      'Modelo Gemini 2.0 Flash Lite da Google, ideal para tarefas de processamento de linguagem natural com alta precisão.',
+  },
+  {
     id: 'gemini-1.5-flash-001',
     name: 'Gemini 1.5 Flash 001',
     provider: 'google.com',
@@ -49,7 +57,7 @@ export const models: Model[] = [
   },
   {
     id: 'gpt-4o-mini',
-    name: 'gpt-4o mini',
+    name: 'GPT-4o mini',
     provider: 'openai.com',
     disabled: false,
     description:
@@ -57,7 +65,7 @@ export const models: Model[] = [
   },
   {
     id: 'gpt-4',
-    name: 'gpt-4',
+    name: 'GPT-4',
     provider: 'openai.com',
     disabled: true,
     description:
@@ -65,7 +73,7 @@ export const models: Model[] = [
   },
   {
     id: 'gpt-3.5-turbo',
-    name: 'gpt-3.5 Turbo',
+    name: 'GPT-3.5 Turbo',
     provider: 'openai.com',
     disabled: true,
     description:

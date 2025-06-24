@@ -17,7 +17,7 @@ import {
   CodeBlockSelectItem,
   CodeBlockSelectTrigger,
   CodeBlockSelectValue,
-} from '@repo/code-block';
+} from '@/components/ui/kibo-ui/code-block';
 import { memo } from 'react';
 import type { HTMLAttributes } from 'react';
 import ReactMarkdown, { type Options } from 'react-markdown';
@@ -29,9 +29,11 @@ export type AIResponseProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 const components: Options['components'] = {
-  pre: ({ children }) => <div>{children}</div>,
+  pre: ({ node, className, children, ...props }) => {
+    return <>{children}</>;
+  },
   ol: ({ node, children, className, ...props }) => (
-    <ol className={cn('ml-4 list-outside list-decimal', className)} {...props}>
+    <ol className={cn('ml-4 list-inside list-decimal', className)} {...props}>
       {children}
     </ol>
   ),
@@ -41,7 +43,7 @@ const components: Options['components'] = {
     </li>
   ),
   ul: ({ node, children, className, ...props }) => (
-    <ul className={cn('ml-4 list-outside list-decimal', className)} {...props}>
+    <ul className={cn('ml-4 list-inside list-decimal', className)} {...props}>
       {children}
     </ul>
   ),
@@ -100,16 +102,23 @@ const components: Options['components'] = {
     </h6>
   ),
   code: ({ node, className, children }) => {
-    let language = 'javascript';
+    let language = 'typescript';
 
     if (typeof node?.properties?.className === 'string') {
       language = node.properties.className.replace('language-', '');
     }
 
+    const isInline = !node?.position?.start.line ||
+      node.position.start.line === node.position.end.line;
+
+    if (isInline) {
+      return <code className={className}>{children}</code>;
+    }
+
     const data: CodeBlockProps['data'] = [
       {
         language,
-        filename: 'index.js',
+        filename: 'index.ts',
         code: children as string,
       },
     ];
@@ -163,7 +172,7 @@ export const AIResponse = memo(
   ({ className, options, children, ...props }: AIResponseProps) => (
     <div
       className={cn(
-        'size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
+        'size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 p-3',
         className
       )}
       {...props}
