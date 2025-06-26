@@ -6,7 +6,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { deleteChatById } from '@/app/(http)/chat/delete-chat'
-import { ChatResponse } from '@/app/api/chats/route'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -37,14 +36,14 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: queryKeys.chats.all })
 
-      const previousChats = queryClient.getQueryData<ChatResponse['chats']>(
+      const previousChats = queryClient.getQueryData<Chat[]>(
         queryKeys.chats.all,
       )
 
-      queryClient.setQueryData<ChatResponse['chats']>(
+      queryClient.setQueryData<Chat[]>(
         queryKeys.chats.all,
-        (old) => {
-          return old?.filter((c) => c.id !== chat.id)
+        (old: Chat[] | undefined) => {
+          return old?.filter((c: Chat) => c.id !== chat.id)
         },
       )
 
@@ -91,10 +90,9 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
       onClick={handleDefineChatInstanceKey}
       variant={'chat'}
       className={cn(
-        'relative flex w-full cursor-pointer items-start justify-between rounded-md border-input bg-card p-1 text-left',
+        'relative flex w-full cursor-pointer items-start justify-between rounded-md border-input bg-card p-1 text-left transition-all duration-300',
         {
-          'cursor-default bg-secondary-foreground/15 hover:bg-secondary-foreground/15':
-            isCurrentChat,
+          'cursor-default bg-primary/10 hover:bg-primary/10': isCurrentChat,
         },
       )}
     >

@@ -67,30 +67,25 @@ export function Messages({
             return (
               <ContainerWrapper key={id} className="mb-4 flex w-full flex-col">
                 <div
-                  className={cn(
-                    'mb-1 flex w-fit items-center justify-center gap-1',
-                    {
-                      'ml-auto': message.role === 'user',
-                      'mr-auto p-1': message.role === 'assistant',
-                    },
-                  )}
+                  className={cn('flex w-fit items-center justify-center', {
+                    'ml-auto': message.role === 'user',
+                    'mr-auto p-1': message.role === 'assistant',
+                  })}
                 >
                   {message.role === 'user' ? (
-                    <>
-                      <Badge className="bg-transparent p-0 text-sm text-muted-foreground hover:bg-transparent lg:text-base">
-                        <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
-                          {user?.name}
-                        </span>
-                      </Badge>
-                      <Avatar className="size-6 rounded-sm max-sm:size-5">
+                    <Badge variant={'chat'}>
+                      <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
+                        {user?.name}
+                      </span>
+                      <Avatar className="size-6 rounded-sm border-0 bg-transparent max-sm:size-5">
                         <AvatarImage src={user?.image ?? ''} />
                         <AvatarFallback className="rounded-sm">
                           {user?.name?.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                    </>
+                    </Badge>
                   ) : (
-                    <>
+                    <Badge variant={'chat'}>
                       <Avatar className="size-5 rounded-sm max-sm:size-4">
                         <AvatarImage
                           src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
@@ -99,19 +94,19 @@ export function Messages({
                           AI
                         </AvatarFallback>
                       </Avatar>
-                      <Badge className="bg-transparent p-0 text-sm text-muted-foreground hover:bg-transparent">
+                      <span className="max-w-[15rem] truncate text-ellipsis whitespace-nowrap">
                         {modelName}
-                      </Badge>
-                    </>
+                      </span>
+                    </Badge>
                   )}
                 </div>
                 <div
                   className={cn(
-                    'group flex max-w-full items-center justify-center gap-1 overflow-y-auto text-balance rounded-md border transition-all xl:max-w-[80rem]',
+                    'group flex max-w-[85%] items-center justify-center gap-1 overflow-y-auto text-balance rounded-lg transition-all',
                     {
                       'ml-auto bg-message p-2 text-accent dark:text-accent-foreground':
                         message.role === 'user',
-                      'mr-auto bg-card dark:bg-message max-lg:p-3 lg:p-2':
+                      'mr-auto bg-primary/10 max-lg:p-3 lg:p-2':
                         message.role === 'assistant',
                     },
                   )}
@@ -162,12 +157,10 @@ export function Messages({
                   </DropdownMenu>
                 </div>
                 <Badge
-                  className={cn(
-                    'w-fit border bg-transparent px-2 text-2xs text-muted-foreground hover:bg-transparent',
-                    {
-                      'ml-auto': message.role === 'user',
-                    },
-                  )}
+                  variant={'chat'}
+                  className={cn('text-xs text-muted-foreground', {
+                    'ml-auto': message.role === 'user',
+                  })}
                 >
                   {formatDateToLocaleWithHour(new Date(message.createdAt!))}
                 </Badge>

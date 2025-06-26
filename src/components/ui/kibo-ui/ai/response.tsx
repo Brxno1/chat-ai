@@ -169,7 +169,7 @@ export const AIResponse = memo(
   ({ className, options, children, ...props }: AIResponseProps) => (
     <div
       className={cn(
-        'size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 ml-2.5',
+        'size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 overflow-hidden',
         className
       )}
       {...props}

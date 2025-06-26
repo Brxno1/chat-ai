@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/collapsible'
 import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
+import { groupItemsByDate } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
 import { HistoricalItem } from './historical/item'
@@ -35,6 +36,10 @@ function Historical() {
   const handleRefreshChats = async () => {
     await refetch()
   }
+
+  const groupedChats = React.useMemo(() => {
+    return groupItemsByDate(chats, (chat) => new Date(chat.createdAt))
+  }, [chats])
 
   return (
     <Collapsible
@@ -73,8 +78,19 @@ function Historical() {
       </div>
       <CollapsibleContent className="w-full items-center space-y-2 overflow-y-auto rounded-md bg-background p-1.5 text-center scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-400/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border group-data-[collapsed=open]/collapsible:border-input">
         {chats.length > 0 ? (
-          chats?.map((chat) => (
-            <HistoricalItem key={chat.id} chat={chat} isLoading={isFetching} />
+          groupedChats.map((group) => (
+            <div key={group.title} className="space-y-2">
+              <div className="p-1 text-left text-xs font-medium text-muted-foreground">
+                {group.title}
+              </div>
+              {group.items.map((chat) => (
+                <HistoricalItem
+                  key={chat.id}
+                  chat={chat}
+                  isLoading={isFetching}
+                />
+              ))}
+            </div>
           ))
         ) : (
           <span className="text-xs text-muted-foreground">
