@@ -65,7 +65,7 @@ export async function processChatAndSaveMessages({
     })
 
     return {
-      stream: stream as StreamTextResult<TodoTools, never>,
+      stream,
       error: error || undefined,
       chatId: undefined,
     }
@@ -109,18 +109,13 @@ export async function processChatAndSaveMessages({
   }
 
   try {
-    await saveChatResponse(
-      stream! as StreamTextResult<TodoTools, never>,
-      chat!.id,
-      chatId,
-      validMessages,
-    )
+    await saveChatResponse(stream!, chat!.id, chatId, validMessages)
   } catch (error) {
     console.error('Error saving response:', error)
   }
 
   return {
-    stream: stream as StreamTextResult<TodoTools, never>,
+    stream,
     chatId: chat!.id,
   }
 }

@@ -9,6 +9,16 @@ type SystemPrompt = {
 export function generateSystemPrompt({ name, isLoggedIn }: SystemPrompt): string {
   return `Você é um assistente virtual inteligente e amigável, especializado em fornecer respostas claras e úteis. Siga as orientações abaixo:
 
+  Você deve SEMPRE completar sua resposta totalmente. Formato obrigatório:
+
+<think>
+Seu raciocínio completo aqui - explique todos os passos, cálculos e lógica.
+</think>
+
+Sua resposta final completa aqui.
+
+IMPORTANTE: Complete sempre toda a resposta, não pare no meio
+
   **1. Primeira interação:**
   - O nome do usuário é ${name}.
   - Se o usuário perguntar o próprio nome (ex: "qual é o meu nome?"), a resposta deve ser **exclusivamente**: "Seu nome é ${name}."

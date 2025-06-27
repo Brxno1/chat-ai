@@ -161,7 +161,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   }
 
   return (
-    <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border">
+    <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border border-input">
       <div
         className="flex-1 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
@@ -173,6 +173,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
             modelName={model}
             modelProvider={modelProvider}
             onDeleteMessageChat={onDeleteMessageChat}
+            isStreaming={status === 'streaming'}
           />
         ))}
         <div ref={messagesEndRef} />
@@ -180,7 +181,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       <Form {...form}>
         <AIForm
           onSubmit={form.handleSubmit(handleChatSubmit)}
-          className="rounded-xl border bg-card dark:bg-message"
+          className="rounded-xl border border-input bg-card dark:bg-message"
         >
           <FormField
             control={form.control}

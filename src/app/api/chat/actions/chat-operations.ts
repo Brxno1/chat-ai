@@ -44,7 +44,7 @@ async function findOrCreateChat(
         .find((msg) => msg.role === 'user')
 
       const title = lastUserMessage
-        ? lastUserMessage.content.substring(0, 50)
+        ? lastUserMessage.content.substring(0, 56)
         : 'Nova conversa'
 
       const chat = await prisma.chat.create({
@@ -123,7 +123,7 @@ async function saveChatResponse(
   messages?: Array<{ role: Role; content: string }>,
 ): Promise<OperationResponse<null>> {
   if (!chatId)
-    return { success: false, error: 'ID do chat não fornecido', data: null }
+    return { success: false, error: 'Chat ID not provided', data: null }
 
   result.text
     .then(async (fullText) => {
@@ -155,10 +155,10 @@ async function saveChatResponse(
           }
         })
       } catch (error) {
-        console.error('Erro ao salvar resposta:', error)
+        console.error('Error saving chat response:', error)
       }
     })
-    .catch((error) => console.error('Erro ao processar texto:', error))
+    .catch((error) => console.error('Error saving chat response:', error))
 
   return { success: true, data: null }
 }

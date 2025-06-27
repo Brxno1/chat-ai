@@ -14,6 +14,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  AIReasoning,
+  AIReasoningContent,
+  AIReasoningTrigger,
+} from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
 import { useUser } from '@/context/user-provider'
 import { formatDateToLocaleWithHour } from '@/utils/format'
@@ -24,6 +29,7 @@ interface MessageProps {
   modelName: string
   modelProvider: string
   onDeleteMessageChat: (id: string) => void
+  isStreaming?: boolean
 }
 
 export function Messages({
@@ -31,6 +37,7 @@ export function Messages({
   modelName,
   modelProvider,
   onDeleteMessageChat,
+  isStreaming = false,
 }: MessageProps) {
   const [state, setState] = useState({
     isDeleting: false,
@@ -59,20 +66,68 @@ export function Messages({
     }, 500)
   }
 
+  function extractReasoningFromText(text: string) {
+    const thinkMatch = text.match(/<think>([\s\S]*?)<\/think>/i)
+    return thinkMatch ? thinkMatch[1].trim() : null
+  }
+
+  function removeThinkTags(text: string) {
+    return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
+  }
+
+  const reasoningParts =
+    message.parts?.filter((part) => part.type === 'reasoning') || []
+
+  const textParts = message.parts?.filter((part) => part.type === 'text') || []
+  const manualReasoning = textParts
+    .map((part) =>
+      'text' in part ? extractReasoningFromText(part.text) : null,
+    )
+    .filter(Boolean)
+
   return (
     <div className="flex w-full flex-col">
+      {message.role === 'assistant' && (
+        <ContainerWrapper>
+          <Badge variant={'chat'} className="mb-2 hover:bg-transparent">
+            <Avatar className="size-5 rounded-sm max-sm:size-4">
+              <AvatarImage
+                src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+              />
+              <AvatarFallback className="rounded-sm">AI</AvatarFallback>
+            </Avatar>
+            <span className="max-w-[15rem] truncate text-ellipsis whitespace-nowrap">
+              {modelName}
+            </span>
+          </Badge>
+        </ContainerWrapper>
+      )}
+      {message.role === 'assistant' &&
+        (reasoningParts.length > 0 || manualReasoning.length > 0) && (
+          <ContainerWrapper>
+            <AIReasoning isStreaming={isStreaming} defaultOpen={isStreaming}>
+              <AIReasoningTrigger
+                title="Raciocínio"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              />
+              <AIReasoningContent>
+                {/* eslint-disable */}
+                {reasoningParts
+                  .map((p) => ('reasoning' in p ? p.reasoning : ''))
+                  .join('\n\n')
+                }
+                {/* eslint-enable- */}
+              </AIReasoningContent>
+            </AIReasoning>
+          </ContainerWrapper>
+        )}
       {message.parts?.map((part) => {
         switch (part.type) {
           case 'text':
             return (
               <ContainerWrapper key={id} className="mb-4 flex w-full flex-col">
-                <div
-                  className={cn('flex w-fit items-center justify-center', {
-                    'ml-auto': message.role === 'user',
-                    'mr-auto p-1': message.role === 'assistant',
-                  })}
-                >
-                  {message.role === 'user' ? (
+                {message.role === 'user' && (
+                  <div className="ml-auto flex w-fit items-center justify-center">
                     <Badge variant={'chat'} className="hover:bg-transparent">
                       <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
                         {user?.name}
@@ -84,33 +139,23 @@ export function Messages({
                         </AvatarFallback>
                       </Avatar>
                     </Badge>
-                  ) : (
-                    <Badge variant={'chat'} className="hover:bg-transparent">
-                      <Avatar className="size-5 rounded-sm max-sm:size-4">
-                        <AvatarImage
-                          src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
-                        />
-                        <AvatarFallback className="rounded-sm">
-                          AI
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="max-w-[15rem] truncate text-ellipsis whitespace-nowrap">
-                        {modelName}
-                      </span>
-                    </Badge>
-                  )}
-                </div>
+                  </div>
+                )}
                 <div
                   className={cn(
-                    'group flex max-w-[85%] items-center justify-center gap-1 overflow-y-auto text-balance rounded-lg transition-all',
+                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]',
                     {
-                      'ml-auto bg-message text-accent dark:text-accent-foreground':
+                      'ml-auto bg-message text-accent':
                         message.role === 'user',
-                      'mr-auto bg-primary/10': message.role === 'assistant',
+                      'mr-auto bg-card text-card-foreground': message.role === 'assistant',
                     },
                   )}
                 >
-                  <AIResponse>{part.text}</AIResponse>
+                  <AIResponse>
+                    {part.type === 'text' && 'text' in part
+                      ? removeThinkTags(part.text)
+                      : ''}
+                  </AIResponse>
                   <DropdownMenu
                     open={state.openDropdown}
                     onOpenChange={() =>
@@ -120,7 +165,7 @@ export function Messages({
                       }))
                     }
                   >
-                    <DropdownMenuTrigger className="mb-auto mr-2 mt-2 size-4 cursor-pointer text-accent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-accent-foreground">
+                    <DropdownMenuTrigger className="mb-auto mr-1.5 mt-1.5 size-4 cursor-pointer text-accent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-accent-foreground">
                       <ChevronDown size={16} />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -169,7 +214,7 @@ export function Messages({
               </ContainerWrapper>
             )
           default:
-            return <span>...</span>
+            return null
         }
       })}
     </div>

@@ -90,7 +90,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
       onClick={handleDefineChatInstanceKey}
       variant={'chat'}
       className={cn(
-        'relative flex w-full cursor-pointer items-start justify-between rounded-md border border-input p-1 text-left transition-all duration-300',
+        'relative flex cursor-pointer items-start justify-between rounded-md border border-input p-1 text-left transition-all duration-300',
         {
           'cursor-default bg-primary/15 hover:bg-primary/10': isCurrentChat,
         },
@@ -98,7 +98,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     >
       <Link
         href={`/chat/${chat.id}`}
-        className={cn('flex flex-1 flex-col items-start', {
+        className={cn('flex w-full flex-col items-start', {
           'cursor-default': isCurrentChat,
         })}
       >
@@ -109,7 +109,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
           disabled={chat.title!.length <= 28}
         >
           <span
-            className={cn('max-w-[10.5rem] truncate text-xs', {
+            className={cn('max-w-[83%] truncate text-xs', {
               'text-accent-foreground': isCurrentChat,
             })}
           >
@@ -130,7 +130,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
         size="icon"
         variant="link"
         onClick={handleDeleteChat}
-        className="absolute right-2 top-1/2 -translate-y-1/2 border-none transition-all duration-300 hover:bg-background"
+        className="absolute right-1 top-1/2 -translate-y-1/2 border-none transition-all duration-300 hover:bg-background"
       >
         <Trash2 size={16} />
       </Button>

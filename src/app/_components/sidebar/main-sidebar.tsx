@@ -63,9 +63,9 @@ export function MainSidebarContent({ className }: ChatSidebarProps) {
       side="left"
       data-sidebar={open ? 'open' : 'closed'}
     >
-      <SidebarHeader className="w-full !border-r-0 bg-card px-0">
+      <SidebarHeader className="w-full !border-r-0 bg-card">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5 group-data-[sidebar=closed]/sidebar:py-2.5">
-          <Logo className="mx-auto group-data-[sidebar=open]/sidebar:ml-2" />
+          <Logo className="group-data-[sidebar=closed]/sidebar:mx-auto group-data-[sidebar=open]/sidebar:ml-4" />
           {isMobile ? (
             <SidebarTriggerComponentMobile
               variant="ghost"
