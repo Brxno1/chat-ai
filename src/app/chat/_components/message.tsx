@@ -73,7 +73,7 @@ export function Messages({
                   })}
                 >
                   {message.role === 'user' ? (
-                    <Badge variant={'chat'}>
+                    <Badge variant={'chat'} className="hover:bg-transparent">
                       <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
                         {user?.name}
                       </span>
@@ -85,7 +85,7 @@ export function Messages({
                       </Avatar>
                     </Badge>
                   ) : (
-                    <Badge variant={'chat'}>
+                    <Badge variant={'chat'} className="hover:bg-transparent">
                       <Avatar className="size-5 rounded-sm max-sm:size-4">
                         <AvatarImage
                           src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
@@ -104,10 +104,9 @@ export function Messages({
                   className={cn(
                     'group flex max-w-[85%] items-center justify-center gap-1 overflow-y-auto text-balance rounded-lg transition-all',
                     {
-                      'ml-auto bg-message p-2 text-accent dark:text-accent-foreground':
+                      'ml-auto bg-message text-accent dark:text-accent-foreground':
                         message.role === 'user',
-                      'mr-auto bg-primary/10 max-lg:p-3 lg:p-2':
-                        message.role === 'assistant',
+                      'mr-auto bg-primary/10': message.role === 'assistant',
                     },
                   )}
                 >
@@ -121,7 +120,7 @@ export function Messages({
                       }))
                     }
                   >
-                    <DropdownMenuTrigger className="mb-auto size-4 cursor-pointer text-accent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-accent-foreground">
+                    <DropdownMenuTrigger className="mb-auto mr-2 mt-2 size-4 cursor-pointer text-accent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-accent-foreground">
                       <ChevronDown size={16} />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -151,16 +150,19 @@ export function Messages({
                         )}
                       >
                         <span className="text-xs">Excluir</span>
-                        <Trash className="h-4 w-4" />
+                        <Trash size={16} />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
                 <Badge
                   variant={'chat'}
-                  className={cn('text-xs text-muted-foreground', {
-                    'ml-auto': message.role === 'user',
-                  })}
+                  className={cn(
+                    'text-xs text-muted-foreground hover:bg-transparent',
+                    {
+                      'ml-auto': message.role === 'user',
+                    },
+                  )}
                 >
                   {formatDateToLocaleWithHour(new Date(message.createdAt!))}
                 </Badge>

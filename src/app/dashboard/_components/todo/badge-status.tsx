@@ -37,12 +37,12 @@ export function BadgeStatus({ status }: { status: StatusType }) {
     <Badge
       variant="outline"
       className={cn(
-        'flex items-center justify-around border p-2 capitalize md:min-w-[7.5rem]',
+        'flex items-center justify-center gap-2 border p-1.5 capitalize md:min-w-[7.5rem]',
         badge[status].color,
       )}
     >
       {badge[status].icon}
-      <span className="hidden text-xs md:block">{badge[status].label}</span>
+      <span className="hidden text-xs sm:block">{badge[status].label}</span>
     </Badge>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { ChevronRight, History, RefreshCcw } from 'lucide-react'
+import { AlignLeft, ChevronRight, RefreshCcw } from 'lucide-react'
 import React from 'react'
 
 import { fetchChats } from '@/app/(http)/chat/fetch-chats'
@@ -54,7 +54,7 @@ function Historical() {
             variant="outline"
             className="relative w-full justify-start rounded-md transition-all group-data-[sidebar=closed]/sidebar:hidden"
           >
-            <History size={16} />
+            <AlignLeft size={16} />
             Histórico
             <ChevronRight className="absolute right-2 transition-all duration-300 animate-in group-data-[collapsed=open]/collapsible:rotate-90" />
           </Button>

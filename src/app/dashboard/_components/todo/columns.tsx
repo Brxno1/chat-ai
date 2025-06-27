@@ -89,27 +89,24 @@ export const columns: ColumnDef<Todo>[] = [
     id: 'title',
     accessorKey: 'title',
     enableSorting: true,
-    size: 200,
-    maxSize: 200,
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          className="w-full text-center hover:bg-transparent"
+        <ContainerWrapper
+          type="button"
+          className="flex cursor-pointer items-center justify-center gap-2 hover:text-accent-foreground max-md:justify-start"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          aria-label="Título"
         >
-          Título
-          <ArrowUpDown />
-        </Button>
+          <span>Título</span>
+          <ArrowUpDown size={16} className="size-4" />
+        </ContainerWrapper>
       )
     },
     cell: ({ row }) => {
       const { title } = row.original
 
       return (
-        <ContainerWrapper className="flex items-center justify-center">
-          <span className="truncate capitalize">{title}</span>
+        <ContainerWrapper className="flex justify-center max-md:justify-start">
+          <span className="max-w-[10rem] truncate capitalize">{title}</span>
         </ContainerWrapper>
       )
     },
@@ -118,17 +115,17 @@ export const columns: ColumnDef<Todo>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     enableSorting: true,
-    size: 200,
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        className="hover:bg-transparent"
+      <ContainerWrapper
+        type="button"
+        className="flex cursor-pointer items-center justify-center gap-0 hover:text-accent-foreground md:gap-3"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        aria-label="Criado em"
       >
-        Criado em
-        <ArrowUpDown />
-      </Button>
+        <span className="truncate text-nowrap max-md:max-w-[3rem]">
+          Criado em
+        </span>
+        <ArrowUpDown size={16} className="size-4" />
+      </ContainerWrapper>
     ),
     cell: ({ row }) => {
       const { createdAt } = row.original
@@ -138,8 +135,13 @@ export const columns: ColumnDef<Todo>[] = [
           content={new Date(createdAt).toLocaleString()}
           side="top"
           disableHoverableContent={false}
+          asChild
         >
-          <span className="font-medium">{formatDistanceToNow(createdAt)}</span>
+          <ContainerWrapper className="flex justify-center">
+            <span className="font-medium">
+              {formatDistanceToNow(createdAt)}
+            </span>
+          </ContainerWrapper>
         </TooltipWrapper>
       )
     },
@@ -148,18 +150,16 @@ export const columns: ColumnDef<Todo>[] = [
     id: 'updatedAt',
     accessorKey: 'updatedAt',
     enableSorting: true,
-    size: 200,
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          className="hover:bg-transparent"
+        <ContainerWrapper
+          type="button"
+          className="flex cursor-pointer items-center justify-center gap-2 text-nowrap hover:text-accent-foreground max-md:hidden"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          aria-label="Atualizado em"
         >
           Atualizado em
-          <ArrowUpDown />
-        </Button>
+          <ArrowUpDown size={16} className="size-4" />
+        </ContainerWrapper>
       )
     },
     cell: ({ row }) => {
@@ -171,7 +171,9 @@ export const columns: ColumnDef<Todo>[] = [
           side="top"
           disableHoverableContent={false}
         >
-          <span className="font-medium">{formatDistanceToNow(updatedAt)}</span>
+          <span className="font-medium max-md:hidden">
+            {formatDistanceToNow(updatedAt)}
+          </span>
         </TooltipWrapper>
       )
     },
@@ -179,20 +181,20 @@ export const columns: ColumnDef<Todo>[] = [
   {
     id: 'actions',
     enableHiding: false,
-    size: 100,
+    size: 50,
     header: () => (
-      <Button
-        variant="ghost"
-        className="cursor-default hover:bg-transparent"
-        aria-label="Ações"
-      >
+      <ContainerWrapper className="flex justify-center max-md:justify-start">
         Ações
-      </Button>
+      </ContainerWrapper>
     ),
     cell: ({ row }) => {
       const todo = row.original
 
-      return <ActionsForTodo todo={todo} />
+      return (
+        <ContainerWrapper className="flex justify-center max-md:justify-start">
+          <ActionsForTodo todo={todo} />
+        </ContainerWrapper>
+      )
     },
   },
 ]

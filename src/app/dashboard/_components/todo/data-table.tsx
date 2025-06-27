@@ -118,11 +118,11 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
   return (
     <div className="w-full overflow-x-auto rounded-lg border border-border bg-card p-3">
       {hasTodos && (
-        <ContainerWrapper className="flex flex-wrap items-center gap-2 py-4">
+        <ContainerWrapper className="flex items-center gap-2 py-4">
           <div className="flex max-w-sm items-center justify-center gap-2">
             <div className="relative flex items-center justify-center">
               <Input
-                className="w-full bg-background pr-8"
+                className="bg-background pr-8 placeholder:text-sm max-sm:max-w-[8.5rem]"
                 placeholder="Filtrar Todos..."
                 value={filterValue ?? ''}
                 onChange={(ev) =>
@@ -143,17 +143,22 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
               onClick={handleRefreshTodos}
               disabled={isFetching || isLoading}
               variant="outline"
-              className={cn('w-[8rem] gap-2', isFetching && 'animate-pulse')}
+              className={cn(
+                'max-w-[8rem] gap-2',
+                isFetching && 'animate-pulse',
+              )}
             >
               <RefreshCcw
                 size={16}
                 className={cn(isFetching && 'animate-spin')}
               />
-              {isLoading
-                ? 'Atualizar'
-                : isFetching
-                  ? 'Atualizando...'
-                  : 'Atualizar'}
+              <span className="text-sm max-sm:hidden">
+                {isLoading
+                  ? 'Atualizar'
+                  : isFetching
+                    ? 'Atualizando...'
+                    : 'Atualizar'}
+              </span>
             </Button>
           </div>
           <DropdownMenu>
@@ -214,9 +219,12 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
-                  className={cn('max-w-[3.5rem] text-center md:max-w-[10rem]', {
-                    'animate-pulse': cell.id === 'temp-id',
-                  })}
+                  className={cn(
+                    'max-md:max-p-0 text-center max-md:max-w-[4rem]',
+                    {
+                      'animate-pulse': cell.id === 'temp-id',
+                    },
+                  )}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>

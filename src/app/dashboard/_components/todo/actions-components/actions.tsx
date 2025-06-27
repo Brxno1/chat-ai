@@ -13,12 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { formatDistanceToNow } from '@/utils/format'
 
-import { UpdateTodo } from './update-todo'
 import { CancelTodo } from './cancel-todo'
 import { DeleteTodo } from './delete-todo'
 import { MarkTodoAsDone } from './todo-as-done'
 import { ActionsForTodoProps } from './types'
+import { UpdateTodo } from './update-todo'
 
 export function ActionsForTodo({ todo }: ActionsForTodoProps) {
   const [open, setOpen] = React.useState(false)
@@ -46,6 +47,12 @@ export function ActionsForTodo({ todo }: ActionsForTodoProps) {
             >
               <span>Copiar todo</span>
             </CopyTextComponent>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator className="sm:hidden" />
+        <DropdownMenuGroup className="flex md:hidden">
+          <DropdownMenuItem className="text-muted-foreground">
+            Atualizado: {formatDistanceToNow(new Date(todo.updatedAt))}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

@@ -29,7 +29,7 @@ body {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --message: 240 5% 10%;
-    --card: 0 0% 95.9%;
+    --card: 0 0% 90.67%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
@@ -66,9 +66,9 @@ body {
   .dark {
     --background: 240 5.9% 1%;
     --foreground: 0 0% 98%;
-    --card: 240 0% 6%;
+    --card: 240 0% 6.5%;
     --card-foreground: 0 0% 98%;
-    --message: 240 0% 6%;
+    --message: 240 0% 6.5%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;

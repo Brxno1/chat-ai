@@ -118,7 +118,7 @@ export function TodoCreateForm() {
       <SheetTrigger asChild>
         <Button variant="outline">
           <Plus size={16} />
-          Criar Tarefa
+          Criar tarefa
         </Button>
       </SheetTrigger>
       <SheetContent side={'right'}>
