@@ -136,7 +136,12 @@ export const AIReasoningTrigger = memo(
             {isStreaming ? (
               <p className="animate-pulse">Pensando...</p>
             ) : (
-              <p>{duration > 0 && `Pensamento de ${duration} segundos`}</p>
+              <p>
+                {duration > 0
+                  ? `Pensamento de ${duration} segundos`
+                  : 'Raciocínio'
+                }
+              </p>
             )}
             <ChevronDownIcon
               className={cn(
@@ -160,7 +165,7 @@ export type AIReasoningContentProps = ComponentProps<
 export const AIReasoningContent = memo(
   ({ className, children, ...props }: AIReasoningContentProps) => (
     <CollapsibleContent
-      className={cn('mt-4 text-muted-foreground text-sm max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[65%]', className)}
+      className={cn('my-1 text-muted-foreground text-sm max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]', className)}
       {...props}
     >
       <AIResponse className="grid gap-2">{children}</AIResponse>

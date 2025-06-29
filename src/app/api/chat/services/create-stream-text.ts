@@ -6,6 +6,8 @@ import {
   wrapLanguageModel,
 } from 'ai'
 
+import { weatherTool } from './weather'
+
 type CreateStreamTextParams = {
   messages: Message[]
   userId?: string
@@ -16,7 +18,7 @@ const google = createGoogleGenerativeAI({
 })
 
 const model = wrapLanguageModel({
-  model: google('gemini-1.5-flash-latest'),
+  model: google('gemini-1.5-flash-8b-latest'),
   middleware: [extractReasoningMiddleware({ tagName: 'think' })],
 })
 
@@ -25,7 +27,11 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
     model,
     temperature: 0.3,
     maxTokens: 2000,
+    maxSteps: 1,
     messages,
+    tools: {
+      displayWeather: weatherTool,
+    },
   })
 
   if (!stream) {

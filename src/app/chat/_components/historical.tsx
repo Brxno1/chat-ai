@@ -1,5 +1,6 @@
 'use client'
 
+import { Chat } from '@prisma/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { AlignLeft, ChevronRight, RefreshCcw } from 'lucide-react'
 import React from 'react'
@@ -38,7 +39,7 @@ function Historical() {
   }
 
   const groupedChats = React.useMemo(() => {
-    return groupItemsByDate(chats, (chat) => new Date(chat.createdAt))
+    return groupItemsByDate<Chat>(chats, (chat) => new Date(chat.createdAt))
   }, [chats])
 
   return (

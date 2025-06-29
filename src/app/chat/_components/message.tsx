@@ -24,6 +24,8 @@ import { useUser } from '@/context/user-provider'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
+import { Weather } from './weather'
+
 interface MessageProps {
   message: Message
   modelName: string
@@ -66,30 +68,14 @@ export function Messages({
     }, 500)
   }
 
-  function extractReasoningFromText(text: string) {
-    const thinkMatch = text.match(/<think>([\s\S]*?)<\/think>/i)
-    return thinkMatch ? thinkMatch[1].trim() : null
-  }
-
-  function removeThinkTags(text: string) {
-    return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
-  }
-
   const reasoningParts =
     message.parts?.filter((part) => part.type === 'reasoning') || []
-
-  const textParts = message.parts?.filter((part) => part.type === 'text') || []
-  const manualReasoning = textParts
-    .map((part) =>
-      'text' in part ? extractReasoningFromText(part.text) : null,
-    )
-    .filter(Boolean)
 
   return (
     <div className="flex w-full flex-col">
       {message.role === 'assistant' && (
         <ContainerWrapper>
-          <Badge variant={'chat'} className="mb-2 hover:bg-transparent">
+          <Badge variant={'chat'} className="hover:bg-transparent">
             <Avatar className="size-5 rounded-sm max-sm:size-4">
               <AvatarImage
                 src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
@@ -102,30 +88,29 @@ export function Messages({
           </Badge>
         </ContainerWrapper>
       )}
-      {message.role === 'assistant' &&
-        (reasoningParts.length > 0 || manualReasoning.length > 0) && (
-          <ContainerWrapper>
-            <AIReasoning isStreaming={isStreaming} defaultOpen={isStreaming}>
-              <AIReasoningTrigger
-                title="Raciocínio"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              />
-              <AIReasoningContent>
-                {/* eslint-disable */}
-                {reasoningParts
-                  .map((p) => ('reasoning' in p ? p.reasoning : ''))
-                  .join('\n\n')
-                }
-                {/* eslint-enable- */}
-              </AIReasoningContent>
-            </AIReasoning>
-          </ContainerWrapper>
-        )}
-      {message.parts?.map((part) => {
+      {message.role === 'assistant' && reasoningParts.length > 0 && (
+        <ContainerWrapper>
+          <AIReasoning isStreaming={isStreaming} defaultOpen={isStreaming}>
+            <AIReasoningTrigger
+              title="Raciocínio"
+              className="my-1 text-muted-foreground transition-colors hover:text-foreground"
+            />
+            {/* eslint-disable */}
+            <AIReasoningContent>
+              {reasoningParts
+                .map((p) => ('reasoning' in p ? p.reasoning : ''))
+                .join('\n\n')
+              }
+            </AIReasoningContent>
+            {/* eslint-enable- */}
+          </AIReasoning>
+        </ContainerWrapper>
+      )}
+      {message.parts?.map((part, partIndex) => {
         switch (part.type) {
           case 'text':
             return (
-              <ContainerWrapper key={id} className="mb-4 flex w-full flex-col">
+              <ContainerWrapper key={`${id}-text-${partIndex}`} className="mb-4 flex w-full flex-col">
                 {message.role === 'user' && (
                   <div className="ml-auto flex w-fit items-center justify-center">
                     <Badge variant={'chat'} className="hover:bg-transparent">
@@ -145,16 +130,14 @@ export function Messages({
                   className={cn(
                     'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]',
                     {
-                      'ml-auto bg-message text-accent':
+                      'ml-auto bg-message dark:bg-primary/10 text-accent':
                         message.role === 'user',
-                      'mr-auto bg-card text-card-foreground': message.role === 'assistant',
+                      'mr-auto bg-primary/10 text-card-foreground': message.role === 'assistant',
                     },
                   )}
                 >
                   <AIResponse>
-                    {part.type === 'text' && 'text' in part
-                      ? removeThinkTags(part.text)
-                      : ''}
+                    {part.text}
                   </AIResponse>
                   <DropdownMenu
                     open={state.openDropdown}
@@ -211,6 +194,41 @@ export function Messages({
                 >
                   {formatDateToLocaleWithHour(new Date(message.createdAt!))}
                 </Badge>
+              </ContainerWrapper>
+            )
+          case 'tool-invocation':
+            const { toolInvocation } = part
+
+            if (toolInvocation.toolName === 'displayWeather' && toolInvocation.state === 'result') {
+              const { weather, temperature, location } = toolInvocation.result
+
+              return (
+                <ContainerWrapper key={`${id}-tool-${partIndex}`} className="mb-4 flex w-full flex-col">
+                  <div className="mr-auto max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
+                    <Weather
+                      temperature={temperature}
+                      weather={weather}
+                      location={location}
+                    />
+                  </div>
+                  <Badge
+                    variant={'chat'}
+                    className="text-xs text-muted-foreground hover:bg-transparent"
+                  >
+                    {formatDateToLocaleWithHour(new Date(message.createdAt!))}
+                  </Badge>
+                </ContainerWrapper>
+              )
+            }
+
+            return (
+              <ContainerWrapper key={`${id}-tool-loading-${partIndex}`} className="mb-4 flex w-full flex-col">
+                <div className="mr-auto bg-primary/10 text-card-foreground rounded-lg p-3 max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
+                  <div className="text-sm text-muted-foreground">
+                    {toolInvocation.state === 'call' && `Executando ${toolInvocation.toolName}...`}
+                    {toolInvocation.state === 'partial-call' && `Preparando ${toolInvocation.toolName}...`}
+                  </div>
+                </div>
               </ContainerWrapper>
             )
           default:
