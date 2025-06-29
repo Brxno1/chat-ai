@@ -43,16 +43,17 @@ export async function processChatAndSaveMessages({
   const validMessages = messages.filter(
     (msg) => msg.content && msg.content.trim() !== '',
   )
-  const lastMessage = validMessages[validMessages.length - 1]
-  const isWeatherQuery =
-    lastMessage?.content?.toLowerCase().includes('tempo') ||
-    lastMessage?.content?.toLowerCase().includes('clima') ||
-    lastMessage?.content?.toLowerCase().includes('weather') ||
-    lastMessage?.content?.toLowerCase().includes('temperatura')
 
-  const contextMessages = isWeatherQuery
-    ? [lastMessage]
-    : validMessages.slice(-4)
+  const lastMessage = validMessages[validMessages.length - 1]
+  const messageContent = lastMessage?.content?.toLowerCase() || ''
+
+  const isWeatherQuery =
+    messageContent.includes('tempo') ||
+    messageContent.includes('clima') ||
+    messageContent.includes('weather') ||
+    messageContent.includes('temperatura')
+
+  const contextMessages = validMessages.slice(-4)
 
   const promptMessages: Message[] = [
     {
@@ -61,6 +62,7 @@ export async function processChatAndSaveMessages({
       content: generateSystemPrompt({
         name: name || '',
         isLoggedIn: !!userId,
+        disableWeatherCheck: !isWeatherQuery, // Desabilita ferramenta de clima quando não for explicitamente sobre clima
       }),
     },
     ...contextMessages.map((message, index) => ({

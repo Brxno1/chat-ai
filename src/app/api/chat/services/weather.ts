@@ -7,9 +7,7 @@ export const weatherTool = createTool({
     location: z.string().describe('O local para obter a previsão do tempo'),
   }),
   execute: async function ({ location }) {
-    // Verificar se tem API key
     if (!process.env.OPENWEATHER_API_KEY) {
-      // Mock data para teste
       const mockTemperature = Math.floor(Math.random() * 30) + 5
       const mockWeather = ['Clear', 'Cloudy', 'Rainy', 'Sunny'][
         Math.floor(Math.random() * 4)
@@ -28,7 +26,6 @@ export const weatherTool = createTool({
       )
       const data = await response.json()
 
-      // Verificar se a cidade foi encontrada
       if (data.cod !== 200 || !data.weather || !data.weather[0] || !data.main) {
         throw new Error(
           `Cidade "${location}" não encontrada ou dados indisponíveis`,

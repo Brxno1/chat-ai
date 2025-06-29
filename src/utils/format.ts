@@ -1,11 +1,13 @@
 import {
+  endOfWeek,
   format,
   formatDistance,
   isThisMonth,
-  isThisWeek,
   isThisYear,
   isToday,
+  isWithinInterval,
   isYesterday,
+  startOfWeek,
 } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -53,6 +55,9 @@ export function groupItemsByDate<T>(
 ): DateGroup<T>[] {
   const groups: Record<string, T[]> = {}
 
+  const now = new Date()
+  const weekOptions = { locale: ptBR, weekStartsOn: 1 as const }
+
   items.forEach((item) => {
     const date = dateSelector(item)
     let groupName: DateGroupType
@@ -61,14 +66,23 @@ export function groupItemsByDate<T>(
       groupName = 'Hoje'
     } else if (isYesterday(date)) {
       groupName = 'Ontem'
-    } else if (isThisWeek(date)) {
-      groupName = 'Esta semana'
-    } else if (isThisMonth(date)) {
-      groupName = 'Este mês'
-    } else if (isThisYear(date)) {
-      groupName = format(date, 'MMMM', { locale: ptBR })
     } else {
-      groupName = format(date, 'MMMM yyyy', { locale: ptBR })
+      const weekStart = startOfWeek(now, weekOptions)
+      const weekEnd = endOfWeek(now, weekOptions)
+      const isCurrentWeek = isWithinInterval(date, {
+        start: weekStart,
+        end: weekEnd,
+      })
+
+      if (isCurrentWeek) {
+        groupName = 'Esta semana'
+      } else if (isThisMonth(date)) {
+        groupName = 'Este mês'
+      } else if (isThisYear(date)) {
+        groupName = format(date, 'MMMM', { locale: ptBR })
+      } else {
+        groupName = format(date, 'MMMM yyyy', { locale: ptBR })
+      }
     }
 
     if (!groups[groupName]) {
@@ -78,8 +92,28 @@ export function groupItemsByDate<T>(
     groups[groupName].push(item)
   })
 
-  return Object.entries(groups).map(([title, items]) => ({
-    title,
-    items,
-  }))
+  const groupOrder: Record<string, number> = {
+    Hoje: 0,
+    Ontem: 1,
+    'Esta semana': 2,
+    'Este mês': 3,
+  }
+
+  return Object.entries(groups)
+    .map(([title, items]) => ({
+      title,
+      items: items.sort(
+        (a, b) => dateSelector(b).getTime() - dateSelector(a).getTime(),
+      ),
+    }))
+    .sort((a, b) => {
+      const orderA = groupOrder[a.title] ?? 999
+      const orderB = groupOrder[b.title] ?? 999
+
+      if (orderA !== orderB) {
+        return orderA - orderB
+      }
+
+      return b.title.localeCompare(a.title)
+    })
 }
