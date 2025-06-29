@@ -126,7 +126,7 @@ export const AIReasoningTrigger = memo(
     return (
       <CollapsibleTrigger
         className={cn(
-          'flex items-center gap-2 text-muted-foreground text-xs',
+          'flex items-center gap-1 text-muted-foreground text-xs',
           className
         )}
         {...props}
@@ -138,7 +138,7 @@ export const AIReasoningTrigger = memo(
             ) : (
               <p>
                 {duration > 0
-                  ? `Pensamento de ${duration} segundos`
+                  ? `Pensamento de ${duration} ${duration <= 1 ? 'segundo' : 'segundos'}`
                   : 'Raciocínio'
                 }
               </p>

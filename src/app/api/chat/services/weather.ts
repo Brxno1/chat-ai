@@ -22,14 +22,30 @@ export const weatherTool = createTool({
       }
     }
 
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`,
-    )
-    const data = await response.json()
-    const weather = data.weather[0].main
-    const temperature = data.main.temp
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`,
+      )
+      const data = await response.json()
 
-    return { weather, temperature, location }
+      // Verificar se a cidade foi encontrada
+      if (data.cod !== 200 || !data.weather || !data.weather[0] || !data.main) {
+        throw new Error(
+          `Cidade "${location}" não encontrada ou dados indisponíveis`,
+        )
+      }
+
+      const weather = data.weather[0].main
+      const temperature = data.main.temp
+
+      return { weather, temperature, location }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro desconhecido'
+      throw new Error(
+        `Erro ao buscar clima para "${location}": ${errorMessage}`,
+      )
+    }
   },
 })
 

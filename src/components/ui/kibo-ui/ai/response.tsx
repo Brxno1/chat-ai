@@ -166,22 +166,28 @@ const components: Options['components'] = {
 };
 
 export const AIResponse = memo(
-  ({ className, options, children, ...props }: AIResponseProps) => (
-    <div
-      className={cn(
-        '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0 overflow-hidden p-.5',
-        className
-      )}
-      {...props}
-    >
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={components}
-        {...options}
+  ({ className, options, children, ...props }: AIResponseProps) => {
+    if (!children || (typeof children === 'string' && children.trim() === '')) {
+      return null
+    }
+
+    return (
+      <div
+        className={cn(
+          '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0 overflow-hidden p-1.5',
+          className
+        )}
+        {...props}
       >
-        {children}
-      </ReactMarkdown>
-    </div>
-  ),
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={components}
+          {...options}
+        >
+          {children}
+        </ReactMarkdown>
+      </div>
+    )
+  },
   (prevProps, nextProps) => prevProps.children === nextProps.children
 );
