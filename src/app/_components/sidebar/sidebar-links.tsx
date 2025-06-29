@@ -41,7 +41,7 @@ export function SidebarLinks({
           href={link.href}
           active={isActiveLink(link.href)}
           onClick={link.onClick}
-          className="group-data-[sidebar=closed]/sidebar:flex group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=open]/sidebar:gap-2 group-data-[sidebar=open]/sidebar:pl-3"
+          className="gap-2 px-2 group-data-[sidebar=closed]/sidebar:flex group-data-[sidebar=closed]/sidebar:justify-center"
         >
           <link.icon size={20} />
           <span className="group-data-[sidebar=open]/sidebar:block group-data-[sidebar=closed]/sidebar:hidden">

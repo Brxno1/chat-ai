@@ -8,6 +8,7 @@ import {
 import { generateSystemPrompt } from '../prompts'
 import { countTodosTool } from './counter-todos-tool'
 import { createStreamText } from './create-stream-text'
+import { weatherTool } from './weather'
 
 type Role = 'user' | 'assistant'
 
@@ -21,12 +22,13 @@ type ProcessChatAndSaveMessagesParams = {
   model?: string
 }
 
-type TodoTools = {
+type AllTools = {
   count_todos: typeof countTodosTool
+  displayWeather: typeof weatherTool
 }
 
 type ProcessChatAndSaveMessagesResponse = {
-  stream: StreamTextResult<TodoTools, never> | null
+  stream: StreamTextResult<AllTools, never> | null
   chatId?: string
   error?: string
 }
@@ -41,6 +43,16 @@ export async function processChatAndSaveMessages({
   const validMessages = messages.filter(
     (msg) => msg.content && msg.content.trim() !== '',
   )
+  const lastMessage = validMessages[validMessages.length - 1]
+  const isWeatherQuery =
+    lastMessage?.content?.toLowerCase().includes('tempo') ||
+    lastMessage?.content?.toLowerCase().includes('clima') ||
+    lastMessage?.content?.toLowerCase().includes('weather') ||
+    lastMessage?.content?.toLowerCase().includes('temperatura')
+
+  const contextMessages = isWeatherQuery
+    ? [lastMessage]
+    : validMessages.slice(-4)
 
   const promptMessages: Message[] = [
     {
@@ -51,7 +63,7 @@ export async function processChatAndSaveMessages({
         isLoggedIn: !!userId,
       }),
     },
-    ...validMessages.map((message, index) => ({
+    ...contextMessages.map((message, index) => ({
       id: `message-${index}`,
       role: message.role,
       content: message.content,
@@ -65,7 +77,7 @@ export async function processChatAndSaveMessages({
     })
 
     return {
-      stream: stream as StreamTextResult<TodoTools, never>,
+      stream,
       error: error || undefined,
       chatId: undefined,
     }
@@ -109,18 +121,13 @@ export async function processChatAndSaveMessages({
   }
 
   try {
-    await saveChatResponse(
-      stream! as StreamTextResult<TodoTools, never>,
-      chat!.id,
-      chatId,
-      validMessages,
-    )
+    await saveChatResponse(stream!, chat!.id, chatId, validMessages)
   } catch (error) {
     console.error('Error saving response:', error)
   }
 
   return {
-    stream: stream as StreamTextResult<TodoTools, never>,
+    stream,
     chatId: chat!.id,
   }
 }

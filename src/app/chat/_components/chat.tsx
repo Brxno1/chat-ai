@@ -161,7 +161,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   }
 
   return (
-    <div className="flex h-full w-full flex-col rounded-md rounded-b-xl border">
+    <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border border-input">
       <div
         className="flex-1 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
@@ -173,6 +173,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
             modelName={model}
             modelProvider={modelProvider}
             onDeleteMessageChat={onDeleteMessageChat}
+            isStreaming={status === 'streaming'}
           />
         ))}
         <div ref={messagesEndRef} />
@@ -180,7 +181,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       <Form {...form}>
         <AIForm
           onSubmit={form.handleSubmit(handleChatSubmit)}
-          className="rounded-xl border bg-card dark:bg-message"
+          className="rounded-xl border border-input bg-card dark:bg-message"
         >
           <FormField
             control={form.control}
@@ -189,7 +190,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               <FormItem className="relative">
                 <FormControl>
                   <Input
-                    className="h-14 resize-none border-0 shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
+                    className="h-14 resize-none border-none shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
                     disabled={status === 'streaming' || isLoading}
                     value={input}
                     ref={inputRef}
@@ -270,22 +271,23 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                   <AIInputModelSelectValue />
                   <ChevronsUpDown size={16} />
                 </AIInputModelSelectTrigger>
-                <AIInputModelSelectContent>
-                  {models.map((model) => (
+                <AIInputModelSelectContent className="bg-card">
+                  {models.map((m) => (
                     <AIInputModelSelectItem
-                      value={model.name}
-                      key={model.id}
-                      disabled={model.disabled}
-                      className="flex items-center text-sm transition-all"
+                      value={m.name}
+                      key={m.id}
+                      disabled={m.disabled}
+                      data-active={m.name === model}
+                      className="cursor-pointer text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
                     >
                       <Image
-                        src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
-                        alt={model.provider}
+                        src={`https://img.logo.dev/${m.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+                        alt={m.provider}
                         className="mr-2 inline-flex size-4 rounded-sm"
                         width={16}
                         height={16}
                       />
-                      <span>{model.name}</span>
+                      <span>{m.name}</span>
                     </AIInputModelSelectItem>
                   ))}
                 </AIInputModelSelectContent>

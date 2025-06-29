@@ -98,7 +98,7 @@ export const AIReasoning = memo(
         <Collapsible
           open={isOpen}
           onOpenChange={handleOpenChange}
-          className={cn('not-prose mb-4', className)}
+          className={cn('not-prose', className)}
           {...props}
         >
           {children}
@@ -117,7 +117,7 @@ export type AIReasoningTriggerProps = ComponentProps<
 export const AIReasoningTrigger = memo(
   ({
     className,
-    title = 'Reasoning',
+    title = 'Raciocínio',
     children,
     ...props
   }: AIReasoningTriggerProps) => {
@@ -126,17 +126,22 @@ export const AIReasoningTrigger = memo(
     return (
       <CollapsibleTrigger
         className={cn(
-          'flex items-center gap-2 text-muted-foreground text-sm',
+          'flex items-center gap-1 text-muted-foreground text-xs',
           className
         )}
         {...props}
       >
         {children ?? (
           <>
-            {isStreaming && duration === 0 ? (
-              <p>Thinking...</p>
+            {isStreaming ? (
+              <p className="animate-pulse">Pensando...</p>
             ) : (
-              <p>Thought for {duration} seconds</p>
+              <p>
+                {duration > 0
+                  ? `Pensamento de ${duration} ${duration <= 1 ? 'segundo' : 'segundos'}`
+                  : 'Raciocínio'
+                }
+              </p>
             )}
             <ChevronDownIcon
               className={cn(
@@ -160,7 +165,7 @@ export type AIReasoningContentProps = ComponentProps<
 export const AIReasoningContent = memo(
   ({ className, children, ...props }: AIReasoningContentProps) => (
     <CollapsibleContent
-      className={cn('mt-4 text-muted-foreground text-sm', className)}
+      className={cn('my-1 text-muted-foreground text-sm max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]', className)}
       {...props}
     >
       <AIResponse className="grid gap-2">{children}</AIResponse>

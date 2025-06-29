@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     const response = stream.toDataStreamResponse({
       getErrorMessage: errorHandler,
+      sendReasoning: true,
     })
 
     if (chatId) response.headers.set('x-chat-id', chatId)

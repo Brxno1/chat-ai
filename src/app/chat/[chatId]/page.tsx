@@ -17,11 +17,12 @@ const getChatByIdCached = cache(async (chatId: string, userId: string) => {
 export default async function ChatPageWithId({
   params,
 }: {
-  params: { chatId: string }
+  params: Promise<{ chatId: string }>
 }) {
+  const { chatId } = await params
   const { session } = await getUserSession()
 
-  const { chat } = await getChatByIdCached(params.chatId, session!.user.id)
+  const { chat } = await getChatByIdCached(chatId, session!.user.id)
 
   return (
     <DashboardPage className="flex h-full w-full max-w-full flex-col">
@@ -30,7 +31,7 @@ export default async function ChatPageWithId({
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<ChatFallback />}>
             <Chat
-              currentChatId={params.chatId}
+              currentChatId={chatId}
               initialMessages={chat!.messages as Message[]}
             />
           </Suspense>
@@ -43,14 +44,12 @@ export default async function ChatPageWithId({
 export async function generateMetadata({
   params,
 }: {
-  params: { chatId: string }
+  params: Promise<{ chatId: string }>
 }) {
+  const { chatId } = await params
   const { session } = await getUserSession()
 
-  const { success, chat } = await getChatByIdCached(
-    params.chatId,
-    session!.user.id,
-  )
+  const { success, chat } = await getChatByIdCached(chatId, session!.user.id)
 
   if (!success && !chat) {
     return {

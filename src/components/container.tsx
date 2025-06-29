@@ -1,9 +1,10 @@
 import { cn } from '@/utils/utils'
 
-type ContainerWrapperProps = React.HTMLAttributes<HTMLDivElement> & {
-  children: React.ReactNode
-  ref?: React.RefObject<HTMLDivElement>
-}
+type ContainerWrapperProps = React.HTMLAttributes<HTMLDivElement> &
+  React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    children: React.ReactNode
+    ref?: React.RefObject<HTMLDivElement>
+  }
 
 export function ContainerWrapper({
   children,

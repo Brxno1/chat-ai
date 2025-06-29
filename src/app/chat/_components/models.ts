@@ -24,20 +24,20 @@ export const models: Model[] = [
       'Modelo experimental Gemini 2.0 Flash, projetado para explorar novas abordagens em IA generativa.',
   },
   {
-    id: 'gemini-1.5-flash-8b-latest',
-    name: 'Gemini 1.5 Flash 8B Latest',
-    provider: 'google.com',
-    disabled: false,
-    description:
-      'Última versão do modelo Gemini 1.5 Flash 8B, com melhorias em eficiência e capacidade de resposta.',
-  },
-  {
     id: 'gemini-2.0-flash-lite',
     name: 'Gemini 2.0 Flash Lite',
     provider: 'google.com',
     disabled: false,
     description:
       'Modelo Gemini 2.0 Flash Lite da Google, ideal para tarefas de processamento de linguagem natural com alta precisão.',
+  },
+  {
+    id: 'gemini-1.5-flash-8b-latest',
+    name: 'Gemini 1.5 Flash 8B Latest',
+    provider: 'google.com',
+    disabled: false,
+    description:
+      'Última versão do modelo Gemini 1.5 Flash 8B, com melhorias em eficiência e capacidade de resposta.',
   },
   {
     id: 'gemini-1.5-flash-001',
