@@ -57,7 +57,7 @@ export const useChatStore = create<State & Actions>()(
       isGhostChatMode: false,
       messages: [],
       isCreatingNewChat: false,
-      model: models[0].name,
+      model: models[0].id,
       modelProvider: models[0].provider,
       chatInstanceKey: '',
       chatIsDeleting: false,

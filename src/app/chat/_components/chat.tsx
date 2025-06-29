@@ -102,11 +102,11 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     initialMessages,
     key: currentChatId || getChatInstanceKey(),
     api: '/api/chat',
-    body: {
-      name: user?.name || undefined,
-      chatId: currentChatId || '',
-      isGhostChatMode,
-      model,
+    headers: {
+      'x-user-name': user?.name || '',
+      'x-user-id': user?.id || '',
+      'x-chat-id': currentChatId || '',
+      'x-ghost-mode': isGhostChatMode.toString(),
     },
     onResponse: (response) => {
       const headerChatId = response.headers?.get('x-chat-id')

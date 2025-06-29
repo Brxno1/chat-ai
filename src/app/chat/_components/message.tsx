@@ -116,7 +116,7 @@ export function Messages({
       )}
       {message.role === 'assistant' && reasoningParts.length > 0 && (
         <ContainerWrapper>
-          <AIReasoning isStreaming={isStreaming} defaultOpen={isStreaming}>
+          <AIReasoning isStreaming={isStreaming} defaultOpen={false}>
             <AIReasoningTrigger
               title="Raciocínio"
               className="text-muted-foreground transition-colors hover:text-foreground"

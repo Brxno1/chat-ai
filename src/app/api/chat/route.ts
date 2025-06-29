@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { getUserSession } from '../user/profile/actions/get-user-session'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
@@ -13,23 +12,30 @@ const schema = z.object({
       content: z.string(),
     }),
   ),
-  name: z.string().optional(),
-  chatId: z.string().optional(),
-  isGhostChatMode: z.boolean().optional(),
 })
 
 export async function POST(req: NextRequest) {
   try {
     const body = schema.parse(await req.json())
 
-    const { session } = await getUserSession()
-    const userId = session?.user?.id
-    const userName = session?.user?.name
+    const headerUserName = req.headers.get('x-user-name') || undefined
+    const headerUserId = req.headers.get('x-user-id') || undefined
+    const headerChatId = req.headers.get('x-chat-id') || undefined
+    const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
+
+    console.log('headers', {
+      headerUserName,
+      headerUserId,
+      headerChatId,
+      headerGhostMode,
+    })
 
     const { stream, chatId, error } = await processChatAndSaveMessages({
       ...body,
-      name: userName ?? body.name,
-      userId,
+      name: headerUserName,
+      userId: headerUserId,
+      chatId: headerChatId,
+      isGhostChatMode: headerGhostMode,
     })
 
     if (error || !stream) {
@@ -46,9 +52,22 @@ export async function POST(req: NextRequest) {
     const response = stream.toDataStreamResponse({
       getErrorMessage: errorHandler,
       sendReasoning: true,
+      headers: {
+        'x-chat-id': chatId ?? '',
+        'x-user-id': headerUserId ?? 'anonymous',
+        'x-user-name': headerUserName ?? 'Guest',
+        'x-timestamp': Date.now().toString(),
+        'x-ghost-mode': headerGhostMode.toString(),
+        'x-message-count': (body.messages.length + 1).toString(),
+        'x-rate-limit-remaining': '100',
+        'x-rate-limit-reset': (Date.now() + 3600000).toString(), // 1 hour
+        'x-daily-quota-used': (body.messages.length + 1).toString(),
+        'x-daily-quota-limit': '50',
+        'x-context-length': body.messages.slice(-4).length.toString(),
+        'x-user-tier': headerUserId ? 'premium' : 'free',
+        'x-processing-time': Date.now().toString(),
+      },
     })
-
-    if (chatId) response.headers.set('x-chat-id', chatId)
 
     return response
   } catch (error) {
