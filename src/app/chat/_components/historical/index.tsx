@@ -18,7 +18,7 @@ import { queryKeys } from '@/lib/query-client'
 import { groupItemsByDate } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
-import { HistoricalItem } from './historical/item'
+import { HistoricalItem } from './historical-item'
 
 function Historical() {
   const [isCollapsed, setIsCollapsed] = React.useState(false)

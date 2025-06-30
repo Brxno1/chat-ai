@@ -1,48 +1,58 @@
 import { tool as createTool } from 'ai'
 import { z } from 'zod'
 
+type WeatherResponse = {
+  cod: number
+  weather: { main: string }[]
+  main: { temp: number }
+}
+
 export const weatherTool = createTool({
-  description: 'Exibe a previsão do tempo para um local',
+  description: 'Exibe a previsão do tempo para um ou mais locais',
   parameters: z.object({
-    location: z.string().describe('O local para obter a previsão do tempo'),
+    location: z
+      .array(z.string())
+      .describe('Os locais para obter a previsão do tempo'),
   }),
   execute: async function ({ location }) {
-    if (!process.env.OPENWEATHER_API_KEY) {
-      const mockTemperature = Math.floor(Math.random() * 30) + 5
-      const mockWeather = ['Clear', 'Cloudy', 'Rainy', 'Sunny'][
-        Math.floor(Math.random() * 4)
-      ]
+    const locations = Array.isArray(location) ? location : [location]
+    const results = []
 
-      return {
-        weather: mockWeather,
-        temperature: mockTemperature,
-        location,
-      }
-    }
-
-    try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`,
-      )
-      const data = await response.json()
-
-      if (data.cod !== 200 || !data.weather || !data.weather[0] || !data.main) {
-        throw new Error(
-          `Cidade "${location}" não encontrada ou dados indisponíveis`,
+    for (const loc of locations) {
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`,
         )
+        const data: WeatherResponse = await response.json()
+
+        if (
+          data.cod !== 200 ||
+          !data.weather ||
+          !data.weather[0] ||
+          !data.main
+        ) {
+          results.push({
+            error: `Cidade "${loc}" não encontrada ou dados indisponíveis`,
+            location: loc,
+          })
+          continue
+        }
+
+        const weather = data.weather[0].main
+        const temperature = data.main.temp
+
+        results.push({ weather, temperature, location: loc })
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Erro desconhecido'
+        results.push({
+          error: `Erro ao buscar clima para "${loc}": ${errorMessage}`,
+          location: loc,
+        })
       }
-
-      const weather = data.weather[0].main
-      const temperature = data.main.temp
-
-      return { weather, temperature, location }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Erro desconhecido'
-      throw new Error(
-        `Erro ao buscar clima para "${location}": ${errorMessage}`,
-      )
     }
+
+    return results
   },
 })
 

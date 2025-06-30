@@ -6,7 +6,6 @@ import {
   wrapLanguageModel,
 } from 'ai'
 
-import { countTodosTool } from './counter-todos-tool'
 import { weatherTool } from './weather'
 
 type CreateStreamTextParams = {
@@ -19,7 +18,7 @@ const google = createGoogleGenerativeAI({
 })
 
 const model = wrapLanguageModel({
-  model: google('gemini-2.0-flash-thinking-exp-01-21'),
+  model: google('gemini-1.5-flash-8b-latest'),
   middleware: [extractReasoningMiddleware({ tagName: 'think' })],
 })
 
@@ -32,7 +31,6 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
     messages,
     tools: {
       displayWeather: weatherTool,
-      count_todos: countTodosTool,
     },
   })
 

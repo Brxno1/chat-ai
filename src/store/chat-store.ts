@@ -3,7 +3,7 @@ import { Chat } from '@prisma/client'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { models } from '@/app/chat/_components/models'
+import { models } from '@/app/chat/models/definitions'
 
 type MessageFromChat = {
   id: string

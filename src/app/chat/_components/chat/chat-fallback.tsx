@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/kibo-ui/ai/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { Input } from '../../../components/ui/input'
+import { Input } from '../../../../components/ui/input'
 
 export function ChatFallback() {
   return (

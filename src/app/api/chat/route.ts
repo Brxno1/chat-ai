@@ -18,20 +18,15 @@ export async function POST(req: NextRequest) {
   try {
     const body = schema.parse(await req.json())
 
+    const { messages } = body
+
     const headerUserName = req.headers.get('x-user-name') || undefined
     const headerUserId = req.headers.get('x-user-id') || undefined
     const headerChatId = req.headers.get('x-chat-id') || undefined
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
 
-    console.log('headers', {
-      headerUserName,
-      headerUserId,
-      headerChatId,
-      headerGhostMode,
-    })
-
     const { stream, chatId, error } = await processChatAndSaveMessages({
-      ...body,
+      messages,
       name: headerUserName,
       userId: headerUserId,
       chatId: headerChatId,
