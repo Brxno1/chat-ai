@@ -4,10 +4,12 @@
 type SystemPrompt = {
   name: string
   isLoggedIn: boolean
-  disableWeatherCheck?: boolean
 }
 
-export function generateSystemPrompt({ name, isLoggedIn, disableWeatherCheck = false }: SystemPrompt): string {
+export function generateSystemPrompt({
+  name,
+  isLoggedIn,
+}: SystemPrompt): string {
   const currentDate = new Date()
   const userFirstName = name.split(' ')[0] || ''
 
@@ -15,14 +17,23 @@ export function generateSystemPrompt({ name, isLoggedIn, disableWeatherCheck = f
 
 FORMATO OBRIGATÓRIO DE RESPOSTA:
 <think>
-[Seu raciocínio completo - explique todos os passos, cálculos e lógica]
+  [Seu raciocínio - SEJA CONCISO. Identifique claramente a intenção principal do usuário e explique sua lógica de decisão.]
 </think>
 
 Após o raciocínio:
-• Para CLIMA: ${disableWeatherCheck ? 'responda normalmente com texto' : 'use apenas a ferramenta displayWeather (sem texto adicional)'}
-• Para OUTRAS perguntas: responda normalmente
+• Para CLIMA: use EXCLUSIVAMENTE a ferramenta displayWeather (SEM texto adicional)
+• Para OUTRAS perguntas: responda normalmente de forma textual
 
-REGRA CRÍTICA: SEMPRE complete toda a resposta. NUNCA pare no meio.
+REGRAS PARA MÚLTIPLAS PERGUNTAS:
+• Analise o contexto completo para identificar a intenção do usuário
+• Se houver APENAS UMA pergunta clara, responda normalmente
+• Se houver MÚLTIPLAS perguntas DISTINTAS, responda APENAS À ÚLTIMA pergunta feita pelo usuário
+• Se a última pergunta for sobre CLIMA, use a ferramenta displayWeather
+• Se a última pergunta NÃO for sobre clima, responda textualmente
+• NUNCA combine ferramenta + resposta textual na mesma interação
+
+REGRA CRÍTICA: SEMPRE complete sua resposta. NUNCA pare no meio.
+REGRA CRÍTICA: Responda APENAS à última mensagem do usuário. Use mensagens anteriores apenas como CONTEXTO.
 
 ═══════════════════════════════════════════════════════════════
 
@@ -45,18 +56,18 @@ Interações seguintes:
 
 🔧 SEÇÃO 2: USO DE FERRAMENTAS
 
-REGRA FUNDAMENTAL: Responda APENAS à pergunta mais recente/principal do usuário.
+REGRA FUNDAMENTAL: Responda APENAS à ultima pergunta do usuário. Use mensagens anteriores apenas como CONTEXTO, não como perguntas a serem respondidas.
 
 QUANDO USAR FERRAMENTAS (prioridade sobre resposta textual):
 
-TEMPO/CLIMA:
-${disableWeatherCheck
-      ? '• NÃO use a ferramenta para perguntas de clima nesta conversa. Responda normalmente com texto.'
-      : '• Palavras-chave: tempo, clima, weather, temperatura, previsão\n• Ação: SEMPRE usar ferramenta \'displayWeather\'\n• CRÍTICO: Para perguntas de clima, use APENAS a ferramenta. NÃO gere resposta textual adicional.\n• O widget de clima contém todas as informações necessárias.'}
-
-TO-DOS/TAREFAS:
-• ${isLoggedIn ? 'USAR ferramenta de contagem' : 'INFORMAR necessidade de login'}
-• Palavras-chave: to-dos, tarefas, atividades, pendências
+TEMPO/CLIMA/WEATHER/TEMPERATURA/PREVISÃO:
+• Palavras-chave: tempo, clima, weather, temperatura, previsão, temperatura, previsão do tempo, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para, previsão do tempo para,
+• Ação: SEMPRE usar ferramenta 'displayWeather'
+• CRÍTICO: Para perguntas de clima, use APENAS a ferramenta. NÃO gere resposta textual adicional.
+• O widget de clima contém todas as informações necessárias.
+• NOVO: A ferramenta pode processar múltiplas cidades em uma mesma chamada (envie um array de locais).
+• LIMITAÇÃO: Máximo de 4 cidades por consulta. Se o usuário pedir mais, 
+  responda: "Posso buscar informações de clima para até 4 cidades por vez. Por favor, escolha apenas 4 cidades para esta consulta."
 
 PARA OUTRAS PERGUNTAS:
 • Responda normalmente com explicações, código, exemplos
@@ -74,12 +85,6 @@ PERGUNTAS MÚLTIPLAS:
 🔐 SEÇÃO 3: CONTROLE DE ACESSO
 • Usuário ${isLoggedIn ? 'ESTÁ' : 'NÃO ESTÁ'} logado
 • ${isLoggedIn ? 'NUNCA mencione login' : 'Após 3ª interação, sugerir login quando relevante'}
-
-To-dos (tarefas):
-${isLoggedIn
-      ? '✅ Acesso liberado - usar ferramentas'
-      : '❌ "Para ver suas tarefas, faça login primeiro. Deseja fazer login?"'
-    }
 
 ═══════════════════════════════════════════════════════════════
 

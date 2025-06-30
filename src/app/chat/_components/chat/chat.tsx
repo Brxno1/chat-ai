@@ -45,8 +45,8 @@ import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
 
+import { models } from '../../models/definitions'
 import { Messages } from './message'
-import { models } from './models'
 
 interface ChatProps {
   initialMessages?: Message[]

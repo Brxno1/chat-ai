@@ -6,7 +6,6 @@ import {
   saveMessages,
 } from '../actions/chat-operations'
 import { generateSystemPrompt } from '../prompts'
-import { countTodosTool } from './counter-todos-tool'
 import { createStreamText } from './create-stream-text'
 import { weatherTool } from './weather'
 
@@ -23,7 +22,6 @@ type ProcessChatAndSaveMessagesParams = {
 }
 
 type AllTools = {
-  count_todos: typeof countTodosTool
   displayWeather: typeof weatherTool
 }
 
@@ -43,18 +41,6 @@ export async function processChatAndSaveMessages({
   const validMessages = messages.filter(
     (msg) => msg.content && msg.content.trim() !== '',
   )
-
-  const lastMessage = validMessages[validMessages.length - 1]
-  const messageContent = lastMessage?.content?.toLowerCase() || ''
-
-  const isWeatherQuery =
-    messageContent.includes('tempo') ||
-    messageContent.includes('clima') ||
-    messageContent.includes('weather') ||
-    messageContent.includes('temperatura')
-
-  const contextMessages = validMessages.slice(-4)
-
   const promptMessages: Message[] = [
     {
       id: 'system',
@@ -62,10 +48,9 @@ export async function processChatAndSaveMessages({
       content: generateSystemPrompt({
         name: name || '',
         isLoggedIn: !!userId,
-        disableWeatherCheck: !isWeatherQuery, // Desabilita ferramenta de clima quando não for explicitamente sobre clima
       }),
     },
-    ...contextMessages.map((message, index) => ({
+    ...validMessages.map((message, index) => ({
       id: `message-${index}`,
       role: message.role,
       content: message.content,

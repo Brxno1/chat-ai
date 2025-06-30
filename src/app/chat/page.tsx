@@ -1,11 +1,11 @@
 import { Suspense } from 'react'
 
-import { Chat } from '@/app/chat/_components/chat'
-import { ChatFallback } from '@/app/chat/_components/chat-fallback'
+import { Chat } from '@/app/chat/_components/chat/chat'
+import { ChatFallback } from '@/app/chat/_components/chat/chat-fallback'
 import { ContainerWrapper } from '@/components/container'
 import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
 
-import { ChatHeader } from './_components/header'
+import { ChatHeader } from './_components/ui/header'
 
 export default async function ChatPage() {
   return (
