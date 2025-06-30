@@ -9,18 +9,20 @@ import { formatDateToLocaleWithHour } from '@/utils/format'
 
 import { Weather } from '../ui/widgets/weather'
 
-interface WidgetProps {
+interface ChatWeatherProps {
   toolInvocation: ToolInvocation
   partIndex: number
   message: Message
 }
 
-export function Widget({ toolInvocation, partIndex, message }: WidgetProps) {
+export function ChatWeather({
+  toolInvocation,
+  partIndex,
+  message,
+}: ChatWeatherProps) {
   const [stuckToolCalls, setStuckToolCalls] = React.useState<Set<string>>(
     new Set(),
   )
-
-  const id = React.useId()
 
   React.useEffect(() => {
     if (!message.parts) return
@@ -57,7 +59,7 @@ export function Widget({ toolInvocation, partIndex, message }: WidgetProps) {
 
     return (
       <ContainerWrapper
-        key={`${id}-tool-${partIndex}`}
+        key={`${message.id}-tool-${partIndex}`}
         className="mt-1 flex w-full flex-col"
       >
         <div className="mr-auto grid grid-cols-1 gap-4 transition-all duration-300 max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%] lg:grid-cols-2">
@@ -89,7 +91,7 @@ export function Widget({ toolInvocation, partIndex, message }: WidgetProps) {
     if (isStuck) {
       return (
         <ContainerWrapper
-          key={`${id}-tool-error-${partIndex}`}
+          key={`${message.id}-tool-error-${partIndex}`}
           className="mt-1 flex w-full flex-col"
         >
           <div className="mr-auto max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
@@ -138,7 +140,7 @@ export function Widget({ toolInvocation, partIndex, message }: WidgetProps) {
     } else {
       return (
         <ContainerWrapper
-          key={`${id}-tool-loading-${partIndex}`}
+          key={`${message.id}-tool-loading-${partIndex}`}
           className="mt-1 flex w-full flex-col"
         >
           <div className="mr-auto rounded-lg bg-primary/10 p-3 text-card-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
@@ -164,7 +166,7 @@ export function Widget({ toolInvocation, partIndex, message }: WidgetProps) {
   }
   return (
     <ContainerWrapper
-      key={`${id}-tool-loading-${partIndex}`}
+      key={`${message.id}-tool-loading-${partIndex}`}
       className="mt-1 flex w-full flex-col"
     >
       <div className="mr-auto rounded-lg bg-primary/10 p-3 text-card-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">

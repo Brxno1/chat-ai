@@ -2,7 +2,7 @@
 
 import { Message } from '@ai-sdk/react'
 import { ChevronDown, Trash } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 
 import { ContainerWrapper } from '@/components/container'
 import { CopyTextComponent } from '@/components/copy-text-component'
@@ -24,7 +24,7 @@ import { useUser } from '@/context/user-provider'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
-import { Widget } from './chat-widget'
+import { ChatWeather } from './chat-weather'
 
 interface MessageProps {
   message: Message
@@ -45,8 +45,6 @@ export function Messages({
     isDeleting: false,
     openDropdown: false,
   })
-
-  const id = useId()
 
   const { user } = useUser()
 
@@ -114,7 +112,7 @@ export function Messages({
             }
 
             return (
-              <ContainerWrapper key={`${id}-text-${partIndex}`} className="flex w-full flex-col">
+              <ContainerWrapper key={`${message.id}-text-${partIndex}`} className="flex w-full flex-col">
                 {message.role === 'user' && (
                   <div className="ml-auto flex w-fit items-center justify-center">
                     <Badge variant={'chat'} className="hover:bg-transparent">
@@ -203,7 +201,14 @@ export function Messages({
           case 'tool-invocation':
             const { toolInvocation } = part
 
-            return <Widget toolInvocation={toolInvocation} partIndex={partIndex} message={message} />
+            return (
+              <ChatWeather
+                key={`${message.id}-tool-${partIndex}`}
+                toolInvocation={toolInvocation}
+                partIndex={partIndex}
+                message={message}
+              />
+            )
           default:
             return null
         }

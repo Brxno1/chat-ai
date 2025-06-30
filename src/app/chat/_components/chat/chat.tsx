@@ -65,8 +65,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
   const { isMobile } = useSidebar()
 
-  const id = React.useId()
-
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -160,15 +158,17 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     }
   }
 
+  console.log(messages)
+
   return (
     <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border border-input">
       <div
         className="flex-1 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <Messages
-            key={`${index}-${id}`}
+            key={`${message.id}`}
             message={message}
             modelName={model}
             modelProvider={modelProvider}
