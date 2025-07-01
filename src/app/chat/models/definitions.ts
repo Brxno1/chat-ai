@@ -56,18 +56,10 @@ export const models: Model[] = [
       'Modelo Gemini 1.5 Flash 002, otimizado para geração de texto e compreensão contextual.',
   },
   {
-    id: 'palm-2',
-    name: 'PaLM 2',
-    provider: 'google.com',
-    disabled: false,
-    description:
-      'Modelo PaLM 2 da Google, focado em tarefas complexas de raciocínio e compreensão de linguagem.',
-  },
-  {
     id: 'gpt-4o-mini',
     name: 'GPT-4o mini',
     provider: 'openai.com',
-    disabled: false,
+    disabled: true,
     description:
       'Versão mini do modelo GPT-4o da OpenAI, excelente para aplicações que requerem respostas rápidas e precisas.',
   },
@@ -107,7 +99,7 @@ export const models: Model[] = [
     id: 'llama-2-70b',
     name: 'Llama 2 70B',
     provider: 'meta.com',
-    disabled: false,
+    disabled: true,
     description:
       'Modelo Llama 2 70B da Meta, ideal para tarefas de geração de texto em larga escala e análise de dados.',
   },
@@ -131,7 +123,7 @@ export const models: Model[] = [
     id: 'mistral-7b',
     name: 'Mistral 7B',
     provider: 'mistral.ai',
-    disabled: false,
+    disabled: true,
     description:
       'Modelo Mistral 7B da Mistral.ai, conhecido por sua eficiência em tarefas de geração de texto e análise de sentimentos.',
   },

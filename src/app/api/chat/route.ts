@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 }
 
 export function errorHandler(error: unknown) {
-  if (error == null) {
+  if (error === null) {
     return 'unknown error'
   }
 

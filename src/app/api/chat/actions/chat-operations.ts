@@ -59,7 +59,7 @@ async function findOrCreateChat(
         include: {
           messages: {
             orderBy: {
-              createdAt: 'desc',
+              createdAt: 'asc',
             },
           },
         },
@@ -91,7 +91,7 @@ async function saveMessages(
           role: msg.role === 'user' ? 'USER' : 'ASSISTANT',
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: 'asc',
         },
       })
 
@@ -123,7 +123,7 @@ async function saveChatResponse(
   messages?: Array<{ role: Role; content: string }>,
 ): Promise<OperationResponse<null>> {
   if (!chatId)
-    return { success: false, error: 'ID do chat não fornecido', data: null }
+    return { success: false, error: 'Chat ID not provided', data: null }
 
   result.text
     .then(async (fullText) => {
@@ -155,10 +155,10 @@ async function saveChatResponse(
           }
         })
       } catch (error) {
-        console.error('Erro ao salvar resposta:', error)
+        console.error('Error saving response:', error)
       }
     })
-    .catch((error) => console.error('Erro ao processar texto:', error))
+    .catch((error) => console.error('Error processing text:', error))
 
   return { success: true, data: null }
 }

@@ -1,11 +1,13 @@
-function MessageLoading() {
+import { cn } from '@/utils/utils'
+
+function MessageLoading({ className }: { className?: string }) {
   return (
     <svg
       width="24"
       height="24"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
-      className="text-foreground"
+      className={cn('text-foreground', className)}
     >
       <circle cx="4" cy="12" r="2" fill="currentColor">
         <animate

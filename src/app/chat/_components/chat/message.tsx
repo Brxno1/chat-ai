@@ -1,7 +1,7 @@
 'use client'
 
 import { Message } from '@ai-sdk/react'
-import { ChevronDown, Trash } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 import { ContainerWrapper } from '@/components/container'
@@ -28,17 +28,18 @@ import { ChatWeather } from './chat-weather'
 
 interface MessageProps {
   message: Message
+  error: Error | null | undefined
   modelName: string
   modelProvider: string
-  onDeleteMessageChat: (id: string) => void
+  onDeleteMessageChat?: (id: string) => void
   isStreaming?: boolean
 }
 
 export function Messages({
   message,
+  error,
   modelName,
   modelProvider,
-  onDeleteMessageChat,
   isStreaming = false,
 }: MessageProps) {
   const [state, setState] = useState({
@@ -46,28 +47,19 @@ export function Messages({
     openDropdown: false,
   })
 
+  console.log('error', error?.message)
+
   const { user } = useUser()
 
   const handleCloseComponent = () => {
     setState((state) => ({ ...state, openDropdown: false }))
   }
 
-  function handleDeleteMessageChat(
-    ev: React.MouseEvent<HTMLDivElement>,
-    id: string,
-  ) {
-    ev.preventDefault()
-
-    setState((state) => ({ ...state, isDeleting: true }))
-
-    setTimeout(() => {
-      setState((state) => ({ ...state, isDeleting: false }))
-      onDeleteMessageChat(id)
-    }, 500)
-  }
-
   const reasoningParts =
-    message.parts?.filter((part) => part.type === 'reasoning') || []
+    message.parts
+      ?.filter((part) => part.type === 'reasoning')
+      .map((p) => p.reasoning)
+      .join('\n\n') || ''
 
   return (
     <div className="flex w-full flex-col">
@@ -95,10 +87,7 @@ export function Messages({
             />
             {/* eslint-disable */}
             <AIReasoningContent>
-              {reasoningParts
-                .map((p) => p.reasoning)
-                .join('\n\n')
-              }
+              {reasoningParts}
             </AIReasoningContent>
             {/* eslint-enable- */}
           </AIReasoning>
@@ -166,21 +155,6 @@ export function Messages({
                         >
                           <span className="text-xs">Copiar</span>
                         </CopyTextComponent>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={state.isDeleting}
-                        onClick={(ev) =>
-                          handleDeleteMessageChat(ev, message.id)
-                        }
-                        className={cn(
-                          'flex cursor-pointer items-center gap-2',
-                          {
-                            'animate-pulse text-red-500': state.isDeleting,
-                          },
-                        )}
-                      >
-                        <span className="text-xs">Excluir</span>
-                        <Trash size={16} />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

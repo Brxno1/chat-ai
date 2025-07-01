@@ -96,6 +96,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     handleSubmit,
     stop,
     isLoading,
+    error,
   } = useChat({
     initialMessages,
     key: currentChatId || getChatInstanceKey(),
@@ -158,8 +159,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     }
   }
 
-  console.log(messages)
-
   return (
     <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border border-input">
       <div
@@ -170,12 +169,14 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
           <Messages
             key={`${message.id}`}
             message={message}
+            error={error}
             modelName={model}
             modelProvider={modelProvider}
             onDeleteMessageChat={onDeleteMessageChat}
             isStreaming={status === 'streaming'}
           />
         ))}
+
         <div ref={messagesEndRef} />
       </div>
       <Form {...form}>

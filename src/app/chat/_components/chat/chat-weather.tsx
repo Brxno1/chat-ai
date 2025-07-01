@@ -30,9 +30,7 @@ export function ChatWeather({
     const toolCalls = message.parts
       .filter((part) => part.type === 'tool-invocation')
       .map((part) => part.toolInvocation)
-      .filter(
-        (tool) => tool.state === 'call' && tool.toolName === 'displayWeather',
-      )
+      .filter((tool) => tool.state === 'call' && tool.toolName === 'getWeather')
 
     if (toolCalls.length === 0) return
 
@@ -48,14 +46,12 @@ export function ChatWeather({
   }, [message.parts, stuckToolCalls])
 
   if (
-    toolInvocation.toolName === 'displayWeather' &&
+    toolInvocation.toolName === 'getWeather' &&
     toolInvocation.state === 'result'
   ) {
     const results = Array.isArray(toolInvocation.result)
       ? toolInvocation.result
       : [toolInvocation.result]
-
-    const displayResults = results.slice(0, 6)
 
     return (
       <ContainerWrapper
@@ -63,13 +59,8 @@ export function ChatWeather({
         className="mt-1 flex w-full flex-col"
       >
         <div className="mr-auto grid grid-cols-1 gap-4 transition-all duration-300 max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%] lg:grid-cols-2">
-          {displayResults.map((result, index) => (
-            <Weather
-              key={`weather-${index}-${result.location}`}
-              temperature={result.temperature}
-              weather={result.weather}
-              location={result.location}
-            />
+          {results.map((result, index) => (
+            <Weather key={`weather-${index}-${result.location}`} {...result} />
           ))}
         </div>
         <Badge
@@ -83,7 +74,7 @@ export function ChatWeather({
   }
 
   if (
-    toolInvocation.toolName === 'displayWeather' &&
+    toolInvocation.toolName === 'getWeather' &&
     (toolInvocation.state === 'call' || toolInvocation.state === 'partial-call')
   ) {
     const isStuck = stuckToolCalls.has(toolInvocation.toolCallId)
@@ -171,7 +162,7 @@ export function ChatWeather({
     >
       <div className="mr-auto rounded-lg bg-primary/10 p-3 text-card-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
         <div className="flex items-center">
-          <MessageLoading />
+          <MessageLoading className="size-4" />
         </div>
       </div>
     </ContainerWrapper>

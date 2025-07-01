@@ -3,7 +3,7 @@ import { cache, Suspense } from 'react'
 
 import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
 import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
-import { Chat } from '@/app/chat/_components/chat/chat'
+import { Chat } from '@/app/chat/_components/chat'
 import { ContainerWrapper } from '@/components/container'
 import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
 
