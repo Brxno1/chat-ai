@@ -1,10 +1,35 @@
 import { tool as createTool } from 'ai'
 import { z } from 'zod'
 
-type WeatherResponse = {
+export type WeatherToolResponse = {
+  coord: { lon: number; lat: number }
+  weather: { id: number; main: string; description: string; icon: string }[]
+  base: string
+  main: {
+    temp: number
+    feels_like: number
+    temp_min: number
+    temp_max: number
+    pressure: number
+    humidity: number
+    sea_level: number
+    grnd_level: number
+  }
+  visibility: number
+  wind: { speed: number; deg: number }
+  clouds: { all: number }
+  dt: number
+  sys: {
+    type: number
+    id: number
+    country: string
+    sunrise: number
+    sunset: number
+  }
+  timezone: number
+  id: number
+  name: string
   cod: number
-  weather: { main: string }[]
-  main: { temp: number }
 }
 
 export const weatherTool = createTool({
@@ -21,9 +46,10 @@ export const weatherTool = createTool({
     for (const loc of locations) {
       try {
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`,
+          `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric&lang=pt_br`,
         )
-        const data: WeatherResponse = await response.json()
+        const data: WeatherToolResponse = await response.json()
+        console.log('data in weather tool', data)
 
         if (
           data.cod !== 200 ||
@@ -38,10 +64,17 @@ export const weatherTool = createTool({
           continue
         }
 
-        const weather = data.weather[0].main
+        const weatherMain = data.weather[0].main
         const temperature = data.main.temp
 
-        results.push({ weather, temperature, location: loc })
+        results.push({
+          ...data,
+          weatherMain,
+          temperature,
+          minTemperature: data.main.temp_min,
+          maxTemperature: data.main.temp_max,
+          location: loc,
+        })
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Erro desconhecido'

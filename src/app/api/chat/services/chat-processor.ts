@@ -6,8 +6,9 @@ import {
   saveMessages,
 } from '../actions/chat-operations'
 import { generateSystemPrompt } from '../prompts'
+import { errorHandler } from '../route'
+import { weatherTool } from '../tools/weather'
 import { createStreamText } from './create-stream-text'
-import { weatherTool } from './weather'
 
 type Role = 'user' | 'assistant'
 
@@ -22,7 +23,7 @@ type ProcessChatAndSaveMessagesParams = {
 }
 
 type AllTools = {
-  displayWeather: typeof weatherTool
+  getWeather: typeof weatherTool
 }
 
 type ProcessChatAndSaveMessagesResponse = {
@@ -38,10 +39,7 @@ export async function processChatAndSaveMessages({
   userId,
   isGhostChatMode,
 }: ProcessChatAndSaveMessagesParams): Promise<ProcessChatAndSaveMessagesResponse> {
-  const validMessages = messages.filter(
-    (msg) => msg.content && msg.content.trim() !== '',
-  )
-  const promptMessages: Message[] = [
+  const finalMessages: Message[] = [
     {
       id: 'system',
       role: 'system',
@@ -50,7 +48,7 @@ export async function processChatAndSaveMessages({
         isLoggedIn: !!userId,
       }),
     },
-    ...validMessages.map((message, index) => ({
+    ...messages.map((message, index) => ({
       id: `message-${index}`,
       role: message.role,
       content: message.content,
@@ -59,8 +57,7 @@ export async function processChatAndSaveMessages({
 
   if (isGhostChatMode || !userId) {
     const { stream, error } = await createStreamText({
-      messages: promptMessages,
-      userId,
+      messages: finalMessages,
     })
 
     return {
@@ -70,7 +67,7 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const chatResponse = await findOrCreateChat(userId, chatId, validMessages)
+  const chatResponse = await findOrCreateChat(userId, chatId, messages)
 
   if (!chatResponse.success) {
     return {
@@ -82,33 +79,26 @@ export async function processChatAndSaveMessages({
   const chat = chatResponse.data
 
   const { stream, error } = await createStreamText({
-    messages: promptMessages,
-    userId,
+    messages: finalMessages,
   })
 
   if (error) {
     return {
       stream: null,
-      error: error ?? 'Error creating stream.',
+      error: errorHandler(error),
     }
   }
 
-  if (validMessages.length > 0) {
-    const lastUserMessage = validMessages[validMessages.length - 1]
+  if (messages.length > 0) {
+    const lastUserMessage = messages[messages.length - 1]
 
     if (lastUserMessage.role === 'user') {
-      const { success, error: saveError } = await saveMessages(
-        [lastUserMessage],
-        chat!.id,
-      )
-      if (!success) {
-        console.warn('Failed to save user message:', saveError)
-      }
+      await saveMessages([lastUserMessage], chat!.id)
     }
   }
 
   try {
-    await saveChatResponse(stream!, chat!.id, chatId, validMessages)
+    await saveChatResponse(stream!, chat!.id, chatId, messages)
   } catch (error) {
     console.error('Error saving response:', error)
   }

@@ -65,8 +65,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
   const { isMobile } = useSidebar()
 
-  const id = React.useId()
-
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -98,6 +96,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     handleSubmit,
     stop,
     isLoading,
+    error,
   } = useChat({
     initialMessages,
     key: currentChatId || getChatInstanceKey(),
@@ -166,16 +165,18 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
         className="flex-1 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <Messages
-            key={`${index}-${id}`}
+            key={`${message.id}`}
             message={message}
+            error={error}
             modelName={model}
             modelProvider={modelProvider}
             onDeleteMessageChat={onDeleteMessageChat}
             isStreaming={status === 'streaming'}
           />
         ))}
+
         <div ref={messagesEndRef} />
       </div>
       <Form {...form}>

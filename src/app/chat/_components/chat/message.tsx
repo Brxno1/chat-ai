@@ -1,8 +1,8 @@
 'use client'
 
 import { Message } from '@ai-sdk/react'
-import { ChevronDown, Trash } from 'lucide-react'
-import { useId, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
+import { useState } from 'react'
 
 import { ContainerWrapper } from '@/components/container'
 import { CopyTextComponent } from '@/components/copy-text-component'
@@ -24,21 +24,22 @@ import { useUser } from '@/context/user-provider'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
-import { Widget } from './chat-widget'
+import { ChatWeather } from './chat-weather'
 
 interface MessageProps {
   message: Message
+  error: Error | null | undefined
   modelName: string
   modelProvider: string
-  onDeleteMessageChat: (id: string) => void
+  onDeleteMessageChat?: (id: string) => void
   isStreaming?: boolean
 }
 
 export function Messages({
   message,
+  error,
   modelName,
   modelProvider,
-  onDeleteMessageChat,
   isStreaming = false,
 }: MessageProps) {
   const [state, setState] = useState({
@@ -46,7 +47,7 @@ export function Messages({
     openDropdown: false,
   })
 
-  const id = useId()
+  console.log('error', error?.message)
 
   const { user } = useUser()
 
@@ -54,22 +55,11 @@ export function Messages({
     setState((state) => ({ ...state, openDropdown: false }))
   }
 
-  function handleDeleteMessageChat(
-    ev: React.MouseEvent<HTMLDivElement>,
-    id: string,
-  ) {
-    ev.preventDefault()
-
-    setState((state) => ({ ...state, isDeleting: true }))
-
-    setTimeout(() => {
-      setState((state) => ({ ...state, isDeleting: false }))
-      onDeleteMessageChat(id)
-    }, 500)
-  }
-
   const reasoningParts =
-    message.parts?.filter((part) => part.type === 'reasoning') || []
+    message.parts
+      ?.filter((part) => part.type === 'reasoning')
+      .map((p) => p.reasoning)
+      .join('\n\n') || ''
 
   return (
     <div className="flex w-full flex-col">
@@ -97,10 +87,7 @@ export function Messages({
             />
             {/* eslint-disable */}
             <AIReasoningContent>
-              {reasoningParts
-                .map((p) => p.reasoning)
-                .join('\n\n')
-              }
+              {reasoningParts}
             </AIReasoningContent>
             {/* eslint-enable- */}
           </AIReasoning>
@@ -114,7 +101,7 @@ export function Messages({
             }
 
             return (
-              <ContainerWrapper key={`${id}-text-${partIndex}`} className="flex w-full flex-col">
+              <ContainerWrapper key={`${message.id}-text-${partIndex}`} className="flex w-full flex-col">
                 {message.role === 'user' && (
                   <div className="ml-auto flex w-fit items-center justify-center">
                     <Badge variant={'chat'} className="hover:bg-transparent">
@@ -169,21 +156,6 @@ export function Messages({
                           <span className="text-xs">Copiar</span>
                         </CopyTextComponent>
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={state.isDeleting}
-                        onClick={(ev) =>
-                          handleDeleteMessageChat(ev, message.id)
-                        }
-                        className={cn(
-                          'flex cursor-pointer items-center gap-2',
-                          {
-                            'animate-pulse text-red-500': state.isDeleting,
-                          },
-                        )}
-                      >
-                        <span className="text-xs">Excluir</span>
-                        <Trash size={16} />
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -203,7 +175,14 @@ export function Messages({
           case 'tool-invocation':
             const { toolInvocation } = part
 
-            return <Widget toolInvocation={toolInvocation} partIndex={partIndex} message={message} />
+            return (
+              <ChatWeather
+                key={`${message.id}-tool-${partIndex}`}
+                toolInvocation={toolInvocation}
+                partIndex={partIndex}
+                message={message}
+              />
+            )
           default:
             return null
         }
