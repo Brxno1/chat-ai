@@ -17,31 +17,61 @@ const google = createGoogleGenerativeAI({
 })
 
 const model = wrapLanguageModel({
-  model: google('gemini-1.5-flash-002'),
+  model: google('gemini-1.5-flash-8b-latest'),
   middleware: [extractReasoningMiddleware({ tagName: 'think' })],
 })
 
 export async function createStreamText({ messages }: CreateStreamTextParams) {
-  const stream = streamText({
-    model,
-    temperature: 0.3,
-    maxTokens: 2000,
-    maxSteps: 1,
-    messages,
-    tools: {
-      getWeather: weatherTool,
-    },
-  })
-
-  if (!stream) {
+  if (!Array.isArray(messages) || messages.length === 0) {
     return {
       stream: null,
-      error: 'Error creating stream.',
+      error: 'Mensagens não fornecidas',
     }
   }
 
-  return {
-    stream,
-    error: null,
+  const validMessages = messages.filter((msg) => {
+    if (msg.role === 'system') return true
+    return msg.content && msg.content.trim().length > 0
+  })
+
+  if (validMessages.length === 0) {
+    return {
+      stream: null,
+      error: 'Nenhuma mensagem válida encontrada',
+    }
+  }
+
+  try {
+    const stream = streamText({
+      model,
+      temperature: 0.2,
+      maxTokens: 2000,
+      maxSteps: 1,
+      messages: validMessages,
+      toolChoice: 'auto',
+      tools: {
+        getWeather: weatherTool,
+      },
+    })
+
+    if (!stream) {
+      return {
+        stream: null,
+        error: 'Error creating stream.',
+      }
+    }
+
+    return {
+      stream,
+      error: null,
+    }
+  } catch (error) {
+    return {
+      stream: null,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Erro desconhecido ao criar stream',
+    }
   }
 }

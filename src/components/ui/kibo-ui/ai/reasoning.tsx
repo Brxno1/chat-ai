@@ -7,7 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ChevronDownIcon } from 'lucide-react';
+import { Brain, ChevronDown } from 'lucide-react';
 import { createContext, memo, useContext, useEffect, useState } from 'react';
 import type { ComponentProps } from 'react';
 import { AIResponse } from './response';
@@ -126,13 +126,29 @@ export const AIReasoningTrigger = memo(
     return (
       <CollapsibleTrigger
         className={cn(
-          'flex items-center gap-1 text-muted-foreground text-xs',
+          'flex items-center gap-1 text-muted-foreground text-xs group',
           className
         )}
         {...props}
       >
         {children ?? (
           <>
+            <div className="relative w-3.5 h-3.5">
+              <Brain
+                className={cn(
+                  "size-3.5 absolute  opacity-100 transition-opacity duration-300",
+                  "group-hover:opacity-0",
+                  isOpen ? "opacity-0" : "opacity-100"
+                )}
+              />
+              <ChevronDown
+                className={cn(
+                  "size-3.5 absolute opacity-0 transition-opacity duration-300",
+                  "group-hover:opacity-100",
+                  isOpen ? "rotate-180 opacity-100" : "rotate-0 opacity-0"
+                )}
+              />
+            </div>
             {isStreaming ? (
               <p className="animate-pulse">Pensando...</p>
             ) : (
@@ -143,12 +159,6 @@ export const AIReasoningTrigger = memo(
                 }
               </p>
             )}
-            <ChevronDownIcon
-              className={cn(
-                'size-4 text-muted-foreground transition-transform',
-                isOpen ? 'rotate-180' : 'rotate-0'
-              )}
-            />
           </>
         )}
       </CollapsibleTrigger>
@@ -165,7 +175,7 @@ export type AIReasoningContentProps = ComponentProps<
 export const AIReasoningContent = memo(
   ({ className, children, ...props }: AIReasoningContentProps) => (
     <CollapsibleContent
-      className={cn('text-muted-foreground text-sm max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]', className)}
+      className={cn('text-muted-foreground text-xs max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]', className)}
       {...props}
     >
       <AIResponse className="grid">{children}</AIResponse>

@@ -22,7 +22,9 @@ export default async function ChatPageWithId({
   const { chatId } = await params
   const { session } = await getUserSession()
 
-  const { chat } = await getChatByIdCached(chatId, session!.user.id)
+  const userId = session!.user.id
+
+  const { chat } = await getChatByIdCached(chatId, userId)
 
   return (
     <DashboardPage className="flex h-full w-full max-w-full flex-col">

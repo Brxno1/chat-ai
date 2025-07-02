@@ -1,8 +1,18 @@
-import { Droplets, Gauge, MapPin, Thermometer, Wind } from 'lucide-react'
+'use client'
+
+import {
+  Droplets,
+  Gauge,
+  InfoIcon,
+  MapPin,
+  Thermometer,
+  Wind,
+} from 'lucide-react'
 import React from 'react'
 import Flags from 'react-world-flags'
 
 import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/utils'
 
 import {
@@ -14,38 +24,20 @@ import {
   weatherConfigs,
 } from './definitions'
 
-type WeatherProps = {
-  temperature: number
-  weather: string
-  location: string
-  weatherMain?: string
-  minTemperature: number
-  maxTemperature: number
-  main?: {
-    feels_like: number
-    humidity: number
-    pressure?: number
-  }
-  wind?: {
-    speed: number
-    deg?: number
-  }
-} & Partial<WeatherToolResponse>
+type WeatherCardProps = {
+  result: WeatherToolResponse
+}
 
-export const Weather = ({ ...props }: WeatherProps) => {
-  console.log('props in weather', props)
-
+export const WeatherCard = ({ result }: WeatherCardProps) => {
   const formattedDescription =
-    props.weather[0].description.charAt(0).toUpperCase() +
-    props.weather[0].description.slice(1)
+    result.weather[0].description.charAt(0).toUpperCase() +
+    result.weather[0].description.slice(1)
 
   const weatherData = React.useMemo(() => {
-    const condition = getWeatherCondition(
-      props.weatherMain || props.weather?.[0]?.main,
-    )
+    const condition = getWeatherCondition(result.weather[0].main)
     const config = weatherConfigs[condition]
-    const tempInfo = getTemperatureInfo(props.temperature)
-    const tempPosition = calculateTemperaturePosition(props.temperature)
+    const tempInfo = getTemperatureInfo(result.main.temp)
+    const tempPosition = calculateTemperaturePosition(result.main.temp)
 
     return {
       ...config,
@@ -53,28 +45,38 @@ export const Weather = ({ ...props }: WeatherProps) => {
       tempPosition,
       condition,
     }
-  }, [props.weather, props.weatherMain, props.temperature])
+  }, [result.weather, result.main.temp])
 
   return (
     <div
-      className="relative mt-1 w-full min-w-[280px] max-w-[320px] overflow-hidden rounded-2xl border border-white/20 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
-      role="img"
-      aria-label={`Clima em ${props.location}: ${props.weather[0].description}, ${Math.round(props.temperature)} graus Celsius`}
+      className="relative mt-1 w-full min-w-[16rem] max-w-[20rem] overflow-hidden rounded-3xl border border-white/20 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
+      aria-label={`Clima em ${result.name}: ${result.weather[0].description}, ${Math.round(result.main.temp)} graus Celsius`}
     >
       <div
         className={cn(
-          'absolute inset-0 bg-gradient-to-br from-blue-500 via-yellow-500 to-red-500 opacity-50 transition-opacity duration-500',
+          'absolute inset-0 opacity-50 transition-opacity duration-500',
+          'bg-gradient-to-br from-[20%] via-[40%] to-[90%]',
           weatherData.gradient,
         )}
       />
 
-      <div className="relative space-y-5 p-5">
-        <div className="flex items-center gap-1 text-sm font-medium text-foreground/80">
-          <MapPin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-          <Flags code={props.sys!.country} className="size-4" />-
-          <span className="truncate" title={props.name}>
-            {props.name}
-          </span>
+      <div className="relative space-y-5 p-4">
+        <div className="flex items-center justify-between gap-1 text-sm font-medium text-foreground/80">
+          <div className="flex items-center gap-1">
+            <MapPin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+            <Flags code={result.sys!.country} className="size-4" /> -
+            <span className="truncate" title={result.name}>
+              {result.name}
+            </span>
+          </div>
+          <Button
+            variant={'link'}
+            size={'icon'}
+            className={cn('rounded-full border-white/20')}
+          >
+            <InfoIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+            <span className="sr-only">Copiar localização</span>
+          </Button>
         </div>
 
         <div className="flex items-center justify-start gap-4">
@@ -89,7 +91,7 @@ export const Weather = ({ ...props }: WeatherProps) => {
                   weatherData.tempInfo.color,
                 )}
               >
-                {Math.round(props.temperature)}°
+                {Math.round(result.main.temp)}°
               </span>
               <div className="text-sm font-medium text-foreground/60">
                 Celsius
@@ -99,16 +101,13 @@ export const Weather = ({ ...props }: WeatherProps) => {
 
           <div className="flex flex-col items-center gap-2 text-right text-sm text-foreground/70">
             <span className="text-foreground/70">
-              Mín: {Math.round(props.minTemperature)}°
-            </span>
-            <span className="text-foreground/70">
-              Máx: {Math.round(props.maxTemperature)}°
+              Mín: {Math.round(result.main.temp_min)}°
             </span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center">
             <Thermometer
               className="h-4 w-4 text-foreground/60"
               aria-hidden="true"
@@ -118,26 +117,26 @@ export const Weather = ({ ...props }: WeatherProps) => {
             </span>
           </div>
 
-          {props.main && (
-            <div className="grid grid-cols-2 gap-3 text-xs text-foreground/70">
+          {result.main && (
+            <div className="grid grid-cols-2 gap-2 border-y border-input py-2 text-xs text-foreground/70">
               <div className="flex items-center gap-1">
                 <Thermometer className="h-3 w-3" />
-                <span>Sensação: {Math.round(props.main.feels_like)}°</span>
+                <span>Sensação: {Math.round(result.main.feels_like)}°</span>
               </div>
               <div className="flex items-center gap-1">
                 <Droplets className="h-3 w-3" />
-                <span>Umidade: {props.main.humidity}%</span>
+                <span>Umidade: {result.main.humidity}%</span>
               </div>
-              {props.wind && (
+              {result.wind && (
                 <div className="flex items-center gap-1">
                   <Wind className="h-3 w-3" />
-                  <span>Vento: {Math.round(props.wind.speed * 3.6)} km/h</span>
+                  <span>Vento: {Math.round(result.wind.speed * 3.6)} km/h</span>
                 </div>
               )}
-              {props.main.pressure && (
+              {result.main.pressure && (
                 <div className="flex items-center gap-1">
                   <Gauge className="h-3 w-3" />
-                  <span>Pressão: {props.main.pressure} hPa</span>
+                  <span>Pressão: {result.main.pressure} hPa</span>
                 </div>
               )}
             </div>
@@ -152,10 +151,10 @@ export const Weather = ({ ...props }: WeatherProps) => {
           <div
             className="relative h-2 overflow-hidden rounded-full bg-gradient-to-r from-blue-500 via-yellow-500 to-red-500"
             role="progressbar"
-            aria-valuenow={props.temperature}
+            aria-valuenow={result.main.temp}
             aria-valuemin={TEMP_SCALE_MIN}
             aria-valuemax={TEMP_SCALE_MAX}
-            aria-label={`Temperatura: ${props.temperature}°C (${weatherData.tempInfo.label})`}
+            aria-label={`Temperatura: ${result.main.temp}°C (${weatherData.tempInfo.label})`}
           >
             <div
               className="absolute top-0 h-full w-1 rounded-full bg-white shadow-lg transition-all duration-700 ease-out"

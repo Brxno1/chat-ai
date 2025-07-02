@@ -15,6 +15,8 @@ const schema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  console.log('🔥 === API CHAT ROUTE CHAMADA ===', new Date().toISOString())
+
   try {
     const body = schema.parse(await req.json())
 

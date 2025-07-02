@@ -52,6 +52,7 @@ model Message {
   id        String      @id @default(cuid())
   content   String      @db.Text
   role      MessageRole
+  parts     Json?
   createdAt DateTime    @default(now())
   chatId    String
   chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
