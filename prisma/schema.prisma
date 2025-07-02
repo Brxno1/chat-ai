@@ -49,13 +49,14 @@ enum MessageRole {
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
+  id        String      @id @default(cuid())
+  content   String      @db.Text
   role      MessageRole
-  createdAt DateTime @default(now())
+  parts     Json?
+  createdAt DateTime    @default(now())
   chatId    String
-  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  User      User?    @relation(fields: [userId], references: [id])
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  User      User?       @relation(fields: [userId], references: [id])
   userId    String?
 
   @@index([chatId])
@@ -118,8 +119,8 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("sessions")
   @@index([sessionToken])
+  @@map("sessions")
 }
 
 model VerificationToken {

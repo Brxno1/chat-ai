@@ -1,21 +1,28 @@
 import {
   Cloud,
   CloudDrizzle,
+  CloudFog,
   CloudRain,
   CloudSnow,
+  Cloudy,
+  Eye,
   Sun,
   Wind,
   Zap,
 } from 'lucide-react'
 
 export type WeatherCondition =
-  | 'limpo'
-  | 'chuva'
-  | 'neve'
-  | 'garoa'
-  | 'tempestade'
-  | 'vento'
-  | 'padrao'
+  | 'clear'
+  | 'clouds'
+  | 'few_clouds'
+  | 'mist'
+  | 'rain'
+  | 'snow'
+  | 'drizzle'
+  | 'thunderstorm'
+  | 'wind'
+  | 'atmosphere'
+  | 'default'
 
 export type WeatherConfig = {
   icon: React.ReactNode
@@ -23,33 +30,49 @@ export type WeatherConfig = {
 }
 
 export const weatherConfigs: Record<WeatherCondition, WeatherConfig> = {
-  limpo: {
+  clear: {
     icon: <Sun className="h-12 w-12 text-yellow-400 drop-shadow-sm" />,
     gradient: 'from-yellow-400 via-orange-300 to-orange-500',
   },
-  chuva: {
+  clouds: {
+    icon: <Cloudy className="h-12 w-12 text-gray-500 drop-shadow-sm" />,
+    gradient: 'from-gray-400 via-gray-500 to-gray-600',
+  },
+  few_clouds: {
+    icon: <Cloud className="h-12 w-12 text-yellow-300 drop-shadow-sm" />,
+    gradient: 'from-yellow-200 via-gray-300 to-gray-500',
+  },
+  mist: {
+    icon: <CloudFog className="h-12 w-12 text-gray-300 drop-shadow-sm" />,
+    gradient: 'from-gray-200 via-gray-300 to-gray-400',
+  },
+  rain: {
     icon: <CloudRain className="h-12 w-12 text-blue-400 drop-shadow-sm" />,
     gradient: 'from-blue-400 via-blue-500 to-blue-600',
   },
-  neve: {
+  snow: {
     icon: <CloudSnow className="h-12 w-12 text-blue-200 drop-shadow-sm" />,
     gradient: 'from-blue-100 via-blue-200 to-blue-300',
   },
-  garoa: {
+  drizzle: {
     icon: <CloudDrizzle className="h-12 w-12 text-blue-300 drop-shadow-sm" />,
     gradient: 'from-blue-300 via-blue-400 to-blue-500',
   },
-  tempestade: {
+  thunderstorm: {
     icon: <Zap className="h-12 w-12 text-purple-400 drop-shadow-sm" />,
     gradient: 'from-purple-500 via-purple-600 to-purple-700',
   },
-  vento: {
+  wind: {
     icon: <Wind className="h-12 w-12 text-gray-400 drop-shadow-sm" />,
     gradient: 'from-gray-400 via-gray-500 to-gray-600',
   },
-  padrao: {
+  atmosphere: {
+    icon: <Eye className="h-12 w-12 text-amber-400 drop-shadow-sm" />,
+    gradient: 'from-amber-300 via-orange-400 to-red-400',
+  },
+  default: {
     icon: <Cloud className="h-12 w-12 text-gray-400 drop-shadow-sm" />,
-    gradient: 'from-gray-400 via-gray-500 to-gray-600',
+    gradient: 'from-blue-500 via-yellow-500 to-red-500',
   },
 }
 
@@ -66,85 +89,59 @@ export const TEMPERATURE_RANGES = [
 export const TEMP_SCALE_MIN = -10
 export const TEMP_SCALE_MAX = 40
 
-export const WEATHER_TRANSLATIONS: Record<string, string> = {
-  clear: 'Céu limpo',
-  sunny: 'Ensolarado',
-  'partly cloudy': 'Parcialmente nublado',
-  'mostly cloudy': 'Nublado',
-  overcast: 'Encoberto',
-  cloudy: 'Nublado',
-  clouds: 'Nublado',
-  rain: 'Chuva',
-  'light rain': 'Chuva fraca',
-  'moderate rain': 'Chuva moderada',
-  'heavy rain': 'Chuva forte',
-  shower: 'Pancada de chuva',
-  drizzle: 'Garoa',
-  snow: 'Neve',
-  'light snow': 'Neve fraca',
-  'heavy snow': 'Neve forte',
-  sleet: 'Chuva com neve',
-  thunderstorm: 'Tempestade',
-  storm: 'Tempestade',
-  windy: 'Ventoso',
-  fog: 'Neblina',
-  mist: 'Névoa',
-}
-
 export const getWeatherCondition = (weather: string): WeatherCondition => {
   const condition = weather.toLowerCase()
 
-  if (
-    condition.includes('clear') ||
-    condition.includes('sunny') ||
-    condition.includes('limpo') ||
-    condition.includes('ensolarado')
-  )
-    return 'limpo'
+  if (condition.includes('clear') || condition.includes('sunny')) return 'clear'
 
   if (
-    condition.includes('rain') ||
-    condition.includes('rainy') ||
-    condition.includes('chuva') ||
-    condition.includes('chuvoso')
+    condition.includes('fog') ||
+    condition.includes('mist') ||
+    condition.includes('haze') ||
+    condition.includes('neblina')
   )
-    return 'chuva'
+    return 'mist'
 
   if (
-    condition.includes('snow') ||
-    condition.includes('snowy') ||
-    condition.includes('neve') ||
-    condition.includes('nevando')
+    condition.includes('partly cloudy') ||
+    condition.includes('partly') ||
+    condition.includes('few clouds')
   )
-    return 'neve'
+    return 'few_clouds'
 
   if (
-    condition.includes('drizzle') ||
-    condition.includes('garoa') ||
-    condition.includes('chuvisco')
+    condition.includes('overcast') ||
+    condition.includes('mostly cloudy') ||
+    condition.includes('broken clouds') ||
+    condition.includes('clouds')
   )
-    return 'garoa'
+    return 'clouds'
 
   if (
-    condition.includes('storm') ||
-    condition.includes('thunder') ||
-    condition.includes('tempestade') ||
-    condition.includes('trovão')
+    condition.includes('dust') ||
+    condition.includes('sand') ||
+    condition.includes('smoke') ||
+    condition.includes('haze') ||
+    condition.includes('atmosphere')
   )
-    return 'tempestade'
+    return 'atmosphere'
 
-  if (
-    condition.includes('wind') ||
-    condition.includes('vento') ||
-    condition.includes('ventoso')
-  )
-    return 'vento'
+  if (condition.includes('rain') || condition.includes('rainy')) return 'rain'
 
-  return 'padrao'
+  if (condition.includes('snow') || condition.includes('snowy')) return 'snow'
+
+  if (condition.includes('drizzle')) return 'drizzle'
+
+  if (condition.includes('storm') || condition.includes('thunder'))
+    return 'thunderstorm'
+
+  if (condition.includes('wind')) return 'wind'
+
+  return 'default'
 }
 
 export const getTemperatureInfo = (temp: number) => {
-  const range = TEMPERATURE_RANGES.find((r) => temp >= r.min)
+  const range = TEMPERATURE_RANGES.find((range) => temp >= range.min)
   return {
     color: range?.color || 'text-blue-700',
     label: range?.label || 'Muito frio',

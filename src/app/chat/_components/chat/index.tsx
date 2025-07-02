@@ -96,7 +96,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     handleSubmit,
     stop,
     isLoading,
-    error,
   } = useChat({
     initialMessages,
     key: currentChatId || getChatInstanceKey(),
@@ -107,6 +106,9 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       'x-chat-id': currentChatId || '',
       'x-ghost-mode': isGhostChatMode.toString(),
     },
+    onError: (error) => {
+      console.log(error)
+    },
     onResponse: (response) => {
       const headerChatId = response.headers?.get('x-chat-id')
 
@@ -115,13 +117,15 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       }
     },
     onFinish: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.chats.all,
-      })
+      if (!isGhostChatMode) {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.chats.all,
+        })
 
-      const currentKey = getChatInstanceKey()
-      if (currentKey && !isGhostChatMode) {
-        router.push(`/chat/${currentKey}`)
+        const currentKey = getChatInstanceKey()
+        if (currentKey) {
+          router.push(`/chat/${currentKey}`)
+        }
       }
     },
   })
@@ -169,7 +173,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
           <Messages
             key={`${message.id}`}
             message={message}
-            error={error}
             modelName={model}
             modelProvider={modelProvider}
             onDeleteMessageChat={onDeleteMessageChat}

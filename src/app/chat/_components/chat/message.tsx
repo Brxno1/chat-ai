@@ -28,7 +28,6 @@ import { ChatWeather } from './chat-weather'
 
 interface MessageProps {
   message: Message
-  error: Error | null | undefined
   modelName: string
   modelProvider: string
   onDeleteMessageChat?: (id: string) => void
@@ -37,7 +36,6 @@ interface MessageProps {
 
 export function Messages({
   message,
-  error,
   modelName,
   modelProvider,
   isStreaming = false,
@@ -46,8 +44,6 @@ export function Messages({
     isDeleting: false,
     openDropdown: false,
   })
-
-  console.log('error', error?.message)
 
   const { user } = useUser()
 
@@ -83,7 +79,7 @@ export function Messages({
           <AIReasoning isStreaming={isStreaming} defaultOpen={false}>
             <AIReasoningTrigger
               title="Raciocínio"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             />
             {/* eslint-disable */}
             <AIReasoningContent>
@@ -177,9 +173,8 @@ export function Messages({
 
             return (
               <ChatWeather
-                key={`${message.id}-tool-${partIndex}`}
+                key={`${message.id}-tool-${partIndex}-${toolInvocation.toolCallId}`}
                 toolInvocation={toolInvocation}
-                partIndex={partIndex}
                 message={message}
               />
             )
@@ -187,6 +182,6 @@ export function Messages({
             return null
         }
       })}
-    </div>
+    </div >
   )
 }

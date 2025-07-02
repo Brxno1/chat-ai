@@ -29,11 +29,17 @@ export type WeatherToolResponse = {
   timezone: number
   id: number
   name: string
+  error?: {
+    message: string
+    location: string
+    code: 'NOT_FOUND' | 'API_ERROR' | 'NETWORK_ERROR' | 'INVALID_DATA'
+    suggestion?: string
+  }
   cod: number
 }
 
 export const weatherTool = createTool({
-  description: 'Exibe a previsão do tempo para um ou mais locais',
+  description: 'Disponibiliza a previsão do tempo para um ou mais locais',
   parameters: z.object({
     location: z
       .array(z.string())
@@ -41,7 +47,8 @@ export const weatherTool = createTool({
   }),
   execute: async function ({ location }) {
     const locations = Array.isArray(location) ? location : [location]
-    const results = []
+    const validResults = []
+    const errorMessages = []
 
     for (const loc of locations) {
       try {
@@ -49,17 +56,39 @@ export const weatherTool = createTool({
           `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric&lang=pt_br`,
         )
         const data: WeatherToolResponse = await response.json()
-        console.log('data in weather tool', data)
 
-        if (
-          data.cod !== 200 ||
-          !data.weather ||
-          !data.weather[0] ||
-          !data.main
-        ) {
-          results.push({
-            error: `Cidade "${loc}" não encontrada ou dados indisponíveis`,
-            location: loc,
+        if (data.cod === 401) {
+          validResults.push({
+            error: {
+              title: 'Erro de autenticação',
+              message: `Erro de autenticação com a API de previsão do tempo. Por favor, tente novamente mais tarde.`,
+              location: loc,
+              code: 'API_ERROR',
+            },
+          })
+          continue
+        }
+
+        if (data.cod === 404 || data.cod !== 200) {
+          validResults.push({
+            error: {
+              title: 'Localização não encontrada',
+              message: `Localização "${loc}" não foi encontrada. Verifique o nome da cidade e tente novamente.`,
+              location: loc,
+              code: 'NOT_FOUND',
+            },
+          })
+          continue
+        }
+
+        if (!data.weather || !data.weather[0] || !data.main) {
+          validResults.push({
+            error: {
+              title: 'Dados de clima inconsistentes',
+              message: `Dados de clima inconsistentes para "${loc}". Informações incompletas retornadas pela API.`,
+              location: loc,
+              code: 'INVALID_DATA',
+            },
           })
           continue
         }
@@ -67,28 +96,54 @@ export const weatherTool = createTool({
         const weatherMain = data.weather[0].main
         const temperature = data.main.temp
 
-        results.push({
+        validResults.push({
           ...data,
           weatherMain,
           temperature,
           minTemperature: data.main.temp_min,
           maxTemperature: data.main.temp_max,
-          location: loc,
         })
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : 'Erro desconhecido'
-        results.push({
-          error: `Erro ao buscar clima para "${loc}": ${errorMessage}`,
-          location: loc,
+          error instanceof Error
+            ? error.message
+            : 'Ocorreu um erro ao buscar dados'
+
+        errorMessages.push(`"${loc}": ${errorMessage}`)
+        validResults.push({
+          error: {
+            title: 'Erro de conexão',
+            message: `Erro de conexão ao buscar dados para "${loc}": ${errorMessage}`,
+            location: loc,
+            code: 'NETWORK_ERROR',
+          },
         })
       }
     }
 
-    return results
+    if (validResults.length === 0) {
+      return [
+        {
+          error: {
+            title: 'Erro ao obter a previsão do tempo',
+            message: `Erro ao obter a previsão do tempo para todas as localidades solicitadas.`,
+            location: locations.join(', '),
+            code: 'API_ERROR',
+          },
+        },
+      ]
+    }
+
+    if (errorMessages.length > 0) {
+      console.log(
+        `Algumas cidades não foram encontradas: ${errorMessages.join(', ')}`,
+      )
+    }
+
+    return validResults
   },
 })
 
 export const tools = {
-  displayWeather: weatherTool,
+  getWeather: weatherTool,
 }
