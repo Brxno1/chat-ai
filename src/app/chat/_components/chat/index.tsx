@@ -116,9 +116,11 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
         defineChatInstanceKey(headerChatId)
       }
     },
-    onFinish: async () => {
+
+    onFinish: (message) => {
+      console.log('data from useChat', message)
       if (!isGhostChatMode) {
-        await queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: queryKeys.chats.all,
         })
 

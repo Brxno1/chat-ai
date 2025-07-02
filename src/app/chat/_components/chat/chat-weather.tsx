@@ -25,12 +25,6 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
 
   const { state, toolCallId, args } = toolInvocation
 
-  console.log('toolInvocation', {
-    state,
-    toolCallId,
-    args,
-  })
-
   React.useEffect(() => {
     if (!message.parts) return
 

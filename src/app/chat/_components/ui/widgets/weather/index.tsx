@@ -64,7 +64,7 @@ export const WeatherCard = ({ result }: WeatherCardProps) => {
         <div className="flex items-center justify-between gap-1 text-sm font-medium text-foreground/80">
           <div className="flex items-center gap-1">
             <MapPin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-            <Flags code={result.sys!.country} className="size-4" /> -
+            <Flags code={result.sys.country} className="size-4" /> -
             <span className="truncate" title={result.name}>
               {result.name}
             </span>
