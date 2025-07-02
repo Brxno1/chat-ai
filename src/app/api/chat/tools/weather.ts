@@ -2,9 +2,7 @@ import { tool as createTool } from 'ai'
 import { z } from 'zod'
 
 export type WeatherToolResponse = {
-  coord: { lon: number; lat: number }
-  weather: { id: number; main: string; description: string; icon: string }[]
-  base: string
+  weather: { main: string; description: string }[]
   main: {
     temp: number
     feels_like: number
@@ -12,28 +10,17 @@ export type WeatherToolResponse = {
     temp_max: number
     pressure: number
     humidity: number
-    sea_level: number
-    grnd_level: number
   }
-  visibility: number
-  wind: { speed: number; deg: number }
-  clouds: { all: number }
-  dt: number
+  wind: { speed: number }
   sys: {
-    type: number
-    id: number
     country: string
-    sunrise: number
-    sunset: number
   }
-  timezone: number
-  id: number
   name: string
   error?: {
+    title: string
     message: string
     location: string
     code: 'NOT_FOUND' | 'API_ERROR' | 'NETWORK_ERROR' | 'INVALID_DATA'
-    suggestion?: string
   }
   cod: number
 }
@@ -97,7 +84,28 @@ export const weatherTool = createTool({
         const temperature = data.main.temp
 
         validResults.push({
-          ...data,
+          weather: [
+            {
+              main: data.weather[0].main,
+              description: data.weather[0].description
+            }
+          ],
+          main: {
+            temp: data.main.temp,
+            feels_like: data.main.feels_like,
+            temp_min: data.main.temp_min,
+            temp_max: data.main.temp_max,
+            pressure: data.main.pressure,
+            humidity: data.main.humidity
+          },
+          wind: {
+            speed: data.wind.speed
+          },
+          sys: {
+            country: data.sys.country
+          },
+          name: data.name,
+          cod: data.cod,
           weatherMain,
           temperature,
           minTemperature: data.main.temp_min,
@@ -134,16 +142,6 @@ export const weatherTool = createTool({
       ]
     }
 
-    if (errorMessages.length > 0) {
-      console.log(
-        `Algumas cidades não foram encontradas: ${errorMessages.join(', ')}`,
-      )
-    }
-
     return validResults
   },
 })
-
-export const tools = {
-  getWeather: weatherTool,
-}

@@ -23,17 +23,14 @@ type DatabaseMessage = {
  */
 export function filterValidMessages(messages: InputMessage[]): InputMessage[] {
   return messages.filter((message) => {
-    // Verificar se a mensagem tem conteúdo válido
     if (!message.content || typeof message.content !== 'string') {
       return false
     }
 
-    // Remover mensagens com apenas espaços em branco
     if (message.content.trim().length === 0) {
       return false
     }
 
-    // Verificar se o role é válido
     if (!message.role || !['user', 'assistant'].includes(message.role)) {
       return false
     }
@@ -42,40 +39,6 @@ export function filterValidMessages(messages: InputMessage[]): InputMessage[] {
   })
 }
 
-/**
- * Converte mensagens de entrada para o formato Message do AI SDK
- * garantindo que não há conteúdo vazio
- */
-export function createFinalMessages(
-  messages: InputMessage[],
-  systemPrompt: string,
-): Message[] {
-  const validMessages = filterValidMessages(messages)
-
-  const finalMessages: Message[] = [
-    {
-      id: 'system',
-      role: 'system',
-      content: systemPrompt,
-    },
-    ...validMessages.map((message, index) => ({
-      id: `message-${index}`,
-      role: message.role,
-      content: message.content,
-    })),
-  ]
-
-  // Filtro final para garantir que não há mensagens com conteúdo vazio
-  return finalMessages.filter((msg) => {
-    if (msg.role === 'system') return true
-    return msg.content && msg.content.trim().length > 0
-  })
-}
-
-/**
- * Converte mensagens do banco para formato seguro para a AI
- * Remove tool invocations para evitar reexecução
- */
 export function convertDatabaseMessagesToAI(
   dbMessages: DatabaseMessage[],
 ): InputMessage[] {
@@ -83,21 +46,14 @@ export function convertDatabaseMessagesToAI(
     .map((msg) => {
       const role = msg.role.toLowerCase() as Role
 
-      // Para mensagens que eram tool invocations, usar um texto descritivo
       if (
         msg.content === '[Usou ferramenta(s)]' ||
         msg.content.includes('[Usou')
       ) {
-        // Se tem parts salvas, extrair um resumo da ferramenta usada
         if (msg.parts) {
           try {
             const parts =
               typeof msg.parts === 'string' ? JSON.parse(msg.parts) : msg.parts
-
-            console.log('🔍 DEBUG parts da mensagem:', {
-              messageContent: msg.content.substring(0, 50) + '...',
-              parts,
-            })
 
             if (Array.isArray(parts)) {
               const toolInvocations = parts.filter(
@@ -109,7 +65,6 @@ export function convertDatabaseMessagesToAI(
               )
 
               if (toolInvocations.length > 0) {
-                // Extrair informações específicas das ferramentas para contexto mais útil
                 const toolDetails = toolInvocations
                   .map((inv: unknown) => {
                     if (
@@ -124,7 +79,6 @@ export function convertDatabaseMessagesToAI(
                       const toolName = inv.toolInvocation.toolName
                       const args = inv.toolInvocation.args as any
 
-                      // Para getWeather, incluir as cidades consultadas
                       if (toolName === 'getWeather' && args?.location) {
                         const locations = Array.isArray(args.location)
                           ? args.location
@@ -157,7 +111,6 @@ export function convertDatabaseMessagesToAI(
         }
       }
 
-      // Para outras mensagens, usar o conteúdo normal
       return {
         role,
         content: msg.content,
@@ -177,13 +130,11 @@ export function validateMessages(messages: Message[]): boolean {
     return false
   }
 
-  // Verificar se há pelo menos uma mensagem do sistema
   const hasSystemMessage = messages.some((msg) => msg.role === 'system')
   if (!hasSystemMessage) {
     return false
   }
 
-  // Verificar se todas as mensagens têm conteúdo válido
   return messages.every((msg) => {
     if (msg.role === 'system') return true
     return msg.content && msg.content.trim().length > 0
@@ -198,13 +149,64 @@ export function removeDuplicateMessages(
 ): InputMessage[] {
   if (messages.length <= 1) return messages
 
-  return messages.filter((message, index) => {
+  // Array para armazenar mensagens únicas
+  const uniqueMessages: InputMessage[] = []
+  const seenMessages = new Set<string>()
+
+  for (const message of messages) {
+    // Criar uma chave única para cada mensagem baseada no role e conteúdo
+    const messageKey = `${message.role}:${message.content}`
+
+    // Verificar se já vimos esta mensagem exata antes
+    if (!seenMessages.has(messageKey)) {
+      uniqueMessages.push(message)
+      seenMessages.add(messageKey)
+    }
+  }
+
+  return uniqueMessages
+}
+
+/**
+ * Processa mensagens de chat para evitar duplicação de tool calls já executados
+ */
+export function processToolInvocations(
+  messages: InputMessage[],
+): InputMessage[] {
+  const uniqueMessages = messages.filter((message, index) => {
     if (index === 0) return true
+
+    if (message.role === 'user') return true
 
     const prevMessage = messages[index - 1]
     return !(
       message.role === prevMessage.role &&
       message.content === prevMessage.content
     )
+  })
+
+  return uniqueMessages.map((message, index) => {
+    if (
+      message.role === 'assistant' &&
+      (message.content.includes('tool-invocation') ||
+        message.content.includes('getWeather') ||
+        message.content.includes('[Consulta'))
+    ) {
+      const hasResultAfter = uniqueMessages
+        .slice(index + 1)
+        .some(
+          (msg) =>
+            msg.role === 'assistant' && msg.content.includes('já obtidos'),
+        )
+
+      if (hasResultAfter) {
+        return {
+          ...message,
+          content: '[Consulta anterior já processada]',
+        }
+      }
+    }
+
+    return message
   })
 }

@@ -86,27 +86,56 @@ async function saveMessages(
   chatId: string,
 ): Promise<OperationResponse<null>> {
   try {
-    for (const msg of messages) {
-      const existingMessage = await prisma.message.findFirst({
-        where: {
-          chatId,
-          content: msg.content,
-          role: msg.role === 'user' ? 'USER' : 'ASSISTANT',
-        },
-        orderBy: {
-          createdAt: 'asc',
-        },
-      })
+    const existingMessages = await prisma.message.findMany({
+      where: {
+        chatId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 10,
+      select: {
+        id: true,
+        content: true,
+        role: true,
+        createdAt: true,
+      },
+    })
 
-      if (!existingMessage) {
-        await prisma.message.create({
-          data: {
-            content: msg.content,
-            role: msg.role === 'user' ? 'USER' : 'ASSISTANT',
-            chatId,
-          },
+    const messagesToCreate: Array<{
+      content: string
+      role: 'USER' | 'ASSISTANT'
+      chatId: string
+    }> = []
+
+    for (const msg of messages) {
+      const role = msg.role === 'user' ? 'USER' : 'ASSISTANT'
+      const content = msg.content
+
+      const isConsecutiveDuplicate =
+        existingMessages.length > 0 &&
+        existingMessages[0].content === content &&
+        existingMessages[0].role === role
+
+      if (!isConsecutiveDuplicate) {
+        messagesToCreate.push({
+          content,
+          role,
+          chatId,
         })
       }
+    }
+
+    if (messagesToCreate.length === 0) {
+      return { success: true, data: null }
+    }
+
+    if (messagesToCreate.length > 0) {
+      await prisma.$transaction(
+        messagesToCreate.map((msgData) =>
+          prisma.message.create({ data: msgData }),
+        ),
+      )
     }
 
     return { success: true, data: null }
@@ -128,61 +157,43 @@ async function saveChatResponse(
   if (!chatId)
     return { success: false, error: 'Chat ID not provided', data: null }
 
-  console.log('📝 saveChatResponse iniciado para chatId:', chatId)
-
-  // Salvar em background sem bloquear a resposta
   setImmediate(async () => {
-    console.log('⏰ setImmediate executado - iniciando processamento do stream')
     try {
-      // Processar o stream para extrair texto e parts
       const { text: fullText, parts } = await processStreamResult(stream)
 
-      console.log('🔍 Stream processado:', {
-        fullText: fullText?.substring(0, 100) + '...',
-        hasParts: !!parts,
-        partsCount: parts ? (Array.isArray(parts) ? parts.length : 1) : 0,
-      })
+      const hasToolInteraction = parts?.some(
+        (part) =>
+          part.type === 'tool-invocation' || part.type === 'tool-result',
+      )
+
+      const shouldSaveParts = hasToolInteraction
 
       await prisma.$transaction(async (tx) => {
-        const existingMessage = await tx.message.findFirst({
-          where: {
-            chatId,
+        const partsToSave = shouldSaveParts
+          ? JSON.stringify(parts, null, 2)
+          : undefined
+
+        await tx.message.create({
+          data: {
+            content: fullText || '[Response from Tools]',
             role: 'ASSISTANT',
-            content: fullText || 'tool-invocation-response',
+            chatId,
+            parts: partsToSave,
           },
-          orderBy: { createdAt: 'desc' },
         })
 
-        console.log('🔎 Verificação de mensagem existente:', !!existingMessage)
+        if (!originalChatId && messages?.length) {
+          const userMessages = messages
+            .filter((msg) => msg.role === 'user')
+            .map((msg) => msg.content)
 
-        if (!existingMessage) {
-          const partsToSave = parts ? JSON.stringify(parts, null, 2) : undefined
-
-          await tx.message.create({
-            data: {
-              content: fullText || 'tool-invocation-response',
-              role: 'ASSISTANT',
-              chatId,
-              parts: partsToSave,
-            },
-          })
-
-          if (!originalChatId && messages?.length) {
-            const userMessages = messages
-              .filter((msg) => msg.role === 'user')
-              .map((msg) => msg.content)
-
-            if (userMessages.length) {
-              const title = userMessages[0].substring(0, 50)
-              await tx.chat.update({
-                where: { id: chatId },
-                data: { title },
-              })
-              console.log('📝 Título do chat atualizado:', title)
-            }
+          if (userMessages.length) {
+            const title = userMessages[0].substring(0, 50)
+            await tx.chat.update({
+              where: { id: chatId },
+              data: { title },
+            })
           }
-        } else {
-          console.log('ℹ️ Mensagem já existe no banco, pulando salvamento')
         }
       })
     } catch (error) {
@@ -190,7 +201,6 @@ async function saveChatResponse(
     }
   })
 
-  // Retornar imediatamente sem aguardar o salvamento
   return { success: true, data: null }
 }
 
