@@ -7,7 +7,7 @@ import { Chat } from '@prisma/client'
 import { prisma } from '@/services/database/prisma'
 
 import { getUserSession } from '../../user/profile/actions/get-user-session'
-import { reconstructMessageParts } from '../utils/message-parts'
+import { MessagePart, reconstructMessageParts } from '../utils/message-parts'
 
 type Message = {
   id: string
@@ -51,7 +51,7 @@ export async function getChats(): Promise<ChatWithMessages[]> {
   return chats.map((chat) => ({
     ...chat,
     messages: chat.messages.map((message) => {
-      let reconstructedParts = null
+      let reconstructedParts: MessagePart[] | null = null
 
       if (message.parts) {
         try {

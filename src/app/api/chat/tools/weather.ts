@@ -142,8 +142,6 @@ export const weatherTool = createTool({
       ]
     }
 
-    console.log('validResults in weather.ts', { validResults })
-
     return validResults
   },
 })

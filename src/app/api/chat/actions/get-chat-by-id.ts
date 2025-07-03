@@ -6,7 +6,7 @@ import { Chat, Message } from '@prisma/client'
 
 import { prisma } from '@/services/database/prisma'
 
-import { reconstructMessageParts } from '../utils/message-parts'
+import { MessagePart, reconstructMessageParts } from '../utils/message-parts'
 
 type GetChatByIdResponse = {
   chat?: Chat & { messages: (Message & { parts?: any })[] }
@@ -42,7 +42,7 @@ export async function getChatById(
 
   // Reconstruir as parts das mensagens
   const messagesWithParts = chat.messages.map((message) => {
-    let reconstructedParts = null
+    let reconstructedParts: MessagePart[] | null = null
 
     // Se a mensagem tem parts salvas, reconstruí-las
     if (message.parts) {

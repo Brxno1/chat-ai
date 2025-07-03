@@ -1,6 +1,17 @@
 import '@ai-sdk/react'
 
-import { Source, ToolInvocation, ToolResult } from 'ai'
+import { Source, ToolResult } from 'ai'
+
+// Definição local de ToolInvocation para corresponder à estrutura usada no código
+interface ToolInvocation {
+  toolCallId: string
+  toolName: string
+  args: Record<string, unknown>
+  state: 'call' | 'result'
+  callTimestamp: number
+  resultTimestamp?: number
+  result: unknown | unknown[] | null
+}
 
 export type WeatherToolResponse = {
   weather: [{ main: string; description: string }]
@@ -28,14 +39,24 @@ interface ToolResultTypes {
   getWeather: WeatherToolResponse[] | WeatherToolResponse
 }
 
+export type TextUIPart = { type: 'text'; text: string }
+export type ReasoningUIPart = { type: 'reasoning'; reasoning: string }
+export type ToolInvocationUIPart = {
+  type: 'tool-invocation'
+  toolInvocation: ToolInvocation
+}
+export type SourceUIPart = { type: 'source'; source: Source }
+export type ToolResultUIPart = { type: 'tool-result'; toolResult: ToolResult }
+
+export type MessagePart =
+  | TextUIPart
+  | ReasoningUIPart
+  | ToolInvocationUIPart
+  | SourceUIPart
+  | ToolResultUIPart
+
 declare module '@ai-sdk/react' {
   interface Message {
-    parts?: Array<
-      | { type: 'text'; text: string }
-      | { type: 'reasoning'; reasoning: string }
-      | { type: 'tool-invocation'; toolInvocation: ToolInvocation }
-      | { type: 'source'; source: Source }
-      | { type: 'tool-result'; toolResult: ToolResult }
-    >
+    parts?: MessagePart[]
   }
 }

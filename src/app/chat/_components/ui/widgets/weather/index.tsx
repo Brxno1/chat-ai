@@ -29,7 +29,6 @@ type WeatherCardProps = {
 }
 
 export const WeatherCard = ({ result }: WeatherCardProps) => {
-  console.log('result in weather.tsx', { result })
   const formattedDescription =
     result.weather[0].description.charAt(0).toUpperCase() +
     result.weather[0].description.slice(1)

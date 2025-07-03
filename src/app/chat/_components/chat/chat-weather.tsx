@@ -6,6 +6,7 @@ import { Message } from '@ai-sdk/react'
 import { ToolInvocation } from 'ai'
 import React from 'react'
 
+import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
 import { ContainerWrapper } from '@/components/container'
 import { Badge } from '@/components/ui/badge'
 import { MessageLoading } from '@/components/ui/message-loading'
@@ -25,40 +26,7 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
     new Set(),
   )
 
-  const { state, toolCallId, args } = toolInvocation
-
-  const findToolResult = React.useCallback(() => {
-    if (!message.parts) return null
-
-    for (const part of message.parts) {
-      const anyPart = part as any
-      if (
-        anyPart.type === 'tool-result' &&
-        anyPart.toolResult?.toolCallId === toolCallId
-      ) {
-        return anyPart.toolResult
-      }
-
-      if (
-        part.type === 'tool-invocation' &&
-        part.toolInvocation?.toolCallId === toolCallId &&
-        part.toolInvocation?.state === 'result'
-      ) {
-        return part.toolInvocation
-      }
-    }
-
-    return null
-  }, [message.parts, toolCallId])
-
-  const toolResult = findToolResult()
-  const hasToolResult = !!toolResult
-
-  const effectiveState = hasToolResult ? 'result' : state
-
   React.useEffect(() => {
-    if (hasToolResult) return
-
     if (!message.parts) return
 
     const toolCalls = message.parts
@@ -79,7 +47,7 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
     }, 5000)
 
     return () => clearTimeout(timeout)
-  }, [message.parts, stuckToolCalls, hasToolResult])
+  }, [message.parts, stuckToolCalls])
 
   const TimeBadge = () => {
     return (
@@ -91,26 +59,15 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
       </Badge>
     )
   }
+  const { toolCallId, args } = toolInvocation
 
   const ResultState = () => {
-    if (effectiveState !== 'result') {
-      return null
-    }
-
-    /* eslint-disable */
-    const { allResults } =
-      toolResult && 'result' in (toolResult as any)
-        ? {
-            allResults: Array.isArray((toolResult as any).result)
-              ? (toolResult as any).result
-              : [(toolResult as any).result],
-          }
-        : useWeatherResult(toolInvocation)
+    const { allResults } = useWeatherResult(toolInvocation)
 
     return (
       <ContainerWrapper className="flex w-full flex-col">
         <div className="mr-auto grid grid-cols-1 gap-2.5 transition-all duration-300 lg:grid-cols-2">
-          {allResults.map((result: any, index: number) =>
+          {allResults.map((result: WeatherToolResponse, index: number) =>
             result.error ? (
               <WeatherErrorCard
                 key={`weather-error-${index}`}
@@ -129,7 +86,7 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
   }
 
   const CallState = () => {
-    const isStuck = !hasToolResult && stuckToolCalls.has(toolCallId)
+    const isStuck = stuckToolCalls.has(toolCallId)
     const locationStr = Array.isArray(args?.location)
       ? args?.location.join(', ')
       : (args?.location as string) || 'esta localização'
@@ -174,11 +131,7 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
     </ContainerWrapper>
   )
 
-  if (hasToolResult) {
-    return <ResultState />
-  }
-
-  switch (effectiveState) {
+  switch (toolInvocation.state) {
     case 'result':
       return <ResultState />
     case 'call':

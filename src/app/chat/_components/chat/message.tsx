@@ -57,6 +57,21 @@ export function Messages({
       .map((p) => p.reasoning)
       .join('\n\n') || ''
 
+  const resultToolCallIds = new Set(
+    message.parts
+      ?.filter((p) => p.type === 'tool-invocation')
+      .map(
+        (p) =>
+          (p as { toolInvocation?: { toolCallId: string; state: string } })
+            .toolInvocation,
+      )
+      .filter(
+        (ti): ti is { toolCallId: string; state: string } =>
+          ti?.state === 'result' && !!ti.toolCallId,
+      )
+      .map((ti) => ti.toolCallId),
+  )
+
   return (
     <div className="flex w-full flex-col space-y-0.5">
       {message.role === 'assistant' && (
@@ -88,6 +103,8 @@ export function Messages({
         </AIReasoning>
       )}
       {message.parts?.map((part, partIndex) => {
+        console.log('part', part)
+
         switch (part.type) {
           case 'text':
             if (!part.text || part.text.trim() === '') {
@@ -169,9 +186,15 @@ export function Messages({
           case 'tool-invocation':
             const { toolInvocation } = part
 
+            const { toolCallId } = toolInvocation
+
+            if (toolInvocation.state === 'call' && resultToolCallIds.has(toolCallId)) {
+              return null
+            }
+
             return (
               <ChatWeather
-                key={`${message.id}-tool-${partIndex}-${toolInvocation.toolCallId}`}
+                key={`${message.id}-tool-${partIndex}`}
                 toolInvocation={toolInvocation}
                 message={message}
               />

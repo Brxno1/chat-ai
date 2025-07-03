@@ -117,8 +117,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       }
     },
 
-    onFinish: (message) => {
-      console.log('data from useChat', message)
+    onFinish: () => {
       if (!isGhostChatMode) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.chats.all,
@@ -126,7 +125,9 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
         const currentKey = getChatInstanceKey()
         if (currentKey) {
-          router.push(`/chat/${currentKey}`)
+          setTimeout(() => {
+            router.push(`/chat/${currentKey}`)
+          }, 1500)
         }
       }
     },
