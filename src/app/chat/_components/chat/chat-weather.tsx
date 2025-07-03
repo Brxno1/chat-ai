@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 'use client'
 
 import { Message } from '@ai-sdk/react'
 import { ToolInvocation } from 'ai'
 import React from 'react'
 
+import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
 import { ContainerWrapper } from '@/components/container'
 import { Badge } from '@/components/ui/badge'
 import { MessageLoading } from '@/components/ui/message-loading'
@@ -22,8 +25,6 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
   const [stuckToolCalls, setStuckToolCalls] = React.useState<Set<string>>(
     new Set(),
   )
-
-  const { state, toolCallId, args } = toolInvocation
 
   React.useEffect(() => {
     if (!message.parts) return
@@ -58,18 +59,15 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
       </Badge>
     )
   }
+  const { toolCallId, args } = toolInvocation
 
   const ResultState = () => {
-    if (toolInvocation.state !== 'result') {
-      return null
-    }
-
     const { allResults } = useWeatherResult(toolInvocation)
 
     return (
       <ContainerWrapper className="flex w-full flex-col">
         <div className="mr-auto grid grid-cols-1 gap-2.5 transition-all duration-300 lg:grid-cols-2">
-          {allResults.map((result, index) =>
+          {allResults.map((result: WeatherToolResponse, index: number) =>
             result.error ? (
               <WeatherErrorCard
                 key={`weather-error-${index}`}
@@ -133,12 +131,12 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
     </ContainerWrapper>
   )
 
-  switch (state) {
+  switch (toolInvocation.state) {
     case 'result':
       return <ResultState />
     case 'call':
-      return <DefaultState />
-    default:
       return <CallState />
+    default:
+      return <DefaultState />
   }
 }

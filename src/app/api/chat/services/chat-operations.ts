@@ -7,7 +7,12 @@ import { StreamTextResult } from 'ai'
 import { prisma } from '@/services/database/prisma'
 
 import { errorHandler } from '../route'
+import { weatherTool } from '../tools/weather'
 import { processStreamResult } from '../utils/message-parts'
+
+type AllTools = {
+  getWeather: typeof weatherTool
+}
 
 type Role = 'user' | 'assistant'
 
@@ -85,6 +90,7 @@ async function saveMessages(
   messages: Array<{ role: Role; content: string }>,
   chatId: string,
 ): Promise<OperationResponse<null>> {
+  console.log('saveMessages', { messages, chatId })
   try {
     const existingMessages = await prisma.message.findMany({
       where: {
@@ -126,16 +132,12 @@ async function saveMessages(
       }
     }
 
-    if (messagesToCreate.length === 0) {
-      return { success: true, data: null }
-    }
-
     if (messagesToCreate.length > 0) {
-      await prisma.$transaction(
-        messagesToCreate.map((msgData) =>
-          prisma.message.create({ data: msgData }),
-        ),
-      )
+      await prisma.$transaction(async (tx) => {
+        for (const data of messagesToCreate) {
+          await tx.message.create({ data })
+        }
+      })
     }
 
     return { success: true, data: null }
@@ -149,7 +151,7 @@ async function saveMessages(
 }
 
 async function saveChatResponse(
-  stream: StreamTextResult<any, never>,
+  stream: StreamTextResult<AllTools, never>,
   chatId: string,
   originalChatId?: string,
   messages?: Array<{ role: Role; content: string }>,
@@ -159,7 +161,7 @@ async function saveChatResponse(
 
   setImmediate(async () => {
     try {
-      const { text: fullText, parts } = await processStreamResult(stream)
+      const { text, parts } = await processStreamResult(stream)
 
       const hasToolInteraction = parts?.some(
         (part) =>
@@ -175,7 +177,7 @@ async function saveChatResponse(
 
         await tx.message.create({
           data: {
-            content: fullText || '[Response from Tools]',
+            content: text || '[Response from Tools]',
             role: 'ASSISTANT',
             chatId,
             parts: partsToSave,

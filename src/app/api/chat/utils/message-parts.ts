@@ -1,15 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { StreamTextResult } from 'ai'
 
-type MessagePart = {
+import { weatherTool } from '../tools/weather'
+
+type AllTools = {
+  getWeather: typeof weatherTool
+}
+
+export type MessagePart = {
   type: string
   text?: string
   toolInvocation?: {
     toolCallId: string
     toolName: string
     args: Record<string, unknown>
-    state: string
+    state: 'call' | 'result'
+    callTimestamp?: number
+    resultTimestamp?: number
+    result: unknown | unknown[] | null
   }
   toolResult?: {
     toolCallId: string
@@ -32,9 +39,6 @@ type ToolResult = {
   result: unknown
 }
 
-/**
- * Extrai o texto de uma mensagem com parts para salvar no campo content
- */
 export function extractTextFromParts(parts: MessagePart[]): string {
   if (!parts || parts.length === 0) return ''
 
@@ -43,9 +47,7 @@ export function extractTextFromParts(parts: MessagePart[]): string {
     .map((part) => part.text)
     .join(' ')
 
-  // Se não temos texto mas temos invocação de ferramenta
   if (!textParts && parts.some((part) => part.type === 'tool-invocation')) {
-    // Tentar obter o nome da ferramenta e localização para uma mensagem mais amigável
     const toolInvocation = parts.find(
       (p) => p.type === 'tool-invocation',
     )?.toolInvocation
@@ -55,30 +57,25 @@ export function extractTextFromParts(parts: MessagePart[]): string {
       toolInvocation?.args?.location
     ) {
       const location = toolInvocation.args.location
-      return `[Consultando previsão do tempo para ${location}]`
+      return `[Consulta de previsão do tempo para ${location}]`
     }
 
-    return `[Consultando informações com ferramentas]`
+    return `[Consulta de informações com ferramentas]`
   }
 
   return textParts || ''
 }
 
-/**
- * Processa o stream result para extrair texto e parts
- */
 export async function processStreamResult(
-  stream: StreamTextResult<any, never>,
+  stream: StreamTextResult<AllTools, never>,
 ) {
   try {
     const text = await stream.text
     const toolCalls = await stream.toolCalls
     const toolResults = await stream.toolResults
 
-    // Construir as parts baseadas no que foi retornado
     const parts: MessagePart[] = []
 
-    // Adicionar texto se houver
     if (text && text.trim()) {
       parts.push({
         type: 'text',
@@ -86,7 +83,8 @@ export async function processStreamResult(
       })
     }
 
-    // Adicionar tool calls se houver
+    let argsToResult: Record<string, unknown> = {}
+
     if (toolCalls && toolCalls.length > 0) {
       toolCalls.forEach((toolCall: ToolCall, index) => {
         const part = {
@@ -95,9 +93,12 @@ export async function processStreamResult(
             toolCallId: toolCall.toolCallId || `tool-${Date.now()}-${index}`,
             toolName: toolCall.toolName,
             args: toolCall.args,
-            state: 'call',
+            state: 'call' as const,
+            callTimestamp: Date.now(),
+            result: null,
           },
         }
+        argsToResult = toolCall.args
         parts.push(part)
       })
     }
@@ -105,12 +106,14 @@ export async function processStreamResult(
     if (toolResults && toolResults.length > 0) {
       toolResults.forEach((result: ToolResult) => {
         const part = {
-          type: 'tool-result',
-          toolResult: {
+          type: 'tool-invocation',
+          toolInvocation: {
             toolCallId: result.toolCallId,
             toolName: result.toolName,
+            args: argsToResult,
+            state: 'result' as const,
+            resultTimestamp: Date.now(),
             result: result.result,
-            state: 'result',
           },
         }
         parts.push(part)
@@ -145,26 +148,20 @@ export async function processStreamResult(
 /**
  * Converte parts salvas no banco de volta para o formato esperado pela UI
  */
-export function reconstructMessageParts(
-  savedParts: unknown,
-): MessagePart[] | null {
-  if (!savedParts) return null
+export function reconstructMessageParts(savedParts: unknown): MessagePart[] {
+  if (!savedParts) return []
 
   try {
-    // Converter string para objeto se necessário
     const partsArray =
       typeof savedParts === 'string' ? JSON.parse(savedParts) : savedParts
 
-    // Validar se é um array
-    if (!Array.isArray(partsArray)) return null
+    if (!Array.isArray(partsArray)) return []
 
-    // Mapear partes garantindo a estrutura correta
     return partsArray.map((part) => {
       const typedPart: MessagePart = {
         type: part.type || 'text',
       }
 
-      // Adicionar campos específicos com base no tipo
       if (part.text) typedPart.text = part.text
       if (part.toolInvocation) typedPart.toolInvocation = part.toolInvocation
       if (part.toolResult) typedPart.toolResult = part.toolResult
@@ -174,6 +171,6 @@ export function reconstructMessageParts(
     })
   } catch (error) {
     console.error('Erro ao reconstruir message parts:', error)
-    return null
+    return []
   }
 }

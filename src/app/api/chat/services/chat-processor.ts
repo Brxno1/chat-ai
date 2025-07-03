@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Message, StreamTextResult } from 'ai'
 
 import { generateSystemPrompt } from '../prompts'

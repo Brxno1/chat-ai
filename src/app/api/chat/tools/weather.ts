@@ -2,27 +2,34 @@ import { tool as createTool } from 'ai'
 import { z } from 'zod'
 
 export type WeatherToolResponse = {
-  weather: { main: string; description: string }[]
+  weather: [{ main: string; description: string }]
   main: {
     temp: number
     feels_like: number
     temp_min: number
     temp_max: number
-    pressure: number
     humidity: number
+    pressure: number
   }
   wind: { speed: number }
-  sys: {
-    country: string
-  }
+  sys: { country: string }
   name: string
+  cod: number
   error?: {
     title: string
     message: string
     location: string
     code: 'NOT_FOUND' | 'API_ERROR' | 'NETWORK_ERROR' | 'INVALID_DATA'
   }
-  cod: number
+}
+
+export type WeatherErrorResponse = {
+  error: {
+    title: string
+    message: string
+    location: string
+    code: 'NOT_FOUND' | 'API_ERROR' | 'NETWORK_ERROR' | 'INVALID_DATA'
+  }
 }
 
 export const weatherTool = createTool({
@@ -34,15 +41,15 @@ export const weatherTool = createTool({
   }),
   execute: async function ({ location }) {
     const locations = Array.isArray(location) ? location : [location]
-    const validResults = []
-    const errorMessages = []
+    const validResults: (WeatherToolResponse | WeatherErrorResponse)[] = []
+    const errorMessages: string[] = []
 
     for (const loc of locations) {
       try {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric&lang=pt_br`,
         )
-        const data: WeatherToolResponse = await response.json()
+        const data = await response.json()
 
         if (data.cod === 401) {
           validResults.push({
@@ -80,36 +87,29 @@ export const weatherTool = createTool({
           continue
         }
 
-        const weatherMain = data.weather[0].main
-        const temperature = data.main.temp
-
         validResults.push({
           weather: [
             {
               main: data.weather[0].main,
-              description: data.weather[0].description
-            }
+              description: data.weather[0].description,
+            },
           ],
           main: {
             temp: data.main.temp,
             feels_like: data.main.feels_like,
             temp_min: data.main.temp_min,
             temp_max: data.main.temp_max,
+            humidity: data.main.humidity,
             pressure: data.main.pressure,
-            humidity: data.main.humidity
           },
           wind: {
-            speed: data.wind.speed
+            speed: data.wind?.speed || 0,
           },
           sys: {
-            country: data.sys.country
+            country: data.sys?.country || '',
           },
           name: data.name,
           cod: data.cod,
-          weatherMain,
-          temperature,
-          minTemperature: data.main.temp_min,
-          maxTemperature: data.main.temp_max,
         })
       } catch (error) {
         const errorMessage =

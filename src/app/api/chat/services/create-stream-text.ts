@@ -17,7 +17,7 @@ const google = createGoogleGenerativeAI({
 })
 
 const model = wrapLanguageModel({
-  model: google('gemini-1.5-flash-8b-latest'),
+  model: google('gemini-1.5-flash'),
   middleware: [extractReasoningMiddleware({ tagName: 'think' })],
 })
 
