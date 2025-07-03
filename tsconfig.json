@@ -8,6 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
+    "noImplicitAny": false,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -26,14 +27,22 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types",
+      "./@types"
+    ],
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
-, "index.js"  ],
+    ".next/types/**/*.ts",
+    "index.js",
+    "@types/ai-sdk.d.ts",
+    "@types/sharp.d.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

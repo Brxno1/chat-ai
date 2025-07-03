@@ -86,7 +86,6 @@ export async function processStreamResult(
       })
     }
 
-    // Adicionar tool calls se houver
     if (toolCalls && toolCalls.length > 0) {
       toolCalls.forEach((toolCall: ToolCall, index) => {
         const part = {

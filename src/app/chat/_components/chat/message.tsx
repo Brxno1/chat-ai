@@ -58,7 +58,7 @@ export function Messages({
       .join('\n\n') || ''
 
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex w-full flex-col space-y-0.5">
       {message.role === 'assistant' && (
         <ContainerWrapper>
           <Badge variant={'chat'} className="hover:bg-transparent">
@@ -75,19 +75,17 @@ export function Messages({
         </ContainerWrapper>
       )}
       {message.role === 'assistant' && reasoningParts.length > 0 && (
-        <ContainerWrapper>
-          <AIReasoning isStreaming={isStreaming} defaultOpen={false}>
-            <AIReasoningTrigger
-              title="Raciocínio"
-              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-            />
-            {/* eslint-disable */}
-            <AIReasoningContent>
-              {reasoningParts}
-            </AIReasoningContent>
-            {/* eslint-enable- */}
-          </AIReasoning>
-        </ContainerWrapper>
+        <AIReasoning isStreaming={isStreaming} defaultOpen={isStreaming}>
+          <AIReasoningTrigger
+            title="Raciocínio"
+            className="ml-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          />
+          {/* eslint-disable */}
+          <AIReasoningContent>
+            {reasoningParts}
+          </AIReasoningContent>
+          {/* eslint-enable- */}
+        </AIReasoning>
       )}
       {message.parts?.map((part, partIndex) => {
         switch (part.type) {

@@ -29,6 +29,7 @@ type WeatherCardProps = {
 }
 
 export const WeatherCard = ({ result }: WeatherCardProps) => {
+  console.log('result in weather.tsx', { result })
   const formattedDescription =
     result.weather[0].description.charAt(0).toUpperCase() +
     result.weather[0].description.slice(1)
@@ -99,9 +100,12 @@ export const WeatherCard = ({ result }: WeatherCardProps) => {
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2 text-right text-sm text-foreground/70">
+          <div className="flex flex-col items-center text-right text-sm text-foreground/70">
             <span className="text-foreground/70">
               Mín: {Math.round(result.main.temp_min)}°
+            </span>
+            <span className="text-foreground/70">
+              Máx: {Math.round(result.main.temp_max)}°
             </span>
           </div>
         </div>

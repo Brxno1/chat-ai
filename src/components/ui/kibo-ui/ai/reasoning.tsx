@@ -175,7 +175,7 @@ export type AIReasoningContentProps = ComponentProps<
 export const AIReasoningContent = memo(
   ({ className, children, ...props }: AIReasoningContentProps) => (
     <CollapsibleContent
-      className={cn('text-muted-foreground text-xs max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]', className)}
+      className={cn('text-muted-foreground text-xs max-md:max-w-[90%] md:max-w-[70%] lg:max-w-[50%]', className)}
       {...props}
     >
       <AIResponse className="grid">{children}</AIResponse>
