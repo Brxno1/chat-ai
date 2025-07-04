@@ -3,5 +3,5 @@ node_modules
 build
 dist 
 src/components/
-src/services/auth/index.ts
-@types/next-auth.d.ts
+src/services
+@types

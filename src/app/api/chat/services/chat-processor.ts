@@ -1,8 +1,8 @@
 import { Message, StreamTextResult } from 'ai'
 
 import { generateSystemPrompt } from '../prompts'
-import { errorHandler } from '../route'
 import { weatherTool } from '../tools/weather'
+import { errorHandler } from '../utils/error-handler'
 import {
   processToolInvocations,
   validateMessages,

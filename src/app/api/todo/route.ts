@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
   const { todo, error: createTodoError } = await createTodoAction({
     title,
-    id: session!.user.id,
+    userId: session!.user.id,
   })
 
   if (createTodoError) {
