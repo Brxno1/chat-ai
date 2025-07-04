@@ -1,6 +1,5 @@
 'use client'
 
-import { Chat } from '@prisma/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { AlignLeft, ChevronRight, RefreshCcw } from 'lucide-react'
 import React from 'react'
@@ -15,6 +14,7 @@ import {
 } from '@/components/ui/collapsible'
 import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
+import { Chat } from '@/services/database/generated'
 import { groupItemsByDate } from '@/utils/format'
 import { cn } from '@/utils/utils'
 

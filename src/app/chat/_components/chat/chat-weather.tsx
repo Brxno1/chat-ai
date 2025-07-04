@@ -15,14 +15,16 @@ import { formatDateToLocaleWithHour } from '@/utils/format'
 import { WeatherCard } from '../ui/widgets/weather'
 import { WeatherErrorCard } from '../ui/widgets/weather/weather-error'
 
-type ToolInvocationWithResult = ToolInvocation & { result: WeatherToolResponse }
+type ToolInvocationWithResult = ToolInvocation & {
+  result: WeatherToolResponse[]
+}
 
 interface WeatherToolArgs {
   location: string[]
 }
 
 interface ChatWeatherProps {
-  toolInvocation: ToolInvocation | ToolInvocationWithResult
+  toolInvocation: ToolInvocationWithResult | ToolInvocation
   message: Message
 }
 
@@ -64,6 +66,7 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
       </Badge>
     )
   }
+
   const { toolCallId, args } = toolInvocation
 
   const ResultState = () => {

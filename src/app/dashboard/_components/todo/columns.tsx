@@ -1,4 +1,3 @@
-import { Todo } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 
@@ -6,6 +5,7 @@ import { ContainerWrapper } from '@/components/container'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Todo } from '@/services/database/generated'
 import { formatDateToLocale, formatDistanceToNow } from '@/utils/format'
 
 import { ActionsForTodo } from './actions-components/actions'

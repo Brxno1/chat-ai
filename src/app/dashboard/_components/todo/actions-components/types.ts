@@ -1,4 +1,4 @@
-import { Todo } from '@prisma/client'
+import { Todo } from '@/services/database/generated'
 
 export type ActionsForTodoProps<T = unknown> = {
   todo: Todo

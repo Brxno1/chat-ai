@@ -1,6 +1,5 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Todo } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import React from 'react'
@@ -29,6 +28,7 @@ import {
 } from '@/components/ui/sheet'
 import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
+import { Todo } from '@/services/database/generated'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({

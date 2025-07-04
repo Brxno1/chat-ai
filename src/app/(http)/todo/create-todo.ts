@@ -1,6 +1,5 @@
-import { Todo } from '@prisma/client'
-
 import { api } from '@/lib/axios'
+import { Todo } from '@/services/database/generated'
 
 type CreateTodoProps = {
   title: string

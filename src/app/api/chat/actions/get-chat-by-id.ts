@@ -1,16 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 'use server'
 
-import { Chat, Message } from '@prisma/client'
-
+import { Chat, MessageRole } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 
 import { extractTextFromParts } from '../utils/message-filter'
 import { MessagePart, reconstructMessageParts } from '../utils/message-parts'
 
+type Message = {
+  id: string
+  createdAt: Date
+  userId: string | null
+  content: string
+  role: string
+  chatId: string
+  parts?: MessagePart[] | null
+}
+
 type GetChatByIdResponse = {
-  chat?: Chat & { messages: (Message & { content: string; parts?: any })[] }
+  chat?: Chat & { messages: Message[] }
   error?: string
   success: boolean
 }
@@ -59,7 +66,7 @@ export async function getChatById(
     return {
       ...message,
       userId: message.userId || userId,
-      role: message.role.toLowerCase() as 'USER' | 'ASSISTANT',
+      role: message.role.toLowerCase() as MessageRole,
       content: extractTextFromParts(message.parts),
       parts: reconstructedParts,
     }

@@ -1,9 +1,8 @@
 'use server'
 
-import { User } from '@prisma/client'
-
 import { supabase } from '@/lib/supabase'
 import { signIn } from '@/services/auth'
+import { User } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { processImage } from '@/utils/process-image'
 

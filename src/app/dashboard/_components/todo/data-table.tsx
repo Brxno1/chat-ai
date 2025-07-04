@@ -1,6 +1,5 @@
 'use client'
 
-import { Todo } from '@prisma/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import {
   ColumnFiltersState,
@@ -37,6 +36,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { queryKeys } from '@/lib/query-client'
+import { Todo } from '@/services/database/generated'
 import { cn } from '@/utils/utils'
 
 import { columns } from './columns'
