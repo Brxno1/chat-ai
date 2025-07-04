@@ -15,7 +15,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogPortal,
   DialogTitle,
@@ -169,23 +169,14 @@ export function EditProfile({ className }: EditProfileProps) {
           <UserPen />
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className="flex flex-col overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3"
-        onPointerDownOutside={(ev) => {
-          ev.preventDefault()
-        }}
-      >
-        <DialogHeader className="flex flex-row items-center justify-between gap-2 p-5">
+      <DialogContent className="flex flex-col overflow-y-visible !rounded-xl p-0 max-md:max-w-[23.5rem] [&>button:last-child]:top-3 [&>button:last-child]:rounded-xl">
+        <DialogHeader className="flex flex-row items-center justify-between gap-2 p-4">
           <DialogTitle>Editar perfil</DialogTitle>
           {form.formState.errors.background && (
             <span className="text-xs text-red-600">
               {form.formState.errors.background?.message}
             </span>
           )}
-          <DialogDescription className="sr-only">
-            Faça alterações no seu perfil aqui. Você pode alterar seu nome,
-            fotos e biografia.
-          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -202,28 +193,26 @@ export function EditProfile({ className }: EditProfileProps) {
                 name="name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <FormItem className="mb-5">
-                    <div className="group relative space-y-2">
-                      <FormLabel
+                  <FormItem className="group relative mb-5 space-y-2">
+                    <FormLabel
+                      className={cn(
+                        'absolute top-[30%] block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:font-medium has-[+input:not(:placeholder-shown)]:text-foreground',
+                      )}
+                    >
+                      <span
                         className={cn(
-                          'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
+                          'inline-flex bg-muted px-2 dark:bg-background',
+                          {
+                            'text-red-500': fieldState.error,
+                          },
                         )}
                       >
-                        <span
-                          className={cn(
-                            'inline-flex bg-muted px-2 dark:bg-background',
-                            {
-                              'text-red-500': fieldState.error,
-                            },
-                          )}
-                        >
-                          Nome
-                        </span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="text" placeholder=" " {...field} />
-                      </FormControl>
-                    </div>
+                        Nome
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="text" placeholder=" " {...field} />
+                    </FormControl>
                     <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
@@ -283,11 +272,11 @@ export function EditProfile({ className }: EditProfileProps) {
             </div>
           </form>
         </Form>
-        <footer className="mt-4 flex flex-row justify-between gap-2 border-t p-6">
+        <DialogFooter className="mt-4 justify-between gap-2 border-t p-6">
           <Button
             form="update-profile-form"
             type="submit"
-            className="min-w-[9.375rem] rounded-2xl font-semibold"
+            className="min-w-[9.375rem] rounded-md font-semibold"
             disabled={form.formState.isSubmitting || !form.formState.isValid}
           >
             {form.formState.isSubmitting ? (
@@ -300,12 +289,12 @@ export function EditProfile({ className }: EditProfileProps) {
             <Button
               type="button"
               variant="ghost"
-              className="rounded-2xl border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600"
+              className="rounded-md border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600"
             >
               Cancelar
             </Button>
           </DialogClose>
-        </footer>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

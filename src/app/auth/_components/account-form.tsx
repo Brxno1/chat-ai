@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RiGoogleFill } from '@remixicon/react'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { LoaderCircle, RotateCw } from 'lucide-react'
+import { LoaderCircle, Mail, RotateCw } from 'lucide-react'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 import React from 'react'
@@ -55,18 +55,16 @@ export function CreateAccountForm() {
 
   const { mutateAsync: createAccountFn } = useMutation({
     mutationFn: createAccount,
-    onSuccess: ({ name }) => {
-      toast('Link mágico enviado para: ', {
+    onSuccess: () => {
+      toast('Verifique seu e-mail para acessar a sua conta', {
         action: (
-          <Link
-            href={env.MAILHOG_UI}
-            target="_blank"
-            className="cursor-pointer font-bold text-purple-500 hover:underline"
-          >
-            {name}
+          <Link href={env.MAILHOG_UI} target="_blank">
+            <Button className="ml-2" size="icon">
+              <Mail size={16} />
+            </Button>
           </Link>
         ),
-        duration: 7000,
+        duration: 10000,
       })
       form.reset({
         name: '',
@@ -87,6 +85,11 @@ export function CreateAccountForm() {
               <RotateCw className="h-4 w-4 text-rose-300" />
             </Button>
           ),
+        })
+        form.reset({
+          name: '',
+          email: '',
+          avatar: null,
         })
       }
     },
@@ -135,7 +138,7 @@ export function CreateAccountForm() {
                   <div className="group relative space-y-2">
                     <FormLabel
                       className={cn(
-                        'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
+                        'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-[50%] block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
                         {
                           'text-red-500': fieldState.error,
                         },
@@ -165,7 +168,7 @@ export function CreateAccountForm() {
                   <div className="group relative space-y-2">
                     <FormLabel
                       className={cn(
-                        'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
+                        'className="origin-start has-[+input:not(:placeholder-shown)]:font-medium" absolute top-[50%] block -translate-y-1/2 cursor-text px-1 text-sm text-muted-foreground/70 transition-all group-focus-within:pointer-events-none group-focus-within:top-0 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-0 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:text-foreground',
                         {
                           'text-red-500': fieldState.error,
                         },
@@ -190,12 +193,13 @@ export function CreateAccountForm() {
             <FormField
               name="avatar"
               control={form.control}
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <UploadAvatar
                       className="mt-6"
                       onFileChange={onFileChange}
+                      value={field.value}
                     />
                   </FormControl>
                 </FormItem>

@@ -43,7 +43,7 @@ function BackgroundProfile({ onFileChange }: FileUploadProps) {
   }
 
   return (
-    <div className="h-[10.5rem]">
+    <div className="h-[12.5rem]">
       <ContainerWrapper className="group relative size-full items-center justify-center overflow-hidden border-b">
         <AspectRatio ratio={16 / 9}>
           <Avatar className="size-full rounded-none">

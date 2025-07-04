@@ -15,9 +15,10 @@ import Image from 'next/image'
 interface UploadAvatarProps {
   className?: string
   onFileChange?: (name: 'avatar', file: File | null) => void
+  value?: File | null
 }
 
-export function UploadAvatar({ className, onFileChange }: UploadAvatarProps) {
+export function UploadAvatar({ className, onFileChange, value }: UploadAvatarProps) {
   const {
     previewUrl,
     fileInputRef,
@@ -31,6 +32,12 @@ export function UploadAvatar({ className, onFileChange }: UploadAvatarProps) {
   React.useEffect(() => {
     onFileChange?.('avatar', file)
   }, [file])
+
+  React.useEffect(() => {
+    if (value === null && file !== null) {
+      handleRemove()
+    }
+  }, [value, file, handleRemove])
 
   const handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     handleFileChangeUpload(ev)

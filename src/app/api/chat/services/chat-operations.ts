@@ -16,72 +16,51 @@ type AllTools = {
 
 type Role = 'user' | 'assistant'
 
-type OperationResponse<T = any> = {
+type OperationResponse<T> = {
+  success: boolean
   data: T
   error?: string
-  success: boolean
 }
 
 async function findOrCreateChat(
-  userId?: string,
+  messages: Array<{ role: Role; content: string }>,
   chatId?: string,
-  messages?: Array<{ role: Role; content: string }>,
-): Promise<OperationResponse<any>> {
+  name?: string,
+  userId?: string,
+): Promise<OperationResponse<string>> {
+  if (chatId) return { success: true, data: chatId }
+
+  if (!userId) {
+    return {
+      success: false,
+      error: 'User ID não fornecido',
+      data: '',
+    }
+  }
+
+  const lastUserMessage = messages
+    .slice()
+    .reverse()
+    .find((msg) => msg.role === 'user')
+
+  const chatTitle = lastUserMessage?.content
+    ? lastUserMessage.content.substring(0, 50)
+    : name || 'Novo Chat'
+
   try {
-    if (chatId) {
-      const chat = await prisma.chat.findFirst({
-        where: {
-          id: chatId,
-          userId,
-        },
-        include: {
-          messages: {
-            orderBy: {
-              createdAt: 'asc',
-            },
-          },
-        },
-      })
+    const chat = await prisma.chat.create({
+      data: {
+        title: chatTitle,
+        userId,
+      },
+    })
 
-      return { success: true, data: chat }
-    }
-
-    if (userId && messages?.length) {
-      const lastUserMessage = [...messages]
-        .reverse()
-        .find((msg) => msg.role === 'user')
-
-      const title = lastUserMessage
-        ? lastUserMessage.content.substring(0, 50)
-        : 'Nova conversa'
-
-      const chat = await prisma.chat.create({
-        data: {
-          title,
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
-        },
-        include: {
-          messages: {
-            orderBy: {
-              createdAt: 'asc',
-            },
-          },
-        },
-      })
-
-      return { success: true, data: chat }
-    }
-
-    return { success: false, data: null }
+    return { success: true, data: chat.id }
   } catch (error) {
     return {
       success: false,
       error: errorHandler(error),
-      data: null,
+      data: '',
     }
   }
 }
@@ -90,7 +69,6 @@ async function saveMessages(
   messages: Array<{ role: Role; content: string }>,
   chatId: string,
 ): Promise<OperationResponse<null>> {
-  console.log('saveMessages', { messages, chatId })
   try {
     const existingMessages = await prisma.message.findMany({
       where: {
@@ -102,32 +80,58 @@ async function saveMessages(
       take: 10,
       select: {
         id: true,
-        content: true,
+        parts: true,
         role: true,
         createdAt: true,
       },
     })
 
     const messagesToCreate: Array<{
-      content: string
       role: 'USER' | 'ASSISTANT'
       chatId: string
+      parts: string
     }> = []
 
     for (const msg of messages) {
       const role = msg.role === 'user' ? 'USER' : 'ASSISTANT'
       const content = msg.content
 
+      // Criar parts com o texto da mensagem
+      const parts = [{ type: 'text', text: content }]
+      const partsString = JSON.stringify(parts)
+
+      // Verificar duplicação comparando o texto das parts existentes
       const isConsecutiveDuplicate =
         existingMessages.length > 0 &&
-        existingMessages[0].content === content &&
-        existingMessages[0].role === role
+        (() => {
+          const lastMessage = existingMessages[0]
+          if (lastMessage.role !== role) return false
+
+          try {
+            const lastParts =
+              typeof lastMessage.parts === 'string'
+                ? JSON.parse(lastMessage.parts)
+                : lastMessage.parts
+
+            if (Array.isArray(lastParts)) {
+              const lastText = lastParts
+                .filter((p) => p?.type === 'text' && p?.text)
+                .map((p) => p.text)
+                .join(' ')
+              return lastText === content
+            }
+          } catch (error) {
+            console.error('Erro ao comparar parts:', error)
+          }
+
+          return false
+        })()
 
       if (!isConsecutiveDuplicate) {
         messagesToCreate.push({
-          content,
           role,
           chatId,
+          parts: partsString,
         })
       }
     }
@@ -161,14 +165,16 @@ async function saveChatResponse(
 
   setImmediate(async () => {
     try {
-      const { text, parts } = await processStreamResult(stream)
+      const { parts } = await processStreamResult(stream)
 
       const hasToolInteraction = parts?.some(
         (part) =>
           part.type === 'tool-invocation' || part.type === 'tool-result',
       )
 
-      const shouldSaveParts = hasToolInteraction
+      const hasReasoning = parts?.some((part) => part.type === 'reasoning')
+
+      const shouldSaveParts = hasToolInteraction || hasReasoning
 
       await prisma.$transaction(async (tx) => {
         const partsToSave = shouldSaveParts
@@ -177,7 +183,6 @@ async function saveChatResponse(
 
         await tx.message.create({
           data: {
-            content: text || '[Response from Tools]',
             role: 'ASSISTANT',
             chatId,
             parts: partsToSave,
@@ -206,4 +211,4 @@ async function saveChatResponse(
   return { success: true, data: null }
 }
 
-export { findOrCreateChat, saveMessages, saveChatResponse }
+export { findOrCreateChat, saveChatResponse, saveMessages }

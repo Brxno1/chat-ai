@@ -72,7 +72,7 @@ export const WeatherErrorCard = ({
       aria-label={`Erro ao buscar clima para ${location || 'localização'}: ${errorInfo.title}`}
       role="alert"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-red-100 via-red-200 to-red-300 opacity-50 transition-opacity duration-500 dark:from-red-950 dark:via-red-900 dark:to-red-800" />
+      <div className="absolute inset-0 bg-gradient-to-br from-red-200 via-red-200 to-red-100 opacity-70 transition-opacity duration-500 dark:from-red-950 dark:via-red-900 dark:to-red-800" />
 
       <div className="relative space-y-4 p-4">
         <div className="flex items-center justify-between">

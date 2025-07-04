@@ -72,7 +72,12 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const chatResponse = await findOrCreateChat(userId, chatId, processedMessages)
+  const chatResponse = await findOrCreateChat(
+    processedMessages,
+    chatId,
+    name,
+    userId,
+  )
 
   if (!chatResponse.success) {
     return {
@@ -81,7 +86,7 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const chat = chatResponse.data
+  const finalChatId = chatResponse.data
   const isNewChat = !chatId
 
   if (isNewChat || processedMessages.length > 0) {
@@ -92,7 +97,7 @@ export async function processChatAndSaveMessages({
         )
 
     if (messagesToSave.length > 0) {
-      await saveMessages(messagesToSave, chat.id)
+      await saveMessages(messagesToSave, finalChatId)
     }
   }
 
@@ -116,10 +121,10 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  saveChatResponse(stream!, chat!.id, chatId, processedMessages)
+  saveChatResponse(stream!, finalChatId, chatId, processedMessages)
 
   return {
     stream,
-    chatId: chat!.id,
+    chatId: finalChatId,
   }
 }

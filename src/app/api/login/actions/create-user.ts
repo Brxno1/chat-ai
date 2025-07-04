@@ -76,7 +76,7 @@ export async function createUserAndSendMagicLink(
     await signIn('email', {
       email: createdUser.email,
       redirect: false,
-      redirectTo: '/dashboard',
+      redirectTo: '/chat',
     })
 
     return {

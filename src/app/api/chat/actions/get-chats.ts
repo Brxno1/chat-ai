@@ -7,6 +7,7 @@ import { Chat } from '@prisma/client'
 import { prisma } from '@/services/database/prisma'
 
 import { getUserSession } from '../../user/profile/actions/get-user-session'
+import { extractTextFromParts } from '../utils/message-filter'
 import { MessagePart, reconstructMessageParts } from '../utils/message-parts'
 
 type Message = {
@@ -69,7 +70,7 @@ export async function getChats(): Promise<ChatWithMessages[]> {
         id: message.id,
         createdAt: message.createdAt,
         userId: message.userId,
-        content: message.content,
+        content: extractTextFromParts(message.parts),
         role: message.role,
         chatId: message.chatId,
         parts: reconstructedParts,

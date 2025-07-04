@@ -6,6 +6,15 @@ type AllTools = {
   getWeather: typeof weatherTool
 }
 
+export function cleanReasoningText(text: string): string {
+  return text
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\n\n/g, '. ')
+    .replace(/\n/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
 export type MessagePart = {
   type: string
   text?: string
@@ -14,8 +23,8 @@ export type MessagePart = {
     toolName: string
     args: Record<string, unknown>
     state: 'call' | 'result'
-    callTimestamp?: number
-    resultTimestamp?: number
+    callTimestamp?: Date
+    resultTimestamp?: Date
     result: unknown | unknown[] | null
   }
   toolResult?: {
@@ -73,6 +82,7 @@ export async function processStreamResult(
     const text = await stream.text
     const toolCalls = await stream.toolCalls
     const toolResults = await stream.toolResults
+    const reasoning = await stream.reasoning
 
     const parts: MessagePart[] = []
 
@@ -80,6 +90,13 @@ export async function processStreamResult(
       parts.push({
         type: 'text',
         text: text.trim(),
+      })
+    }
+
+    if (reasoning && reasoning.trim()) {
+      parts.push({
+        type: 'reasoning',
+        reasoning: cleanReasoningText(reasoning),
       })
     }
 
@@ -94,7 +111,7 @@ export async function processStreamResult(
             toolName: toolCall.toolName,
             args: toolCall.args,
             state: 'call' as const,
-            callTimestamp: Date.now(),
+            callTimestamp: new Date(),
             result: null,
           },
         }
@@ -112,7 +129,7 @@ export async function processStreamResult(
             toolName: result.toolName,
             args: argsToResult,
             state: 'result' as const,
-            resultTimestamp: Date.now(),
+            resultTimestamp: new Date(),
             result: result.result,
           },
         }
@@ -120,7 +137,8 @@ export async function processStreamResult(
       })
     }
 
-    const finalText = extractTextFromParts(parts)
+    const finalText =
+      text && text.trim() ? text.trim() : extractTextFromParts(parts)
 
     return {
       text: finalText,

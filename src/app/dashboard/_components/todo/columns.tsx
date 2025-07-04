@@ -6,7 +6,7 @@ import { ContainerWrapper } from '@/components/container'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { formatDistanceToNow } from '@/utils/format'
+import { formatDateToLocale, formatDistanceToNow } from '@/utils/format'
 
 import { ActionsForTodo } from './actions-components/actions'
 import { BadgeStatus } from './badge-status'
@@ -132,7 +132,7 @@ export const columns: ColumnDef<Todo>[] = [
 
       return (
         <TooltipWrapper
-          content={new Date(createdAt).toLocaleString()}
+          content={formatDateToLocale(createdAt)}
           side="top"
           disableHoverableContent={false}
           asChild
@@ -167,7 +167,7 @@ export const columns: ColumnDef<Todo>[] = [
 
       return (
         <TooltipWrapper
-          content={new Date(updatedAt).toLocaleString()}
+          content={formatDateToLocale(updatedAt)}
           side="top"
           disableHoverableContent={false}
         >

@@ -127,7 +127,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
         if (currentKey) {
           setTimeout(() => {
             router.push(`/chat/${currentKey}`)
-          }, 1500)
+          }, 1000)
         }
       }
     },
@@ -218,7 +218,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               </FormItem>
             )}
           />
-          <AIInputToolbar className="p-3 transition-all duration-300">
+          <AIInputToolbar className="p-2.5">
             <AIInputTools>
               {isMobile ? (
                 <DropdownMenu>

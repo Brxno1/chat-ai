@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createUserAndSendMagicLink } from '@/app/api/login/actions/login'
+import { createUserAndSendMagicLink } from '@/app/api/login/actions/create-user'
 import { createAccountSchema } from '@/schemas'
 // import { uploadAndDeleteFile } from '@/lib/upload-and-remove'
 
