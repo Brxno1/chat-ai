@@ -11,10 +11,31 @@ type InputMessage = {
 
 type DatabaseMessage = {
   id: string
-  content: string
   role: string
   parts?: unknown
   createdAt: Date
+}
+
+/**
+ * Extrai texto das parts da mensagem
+ */
+export function extractTextFromParts(parts: unknown): string {
+  if (!parts) return ''
+
+  try {
+    const partsArray = typeof parts === 'string' ? JSON.parse(parts) : parts
+    if (!Array.isArray(partsArray)) return ''
+
+    const textParts = partsArray
+      .filter((part) => part?.type === 'text' && part?.text)
+      .map((part) => part.text)
+      .join(' ')
+
+    return textParts.trim()
+  } catch (error) {
+    console.error('Erro ao extrair texto das parts:', error)
+    return ''
+  }
 }
 
 /**
@@ -45,11 +66,9 @@ export function convertDatabaseMessagesToAI(
   return dbMessages
     .map((msg) => {
       const role = msg.role.toLowerCase() as Role
+      const content = extractTextFromParts(msg.parts)
 
-      if (
-        msg.content === '[Usou ferramenta(s)]' ||
-        msg.content.includes('[Usou')
-      ) {
+      if (content === '[Usou ferramenta(s)]' || content.includes('[Usou')) {
         if (msg.parts) {
           try {
             const parts =
@@ -113,7 +132,7 @@ export function convertDatabaseMessagesToAI(
 
       return {
         role,
-        content: msg.content,
+        content: content || '[Mensagem vazia]',
       }
     })
     .filter(

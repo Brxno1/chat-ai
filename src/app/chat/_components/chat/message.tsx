@@ -4,6 +4,7 @@ import { Message } from '@ai-sdk/react'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
+import { cleanReasoningText } from '@/app/api/chat/utils/message-parts'
 import { ContainerWrapper } from '@/components/container'
 import { CopyTextComponent } from '@/components/copy-text-component'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -54,8 +55,8 @@ export function Messages({
   const reasoningParts =
     message.parts
       ?.filter((part) => part.type === 'reasoning')
-      .map((p) => p.reasoning)
-      .join('\n\n') || ''
+      .map((p) => cleanReasoningText(p.reasoning))
+      .join(' ') || ''
 
   const resultToolCallIds = new Set(
     message.parts
@@ -95,24 +96,21 @@ export function Messages({
             title="Raciocínio"
             className="ml-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
           />
-          {/* eslint-disable */}
-          <AIReasoningContent>
-            {reasoningParts}
-          </AIReasoningContent>
-          {/* eslint-enable- */}
+          <AIReasoningContent>{reasoningParts}</AIReasoningContent>
         </AIReasoning>
       )}
       {message.parts?.map((part, partIndex) => {
-        console.log('part', part)
-
         switch (part.type) {
-          case 'text':
+          case 'text': {
             if (!part.text || part.text.trim() === '') {
               return null
             }
 
             return (
-              <ContainerWrapper key={`${message.id}-text-${partIndex}`} className="flex w-full flex-col">
+              <ContainerWrapper
+                key={`${message.id}-text-${partIndex}`}
+                className="flex w-full flex-col"
+              >
                 {message.role === 'user' && (
                   <div className="ml-auto flex w-fit items-center justify-center">
                     <Badge variant={'chat'} className="hover:bg-transparent">
@@ -132,15 +130,14 @@ export function Messages({
                   className={cn(
                     'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]',
                     {
-                      'ml-auto bg-message dark:bg-primary/10 text-accent':
+                      'ml-auto bg-message text-accent dark:bg-primary/10':
                         message.role === 'user',
-                      'mr-auto bg-primary/10 text-card-foreground': message.role === 'assistant',
+                      'mr-auto bg-primary/10 text-card-foreground':
+                        message.role === 'assistant',
                     },
                   )}
                 >
-                  <AIResponse>
-                    {part.text}
-                  </AIResponse>
+                  <AIResponse>{part.text}</AIResponse>
                   <DropdownMenu
                     open={state.openDropdown}
                     onOpenChange={() =>
@@ -179,16 +176,20 @@ export function Messages({
                     },
                   )}
                 >
-                  {formatDateToLocaleWithHour(new Date(message.createdAt!))}
+                  {formatDateToLocaleWithHour(message.createdAt!)}
                 </Badge>
               </ContainerWrapper>
             )
-          case 'tool-invocation':
+          }
+          case 'tool-invocation': {
             const { toolInvocation } = part
 
             const { toolCallId } = toolInvocation
 
-            if (toolInvocation.state === 'call' && resultToolCallIds.has(toolCallId)) {
+            if (
+              toolInvocation.state === 'call' &&
+              resultToolCallIds.has(toolCallId)
+            ) {
               return null
             }
 
@@ -199,10 +200,11 @@ export function Messages({
                 message={message}
               />
             )
+          }
           default:
             return null
         }
       })}
-    </div >
+    </div>
   )
 }

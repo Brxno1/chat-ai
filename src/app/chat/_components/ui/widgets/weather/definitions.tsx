@@ -4,6 +4,7 @@ import {
   CloudFog,
   CloudRain,
   CloudSnow,
+  CloudSun,
   Cloudy,
   Eye,
   Sun,
@@ -31,47 +32,47 @@ export type WeatherConfig = {
 
 export const weatherConfigs: Record<WeatherCondition, WeatherConfig> = {
   clear: {
-    icon: <Sun className="h-12 w-12 text-yellow-400 drop-shadow-sm" />,
+    icon: <Sun className="size-12 text-yellow-400 drop-shadow-sm" />,
     gradient: 'from-yellow-400 via-orange-300 to-orange-500',
   },
   clouds: {
-    icon: <Cloudy className="h-12 w-12 text-gray-500 drop-shadow-sm" />,
+    icon: <Cloudy className="size-12 text-gray-400/50 drop-shadow-sm" />,
     gradient: 'from-gray-400 via-gray-500 to-gray-600',
   },
   few_clouds: {
-    icon: <Cloud className="h-12 w-12 text-yellow-300 drop-shadow-sm" />,
+    icon: <CloudSun className="size-12 text-yellow-500 drop-shadow-sm" />,
     gradient: 'from-yellow-200 via-gray-300 to-gray-500',
   },
   mist: {
-    icon: <CloudFog className="h-12 w-12 text-gray-300 drop-shadow-sm" />,
+    icon: <CloudFog className="size-12 text-gray-200 drop-shadow-sm" />,
     gradient: 'from-gray-200 via-gray-300 to-gray-400',
   },
   rain: {
-    icon: <CloudRain className="h-12 w-12 text-blue-400 drop-shadow-sm" />,
+    icon: <CloudRain className="size-12 text-blue-400 drop-shadow-sm" />,
     gradient: 'from-blue-400 via-blue-500 to-blue-600',
   },
   snow: {
-    icon: <CloudSnow className="h-12 w-12 text-blue-200 drop-shadow-sm" />,
+    icon: <CloudSnow className="size-12 text-blue-200 drop-shadow-sm" />,
     gradient: 'from-blue-100 via-blue-200 to-blue-300',
   },
   drizzle: {
-    icon: <CloudDrizzle className="h-12 w-12 text-blue-300 drop-shadow-sm" />,
+    icon: <CloudDrizzle className="size-12 text-blue-300 drop-shadow-sm" />,
     gradient: 'from-blue-300 via-blue-400 to-blue-500',
   },
   thunderstorm: {
-    icon: <Zap className="h-12 w-12 text-purple-400 drop-shadow-sm" />,
+    icon: <Zap className="size-12 text-purple-400 drop-shadow-sm" />,
     gradient: 'from-purple-500 via-purple-600 to-purple-700',
   },
   wind: {
-    icon: <Wind className="h-12 w-12 text-gray-400 drop-shadow-sm" />,
+    icon: <Wind className="size-12 text-gray-400 drop-shadow-sm" />,
     gradient: 'from-gray-400 via-gray-500 to-gray-600',
   },
   atmosphere: {
-    icon: <Eye className="h-12 w-12 text-amber-400 drop-shadow-sm" />,
+    icon: <Eye className="size-12 text-amber-400 drop-shadow-sm" />,
     gradient: 'from-amber-300 via-orange-400 to-red-400',
   },
   default: {
-    icon: <Cloud className="h-12 w-12 text-gray-400 drop-shadow-sm" />,
+    icon: <Cloud className="size-12 text-gray-200 drop-shadow-sm" />,
     gradient: 'from-blue-500 via-yellow-500 to-red-500',
   },
 }

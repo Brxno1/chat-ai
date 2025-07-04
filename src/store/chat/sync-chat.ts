@@ -9,9 +9,9 @@ type MessageFromChat = {
   id: string
   createdAt: Date
   userId: string | null
-  content: string
   role: string
   chatId: string
+  parts?: unknown
 }
 
 type SyncChatProps = {

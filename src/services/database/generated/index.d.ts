@@ -4004,7 +4004,6 @@ export namespace Prisma {
 
   export type MessageMinAggregateOutputType = {
     id: string | null
-    content: string | null
     role: $Enums.MessageRole | null
     createdAt: Date | null
     chatId: string | null
@@ -4013,7 +4012,6 @@ export namespace Prisma {
 
   export type MessageMaxAggregateOutputType = {
     id: string | null
-    content: string | null
     role: $Enums.MessageRole | null
     createdAt: Date | null
     chatId: string | null
@@ -4022,7 +4020,6 @@ export namespace Prisma {
 
   export type MessageCountAggregateOutputType = {
     id: number
-    content: number
     role: number
     parts: number
     createdAt: number
@@ -4034,7 +4031,6 @@ export namespace Prisma {
 
   export type MessageMinAggregateInputType = {
     id?: true
-    content?: true
     role?: true
     createdAt?: true
     chatId?: true
@@ -4043,7 +4039,6 @@ export namespace Prisma {
 
   export type MessageMaxAggregateInputType = {
     id?: true
-    content?: true
     role?: true
     createdAt?: true
     chatId?: true
@@ -4052,7 +4047,6 @@ export namespace Prisma {
 
   export type MessageCountAggregateInputType = {
     id?: true
-    content?: true
     role?: true
     parts?: true
     createdAt?: true
@@ -4135,7 +4129,6 @@ export namespace Prisma {
 
   export type MessageGroupByOutputType = {
     id: string
-    content: string
     role: $Enums.MessageRole
     parts: JsonValue | null
     createdAt: Date
@@ -4162,7 +4155,6 @@ export namespace Prisma {
 
   export type MessageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    content?: boolean
     role?: boolean
     parts?: boolean
     createdAt?: boolean
@@ -4174,7 +4166,6 @@ export namespace Prisma {
 
   export type MessageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    content?: boolean
     role?: boolean
     parts?: boolean
     createdAt?: boolean
@@ -4186,7 +4177,6 @@ export namespace Prisma {
 
   export type MessageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    content?: boolean
     role?: boolean
     parts?: boolean
     createdAt?: boolean
@@ -4198,7 +4188,6 @@ export namespace Prisma {
 
   export type MessageSelectScalar = {
     id?: boolean
-    content?: boolean
     role?: boolean
     parts?: boolean
     createdAt?: boolean
@@ -4206,7 +4195,7 @@ export namespace Prisma {
     userId?: boolean
   }
 
-  export type MessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "content" | "role" | "parts" | "createdAt" | "chatId" | "userId", ExtArgs["result"]["message"]>
+  export type MessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "role" | "parts" | "createdAt" | "chatId" | "userId", ExtArgs["result"]["message"]>
   export type MessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chat?: boolean | ChatDefaultArgs<ExtArgs>
     User?: boolean | Message$UserArgs<ExtArgs>
@@ -4228,7 +4217,6 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      content: string
       role: $Enums.MessageRole
       parts: Prisma.JsonValue | null
       createdAt: Date
@@ -4660,7 +4648,6 @@ export namespace Prisma {
    */
   interface MessageFieldRefs {
     readonly id: FieldRef<"Message", 'String'>
-    readonly content: FieldRef<"Message", 'String'>
     readonly role: FieldRef<"Message", 'MessageRole'>
     readonly parts: FieldRef<"Message", 'Json'>
     readonly createdAt: FieldRef<"Message", 'DateTime'>
@@ -10631,7 +10618,6 @@ export namespace Prisma {
 
   export const MessageScalarFieldEnum: {
     id: 'id',
-    content: 'content',
     role: 'role',
     parts: 'parts',
     createdAt: 'createdAt',
@@ -11019,7 +11005,6 @@ export namespace Prisma {
     OR?: MessageWhereInput[]
     NOT?: MessageWhereInput | MessageWhereInput[]
     id?: StringFilter<"Message"> | string
-    content?: StringFilter<"Message"> | string
     role?: EnumMessageRoleFilter<"Message"> | $Enums.MessageRole
     parts?: JsonNullableFilter<"Message">
     createdAt?: DateTimeFilter<"Message"> | Date | string
@@ -11031,7 +11016,6 @@ export namespace Prisma {
 
   export type MessageOrderByWithRelationInput = {
     id?: SortOrder
-    content?: SortOrder
     role?: SortOrder
     parts?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -11046,7 +11030,6 @@ export namespace Prisma {
     AND?: MessageWhereInput | MessageWhereInput[]
     OR?: MessageWhereInput[]
     NOT?: MessageWhereInput | MessageWhereInput[]
-    content?: StringFilter<"Message"> | string
     role?: EnumMessageRoleFilter<"Message"> | $Enums.MessageRole
     parts?: JsonNullableFilter<"Message">
     createdAt?: DateTimeFilter<"Message"> | Date | string
@@ -11058,7 +11041,6 @@ export namespace Prisma {
 
   export type MessageOrderByWithAggregationInput = {
     id?: SortOrder
-    content?: SortOrder
     role?: SortOrder
     parts?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -11074,7 +11056,6 @@ export namespace Prisma {
     OR?: MessageScalarWhereWithAggregatesInput[]
     NOT?: MessageScalarWhereWithAggregatesInput | MessageScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Message"> | string
-    content?: StringWithAggregatesFilter<"Message"> | string
     role?: EnumMessageRoleWithAggregatesFilter<"Message"> | $Enums.MessageRole
     parts?: JsonNullableWithAggregatesFilter<"Message">
     createdAt?: DateTimeWithAggregatesFilter<"Message"> | Date | string
@@ -11605,7 +11586,6 @@ export namespace Prisma {
 
   export type MessageCreateInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -11615,7 +11595,6 @@ export namespace Prisma {
 
   export type MessageUncheckedCreateInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -11625,7 +11604,6 @@ export namespace Prisma {
 
   export type MessageUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11635,7 +11613,6 @@ export namespace Prisma {
 
   export type MessageUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11645,7 +11622,6 @@ export namespace Prisma {
 
   export type MessageCreateManyInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -11655,7 +11631,6 @@ export namespace Prisma {
 
   export type MessageUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11663,7 +11638,6 @@ export namespace Prisma {
 
   export type MessageUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12340,7 +12314,6 @@ export namespace Prisma {
 
   export type MessageCountOrderByAggregateInput = {
     id?: SortOrder
-    content?: SortOrder
     role?: SortOrder
     parts?: SortOrder
     createdAt?: SortOrder
@@ -12350,7 +12323,6 @@ export namespace Prisma {
 
   export type MessageMaxOrderByAggregateInput = {
     id?: SortOrder
-    content?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
     chatId?: SortOrder
@@ -12359,7 +12331,6 @@ export namespace Prisma {
 
   export type MessageMinOrderByAggregateInput = {
     id?: SortOrder
-    content?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
     chatId?: SortOrder
@@ -13536,7 +13507,6 @@ export namespace Prisma {
 
   export type MessageCreateWithoutUserInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -13545,7 +13515,6 @@ export namespace Prisma {
 
   export type MessageUncheckedCreateWithoutUserInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -13735,7 +13704,6 @@ export namespace Prisma {
     OR?: MessageScalarWhereInput[]
     NOT?: MessageScalarWhereInput | MessageScalarWhereInput[]
     id?: StringFilter<"Message"> | string
-    content?: StringFilter<"Message"> | string
     role?: EnumMessageRoleFilter<"Message"> | $Enums.MessageRole
     parts?: JsonNullableFilter<"Message">
     createdAt?: DateTimeFilter<"Message"> | Date | string
@@ -13784,7 +13752,6 @@ export namespace Prisma {
 
   export type MessageCreateWithoutChatInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -13793,7 +13760,6 @@ export namespace Prisma {
 
   export type MessageUncheckedCreateWithoutChatInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -14393,7 +14359,6 @@ export namespace Prisma {
 
   export type MessageCreateManyUserInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -14560,7 +14525,6 @@ export namespace Prisma {
 
   export type MessageUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14569,7 +14533,6 @@ export namespace Prisma {
 
   export type MessageUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14578,7 +14541,6 @@ export namespace Prisma {
 
   export type MessageUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14587,7 +14549,6 @@ export namespace Prisma {
 
   export type MessageCreateManyChatInput = {
     id?: string
-    content: string
     role: $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -14596,7 +14557,6 @@ export namespace Prisma {
 
   export type MessageUpdateWithoutChatInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14605,7 +14565,6 @@ export namespace Prisma {
 
   export type MessageUncheckedUpdateWithoutChatInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14614,7 +14573,6 @@ export namespace Prisma {
 
   export type MessageUncheckedUpdateManyWithoutChatInput = {
     id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     parts?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

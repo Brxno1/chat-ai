@@ -10,14 +10,19 @@ import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
 import { ContainerWrapper } from '@/components/container'
 import { Badge } from '@/components/ui/badge'
 import { MessageLoading } from '@/components/ui/message-loading'
-import { useWeatherResult } from '@/hooks/use-tool-result'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 
 import { WeatherCard } from '../ui/widgets/weather'
 import { WeatherErrorCard } from '../ui/widgets/weather/weather-error'
 
+type ToolInvocationWithResult = ToolInvocation & { result: WeatherToolResponse }
+
+interface WeatherToolArgs {
+  location: string[]
+}
+
 interface ChatWeatherProps {
-  toolInvocation: ToolInvocation
+  toolInvocation: ToolInvocation | ToolInvocationWithResult
   message: Message
 }
 
@@ -55,19 +60,19 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
         variant={'chat'}
         className="text-xs text-muted-foreground hover:bg-transparent"
       >
-        {formatDateToLocaleWithHour(new Date(message.createdAt!))}
+        {formatDateToLocaleWithHour(message.createdAt!)}
       </Badge>
     )
   }
   const { toolCallId, args } = toolInvocation
 
   const ResultState = () => {
-    const { allResults } = useWeatherResult(toolInvocation)
+    const { result } = toolInvocation as ToolInvocationWithResult
 
     return (
       <ContainerWrapper className="flex w-full flex-col">
         <div className="mr-auto grid grid-cols-1 gap-2.5 transition-all duration-300 lg:grid-cols-2">
-          {allResults.map((result: WeatherToolResponse, index: number) =>
+          {result.map((result: WeatherToolResponse, index: number) =>
             result.error ? (
               <WeatherErrorCard
                 key={`weather-error-${index}`}
@@ -87,17 +92,15 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
 
   const CallState = () => {
     const isStuck = stuckToolCalls.has(toolCallId)
-    const locationStr = Array.isArray(args?.location)
-      ? args?.location.join(', ')
-      : (args?.location as string) || 'esta localização'
+    const { location } = (args as WeatherToolArgs) || { location: [] }
 
     if (isStuck) {
       return (
         <ContainerWrapper className="mt-1 flex w-full flex-col">
           <div className="mr-auto max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
             <WeatherErrorCard
-              location={locationStr}
-              error={`Não foi possível obter informações sobre o clima para "${locationStr}"`}
+              location={location.join(', ')}
+              error={`Não foi possível obter informações sobre o clima para "${location.join(', ')}"`}
               code="NETWORK_ERROR"
             />
           </div>
@@ -110,7 +113,7 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
           <div className="mr-auto rounded-lg bg-primary/10 p-3 text-card-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="animate-pulse">
-                Buscando informações do clima para {locationStr}...
+                Buscando informações do clima para {location.join(', ')}...
               </span>
             </div>
           </div>

@@ -29,25 +29,13 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
     }
   }
 
-  const validMessages = messages.filter((msg) => {
-    if (msg.role === 'system') return true
-    return msg.content && msg.content.trim().length > 0
-  })
-
-  if (validMessages.length === 0) {
-    return {
-      stream: null,
-      error: 'Nenhuma mensagem válida encontrada',
-    }
-  }
-
   try {
     const stream = streamText({
       model,
       temperature: 0.2,
       maxTokens: 2000,
       maxSteps: 1,
-      messages: validMessages,
+      messages,
       toolChoice: 'auto',
       tools: {
         getWeather: weatherTool,

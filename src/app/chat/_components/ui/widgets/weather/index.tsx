@@ -40,7 +40,8 @@ export const WeatherCard = ({ result }: WeatherCardProps) => {
     const tempPosition = calculateTemperaturePosition(result.main.temp)
 
     return {
-      ...config,
+      icon: config.icon,
+      gradient: config.gradient,
       tempInfo,
       tempPosition,
       condition,
@@ -49,18 +50,18 @@ export const WeatherCard = ({ result }: WeatherCardProps) => {
 
   return (
     <div
-      className="relative mt-1 w-full min-w-[16rem] max-w-[20rem] overflow-hidden rounded-3xl border border-white/20 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
+      className="relative w-full min-w-[15rem] max-w-[18rem] overflow-hidden rounded-3xl border border-white/20 shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
       aria-label={`Clima em ${result.name}: ${result.weather[0].description}, ${Math.round(result.main.temp)} graus Celsius`}
     >
       <div
         className={cn(
-          'absolute inset-0 opacity-50 transition-opacity duration-500',
+          'absolute inset-0 opacity-25 transition-opacity duration-500 dark:opacity-55',
           'bg-gradient-to-br from-[20%] via-[40%] to-[90%]',
           weatherData.gradient,
         )}
       />
 
-      <div className="relative space-y-5 p-4">
+      <div className="relative space-y-4 p-3">
         <div className="flex items-center justify-between gap-1 text-sm font-medium text-foreground/80">
           <div className="flex items-center gap-1">
             <MapPin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
