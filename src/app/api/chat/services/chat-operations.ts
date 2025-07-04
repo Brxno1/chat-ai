@@ -6,8 +6,8 @@ import { StreamTextResult } from 'ai'
 
 import { prisma } from '@/services/database/prisma'
 
-import { errorHandler } from '../route'
 import { weatherTool } from '../tools/weather'
+import { errorHandler } from '../utils/error-handler'
 import { processStreamResult } from '../utils/message-parts'
 
 type AllTools = {

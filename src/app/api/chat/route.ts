@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
+import { errorHandler } from './utils/error-handler'
 
 const schema = z.object({
   messages: z.array(
@@ -75,20 +76,4 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     )
   }
-}
-
-export function errorHandler(error: unknown) {
-  if (error === null) {
-    return 'unknown error'
-  }
-
-  if (typeof error === 'string') {
-    return error
-  }
-
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  return JSON.stringify(error)
 }

@@ -6,13 +6,13 @@ import { createUserAndSendMagicLink } from './create-user'
 
 export type FormState =
   | {
-    errors?: {
-      name?: string[]
-      email?: string[]
-      avatar?: string[]
+      errors?: {
+        name?: string[]
+        email?: string[]
+        avatar?: string[]
+      }
+      message?: string
     }
-    message?: string
-  }
   | undefined
 
 export async function createUser(state: FormState, formData: FormData) {
