@@ -1,8 +1,8 @@
 'use server'
 
-import { Todo } from '@prisma/client'
 import { z } from 'zod'
 
+import { Todo } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 
 const updateTodoSchema = z.object({

@@ -1,4 +1,4 @@
-import { User } from '@prisma/client'
+import { User } from '@/services/database/generated'
 import { Button, Html } from '@react-email/components'
 
 interface EmailProps {

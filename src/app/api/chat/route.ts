@@ -18,8 +18,19 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = schema.parse(await req.json())
-
     const { messages } = body
+
+    console.log(messages)
+
+    const validatedMessages = messages.map((message) => {
+      if (message.role === 'assistant' && message.content.trim() === '') {
+        return {
+          ...message,
+          content: 'Processando sua solicitação, um momento...',
+        }
+      }
+      return message
+    })
 
     const headerUserName = req.headers.get('x-user-name') || undefined
     const headerUserId = req.headers.get('x-user-id') || undefined
@@ -27,7 +38,7 @@ export async function POST(req: NextRequest) {
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
 
     const { stream, chatId, error } = await processChatAndSaveMessages({
-      messages,
+      messages: validatedMessages,
       name: headerUserName,
       userId: headerUserId,
       chatId: headerChatId,

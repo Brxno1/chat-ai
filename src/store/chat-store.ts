@@ -1,9 +1,9 @@
 import { Message } from '@ai-sdk/react'
-import { Chat } from '@prisma/client'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import { models } from '@/app/chat/models/definitions'
+import { Chat } from '@/services/database/generated'
 
 type MessageFromChat = {
   id: string

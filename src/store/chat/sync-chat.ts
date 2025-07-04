@@ -1,7 +1,8 @@
 'use client'
 
-import { Chat } from '@prisma/client'
 import React from 'react'
+
+import { Chat } from '@/services/database/generated'
 
 import { useChatStore } from '../chat-store'
 

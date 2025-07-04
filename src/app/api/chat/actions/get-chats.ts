@@ -2,8 +2,7 @@
 
 'use server'
 
-import { Chat } from '@prisma/client'
-
+import { Chat } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 
 import { getUserSession } from '../../user/profile/actions/get-user-session'
@@ -17,7 +16,7 @@ type Message = {
   content: string
   role: string
   chatId: string
-  parts?: any
+  parts?: MessagePart[] | null
 }
 
 export type ChatWithMessages = Chat & { messages: Message[] }

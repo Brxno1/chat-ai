@@ -34,7 +34,11 @@ export default async function ChatPageWithId({
           <Suspense fallback={<ChatFallback />}>
             <Chat
               currentChatId={chatId}
-              initialMessages={chat!.messages as Message[]}
+              initialMessages={chat!.messages.map((message) => ({
+                ...message,
+                role: String(message.role).toLowerCase() as Message['role'],
+                parts: message.parts || undefined,
+              }))}
             />
           </Suspense>
         </ContainerWrapper>
