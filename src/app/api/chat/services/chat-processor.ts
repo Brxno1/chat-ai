@@ -72,21 +72,21 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const chatResponse = await findOrCreateChat(
+  const findOrCreate = await findOrCreateChat(
     processedMessages,
     chatId,
     name,
     userId,
   )
 
-  if (!chatResponse.success) {
+  if (!findOrCreate.success) {
     return {
       stream: null,
-      error: chatResponse.error || 'Failed to create chat',
+      error: findOrCreate.error || 'Failed to create chat',
     }
   }
 
-  const finalChatId = chatResponse.data
+  const finalChatId = findOrCreate.data
   const isNewChat = !chatId
 
   if (isNewChat || processedMessages.length > 0) {
@@ -106,7 +106,7 @@ export async function processChatAndSaveMessages({
   if (!isValid) {
     return {
       stream: null,
-      error: 'Mensagens inválidas ou vazias',
+      error: 'Invalid or empty messages',
     }
   }
 

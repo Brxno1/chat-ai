@@ -11,7 +11,6 @@ type UserContextType = {
   session: Session | null
   user: User | undefined
   chats?: ChatWithMessages[]
-  refreshChats?: () => Promise<ChatWithMessages[]>
   isCreatingChat: boolean
   setUser: (
     userOrFn: User | undefined | ((prev: User | undefined) => User | undefined),
@@ -23,7 +22,6 @@ export const UserContext = createContext<UserContextType>({
   session: null,
   user: undefined,
   chats: [],
-  refreshChats: async () => [],
   isCreatingChat: false,
   setUser: () => {},
   setCreatingChat: () => {},
@@ -34,7 +32,6 @@ type UserChatProviderProps = {
   session: Session | null
   user: User | undefined
   chats?: ChatWithMessages[]
-  refreshChats?: () => Promise<ChatWithMessages[]>
 }
 
 export function UserChatProvider({
@@ -42,7 +39,6 @@ export function UserChatProvider({
   session,
   user,
   chats = [],
-  refreshChats = async () => [],
 }: UserChatProviderProps) {
   const [state, dispatch] = useReducer(userReducer, {
     user,
@@ -73,7 +69,6 @@ export function UserChatProvider({
         chats,
         user: state.user,
         isCreatingChat: state.isCreatingChat,
-        refreshChats,
         setUser,
         setCreatingChat,
       }}

@@ -19,12 +19,11 @@ interface ProvidersProps {
   children: React.ReactNode
   initialSession: Session | null
   initialUser: User | undefined
-  chats: ChatWithMessages[]
-  refreshChats: () => Promise<ChatWithMessages[]>
+  initialChats: ChatWithMessages[]
   defaultOpen?: boolean
 }
 
-export function Providers({ children, initialSession, initialUser, chats, refreshChats, defaultOpen }: ProvidersProps) {
+export function Providers({ children, initialSession, initialUser, initialChats, defaultOpen }: ProvidersProps) {
   const [queryClient] = React.useState(() => createQueryClient())
 
   return (
@@ -34,7 +33,7 @@ export function Providers({ children, initialSession, initialUser, chats, refres
       enableSystem
       disableTransitionOnChange
     >
-      <UserChatProvider user={initialUser} session={initialSession} chats={chats} refreshChats={refreshChats}>
+      <UserChatProvider user={initialUser} session={initialSession} chats={initialChats}>
         <ProgressProvider
           height=".10rem"
           color="#556eff"

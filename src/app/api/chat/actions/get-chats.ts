@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 'use server'
 
 import { Chat } from '@/services/database/generated'
@@ -21,59 +19,79 @@ type Message = {
 
 export type ChatWithMessages = Chat & { messages: Message[] }
 
-export async function getChats(): Promise<ChatWithMessages[]> {
-  const { session } = await getUserSession()
+export type GetChatsResponse = {
+  chats: ChatWithMessages[]
+  error?: string
+  unauthorized?: boolean
+}
 
-  if (!session) {
-    return []
+export async function getChatsAction(): Promise<GetChatsResponse> {
+  const { session, error } = await getUserSession()
+
+  if (error || !session) {
+    return {
+      chats: [],
+      error: 'Unauthorized',
+      unauthorized: true,
+    }
   }
 
-  const chats = await prisma.chat.findMany({
-    where: {
-      userId: session.user.id,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    include: {
-      messages: {
-        orderBy: {
-          createdAt: 'asc',
+  try {
+    const chats = await prisma.chat.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        messages: {
+          orderBy: {
+            createdAt: 'asc',
+          },
         },
       },
-    },
-  })
+    })
 
-  if (!chats) {
-    return []
-  }
+    if (!chats) {
+      return {
+        chats: [],
+        error: 'No chats found',
+      }
+    }
 
-  return chats.map((chat) => ({
-    ...chat,
-    messages: chat.messages.map((message) => {
-      let reconstructedParts: MessagePart[] | null = null
+    const processedChats = chats.map((chat) => ({
+      ...chat,
+      messages: chat.messages.map((message) => {
+        let reconstructedParts: MessagePart[] | null = null
 
-      if (message.parts) {
         try {
-          const savedParts =
-            typeof message.parts === 'string'
-              ? JSON.parse(message.parts)
-              : message.parts
-          reconstructedParts = reconstructMessageParts(savedParts)
+          reconstructedParts = reconstructMessageParts(
+            message.parts as unknown as MessagePart[],
+          )
         } catch (error) {
           console.error('Erro ao reconstruir parts da mensagem:', error)
         }
-      }
 
-      return {
-        id: message.id,
-        createdAt: message.createdAt,
-        userId: message.userId,
-        content: extractTextFromParts(message.parts),
-        role: message.role,
-        chatId: message.chatId,
-        parts: reconstructedParts,
-      }
-    }),
-  }))
+        return {
+          id: message.id,
+          createdAt: message.createdAt,
+          userId: message.userId,
+          content: extractTextFromParts(reconstructedParts),
+          role: message.role,
+          chatId: message.chatId,
+          parts: reconstructedParts,
+        }
+      }),
+    }))
+
+    return {
+      chats: processedChats,
+    }
+  } catch (error) {
+    return {
+      chats: [],
+      error: 'Error fetching chats',
+    }
+  }
 }

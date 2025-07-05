@@ -109,7 +109,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
           disabled={chat.title!.length <= 28}
         >
           <span
-            className={cn('max-w-[83%] truncate text-xs', {
+            className={cn('max-w-[81%] truncate text-xs', {
               'text-accent-foreground': isCurrentChat,
             })}
           >

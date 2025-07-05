@@ -6,18 +6,18 @@ import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
 import { errorHandler } from './utils/error-handler'
 
-const schema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant']),
-      content: z.string(),
-    }),
-  ),
-})
+// const schema = z.object({
+//   messages: z.array(
+//     z.object({
+//       role: z.enum(['user', 'assistant']),
+//       content: z.string(),
+//     }),
+//   ),
+// })
 
 export async function POST(req: NextRequest) {
   try {
-    const body = schema.parse(await req.json())
+    const body = await req.json()
     const { messages } = body
 
     const validatedMessages = messages.map((message) => {
@@ -35,7 +35,11 @@ export async function POST(req: NextRequest) {
     const headerChatId = req.headers.get('x-chat-id') || undefined
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
 
-    const { stream, chatId, error } = await processChatAndSaveMessages({
+    const {
+      stream: processedStream,
+      chatId: processedChatId,
+      error,
+    } = await processChatAndSaveMessages({
       messages: validatedMessages,
       name: headerUserName,
       userId: headerUserId,
@@ -43,7 +47,7 @@ export async function POST(req: NextRequest) {
       isGhostChatMode: headerGhostMode,
     })
 
-    if (error || !stream) {
+    if (error || !processedStream) {
       return NextResponse.json(
         {
           error: 'Chat processing failed',
@@ -54,23 +58,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const response = stream.toDataStreamResponse({
+    const response = processedStream.toDataStreamResponse({
       getErrorMessage: errorHandler,
       sendReasoning: true,
       headers: {
-        'x-chat-id': chatId ?? '',
+        'x-chat-id': processedChatId ?? '',
         'x-user-id': headerUserId ?? 'anonymous',
         'x-user-name': headerUserName ?? 'Guest',
-        'x-timestamp': Date.now().toString(),
         'x-ghost-mode': headerGhostMode.toString(),
         'x-message-count': (body.messages.length + 1).toString(),
-        'x-rate-limit-remaining': '100',
-        'x-rate-limit-reset': (Date.now() + 3600000).toString(), // 1 hour
-        'x-daily-quota-used': (body.messages.length + 1).toString(),
-        'x-daily-quota-limit': '50',
         'x-context-length': body.messages.slice(-4).length.toString(),
         'x-user-tier': headerUserId ? 'premium' : 'free',
-        'x-processing-time': Date.now().toString(),
       },
     })
 

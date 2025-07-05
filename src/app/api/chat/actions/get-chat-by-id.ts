@@ -51,23 +51,19 @@ export async function getChatById(
   const messagesWithParts = chat.messages.map((message) => {
     let reconstructedParts: MessagePart[] | null = null
 
-    if (message.parts) {
-      try {
-        const savedParts =
-          typeof message.parts === 'string'
-            ? JSON.parse(message.parts)
-            : message.parts
-        reconstructedParts = reconstructMessageParts(savedParts)
-      } catch (error) {
-        console.error('Erro ao reconstruir parts da mensagem:', error)
-      }
+    try {
+      reconstructedParts = reconstructMessageParts(
+        JSON.parse(message.parts as string),
+      )
+    } catch (error) {
+      console.error('Error reconstructing message parts:', error)
     }
 
     return {
       ...message,
       userId: message.userId || userId,
       role: message.role.toLowerCase() as MessageRole,
-      content: extractTextFromParts(message.parts),
+      content: extractTextFromParts(reconstructedParts),
       parts: reconstructedParts,
     }
   })
