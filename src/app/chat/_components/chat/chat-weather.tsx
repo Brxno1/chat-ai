@@ -110,8 +110,6 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
     </div>
   )
 
-  return <LoadingContent />
-
   const renderContent = () => {
     switch (state) {
       case 'result':

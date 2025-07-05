@@ -138,7 +138,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
         if (currentKey) {
           setTimeout(() => {
             router.push(`/chat/${currentKey}`)
-          }, 1000)
+          }, 2000)
         }
       }
     },
@@ -182,7 +182,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   return (
     <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border border-input">
       <div
-        className="flex-1 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
+        className="flex-1 space-y-3 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
         {messages.map((message) => (

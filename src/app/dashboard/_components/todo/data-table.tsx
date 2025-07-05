@@ -16,7 +16,7 @@ import {
 import { ChevronDown, RefreshCcw, X } from 'lucide-react'
 import React from 'react'
 
-import { getTodosAction } from '@/app/api/todo/actions/get-todos'
+import { getTodos } from '@/app/(http)/todo/get-todos'
 import { ContainerWrapper } from '@/components/container'
 import { NumberTicker } from '@/components/magicui/number-ticker'
 import { Button } from '@/components/ui/button'
@@ -75,7 +75,7 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
     refetch,
   } = useSuspenseQuery({
     queryKey: queryKeys.todos.all,
-    queryFn: getTodosAction,
+    queryFn: getTodos,
     initialData,
   })
 

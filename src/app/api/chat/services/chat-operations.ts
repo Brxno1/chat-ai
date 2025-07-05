@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 'use server'
 
 import { StreamTextResult } from 'ai'
 
+import { Message } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 
 import { weatherTool } from '../tools/weather'
@@ -65,69 +64,66 @@ async function findOrCreateChat(
   }
 }
 
+function isConsecutiveDuplicate(
+  lastMessage: Message,
+  role: string,
+  content: string,
+): boolean {
+  if (lastMessage.role !== role) return false
+
+  try {
+    const lastParts =
+      typeof lastMessage.parts === 'string'
+        ? JSON.parse(lastMessage.parts)
+        : lastMessage.parts
+
+    if (Array.isArray(lastParts)) {
+      const lastText = lastParts
+        .filter((p) => p?.type === 'text' && p?.text)
+        .map((p) => p.text)
+        .join(' ')
+      return lastText === content
+    }
+  } catch (error) {
+    console.error('Error comparing parts:', error)
+  }
+
+  return false
+}
+
 async function saveMessages(
-  messages: Array<{ role: Role; content: string }>,
+  messagesToSave: Array<{ role: Role; content: string }>,
   chatId: string,
 ): Promise<OperationResponse<null>> {
   try {
-    const existingMessages = await prisma.message.findMany({
-      where: {
-        chatId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: 10,
-      select: {
-        id: true,
-        parts: true,
-        role: true,
-        createdAt: true,
-      },
-    })
-
     const messagesToCreate: Array<{
       role: 'USER' | 'ASSISTANT'
       chatId: string
       parts: string
     }> = []
 
-    for (const msg of messages) {
-      const role = msg.role === 'user' ? 'USER' : 'ASSISTANT'
-      const content = msg.content
+    let existingMessages: Message[] = []
 
-      // Criar parts com o texto da mensagem
+    if (messagesToSave.length === 1) {
+      existingMessages = await prisma.message.findMany({
+        where: { chatId },
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+      })
+    }
+
+    for (const message of messagesToSave) {
+      const role = message.role === 'user' ? 'USER' : 'ASSISTANT'
+      const content = message.content
+
       const parts = [{ type: 'text', text: content }]
       const partsString = JSON.stringify(parts)
 
-      // Verificar duplicação comparando o texto das parts existentes
-      const isConsecutiveDuplicate =
+      const isDuplicate =
         existingMessages.length > 0 &&
-        (() => {
-          const lastMessage = existingMessages[0]
-          if (lastMessage.role !== role) return false
+        isConsecutiveDuplicate(existingMessages[0], role, content)
 
-          try {
-            const lastParts =
-              typeof lastMessage.parts === 'string'
-                ? JSON.parse(lastMessage.parts)
-                : lastMessage.parts
-
-            if (Array.isArray(lastParts)) {
-              const lastText = lastParts
-                .filter((p) => p?.type === 'text' && p?.text)
-                .map((p) => p.text)
-                .join(' ')
-              return lastText === content
-            }
-          } catch (error) {
-            console.error('Erro ao comparar parts:', error)
-          }
-
-          return false
-        })()
-
-      if (!isConsecutiveDuplicate) {
+      if (!isDuplicate) {
         messagesToCreate.push({
           role,
           chatId,
@@ -137,10 +133,8 @@ async function saveMessages(
     }
 
     if (messagesToCreate.length > 0) {
-      await prisma.$transaction(async (tx) => {
-        for (const data of messagesToCreate) {
-          await tx.message.create({ data })
-        }
+      await prisma.message.createMany({
+        data: messagesToCreate,
       })
     }
 
@@ -168,8 +162,7 @@ async function saveChatResponse(
       const { parts } = await processStreamResult(stream)
 
       const hasToolInteraction = parts?.some(
-        (part) =>
-          part.type === 'tool-invocation' || part.type === 'tool-result',
+        (part) => part.type === 'tool-invocation',
       )
 
       const hasReasoning = parts?.some((part) => part.type === 'reasoning')

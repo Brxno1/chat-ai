@@ -3,10 +3,36 @@ import { z } from 'zod'
 
 import { getUserSession } from '../user/profile/actions/get-user-session'
 import { createTodoAction } from './actions/create-todo'
+import { getTodosAction } from './actions/get-todos'
 
 const createTodoSchemaBody = z.object({
   title: z.string(),
 })
+
+export async function GET() {
+  try {
+    const { todos, error, unauthorized } = await getTodosAction()
+
+    if (unauthorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (error && !unauthorized) {
+      return NextResponse.json({ error, message: error }, { status: 500 })
+    }
+
+    if (!todos || todos.length === 0) {
+      return NextResponse.json({ message: 'No todos found' }, { status: 204 })
+    }
+
+    return NextResponse.json(todos, { status: 200 })
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Error fetching todos', message: String(error) },
+      { status: 500 },
+    )
+  }
+}
 
 export async function POST(request: NextRequest) {
   const { session, error } = await getUserSession()
@@ -32,37 +58,3 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ todo }, { status: 200 })
 }
-
-// export async function DELETE(request: NextRequest) {
-//   const session = await auth()
-
-//   if (!session) {
-//     return NextResponse.json(
-//       { error: 'Unauthorized', message: 'Unauthorized' },
-//       { status: 401 },
-//     )
-//   }
-
-//   const id = request.headers.get('X-Todo-ID')
-
-//   if (!id) {
-//     return NextResponse.json(
-//       { error: 'ID is required', message: 'ID is required' },
-//       { status: 400 },
-//     )
-//   }
-
-//   const response = await deleteTodoAction({
-//     id,
-//     userId: session.user.id,
-//   })
-
-//   if (response.error) {
-//     return NextResponse.json(
-//       { error: response.error, message: response.message },
-//       { status: 400 },
-//     )
-//   }
-
-//   return NextResponse.json({ status: 204 })
-// }

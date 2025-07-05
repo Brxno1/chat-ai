@@ -1,6 +1,5 @@
 import { Suspense } from 'react'
 
-import { getTodosAction } from '@/app/api/todo/actions/get-todos'
 import { ContainerWrapper } from '@/components/container'
 import {
   DashboardPage,
@@ -11,12 +10,13 @@ import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { Separator } from '@/components/ui/separator'
 
 import { SidebarTriggerComponentMobile } from '../_components/sidebar/sidebar-trigger-mobile'
+import { getTodosAction } from '../api/todo/actions/get-todos'
 import { TodoCreateForm } from './_components/todo/actions-components/create-todo'
 import { TodoDataTable } from './_components/todo/data-table'
 import { TodoDataTableFallback } from './_components/todo/data-table-fallback'
 
 export default async function Page() {
-  const initialData = await getTodosAction()
+  const { todos: initialData } = await getTodosAction()
 
   return (
     <DashboardPage className="flex size-full flex-col">

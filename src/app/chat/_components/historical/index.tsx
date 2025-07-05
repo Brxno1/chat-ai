@@ -77,11 +77,11 @@ function Historical() {
           </Button>
         </TooltipWrapper>
       </div>
-      <CollapsibleContent className="w-full items-center space-y-2 overflow-y-auto rounded-md bg-background p-1.5 text-center scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-400/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border group-data-[collapsed=open]/collapsible:border-input">
+      <CollapsibleContent className="w-full items-center space-y-1.5 overflow-y-auto rounded-md bg-background p-1.5 text-center scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-full hover:scrollbar-thumb-gray-400/80 group-data-[collapsed=closed]/collapsible:hidden group-data-[sidebar=closed]/sidebar:hidden group-data-[collapsed=open]/collapsible:border group-data-[collapsed=open]/collapsible:border-input">
         {chats.length > 0 ? (
           groupedChats.map((group) => (
             <div key={group.title} className="space-y-1.5">
-              <div className="p-1 text-left text-sm font-medium text-muted-foreground">
+              <div className="text-left text-sm font-medium text-muted-foreground">
                 {group.title}
               </div>
               {group.items.map((chat) => (

@@ -16,7 +16,7 @@ export function cleanReasoningText(text: string): string {
 }
 
 export type MessagePart = {
-  type: string
+  type: 'text' | 'tool-invocation' | 'reasoning' | 'source'
   text?: string
   toolInvocation?: {
     toolCallId: string
@@ -31,7 +31,7 @@ export type MessagePart = {
     toolCallId: string
     toolName: string
     result: unknown
-    state: string
+    state: 'call' | 'result' | 'partial-call'
   }
   reasoning?: string
 }
@@ -51,12 +51,12 @@ type ToolResult = {
 export function extractTextFromParts(parts: MessagePart[]): string {
   if (!parts || parts.length === 0) return ''
 
-  const textParts = parts
+  const textFromParts = parts
     .filter((part) => part.type === 'text' && part.text)
     .map((part) => part.text)
     .join(' ')
 
-  if (!textParts && parts.some((part) => part.type === 'tool-invocation')) {
+  if (!textFromParts && parts.some((part) => part.type === 'tool-invocation')) {
     const toolInvocation = parts.find(
       (p) => p.type === 'tool-invocation',
     )?.toolInvocation
@@ -72,7 +72,7 @@ export function extractTextFromParts(parts: MessagePart[]): string {
     return `[Consulta de informações com ferramentas]`
   }
 
-  return textParts || ''
+  return textFromParts || ''
 }
 
 export async function processStreamResult(
@@ -104,13 +104,13 @@ export async function processStreamResult(
 
     if (toolCalls && toolCalls.length > 0) {
       toolCalls.forEach((toolCall: ToolCall, index) => {
-        const part = {
+        const part: MessagePart = {
           type: 'tool-invocation',
           toolInvocation: {
             toolCallId: toolCall.toolCallId || `tool-${Date.now()}-${index}`,
             toolName: toolCall.toolName,
-            args: toolCall.args,
             state: 'call' as const,
+            args: toolCall.args,
             callTimestamp: new Date(),
             result: null,
           },
@@ -122,13 +122,13 @@ export async function processStreamResult(
 
     if (toolResults && toolResults.length > 0) {
       toolResults.forEach((result: ToolResult) => {
-        const part = {
+        const part: MessagePart = {
           type: 'tool-invocation',
           toolInvocation: {
             toolCallId: result.toolCallId,
             toolName: result.toolName,
-            args: argsToResult,
             state: 'result' as const,
+            args: argsToResult,
             resultTimestamp: new Date(),
             result: result.result,
           },
@@ -163,32 +163,15 @@ export async function processStreamResult(
   }
 }
 
-/**
- * Converte parts salvas no banco de volta para o formato esperado pela UI
- */
-export function reconstructMessageParts(savedParts: unknown): MessagePart[] {
-  if (!savedParts) return []
+export function reconstructMessageParts(parts: MessagePart[]): MessagePart[] {
+  if (!parts || !Array.isArray(parts)) return []
 
   try {
-    const partsArray =
-      typeof savedParts === 'string' ? JSON.parse(savedParts) : savedParts
-
-    if (!Array.isArray(partsArray)) return []
-
-    return partsArray.map((part) => {
-      const typedPart: MessagePart = {
-        type: part.type || 'text',
-      }
-
-      if (part.text) typedPart.text = part.text
-      if (part.toolInvocation) typedPart.toolInvocation = part.toolInvocation
-      if (part.toolResult) typedPart.toolResult = part.toolResult
-      if (part.reasoning) typedPart.reasoning = part.reasoning
-
-      return typedPart
+    return parts.map((part) => {
+      return part
     })
   } catch (error) {
-    console.error('Erro ao reconstruir message parts:', error)
+    console.error('Error reconstructing message parts:', error)
     return []
   }
 }

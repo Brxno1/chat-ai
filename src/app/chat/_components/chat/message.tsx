@@ -86,7 +86,7 @@ export function Messages({
   const resultToolCallIds = getResultToolCallIds(message as CustomMessage)
 
   return (
-    <div className="flex w-full flex-col space-y-1.5">
+    <div className="flex w-full flex-col space-y-1">
       {message.role === 'assistant' && (
         <Badge variant={'chat'} className="hover:bg-transparent">
           <Avatar className="size-5 rounded-sm max-sm:size-4">
@@ -139,7 +139,7 @@ export function Messages({
                 )}
                 <div
                   className={cn(
-                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]',
+                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[70%]',
                     {
                       'ml-auto bg-message text-accent dark:bg-primary/10':
                         message.role === 'user',

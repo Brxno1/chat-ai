@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Message } from 'ai'
 
 type Role = 'user' | 'assistant'
@@ -9,16 +7,6 @@ type InputMessage = {
   content: string
 }
 
-type DatabaseMessage = {
-  id: string
-  role: string
-  parts?: unknown
-  createdAt: Date
-}
-
-/**
- * Extrai texto das parts da mensagem
- */
 export function extractTextFromParts(parts: unknown): string {
   if (!parts) return ''
 
@@ -33,15 +21,11 @@ export function extractTextFromParts(parts: unknown): string {
 
     return textParts.trim()
   } catch (error) {
-    console.error('Erro ao extrair texto das parts:', error)
+    console.error('Error extracting text from parts:', error)
     return ''
   }
 }
 
-/**
- * Filtra mensagens para remover conteúdo vazio ou inválido
- * que pode causar erro "contents.parts must not be empty"
- */
 export function filterValidMessages(messages: InputMessage[]): InputMessage[] {
   return messages.filter((message) => {
     if (!message.content || typeof message.content !== 'string') {
@@ -58,87 +42,6 @@ export function filterValidMessages(messages: InputMessage[]): InputMessage[] {
 
     return true
   })
-}
-
-export function convertDatabaseMessagesToAI(
-  dbMessages: DatabaseMessage[],
-): InputMessage[] {
-  return dbMessages
-    .map((msg) => {
-      const role = msg.role.toLowerCase() as Role
-      const content = extractTextFromParts(msg.parts)
-
-      if (content === '[Usou ferramenta(s)]' || content.includes('[Usou')) {
-        if (msg.parts) {
-          try {
-            const parts =
-              typeof msg.parts === 'string' ? JSON.parse(msg.parts) : msg.parts
-
-            if (Array.isArray(parts)) {
-              const toolInvocations = parts.filter(
-                (part: unknown) =>
-                  typeof part === 'object' &&
-                  part !== null &&
-                  'type' in part &&
-                  part.type === 'tool-invocation',
-              )
-
-              if (toolInvocations.length > 0) {
-                const toolDetails = toolInvocations
-                  .map((inv: unknown) => {
-                    if (
-                      typeof inv === 'object' &&
-                      inv !== null &&
-                      'toolInvocation' in inv &&
-                      typeof inv.toolInvocation === 'object' &&
-                      inv.toolInvocation !== null &&
-                      'toolName' in inv.toolInvocation &&
-                      'args' in inv.toolInvocation
-                    ) {
-                      const toolName = inv.toolInvocation.toolName
-                      const args = inv.toolInvocation.args as any
-
-                      if (toolName === 'getWeather' && args?.location) {
-                        const locations = Array.isArray(args.location)
-                          ? args.location
-                          : [args.location]
-                        return `${toolName} para ${locations.join(', ')}`
-                      }
-
-                      return toolName
-                    }
-                    return null
-                  })
-                  .filter(Boolean)
-
-                if (toolDetails.length > 0) {
-                  return {
-                    role,
-                    content: `[Consulta anterior: ${toolDetails.join(', ')} - dados já obtidos]`,
-                  }
-                }
-              }
-            }
-          } catch (error) {
-            console.error('Erro ao processar parts para contexto da AI:', error)
-          }
-        }
-
-        return {
-          role,
-          content: '[Assistente usou ferramentas - resultados já processados]',
-        }
-      }
-
-      return {
-        role,
-        content: content || '[Mensagem vazia]',
-      }
-    })
-    .filter(
-      (msg): msg is InputMessage =>
-        msg.role === 'user' || msg.role === 'assistant',
-    )
 }
 
 export function validateMessages(messages: Message[]): boolean {
@@ -195,9 +98,7 @@ export function processToolInvocations(
   return uniqueMessages.map((message, index) => {
     if (
       message.role === 'assistant' &&
-      (message.content.includes('tool-invocation') ||
-        message.content.includes('getWeather') ||
-        message.content.includes('[Consulta'))
+      message.content.includes('tool-invocation')
     ) {
       const hasResultAfter = uniqueMessages
         .slice(index + 1)

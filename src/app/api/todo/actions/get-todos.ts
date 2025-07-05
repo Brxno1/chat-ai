@@ -1,14 +1,25 @@
 'use server'
 
+import { Todo } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 
 import { getUserSession } from '../../user/profile/actions/get-user-session'
 
-export async function getTodosAction() {
-  const { session } = await getUserSession()
+type GetTodosResponse = {
+  todos: Todo[]
+  error?: string
+  unauthorized?: boolean
+}
 
-  if (!session) {
-    return []
+export async function getTodosAction(): Promise<GetTodosResponse> {
+  const { session, error } = await getUserSession()
+
+  if (error || !session) {
+    return {
+      todos: [],
+      error: 'Unauthorized',
+      unauthorized: true,
+    }
   }
 
   try {
@@ -21,9 +32,13 @@ export async function getTodosAction() {
       },
     })
 
-    return todos
+    return {
+      todos,
+    }
   } catch (error) {
-    console.error('Error fetching todos:', error)
-    return []
+    return {
+      todos: [],
+      error: 'Error fetching todos',
+    }
   }
 }
