@@ -55,7 +55,7 @@ export const weatherTool = createTool({
           validResults.push({
             error: {
               title: 'Erro de autenticação',
-              message: `Erro de autenticação com a API de previsão do tempo. Por favor, tente novamente mais tarde.`,
+              message: `Não foi possível acessar o serviço meteorológico. Por favor, tente novamente mais tarde.`,
               location: loc,
               code: 'API_ERROR',
             },
@@ -67,7 +67,7 @@ export const weatherTool = createTool({
           validResults.push({
             error: {
               title: 'Localização não encontrada',
-              message: `Localização "${loc}" não foi encontrada. Verifique o nome da cidade e tente novamente.`,
+              message: `Não foi possível encontrar dados para ${loc}. Verifique se o nome da cidade está correto.`,
               location: loc,
               code: 'NOT_FOUND',
             },
@@ -78,8 +78,8 @@ export const weatherTool = createTool({
         if (!data.weather || !data.weather[0] || !data.main) {
           validResults.push({
             error: {
-              title: 'Dados de clima inconsistentes',
-              message: `Dados de clima inconsistentes para "${loc}". Informações incompletas retornadas pela API.`,
+              title: 'Dados incompletos',
+              message: `Os dados meteorológicos para ${loc} estão incompletos ou indisponíveis no momento. Por favor, tente novamente mais tarde.`,
               location: loc,
               code: 'INVALID_DATA',
             },
@@ -121,7 +121,7 @@ export const weatherTool = createTool({
         validResults.push({
           error: {
             title: 'Erro de conexão',
-            message: `Erro de conexão ao buscar dados para "${loc}": ${errorMessage}`,
+            message: `Não foi possível conectar ao serviço meteorológico para obter dados de ${loc}. Verifique sua conexão e tente novamente.`,
             location: loc,
             code: 'NETWORK_ERROR',
           },
@@ -133,8 +133,8 @@ export const weatherTool = createTool({
       return [
         {
           error: {
-            title: 'Erro ao obter a previsão do tempo',
-            message: `Erro ao obter a previsão do tempo para todas as localidades solicitadas.`,
+            title: 'Serviço indisponível',
+            message: `Não foi possível obter previsão do tempo para nenhuma das localidades solicitadas. Por favor, tente novamente mais tarde.`,
             location: locations.join(', '),
             code: 'API_ERROR',
           },

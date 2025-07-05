@@ -20,8 +20,6 @@ export async function POST(req: NextRequest) {
     const body = schema.parse(await req.json())
     const { messages } = body
 
-    console.log(messages)
-
     const validatedMessages = messages.map((message) => {
       if (message.role === 'assistant' && message.content.trim() === '') {
         return {

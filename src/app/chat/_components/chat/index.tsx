@@ -1,6 +1,6 @@
 'use client'
 
-import { Message as AIMessage, useChat } from '@ai-sdk/react'
+import { Message as UIMessage, useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -49,7 +49,7 @@ import { useChatStore } from '@/store/chat-store'
 import { models } from '../../models/definitions'
 import { Messages } from './message'
 
-interface CustomMessage {
+export interface CustomMessage {
   id: string
   createdAt: Date
   content: string
@@ -60,7 +60,7 @@ interface CustomMessage {
 }
 
 interface ChatProps {
-  initialMessages?: CustomMessage[]
+  initialMessages?: (UIMessage & Partial<CustomMessage>)[]
   currentChatId?: string
 }
 
@@ -108,7 +108,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     stop,
     isLoading,
   } = useChat({
-    initialMessages: initialMessages as AIMessage[],
+    initialMessages: initialMessages as (UIMessage & Partial<CustomMessage>)[],
     key: currentChatId || getChatInstanceKey(),
     api: '/api/chat',
     headers: {
@@ -146,7 +146,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
   const onDeleteMessageChat = (id: string) => {
     setMessages((prev) =>
-      prev.filter((message: AIMessage) => message.id !== id),
+      prev.filter((message: UIMessage) => message.id !== id),
     )
   }
 

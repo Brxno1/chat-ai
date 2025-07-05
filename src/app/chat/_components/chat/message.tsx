@@ -1,6 +1,6 @@
 'use client'
 
-import { Message } from '@ai-sdk/react'
+import { Message as UIMessage } from '@ai-sdk/react'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
@@ -22,13 +22,42 @@ import {
 } from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
 import { useUser } from '@/context/user-provider'
+import { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
+import { CustomMessage } from '.'
 import { ChatWeather } from './chat-weather'
 
+function getResultToolCallIds(message: CustomMessage) {
+  return new Set(
+    message.parts
+      ?.filter((part) => part.type === 'tool-invocation')
+      .map(
+        (part) =>
+          (part as { toolInvocation?: { toolCallId: string; state: string } })
+            .toolInvocation,
+      )
+      .filter(
+        (ti): ti is { toolCallId: string; state: string } =>
+          ti?.state === 'result' && !!ti.toolCallId,
+      )
+      .map((ti) => ti.toolCallId),
+  )
+}
+
+function extractReasoningParts(message: CustomMessage) {
+  const reasoningParts =
+    message.parts
+      ?.filter((part) => part.type === 'reasoning')
+      .map((p) => cleanReasoningText(p.reasoning!))
+      .join(' ') || ''
+
+  return reasoningParts
+}
+
 interface MessageProps {
-  message: Message
+  message: UIMessage & Partial<CustomMessage>
   modelName: string
   modelProvider: string
   onDeleteMessageChat?: (id: string) => void
@@ -52,43 +81,24 @@ export function Messages({
     setState((state) => ({ ...state, openDropdown: false }))
   }
 
-  const reasoningParts =
-    message.parts
-      ?.filter((part) => part.type === 'reasoning')
-      .map((p) => cleanReasoningText(p.reasoning))
-      .join(' ') || ''
+  const reasoningParts = extractReasoningParts(message as CustomMessage)
 
-  const resultToolCallIds = new Set(
-    message.parts
-      ?.filter((p) => p.type === 'tool-invocation')
-      .map(
-        (p) =>
-          (p as { toolInvocation?: { toolCallId: string; state: string } })
-            .toolInvocation,
-      )
-      .filter(
-        (ti): ti is { toolCallId: string; state: string } =>
-          ti?.state === 'result' && !!ti.toolCallId,
-      )
-      .map((ti) => ti.toolCallId),
-  )
+  const resultToolCallIds = getResultToolCallIds(message as CustomMessage)
 
   return (
-    <div className="flex w-full flex-col space-y-0.5">
+    <div className="flex w-full flex-col space-y-1.5">
       {message.role === 'assistant' && (
-        <ContainerWrapper>
-          <Badge variant={'chat'} className="hover:bg-transparent">
-            <Avatar className="size-5 rounded-sm max-sm:size-4">
-              <AvatarImage
-                src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
-              />
-              <AvatarFallback className="rounded-sm">AI</AvatarFallback>
-            </Avatar>
-            <span className="max-w-[15rem] truncate text-ellipsis whitespace-nowrap">
-              {modelName}
-            </span>
-          </Badge>
-        </ContainerWrapper>
+        <Badge variant={'chat'} className="hover:bg-transparent">
+          <Avatar className="size-5 rounded-sm max-sm:size-4">
+            <AvatarImage
+              src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+            />
+            <AvatarFallback className="rounded-sm">AI</AvatarFallback>
+          </Avatar>
+          <span className="max-w-[15rem] truncate text-ellipsis whitespace-nowrap">
+            {modelName}
+          </span>
+        </Badge>
       )}
       {message.role === 'assistant' && reasoningParts.length > 0 && (
         <AIReasoning isStreaming={isStreaming} defaultOpen={isStreaming}>
@@ -112,19 +122,20 @@ export function Messages({
                 className="flex w-full flex-col"
               >
                 {message.role === 'user' && (
-                  <div className="ml-auto flex w-fit items-center justify-center">
-                    <Badge variant={'chat'} className="hover:bg-transparent">
-                      <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
-                        {user?.name}
-                      </span>
-                      <Avatar className="size-6 rounded-sm border-0 bg-transparent max-sm:size-5">
-                        <AvatarImage src={user?.image ?? ''} />
-                        <AvatarFallback className="rounded-sm">
-                          {user?.name?.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Badge>
-                  </div>
+                  <Badge
+                    variant={'chat'}
+                    className="ml-auto flex w-fit items-center justify-center hover:bg-transparent"
+                  >
+                    <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
+                      {user?.name}
+                    </span>
+                    <Avatar className="size-6 rounded-sm border-0 bg-transparent max-sm:size-5">
+                      <AvatarImage src={user?.image ?? ''} />
+                      <AvatarFallback className="rounded-sm">
+                        {user?.name?.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Badge>
                 )}
                 <div
                   className={cn(
@@ -184,10 +195,10 @@ export function Messages({
           case 'tool-invocation': {
             const { toolInvocation } = part
 
-            const { toolCallId } = toolInvocation
+            const { toolCallId } = toolInvocation!
 
             if (
-              toolInvocation.state === 'call' &&
+              toolInvocation!.state === 'call' &&
               resultToolCallIds.has(toolCallId)
             ) {
               return null
@@ -196,7 +207,9 @@ export function Messages({
             return (
               <ChatWeather
                 key={`${message.id}-tool-${partIndex}`}
-                toolInvocation={toolInvocation}
+                toolInvocation={
+                  toolInvocation as ToolInvocationResult<'getWeather'>
+                }
                 message={message}
               />
             )

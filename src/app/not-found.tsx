@@ -11,7 +11,7 @@ export default function NotFound() {
 
   useEffect(() => {
     const redirectTimeout = setTimeout(() => {
-      router.replace(user ? '/dashboard' : '/auth')
+      router.replace('/chat')
     }, 1500)
 
     return () => clearTimeout(redirectTimeout)
@@ -24,9 +24,7 @@ export default function NotFound() {
           ? `Oops, ${user.name}! Essa página não existe, qual tal você voltar?`
           : 'Essa página não existe, qual tal você voltar?'}
       </h1>
-      <p className="animate-pulse text-center">
-        Redirecionando para {user ? '/dashboard' : '/auth'}
-      </p>
+      <p className="animate-pulse text-center">Redirecionando para /chat</p>
     </div>
   )
 }

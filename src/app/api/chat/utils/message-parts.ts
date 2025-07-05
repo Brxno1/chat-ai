@@ -22,10 +22,10 @@ export type MessagePart = {
     toolCallId: string
     toolName: string
     args: Record<string, unknown>
-    state: 'call' | 'result'
+    state: 'call' | 'result' | 'partial-call'
     callTimestamp?: Date
     resultTimestamp?: Date
-    result: unknown | unknown[] | null
+    result?: unknown | unknown[] | null
   }
   toolResult?: {
     toolCallId: string
