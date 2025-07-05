@@ -141,9 +141,6 @@ export function convertDatabaseMessagesToAI(
     )
 }
 
-/**
- * Verifica se uma lista de mensagens é válida para envio à API
- */
 export function validateMessages(messages: Message[]): boolean {
   if (!Array.isArray(messages) || messages.length === 0) {
     return false
@@ -160,23 +157,17 @@ export function validateMessages(messages: Message[]): boolean {
   })
 }
 
-/**
- * Remove duplicatas de mensagens consecutivas com mesmo conteúdo
- */
 export function removeDuplicateMessages(
   messages: InputMessage[],
 ): InputMessage[] {
   if (messages.length <= 1) return messages
 
-  // Array para armazenar mensagens únicas
   const uniqueMessages: InputMessage[] = []
   const seenMessages = new Set<string>()
 
   for (const message of messages) {
-    // Criar uma chave única para cada mensagem baseada no role e conteúdo
     const messageKey = `${message.role}:${message.content}`
 
-    // Verificar se já vimos esta mensagem exata antes
     if (!seenMessages.has(messageKey)) {
       uniqueMessages.push(message)
       seenMessages.add(messageKey)
@@ -186,9 +177,6 @@ export function removeDuplicateMessages(
   return uniqueMessages
 }
 
-/**
- * Processa mensagens de chat para evitar duplicação de tool calls já executados
- */
 export function processToolInvocations(
   messages: InputMessage[],
 ): InputMessage[] {

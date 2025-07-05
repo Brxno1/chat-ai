@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable */
 
 import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
 
@@ -27,8 +27,17 @@ export function isOtherToolResult(
   return result && result.someOtherProperty
 }
 
-export type ToolInvocationResult<T extends string> = T extends 'getWeather'
-  ? WeatherToolResponse & BaseToolResult
+export type ToolInvocationResult<T extends string> = {
+  toolCallId: string
+  args: T extends 'getWeather'
+  ? { location: string[] }
   : T extends 'otherTool'
-    ? SomeOtherToolResponse & BaseToolResult
-    : unknown
+  ? { someArg: string }
+  : Record<string, unknown>
+  state: 'call' | 'result' | 'partial-call'
+  result: T extends 'getWeather'
+  ? WeatherToolResponse[]
+  : T extends 'otherTool'
+  ? SomeOtherToolResponse[]
+  : unknown[]
+}

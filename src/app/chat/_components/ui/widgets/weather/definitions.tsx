@@ -33,15 +33,15 @@ export type WeatherConfig = {
 export const weatherConfigs: Record<WeatherCondition, WeatherConfig> = {
   clear: {
     icon: <Sun className="size-12 text-yellow-400 drop-shadow-sm" />,
-    gradient: 'from-yellow-400 via-orange-300 to-orange-500',
+    gradient: 'from-yellow-300 via-orange-300 to-orange-400',
   },
   clouds: {
     icon: <Cloudy className="size-12 text-gray-400/50 drop-shadow-sm" />,
-    gradient: 'from-gray-400 via-gray-500 to-gray-600',
+    gradient: 'from-gray-400 via-gray-400 to-gray-300',
   },
   few_clouds: {
-    icon: <CloudSun className="size-12 text-yellow-500 drop-shadow-sm" />,
-    gradient: 'from-yellow-200 via-gray-300 to-gray-500',
+    icon: <CloudSun className="size-12 text-yellow-400 drop-shadow-sm" />,
+    gradient: 'from-yellow-400 via-gray-300 to-gray-400',
   },
   mist: {
     icon: <CloudFog className="size-12 text-gray-200 drop-shadow-sm" />,
@@ -77,12 +77,16 @@ export const weatherConfigs: Record<WeatherCondition, WeatherConfig> = {
   },
 }
 
-export const TEMPERATURE_RANGES = [
-  { min: 35, color: 'text-red-500', label: 'Muito quente' },
-  { min: 28, color: 'text-orange-500', label: 'Quente' },
+export const TEMPERATURE_RANGES: {
+  min: number
+  color: string
+  label: string
+}[] = [
+  { min: 32, color: 'text-red-500', label: 'Muito quente' },
+  { min: 29, color: 'text-orange-500', label: 'Quente' },
   { min: 22, color: 'text-green-500', label: 'Agradável' },
-  { min: 16, color: 'text-teal-500', label: 'Fresco' },
-  { min: 10, color: 'text-blue-500', label: 'Frio' },
+  { min: 19, color: 'text-teal-500', label: 'Fresco' },
+  { min: 14, color: 'text-blue-500', label: 'Frio' },
   { min: 0, color: 'text-blue-600', label: 'Muito frio' },
   { min: -Infinity, color: 'text-blue-700', label: 'Extremamente frio' },
 ] as const

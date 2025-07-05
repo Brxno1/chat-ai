@@ -50,17 +50,9 @@ export const WeatherCard = ({ result }: WeatherCardProps) => {
 
   return (
     <div
-      className="relative w-full min-w-[15rem] max-w-[18rem] overflow-hidden rounded-3xl border border-white/20 shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-xl"
+      className="relative w-full min-w-[15rem] max-w-[18rem] overflow-hidden rounded-3xl border border-input bg-card shadow-md transition-all duration-300 hover:shadow-xl"
       aria-label={`Clima em ${result.name}: ${result.weather[0].description}, ${Math.round(result.main.temp)} graus Celsius`}
     >
-      <div
-        className={cn(
-          'absolute inset-0 opacity-25 transition-opacity duration-500 dark:opacity-55',
-          'bg-gradient-to-br from-[20%] via-[40%] to-[90%]',
-          weatherData.gradient,
-        )}
-      />
-
       <div className="relative space-y-4 p-3">
         <div className="flex items-center justify-between gap-1 text-sm font-medium text-foreground/80">
           <div className="flex items-center gap-1">
@@ -153,7 +145,7 @@ export const WeatherCard = ({ result }: WeatherCardProps) => {
             <span>Muito quente</span>
           </div>
           <div
-            className="relative h-2 overflow-hidden rounded-full bg-gradient-to-r from-blue-500 via-yellow-500 to-red-500"
+            className="relative h-2 overflow-hidden rounded-full bg-gradient-to-r from-blue-500 from-[20%] via-yellow-500 via-[40%] to-red-500 to-[120%]"
             role="progressbar"
             aria-valuenow={result.main.temp}
             aria-valuemin={TEMP_SCALE_MIN}

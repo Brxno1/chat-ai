@@ -7,7 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Brain, ChevronDown } from 'lucide-react';
+import { Brain, ChevronRight } from 'lucide-react';
 import { createContext, memo, useContext, useEffect, useState } from 'react';
 import type { ComponentProps } from 'react';
 import { AIResponse } from './response';
@@ -82,7 +82,7 @@ export const AIReasoning = memo(
         const timer = setTimeout(() => {
           setIsOpen(false);
           setHasAutoClosedRef(true);
-        }, 1000);
+        }, 2000);
         return () => clearTimeout(timer);
       }
     }, [isStreaming, isOpen, defaultOpen, setIsOpen, hasAutoClosedRef]);
@@ -118,7 +118,6 @@ export const AIReasoningTrigger = memo(
   ({
     className,
     title = 'Raciocínio',
-    children,
     ...props
   }: AIReasoningTriggerProps) => {
     const { isStreaming, isOpen, duration } = useAIReasoning();
@@ -131,36 +130,24 @@ export const AIReasoningTrigger = memo(
         )}
         {...props}
       >
-        {children ?? (
-          <>
-            <div className="relative w-3.5 h-3.5">
-              <Brain
-                className={cn(
-                  "size-3.5 absolute  opacity-100 transition-opacity duration-300",
-                  "group-hover:opacity-0",
-                  isOpen ? "opacity-0" : "opacity-100"
-                )}
-              />
-              <ChevronDown
-                className={cn(
-                  "size-3.5 absolute opacity-0 transition-opacity duration-300",
-                  "group-hover:opacity-100",
-                  isOpen ? "rotate-180 opacity-100" : "rotate-0 opacity-0"
-                )}
-              />
-            </div>
-            {isStreaming ? (
-              <p className="animate-pulse">Pensando...</p>
-            ) : (
-              <p>
-                {duration > 0
-                  ? `Pensamento de ${duration} ${duration <= 1 ? 'segundo' : 'segundos'}`
-                  : 'Raciocínio'
-                }
-              </p>
-            )}
-          </>
+        <Brain size={13} />
+        {isStreaming ? (
+          <p className="animate-pulse">Pensando...</p>
+        ) : (
+          <p>
+            {duration > 0
+              ? `Pensamento de ${duration} ${duration <= 1 ? 'segundo' : 'segundos'}`
+              : title
+            }
+          </p>
         )}
+        <ChevronRight
+          className={cn(
+            "size-3.5 opacity-0 transition-all duration-300",
+            "group-hover:opacity-100",
+            isOpen ? "rotate-90 opacity-100" : "rotate-0 opacity-0"
+          )}
+        />
       </CollapsibleTrigger>
     );
   }
