@@ -55,8 +55,7 @@ export async function processChatAndSaveMessages({
     },
     ...processedMessages.map((message, index) => ({
       id: `message-${index}`,
-      role: message.role,
-      content: message.content,
+      ...message,
     })),
   ]
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 
+// import { z } from 'zod'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
@@ -20,15 +20,21 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { messages } = body
 
-    const validatedMessages = messages.map((message) => {
-      if (message.role === 'assistant' && message.content.trim() === '') {
+    const processed = messages.map((message) => {
+      if (
+        message.role === 'assistant' &&
+        message.content.trim() === '' &&
+        message.parts?.some((part) => part.type === 'tool-invocation')
+      ) {
         return {
           ...message,
-          content: 'Processando sua solicitação, um momento...',
+          content: 'Informações sendo solicitadas via ferramentas...',
         }
       }
       return message
     })
+
+    console.log(JSON.stringify(processed, null, 2))
 
     const headerUserName = req.headers.get('x-user-name') || undefined
     const headerUserId = req.headers.get('x-user-id') || undefined
@@ -40,7 +46,7 @@ export async function POST(req: NextRequest) {
       chatId: processedChatId,
       error,
     } = await processChatAndSaveMessages({
-      messages: validatedMessages,
+      messages: processed,
       name: headerUserName,
       userId: headerUserId,
       chatId: headerChatId,
@@ -52,7 +58,6 @@ export async function POST(req: NextRequest) {
         {
           error: 'Chat processing failed',
           message: error || defaultErrorMessage,
-          rateLimitReached: true,
         },
         { status: 500 },
       )

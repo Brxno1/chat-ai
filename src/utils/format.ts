@@ -117,3 +117,11 @@ export function groupItemsByDate<T>(
       return b.title.localeCompare(a.title)
     })
 }
+
+export const formatLocations = (locations: string[]) => {
+  const formatter = new Intl.ListFormat('pt-BR', {
+    style: 'long',
+    type: 'conjunction',
+  })
+  return formatter.format(locations)
+}

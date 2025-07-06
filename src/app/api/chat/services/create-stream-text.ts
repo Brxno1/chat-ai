@@ -21,25 +21,20 @@ const model = wrapLanguageModel({
   middleware: [extractReasoningMiddleware({ tagName: 'think' })],
 })
 
-function processMessages(messages: Message[]): Message[] {
-  return messages.map((msg, index) => {
-    if (msg.role !== 'assistant' || msg.content.trim() !== '') {
-      return msg
-    }
+function normalizeMessagesForStream(messages: Message[]): Message[] {
+  return messages.map((message) => {
+    const { parts, ...cleanMessage } = message
 
-    const nextMessage = messages[index + 1]
-    if (!nextMessage || nextMessage.role !== 'user') {
-      return msg
-    }
-
-    if (msg.parts?.some((part) => part.type === 'tool-invocation')) {
-      return {
-        ...msg,
-        content: 'Processando sua solicitação usando ferramentas...',
+    const normalizedParts = parts?.map((part) => {
+      if (!('details' in part)) {
+        return {
+          ...part,
+          details: [],
+        }
       }
-    }
-
-    return msg
+      return part
+    })
+    return { ...cleanMessage, parts: normalizedParts }
   })
 }
 
@@ -52,14 +47,14 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
   }
 
   try {
-    const processedMessages = processMessages(messages)
+    const normalizedMessages = normalizeMessagesForStream(messages)
 
     const stream = streamText({
       model,
       temperature: 0.2,
       maxTokens: 2000,
       maxSteps: 1,
-      messages: processedMessages,
+      messages: normalizedMessages,
       toolChoice: 'auto',
       tools: {
         getWeather: weatherTool,
@@ -78,6 +73,7 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
       error: null,
     }
   } catch (error) {
+    console.error('Error creating stream:', error)
     return {
       stream: null,
       error:

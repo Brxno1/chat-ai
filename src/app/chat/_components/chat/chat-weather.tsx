@@ -9,7 +9,7 @@ import { ContainerWrapper } from '@/components/container'
 import { Badge } from '@/components/ui/badge'
 import { MessageLoading } from '@/components/ui/message-loading'
 import { ToolInvocationResult } from '@/types/tool-results'
-import { formatDateToLocaleWithHour } from '@/utils/format'
+import { formatDateToLocaleWithHour, formatLocations } from '@/utils/format'
 
 import { WeatherCard } from '../ui/widgets/weather'
 import { WeatherErrorCard } from '../ui/widgets/weather/weather-error'
@@ -44,14 +44,6 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
 
     return () => clearTimeout(timeout)
   }, [message.parts])
-
-  const formatLocations = (locations: string[]) => {
-    const formatter = new Intl.ListFormat('pt-BR', {
-      style: 'long',
-      type: 'conjunction',
-    })
-    return formatter.format(locations)
-  }
 
   const TimeBadge = () => (
     <Badge

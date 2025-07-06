@@ -56,6 +56,7 @@ async function findOrCreateChat(
 
     return { success: true, data: chat.id }
   } catch (error) {
+    console.error('FindOrCreateChat.ts:', error)
     return {
       success: false,
       error: errorHandler(error),
@@ -140,6 +141,7 @@ async function saveMessages(
 
     return { success: true, data: null }
   } catch (error) {
+    console.error('SaveMessages.ts:', error)
     return {
       success: false,
       error: errorHandler(error),
@@ -197,7 +199,7 @@ async function saveChatResponse(
         }
       })
     } catch (error) {
-      console.error('❌ Error saving response in background:', error)
+      console.error('SaveChatResponse.ts:', error)
     }
   })
 
