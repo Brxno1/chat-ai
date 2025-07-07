@@ -67,8 +67,8 @@ export default {
 				},
 			},
 			dropShadow: {
-        '3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',
-      },
+				'3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
@@ -99,6 +99,11 @@ export default {
 						backgroundPosition: 'bottom center',
 					},
 				},
+				gradient: {
+					'0%': { backgroundPosition: '0% 50%' },
+					'50%': { backgroundPosition: '100% 50%' },
+					'100%': { backgroundPosition: '0% 50%' },
+				},
 				meteor: {
 					'0%': {
 						transform: 'rotate(var(--angle)) translateX(0)',
@@ -126,6 +131,7 @@ export default {
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
+				'gradient': 'gradient 6s linear infinite',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'background-position-spin':
 					'background-position-spin 3000ms infinite alternate',

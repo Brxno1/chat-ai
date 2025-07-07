@@ -84,7 +84,7 @@ export async function processStreamResult(
       })
     }
 
-    if (reasoning && reasoning.trim()) {
+    if (reasoning) {
       parts.push({
         type: 'reasoning',
         reasoning: cleanReasoningText(reasoning),
@@ -93,13 +93,13 @@ export async function processStreamResult(
 
     let argsToResult: Record<string, unknown> = {}
 
-    if (toolCalls && toolCalls.length > 0) {
+    if (toolCalls) {
       toolCalls.forEach((toolCall: ToolCall) => {
         argsToResult = toolCall.args
       })
     }
 
-    if (toolResults && toolResults.length > 0) {
+    if (toolResults) {
       toolResults.forEach((result: ToolResult) => {
         const part: MessagePart = {
           type: 'tool-invocation',
@@ -116,12 +116,11 @@ export async function processStreamResult(
       })
     }
 
-    const finalText =
-      text && text.trim() ? text.trim() : extractTextFromParts(parts)
+    const finalText = text ? text.trim() : extractTextFromParts(parts)
 
     return {
       text: finalText,
-      parts: parts.length > 0 ? parts : null,
+      parts,
       usage: null,
     }
   } catch (error) {

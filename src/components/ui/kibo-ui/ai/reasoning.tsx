@@ -11,6 +11,7 @@ import { Brain, ChevronRight } from 'lucide-react';
 import { createContext, memo, useContext, useEffect, useState } from 'react';
 import type { ComponentProps } from 'react';
 import { AIResponse } from './response';
+import GradientText from '@/components/react-bits/GradientText/GradientText';
 
 type AIReasoningContextValue = {
   isStreaming: boolean;
@@ -125,18 +126,25 @@ export const AIReasoningTrigger = memo(
     return (
       <CollapsibleTrigger
         className={cn(
-          'flex items-center gap-1 text-muted-foreground text-xs group',
+          'flex items-center gap-0.5 text-muted-foreground text-xs group',
           className
         )}
         {...props}
       >
         <Brain size={13} />
         {isStreaming ? (
-          <p className="animate-pulse">Pensando...</p>
+          <GradientText
+            colors={["#8b8a8a", "#939496", "#9ca3af", "#808286", "#616569"]}
+            animationSpeed={3}
+            showBorder={false}
+            className="animate-gradient"
+          >
+            Pensando...
+          </GradientText>
         ) : (
           <p>
             {duration > 0
-              ? `Pensamento de ${duration} ${duration <= 1 ? 'segundo' : 'segundos'}`
+              ? `Raciocínio de ${duration} ${duration <= 1 ? 'segundo' : 'segundos'}`
               : title
             }
           </p>

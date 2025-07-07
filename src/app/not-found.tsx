@@ -3,27 +3,26 @@
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-import { useUser } from '@/context/user-provider'
+import FuzzyText from '@/components/react-bits/FuzzyText/FuzzyText'
 
 export default function NotFound() {
-  const { user } = useUser()
   const router = useRouter()
 
   useEffect(() => {
-    const redirectTimeout = setTimeout(() => {
-      router.replace('/chat')
+    const timeout = setTimeout(() => {
+      router.push('/chat')
     }, 1500)
-
-    return () => clearTimeout(redirectTimeout)
-  }, [router, user])
+    return () => clearTimeout(timeout)
+  }, [router])
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center space-y-8">
-      <h1 className="max-w-xl text-balance text-center text-4xl font-bold">
-        {user
-          ? `Oops, ${user.name}! Essa página não existe, qual tal você voltar?`
-          : 'Essa página não existe, qual tal você voltar?'}
-      </h1>
+    <div className="flex h-screen flex-col items-center justify-center space-y-4">
+      <FuzzyText fontSize="clamp(2rem, 8vw, 8rem)" fontWeight={900}>
+        404
+      </FuzzyText>
+      <FuzzyText fontSize="clamp(2rem, 5vw, 8rem)" fontWeight={900}>
+        Página não encontrada
+      </FuzzyText>
       <p className="animate-pulse text-center">Redirecionando para /chat</p>
     </div>
   )

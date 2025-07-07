@@ -7,6 +7,7 @@ import {
 } from 'ai'
 
 import { weatherTool } from '../tools/weather'
+import { errorHandler } from '../utils/error-handler'
 
 type CreateStreamTextParams = {
   messages: Message[]
@@ -48,6 +49,7 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
 
   try {
     const normalizedMessages = normalizeMessagesForStream(messages)
+    let errorMessage: string | null = null
 
     const stream = streamText({
       model,
@@ -59,12 +61,15 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
       tools: {
         getWeather: weatherTool,
       },
+      onError: (error) => {
+        errorMessage = errorHandler(error)
+      },
     })
 
     if (!stream) {
       return {
         stream: null,
-        error: 'Error creating stream.',
+        error: errorMessage,
       }
     }
 
@@ -73,13 +78,9 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
       error: null,
     }
   } catch (error) {
-    console.error('Error creating stream:', error)
     return {
       stream: null,
-      error:
-        error instanceof Error
-          ? error.message
-          : 'Erro desconhecido ao criar stream',
+      error: errorHandler(error),
     }
   }
 }

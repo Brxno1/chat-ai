@@ -134,8 +134,6 @@ export const weatherTool = createTool({
       ]
     }
 
-    console.log('with joining', location.join(', '))
-
     console.log(
       `[Weather] Solicitação recebida para ${formatLocations(location)}`,
     )

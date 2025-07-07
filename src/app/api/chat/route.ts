@@ -34,8 +34,6 @@ export async function POST(req: NextRequest) {
       return message
     })
 
-    console.log(JSON.stringify(processed, null, 2))
-
     const headerUserName = req.headers.get('x-user-name') || undefined
     const headerUserId = req.headers.get('x-user-id') || undefined
     const headerChatId = req.headers.get('x-chat-id') || undefined
@@ -43,13 +41,13 @@ export async function POST(req: NextRequest) {
 
     const {
       stream: processedStream,
-      chatId: processedChatId,
+      headerChatId: processedChatId,
       error,
     } = await processChatAndSaveMessages({
       messages: processed,
-      name: headerUserName,
+      userName: headerUserName,
       userId: headerUserId,
-      chatId: headerChatId,
+      headerChatId,
       isGhostChatMode: headerGhostMode,
     })
 
