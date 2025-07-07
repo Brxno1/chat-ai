@@ -1,4 +1,5 @@
 import { Message } from '@ai-sdk/react'
+import { redirect } from 'next/navigation'
 import { cache, Suspense } from 'react'
 
 import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
@@ -26,6 +27,10 @@ export default async function ChatPageWithId({
 
   const { chat } = await getChatByIdCached(chatId, userId)
 
+  if (!chat) {
+    redirect('/chat')
+  }
+
   return (
     <DashboardPage className="flex h-full w-full max-w-full flex-col">
       <ChatHeader />
@@ -37,7 +42,17 @@ export default async function ChatPageWithId({
               initialMessages={chat!.messages.map((message) => ({
                 ...message,
                 role: String(message.role).toLowerCase() as Message['role'],
-                parts: message.parts || undefined,
+                parts: message.parts?.map((part) => ({
+                  type: part.type,
+                  ...(part.type === 'text' && { text: part.text }),
+                  ...(part.type === 'reasoning' && {
+                    reasoning: part.reasoning,
+                  }),
+                  ...(part.type === 'tool-invocation' && {
+                    toolInvocation: part.toolInvocation,
+                  }),
+                  ...(part.type === 'source' && { source: part }),
+                })) as Message['parts'],
               }))}
             />
           </Suspense>

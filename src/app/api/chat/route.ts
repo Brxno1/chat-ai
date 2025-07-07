@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
 
+// import { z } from 'zod'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
@@ -20,11 +20,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { messages } = body
 
-    const validatedMessages = messages.map((message) => {
-      if (message.role === 'assistant' && message.content.trim() === '') {
+    const processed = messages.map((message) => {
+      if (
+        message.role === 'assistant' &&
+        message.content.trim() === '' &&
+        message.parts?.some((part) => part.type === 'tool-invocation')
+      ) {
         return {
           ...message,
-          content: 'Processando sua solicitação, um momento...',
+          content: 'Informações sendo solicitadas via ferramentas...',
         }
       }
       return message
@@ -37,13 +41,13 @@ export async function POST(req: NextRequest) {
 
     const {
       stream: processedStream,
-      chatId: processedChatId,
+      headerChatId: processedChatId,
       error,
     } = await processChatAndSaveMessages({
-      messages: validatedMessages,
-      name: headerUserName,
+      messages: processed,
+      userName: headerUserName,
       userId: headerUserId,
-      chatId: headerChatId,
+      headerChatId,
       isGhostChatMode: headerGhostMode,
     })
 
@@ -52,7 +56,6 @@ export async function POST(req: NextRequest) {
         {
           error: 'Chat processing failed',
           message: error || defaultErrorMessage,
-          rateLimitReached: true,
         },
         { status: 500 },
       )

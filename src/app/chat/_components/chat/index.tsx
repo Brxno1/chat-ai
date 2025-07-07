@@ -18,7 +18,6 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { MessagePart } from '@/app/api/chat/utils/message-parts'
 import { TypingText } from '@/components/animate-ui/text/typing'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,7 +27,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import {
   AIButtonSubmit,
   AIForm,
@@ -38,6 +36,7 @@ import {
   AIInputModelSelectItem,
   AIInputModelSelectTrigger,
   AIInputModelSelectValue,
+  AIInputTextarea,
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
@@ -56,7 +55,7 @@ export interface CustomMessage {
   role: string
   userId: string | null
   chatId: string
-  parts?: MessagePart[]
+  parts?: UIMessage['parts']
 }
 
 interface ChatProps {
@@ -85,7 +84,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const inputRef = React.useRef<HTMLInputElement>(null)
+  const textAreaRef = React.useRef<HTMLTextAreaElement>(null)
 
   const {
     model,
@@ -151,8 +150,8 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   }
 
   React.useEffect(() => {
-    if (status === 'ready' && inputRef.current) {
-      inputRef.current.focus()
+    if (status === 'ready' && textAreaRef.current) {
+      textAreaRef.current.focus()
     }
   }, [status])
 
@@ -209,11 +208,12 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
             render={({ field }) => (
               <FormItem className="relative">
                 <FormControl>
-                  <Input
+                  <AIInputTextarea
+                    name="message"
                     className="h-14 resize-none border-none shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
                     disabled={status === 'streaming' || isLoading}
                     value={input}
-                    ref={inputRef}
+                    ref={textAreaRef}
                     onChange={(ev) => {
                       field.onChange(ev)
                       handleInputChange(ev)
@@ -222,7 +222,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                 </FormControl>
                 {!input && (
                   <TypingText
-                    className="pointer-events-none absolute left-2 top-[40%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
+                    className="pointer-events-none absolute left-2 top-[25%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
                     text="Pergunte-me qualquer coisa..."
                     delay={200}
                     loop

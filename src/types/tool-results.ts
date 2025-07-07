@@ -34,7 +34,7 @@ export type ToolInvocationResult<T extends string> = {
   : T extends 'otherTool'
   ? { someArg: string }
   : Record<string, unknown>
-  state: 'call' | 'result' | 'partial-call'
+  state: 'call' | 'result'
   result: T extends 'getWeather'
   ? WeatherToolResponse[]
   : T extends 'otherTool'

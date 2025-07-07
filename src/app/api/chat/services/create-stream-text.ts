@@ -7,6 +7,7 @@ import {
 } from 'ai'
 
 import { weatherTool } from '../tools/weather'
+import { errorHandler } from '../utils/error-handler'
 
 type CreateStreamTextParams = {
   messages: Message[]
@@ -21,25 +22,20 @@ const model = wrapLanguageModel({
   middleware: [extractReasoningMiddleware({ tagName: 'think' })],
 })
 
-function processMessages(messages: Message[]): Message[] {
-  return messages.map((msg, index) => {
-    if (msg.role !== 'assistant' || msg.content.trim() !== '') {
-      return msg
-    }
+function normalizeMessagesForStream(messages: Message[]): Message[] {
+  return messages.map((message) => {
+    const { parts, ...cleanMessage } = message
 
-    const nextMessage = messages[index + 1]
-    if (!nextMessage || nextMessage.role !== 'user') {
-      return msg
-    }
-
-    if (msg.parts?.some((part) => part.type === 'tool-invocation')) {
-      return {
-        ...msg,
-        content: 'Processando sua solicitação usando ferramentas...',
+    const normalizedParts = parts?.map((part) => {
+      if (!('details' in part)) {
+        return {
+          ...part,
+          details: [],
+        }
       }
-    }
-
-    return msg
+      return part
+    })
+    return { ...cleanMessage, parts: normalizedParts }
   })
 }
 
@@ -52,24 +48,28 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
   }
 
   try {
-    const processedMessages = processMessages(messages)
+    const normalizedMessages = normalizeMessagesForStream(messages)
+    let errorMessage: string | null = null
 
     const stream = streamText({
       model,
       temperature: 0.2,
       maxTokens: 2000,
       maxSteps: 1,
-      messages: processedMessages,
+      messages: normalizedMessages,
       toolChoice: 'auto',
       tools: {
         getWeather: weatherTool,
+      },
+      onError: (error) => {
+        errorMessage = errorHandler(error)
       },
     })
 
     if (!stream) {
       return {
         stream: null,
-        error: 'Error creating stream.',
+        error: errorMessage,
       }
     }
 
@@ -80,10 +80,7 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
   } catch (error) {
     return {
       stream: null,
-      error:
-        error instanceof Error
-          ? error.message
-          : 'Erro desconhecido ao criar stream',
+      error: errorHandler(error),
     }
   }
 }

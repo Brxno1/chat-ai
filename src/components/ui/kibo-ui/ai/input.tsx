@@ -93,7 +93,7 @@ export type AIInputTextareaProps = ComponentProps<typeof Textarea> & {
 export const AIInputTextarea = ({
   onChange,
   className,
-  placeholder = 'Pergunte o que você precisa...',
+  placeholder = ' ',
   minHeight = 48,
   maxHeight = 164,
   ...props
@@ -115,11 +115,10 @@ export const AIInputTextarea = ({
 
   return (
     <Textarea
-      name="message"
       placeholder={placeholder}
       ref={textareaRef}
       className={cn(
-        'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
+        'w-full rounded-none border-none p-3 shadow-none outline-none ring-0',
         'focus-visible:ring-0',
         className
       )}

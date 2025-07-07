@@ -2,11 +2,7 @@ import { Message, StreamTextResult } from 'ai'
 
 import { generateSystemPrompt } from '../prompts'
 import { weatherTool } from '../tools/weather'
-import { errorHandler } from '../utils/error-handler'
-import {
-  processToolInvocations,
-  validateMessages,
-} from '../utils/message-filter'
+import { processToolInvocations } from '../utils/message-filter'
 import {
   findOrCreateChat,
   saveChatResponse,
@@ -18,8 +14,8 @@ type Role = 'user' | 'assistant'
 
 type ProcessChatAndSaveMessagesProps = {
   messages: Array<{ role: Role; content: string }>
-  name?: string
-  chatId?: string
+  userName?: string
+  headerChatId?: string
   isGhostChatMode?: boolean
   userId?: string
   model?: string
@@ -31,14 +27,14 @@ type AllTools = {
 
 type ProcessChatAndSaveMessagesResponse = {
   stream: StreamTextResult<AllTools, never> | null
-  chatId?: string
+  headerChatId?: string
   error?: string
 }
 
 export async function processChatAndSaveMessages({
   messages,
-  name,
-  chatId,
+  userName,
+  headerChatId,
   userId,
   isGhostChatMode,
 }: ProcessChatAndSaveMessagesProps): Promise<ProcessChatAndSaveMessagesResponse> {
@@ -49,14 +45,13 @@ export async function processChatAndSaveMessages({
       id: 'system',
       role: 'system',
       content: generateSystemPrompt({
-        name: name || '',
+        name: userName || '',
         isLoggedIn: !!userId,
       }),
     },
     ...processedMessages.map((message, index) => ({
       id: `message-${index}`,
-      role: message.role,
-      content: message.content,
+      ...message,
     })),
   ]
 
@@ -68,14 +63,13 @@ export async function processChatAndSaveMessages({
     return {
       stream,
       error: error || undefined,
-      chatId: undefined,
+      headerChatId: undefined,
     }
   }
 
   const findOrCreate = await findOrCreateChat(
     processedMessages,
-    chatId,
-    name,
+    headerChatId,
     userId,
   )
 
@@ -87,26 +81,18 @@ export async function processChatAndSaveMessages({
   }
 
   const finalChatId = findOrCreate.data
-  const isNewChat = !chatId
+  const isNewChat = !headerChatId
 
   if (isNewChat || processedMessages.length > 0) {
+    /* eslint-disable */
     const messagesToSave = isNewChat
       ? processedMessages
       : [processedMessages[processedMessages.length - 1]].filter(
-          (msg) => msg?.role === 'user',
-        )
-
+        (msg) => msg?.role === 'user',
+      )
+    /* eslint-enable */
     if (messagesToSave.length > 0) {
-      await saveMessages(messagesToSave, finalChatId)
-    }
-  }
-
-  const isValid = validateMessages(finalMessages)
-
-  if (!isValid) {
-    return {
-      stream: null,
-      error: 'Invalid or empty messages',
+      await saveMessages(messagesToSave, finalChatId, userId)
     }
   }
 
@@ -117,14 +103,20 @@ export async function processChatAndSaveMessages({
   if (error) {
     return {
       stream: null,
-      error: errorHandler(error),
+      error,
     }
   }
 
-  saveChatResponse(stream!, finalChatId, chatId, processedMessages)
+  saveChatResponse({
+    stream: stream!,
+    chatId: finalChatId,
+    originalChatId: headerChatId,
+    messages: processedMessages,
+    userId,
+  })
 
   return {
     stream,
-    chatId: finalChatId,
+    headerChatId: finalChatId,
   }
 }

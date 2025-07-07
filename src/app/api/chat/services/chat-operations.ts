@@ -24,7 +24,6 @@ type OperationResponse<T> = {
 async function findOrCreateChat(
   messages: Array<{ role: Role; content: string }>,
   chatId?: string,
-  name?: string,
   userId?: string,
 ): Promise<OperationResponse<string>> {
   if (chatId) return { success: true, data: chatId }
@@ -32,7 +31,7 @@ async function findOrCreateChat(
   if (!userId) {
     return {
       success: false,
-      error: 'User ID não fornecido',
+      error: 'User ID not provided',
       data: '',
     }
   }
@@ -44,7 +43,7 @@ async function findOrCreateChat(
 
   const chatTitle = lastUserMessage?.content
     ? lastUserMessage.content.substring(0, 50)
-    : name || 'Novo Chat'
+    : 'Novo Chat'
 
   try {
     const chat = await prisma.chat.create({
@@ -85,7 +84,7 @@ function isConsecutiveDuplicate(
       return lastText === content
     }
   } catch (error) {
-    console.error('Error comparing parts:', error)
+    return false
   }
 
   return false
@@ -94,9 +93,11 @@ function isConsecutiveDuplicate(
 async function saveMessages(
   messagesToSave: Array<{ role: Role; content: string }>,
   chatId: string,
+  userId: string,
 ): Promise<OperationResponse<null>> {
   try {
     const messagesToCreate: Array<{
+      userId: string
       role: 'USER' | 'ASSISTANT'
       chatId: string
       parts: string
@@ -125,6 +126,7 @@ async function saveMessages(
 
       if (!isDuplicate) {
         messagesToCreate.push({
+          userId,
           role,
           chatId,
           parts: partsString,
@@ -148,12 +150,21 @@ async function saveMessages(
   }
 }
 
-async function saveChatResponse(
-  stream: StreamTextResult<AllTools, never>,
-  chatId: string,
-  originalChatId?: string,
-  messages?: Array<{ role: Role; content: string }>,
-): Promise<OperationResponse<null>> {
+type ChatResponse = {
+  stream: StreamTextResult<AllTools, never>
+  chatId: string
+  originalChatId?: string
+  messages?: Array<{ role: Role; content: string }>
+  userId: string
+}
+
+async function saveChatResponse({
+  stream,
+  chatId,
+  originalChatId,
+  messages,
+  userId,
+}: ChatResponse) {
   if (!chatId)
     return { success: false, error: 'Chat ID not provided', data: null }
 
@@ -161,24 +172,15 @@ async function saveChatResponse(
     try {
       const { parts } = await processStreamResult(stream)
 
-      const hasToolInteraction = parts?.some(
-        (part) => part.type === 'tool-invocation',
-      )
-
-      const hasReasoning = parts?.some((part) => part.type === 'reasoning')
-
-      const shouldSaveParts = hasToolInteraction || hasReasoning
-
       await prisma.$transaction(async (tx) => {
-        const partsToSave = shouldSaveParts
-          ? JSON.stringify(parts, null, 2)
-          : undefined
+        const partsToSave = JSON.stringify(parts, null, 2)
 
         await tx.message.create({
           data: {
             role: 'ASSISTANT',
             chatId,
             parts: partsToSave,
+            userId,
           },
         })
 
@@ -187,17 +189,15 @@ async function saveChatResponse(
             .filter((msg) => msg.role === 'user')
             .map((msg) => msg.content)
 
-          if (userMessages.length) {
-            const title = userMessages[0].substring(0, 50)
-            await tx.chat.update({
-              where: { id: chatId },
-              data: { title },
-            })
-          }
+          const title = userMessages[0].substring(0, 50)
+          await tx.chat.update({
+            where: { id: chatId },
+            data: { title },
+          })
         }
       })
     } catch (error) {
-      console.error('❌ Error saving response in background:', error)
+      return { success: false, error: errorHandler(error), data: null }
     }
   })
 

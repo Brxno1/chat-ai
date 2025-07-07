@@ -22,16 +22,10 @@ export type MessagePart = {
     toolCallId: string
     toolName: string
     args: Record<string, unknown>
-    state: 'call' | 'result' | 'partial-call'
-    callTimestamp?: Date
-    resultTimestamp?: Date
+    state: 'call' | 'result'
+    callTimestamp: number
+    resultTimestamp?: number
     result?: unknown | unknown[] | null
-  }
-  toolResult?: {
-    toolCallId: string
-    toolName: string
-    result: unknown
-    state: 'call' | 'result' | 'partial-call'
   }
   reasoning?: string
 }
@@ -61,10 +55,7 @@ export function extractTextFromParts(parts: MessagePart[]): string {
       (p) => p.type === 'tool-invocation',
     )?.toolInvocation
 
-    if (
-      toolInvocation?.toolName === 'getWeather' &&
-      toolInvocation?.args?.location
-    ) {
+    if (toolInvocation?.toolName === 'getWeather') {
       const location = toolInvocation.args.location
       return `[Consulta de previsão do tempo para ${location}]`
     }
@@ -93,7 +84,7 @@ export async function processStreamResult(
       })
     }
 
-    if (reasoning && reasoning.trim()) {
+    if (reasoning) {
       parts.push({
         type: 'reasoning',
         reasoning: cleanReasoningText(reasoning),
@@ -102,25 +93,13 @@ export async function processStreamResult(
 
     let argsToResult: Record<string, unknown> = {}
 
-    if (toolCalls && toolCalls.length > 0) {
-      toolCalls.forEach((toolCall: ToolCall, index) => {
-        const part: MessagePart = {
-          type: 'tool-invocation',
-          toolInvocation: {
-            toolCallId: toolCall.toolCallId || `tool-${Date.now()}-${index}`,
-            toolName: toolCall.toolName,
-            state: 'call' as const,
-            args: toolCall.args,
-            callTimestamp: new Date(),
-            result: null,
-          },
-        }
+    if (toolCalls) {
+      toolCalls.forEach((toolCall: ToolCall) => {
         argsToResult = toolCall.args
-        parts.push(part)
       })
     }
 
-    if (toolResults && toolResults.length > 0) {
+    if (toolResults) {
       toolResults.forEach((result: ToolResult) => {
         const part: MessagePart = {
           type: 'tool-invocation',
@@ -128,8 +107,8 @@ export async function processStreamResult(
             toolCallId: result.toolCallId,
             toolName: result.toolName,
             state: 'result' as const,
+            callTimestamp: new Date().getTime(),
             args: argsToResult,
-            resultTimestamp: new Date(),
             result: result.result,
           },
         }
@@ -137,12 +116,11 @@ export async function processStreamResult(
       })
     }
 
-    const finalText =
-      text && text.trim() ? text.trim() : extractTextFromParts(parts)
+    const finalText = text ? text.trim() : extractTextFromParts(parts)
 
     return {
       text: finalText,
-      parts: parts.length > 0 ? parts : null,
+      parts,
       usage: null,
     }
   } catch (error) {

@@ -82,8 +82,8 @@ export const TEMPERATURE_RANGES: {
   color: string
   label: string
 }[] = [
-  { min: 32, color: 'text-red-500', label: 'Muito quente' },
-  { min: 29, color: 'text-orange-500', label: 'Quente' },
+  { min: 32, color: 'text-orange-500', label: 'Muito quente' },
+  { min: 29, color: 'text-yellow-500', label: 'Quente' },
   { min: 22, color: 'text-green-500', label: 'Agradável' },
   { min: 19, color: 'text-teal-500', label: 'Fresco' },
   { min: 14, color: 'text-blue-500', label: 'Frio' },
