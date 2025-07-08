@@ -165,10 +165,6 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     }
   }, [chatInstanceKey, initialMessages])
 
-  const handleChatSubmit = () => {
-    handleSubmit()
-  }
-
   const handleModelChange = (value: string) => {
     const selectedModel = models.find((m) => m.name === value)
 
@@ -176,6 +172,10 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       setModel(selectedModel.name)
       setModelProvider(selectedModel.provider)
     }
+  }
+
+  const handleChatSubmit = () => {
+    handleSubmit()
   }
 
   return (

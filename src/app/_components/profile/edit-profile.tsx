@@ -169,7 +169,7 @@ export function EditProfile({ className }: EditProfileProps) {
           <UserPen />
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex flex-col overflow-y-visible !rounded-xl p-0 max-md:max-w-[23.5rem] [&>button:last-child]:top-3 [&>button:last-child]:rounded-xl">
+      <DialogContent className="flex max-h-[90vh] flex-col overflow-y-visible !rounded-xl bg-background p-0 max-md:max-w-[23.5rem] [&>button:last-child]:top-3 [&>button:last-child]:rounded-xl">
         <DialogHeader className="flex flex-row items-center justify-between gap-2 p-4">
           <DialogTitle>Editar perfil</DialogTitle>
           {form.formState.errors.background && (
@@ -200,12 +200,9 @@ export function EditProfile({ className }: EditProfileProps) {
                       )}
                     >
                       <span
-                        className={cn(
-                          'inline-flex bg-muted px-2 dark:bg-background',
-                          {
-                            'text-red-500': fieldState.error,
-                          },
-                        )}
+                        className={cn('inline-flex px-2 dark:bg-background', {
+                          'text-red-500': fieldState.error,
+                        })}
                       >
                         Nome
                       </span>
@@ -225,12 +222,9 @@ export function EditProfile({ className }: EditProfileProps) {
                     <div className="group space-y-2">
                       <FormLabel>
                         <span
-                          className={cn(
-                            'inline-flex bg-muted px-2 dark:bg-background',
-                            {
-                              'text-red-500': fieldState.error,
-                            },
-                          )}
+                          className={cn('inline-flex px-2 dark:bg-background', {
+                            'text-red-500': fieldState.error,
+                          })}
                         >
                           Biografia
                         </span>
@@ -259,7 +253,7 @@ export function EditProfile({ className }: EditProfileProps) {
                         <span className="font-bold tabular-nums">
                           {maxLengthForBio - characterCount}
                         </span>{' '}
-                        <span className="text-muted-foreground">
+                        <span className="text-xs text-muted-foreground lg:text-sm">
                           {maxLengthForBio - characterCount <= 1
                             ? 'caractere restante'
                             : 'carácteres restantes'}
