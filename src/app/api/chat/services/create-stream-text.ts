@@ -9,17 +9,8 @@ import {
 import { weatherTool } from '../tools/weather'
 import { errorHandler } from '../utils/error-handler'
 
-type CreateStreamTextParams = {
-  messages: Message[]
-}
-
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
-})
-
-const model = wrapLanguageModel({
-  model: google('gemini-1.5-flash-latest'),
-  middleware: [extractReasoningMiddleware({ tagName: 'think' })],
 })
 
 function normalizeMessagesForStream(messages: Message[]): Message[] {
@@ -39,13 +30,26 @@ function normalizeMessagesForStream(messages: Message[]): Message[] {
   })
 }
 
-export async function createStreamText({ messages }: CreateStreamTextParams) {
+type CreateStreamTextParams = {
+  messages: Message[]
+  modelId: string
+}
+
+export async function createStreamText({
+  messages,
+  modelId,
+}: CreateStreamTextParams) {
   if (!Array.isArray(messages) || messages.length === 0) {
     return {
       stream: null,
       error: 'Mensagens não fornecidas',
     }
   }
+
+  const model = wrapLanguageModel({
+    model: google(modelId),
+    middleware: [extractReasoningMiddleware({ tagName: 'think' })],
+  })
 
   try {
     const normalizedMessages = normalizeMessagesForStream(messages)
@@ -62,6 +66,7 @@ export async function createStreamText({ messages }: CreateStreamTextParams) {
         getWeather: weatherTool,
       },
       onError: (error) => {
+        console.log('error on streamText', error)
         errorMessage = errorHandler(error)
       },
     })

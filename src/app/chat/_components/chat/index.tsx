@@ -44,22 +44,13 @@ import { useSidebar } from '@/components/ui/sidebar'
 import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
+import { ChatMessage } from '@/types/chat'
 
 import { models } from '../../models/definitions'
 import { Messages } from './message'
 
-export interface CustomMessage {
-  id: string
-  createdAt: Date
-  content: string
-  role: string
-  userId: string | null
-  chatId: string
-  parts?: UIMessage['parts']
-}
-
 interface ChatProps {
-  initialMessages?: (UIMessage & Partial<CustomMessage>)[]
+  initialMessages?: (UIMessage & Partial<ChatMessage>)[]
   currentChatId?: string
 }
 
@@ -89,8 +80,10 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
   const {
     model,
     modelProvider,
+    modelId,
     setModel,
     setModelProvider,
+    setModelId,
     isGhostChatMode,
     chatInstanceKey,
     defineChatInstanceKey,
@@ -107,7 +100,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     stop,
     isLoading,
   } = useChat({
-    initialMessages: initialMessages as (UIMessage & Partial<CustomMessage>)[],
+    initialMessages: initialMessages as (UIMessage & Partial<ChatMessage>)[],
     key: currentChatId || getChatInstanceKey(),
     api: '/api/chat',
     headers: {
@@ -115,6 +108,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       'x-user-id': user?.id || '',
       'x-chat-id': currentChatId || '',
       'x-ghost-mode': isGhostChatMode.toString(),
+      'x-ai-model-id': modelId,
     },
     onError: (error) => {
       console.log(error)
@@ -165,17 +159,18 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     }
   }, [chatInstanceKey, initialMessages])
 
-  const handleChatSubmit = () => {
-    handleSubmit()
-  }
-
   const handleModelChange = (value: string) => {
     const selectedModel = models.find((m) => m.name === value)
 
     if (selectedModel) {
       setModel(selectedModel.name)
       setModelProvider(selectedModel.provider)
+      setModelId(selectedModel.id)
     }
+  }
+
+  const handleChatSubmit = () => {
+    handleSubmit()
   }
 
   return (

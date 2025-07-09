@@ -6,6 +6,7 @@ import React from 'react'
 import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
 import { ContainerWrapper } from '@/components/container'
 import { Badge } from '@/components/ui/badge'
+import { ChatMessage } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour, formatLocations } from '@/utils/format'
 
@@ -15,11 +16,10 @@ import {
   WeatherSkeleton,
 } from '../ui/widgets/weather'
 import { WeatherErrorCard } from '../ui/widgets/weather/weather-error'
-import { CustomMessage } from '.'
 
 interface ChatWeatherProps {
   toolInvocation: ToolInvocationResult<'getWeather'>
-  message: UIMessage & Partial<CustomMessage>
+  message: UIMessage & Partial<ChatMessage>
 }
 
 export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {

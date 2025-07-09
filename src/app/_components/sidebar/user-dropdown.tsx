@@ -25,13 +25,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useUser } from '@/context/user-provider'
+import { useIsMobile } from '@/hooks/use-mobile'
 
-import { EditProfile } from '../../dashboard/_components/profile/edit-profile'
-
+import { EditProfile } from '../profile/edit-profile'
+import { EditProfileMobile } from '../profile/edit-profile-mobile'
 function UserDropdown() {
   const [open, setOpen] = React.useState(false)
 
   const { user } = useUser()
+
+  const isMobile = useIsMobile()
 
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: async () => {
@@ -75,7 +78,7 @@ function UserDropdown() {
           variant="outline"
           size="lg"
           data-dropdown={open ? 'open' : 'closed'}
-          className="group relative z-50 mb-px flex w-full items-center justify-start space-x-2 rounded-xl px-3 py-7 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:border-none"
+          className="group relative z-50 mb-px flex w-full items-center justify-start space-x-2 rounded-xl px-2 py-6 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:p-6"
         >
           <Avatar className="size-9 cursor-grab rounded-md">
             <AvatarImage src={user.image || ''} alt="user avatar" />
@@ -105,7 +108,11 @@ function UserDropdown() {
               {user?.email}
             </span>
           </DropdownMenuItem>
-          <EditProfile className="mr-1" />
+          {isMobile ? (
+            <EditProfileMobile className="mr-1" />
+          ) : (
+            <EditProfile className="mr-1" />
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

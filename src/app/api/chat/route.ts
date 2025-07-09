@@ -1,26 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 
-// import { z } from 'zod'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
 import { errorHandler } from './utils/error-handler'
 
-// const schema = z.object({
-//   messages: z.array(
-//     z.object({
-//       role: z.enum(['user', 'assistant']),
-//       content: z.string(),
-//     }),
-//   ),
-// })
+const ToolInvocation = z.object({
+  toolCallId: z.string().optional(),
+  step: z.number().optional(),
+  toolName: z.string().optional(),
+  args: z.record(z.any()).optional(),
+  state: z.enum(['call', 'result']).optional(),
+  callTimestamp: z.number().optional(),
+  resultTimestamp: z.number().optional(),
+  result: z.any().optional(),
+})
+
+const UserPartSchema = z.object({
+  type: z.literal('text'),
+  text: z.string(),
+})
+
+const AssistantPartSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('text'),
+    text: z.string(),
+  }),
+  z.object({
+    type: z.literal('reasoning'),
+    reasoning: z.string(),
+    details: z.array(
+      z.object({
+        type: z.literal('text'),
+        text: z.string(),
+      }),
+    ),
+  }),
+  z.object({
+    type: z.literal('tool-invocation'),
+    ...ToolInvocation.shape,
+  }),
+])
+
+const MessageSchema = z.discriminatedUnion('role', [
+  z.object({
+    role: z.literal('user'),
+    id: z.string().optional(),
+    content: z.string(),
+    parts: z.array(UserPartSchema),
+  }),
+  z.object({
+    role: z.literal('assistant'),
+    id: z.string().optional(),
+    content: z.string(),
+    parts: z.array(AssistantPartSchema).optional(),
+  }),
+])
+
+const bodySchema = z.object({
+  messages: z.array(MessageSchema),
+})
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+
     const { messages } = body
 
-    const processed = messages.map((message) => {
+    const processedMessages = messages.map((message) => {
       if (
         message.role === 'assistant' &&
         message.content.trim() === '' &&
@@ -29,6 +77,10 @@ export async function POST(req: NextRequest) {
         return {
           ...message,
           content: 'Informações sendo solicitadas via ferramentas...',
+          parts: message.parts.filter(
+            (part) =>
+              part.type !== 'tool-invocation' || Object.keys(part).length > 1,
+          ),
         }
       }
       return message
@@ -38,17 +90,19 @@ export async function POST(req: NextRequest) {
     const headerUserId = req.headers.get('x-user-id') || undefined
     const headerChatId = req.headers.get('x-chat-id') || undefined
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
+    const headerAiModelId = req.headers.get('x-ai-model-id')
 
     const {
       stream: processedStream,
       headerChatId: processedChatId,
       error,
     } = await processChatAndSaveMessages({
-      messages: processed,
+      messages: processedMessages,
       userName: headerUserName,
       userId: headerUserId,
       headerChatId,
       isGhostChatMode: headerGhostMode,
+      modelId: headerAiModelId!,
     })
 
     if (error || !processedStream) {
@@ -64,16 +118,23 @@ export async function POST(req: NextRequest) {
     const response = processedStream.toDataStreamResponse({
       getErrorMessage: errorHandler,
       sendReasoning: true,
+      sendUsage: true,
       headers: {
         'x-chat-id': processedChatId ?? '',
-        'x-user-id': headerUserId ?? 'anonymous',
+        'x-user-id': headerUserId ?? '',
         'x-user-name': headerUserName ?? 'Guest',
         'x-ghost-mode': headerGhostMode.toString(),
         'x-message-count': (body.messages.length + 1).toString(),
         'x-context-length': body.messages.slice(-4).length.toString(),
         'x-user-tier': headerUserId ? 'premium' : 'free',
+        'x-ai-model-id': headerAiModelId!,
       },
     })
+
+    response.headers.set(
+      'Set-Cookie',
+      `ai-model-id=${headerAiModelId}; Path=/; SameSite=none; HttpOnly; Secure; Max-Age=604800`, // 7 days
+    )
 
     return response
   } catch (error) {

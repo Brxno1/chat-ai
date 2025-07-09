@@ -22,14 +22,14 @@ import {
 } from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
 import { useUser } from '@/context/user-provider'
+import { ChatMessage } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
-import { CustomMessage } from '.'
 import { ChatWeather } from './chat-weather'
 
-function getResultToolCallIds(message: CustomMessage) {
+function getResultToolCallIds(message: ChatMessage) {
   return new Set(
     message.parts
       ?.filter((part) => part.type === 'tool-invocation')
@@ -46,7 +46,7 @@ function getResultToolCallIds(message: CustomMessage) {
   )
 }
 
-function extractReasoningParts(message: CustomMessage) {
+function extractReasoningParts(message: ChatMessage) {
   const reasoningParts =
     message.parts
       ?.filter((part) => part.type === 'reasoning')
@@ -57,7 +57,7 @@ function extractReasoningParts(message: CustomMessage) {
 }
 
 interface MessageProps {
-  message: UIMessage & Partial<CustomMessage>
+  message: UIMessage & Partial<ChatMessage>
   modelName: string
   modelProvider: string
   onDeleteMessageChat?: (id: string) => void
@@ -81,9 +81,9 @@ export function Messages({
     setState((state) => ({ ...state, openDropdown: false }))
   }
 
-  const reasoningParts = extractReasoningParts(message as CustomMessage)
+  const reasoningParts = extractReasoningParts(message as ChatMessage)
 
-  const resultToolCallIds = getResultToolCallIds(message as CustomMessage)
+  const resultToolCallIds = getResultToolCallIds(message as ChatMessage)
 
   return (
     <div className="flex w-full flex-col space-y-1">

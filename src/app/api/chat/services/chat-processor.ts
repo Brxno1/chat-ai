@@ -1,4 +1,5 @@
-import { Message, StreamTextResult } from 'ai'
+import { Message } from '@ai-sdk/react'
+import { StreamTextResult } from 'ai'
 
 import { generateSystemPrompt } from '../prompts'
 import { weatherTool } from '../tools/weather'
@@ -9,16 +10,13 @@ import {
   saveMessages,
 } from './chat-operations'
 import { createStreamText } from './create-stream-text'
-
-type Role = 'user' | 'assistant'
-
 type ProcessChatAndSaveMessagesProps = {
-  messages: Array<{ role: Role; content: string }>
+  messages: Message[]
   userName?: string
   headerChatId?: string
   isGhostChatMode?: boolean
   userId?: string
-  model?: string
+  modelId: string
 }
 
 type AllTools = {
@@ -37,6 +35,7 @@ export async function processChatAndSaveMessages({
   headerChatId,
   userId,
   isGhostChatMode,
+  modelId,
 }: ProcessChatAndSaveMessagesProps): Promise<ProcessChatAndSaveMessagesResponse> {
   const processedMessages = processToolInvocations(messages)
 
@@ -49,8 +48,7 @@ export async function processChatAndSaveMessages({
         isLoggedIn: !!userId,
       }),
     },
-    ...processedMessages.map((message, index) => ({
-      id: `message-${index}`,
+    ...processedMessages.map((message) => ({
       ...message,
     })),
   ]
@@ -58,6 +56,7 @@ export async function processChatAndSaveMessages({
   if (isGhostChatMode || !userId) {
     const { stream, error } = await createStreamText({
       messages: finalMessages,
+      modelId,
     })
 
     return {
@@ -98,6 +97,7 @@ export async function processChatAndSaveMessages({
 
   const { stream, error } = await createStreamText({
     messages: finalMessages,
+    modelId,
   })
 
   if (error) {

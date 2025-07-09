@@ -1,8 +1,7 @@
 import '@ai-sdk/react'
 
-import { Source, ToolResult } from 'ai'
+import { ToolResult } from 'ai'
 
-// Definição local de ToolInvocation para corresponder à estrutura usada no código
 interface ToolInvocation {
   toolCallId: string
   toolName: string

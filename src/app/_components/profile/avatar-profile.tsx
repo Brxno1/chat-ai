@@ -45,7 +45,7 @@ function AvatarProfile({ onFileChange, error }: AvatarProps) {
   }
 
   return (
-    <ContainerWrapper className="-mt-10 flex items-center px-6">
+    <ContainerWrapper className="-mt-10 flex items-center px-4">
       <div className="shadow-xs group relative flex size-20 items-center justify-center overflow-hidden rounded-full shadow-black/10">
         <AvatarDetails
           currentImage={currentImage || ''}
