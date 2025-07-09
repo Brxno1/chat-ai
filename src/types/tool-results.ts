@@ -27,14 +27,15 @@ export function isOtherToolResult(
   return result && result.someOtherProperty
 }
 
-export type ToolInvocationResult<T extends string> = {
+export type ToolInvocationResult<T extends 'getWeather' | 'otherTool'> = {
   toolCallId: string
+  state: 'call' | 'result'
   args: T extends 'getWeather'
   ? { location: string[] }
   : T extends 'otherTool'
   ? { someArg: string }
   : Record<string, unknown>
-  state: 'call' | 'result'
+
   result: T extends 'getWeather'
   ? WeatherToolResponse[]
   : T extends 'otherTool'

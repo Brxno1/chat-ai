@@ -26,6 +26,7 @@ interface State {
   isCreatingNewChat: boolean
   model: string
   modelProvider: string
+  modelId: string
   chatInstanceKey: string
   isRateLimitReached: boolean
   chatIsDeleting: boolean
@@ -39,6 +40,7 @@ interface Actions {
   onDeleteMessage: (id: string) => void
   setModel: (model: string) => void
   setModelProvider: (provider: string) => void
+  setModelId: (id: string) => void
   resetChatState: () => void
   resetModelState: () => void
   setIsRateLimitReached: (value: boolean) => void
@@ -59,6 +61,7 @@ export const useChatStore = create<State & Actions>()(
       isCreatingNewChat: false,
       model: models[0].id,
       modelProvider: models[0].provider,
+      modelId: models[0].id,
       chatInstanceKey: '',
       chatIsDeleting: false,
 
@@ -75,6 +78,8 @@ export const useChatStore = create<State & Actions>()(
       setModel: (model) => set({ model }),
 
       setModelProvider: (provider) => set({ modelProvider: provider }),
+
+      setModelId: (id) => set({ modelId: id }),
 
       setIsRateLimitReached: (value) => set({ isRateLimitReached: value }),
 
@@ -111,6 +116,7 @@ export const useChatStore = create<State & Actions>()(
       partialize: (state) => ({
         model: state.model,
         modelProvider: state.modelProvider,
+        modelId: state.modelId,
       }),
     },
   ),

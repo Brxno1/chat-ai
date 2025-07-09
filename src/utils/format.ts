@@ -56,7 +56,7 @@ export function groupItemsByDate<T>(
   const groups: Record<string, T[]> = {}
 
   const now = new Date()
-  const weekOptions = { locale: ptBR, weekStartsOn: 1 as const }
+  const weekOptions = { locale: ptBR }
 
   items.forEach((item) => {
     const date = dateSelector(item)

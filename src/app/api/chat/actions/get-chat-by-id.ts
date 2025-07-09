@@ -1,25 +1,17 @@
 'use server'
 
-import { Chat, MessageRole } from '@/services/database/generated'
+import { Message as UIMessage } from '@ai-sdk/react'
+
+import { Chat } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
+import { ChatMessage } from '@/types/chat'
 
 import { extractTextFromParts } from '../utils/message-filter'
 import { MessagePart, reconstructMessageParts } from '../utils/message-parts'
 
-type Message = {
-  id: string
-  createdAt: Date
-  userId: string | null
-  content: string
-  role: string
-  chatId: string
-  parts?: MessagePart[] | null
-}
-
 type GetChatByIdResponse = {
-  chat?: Chat & { messages: Message[] }
+  chat?: Chat & { messages: (UIMessage & Partial<ChatMessage>)[] }
   error?: string
-  success: boolean
 }
 
 export async function getChatById(
@@ -43,33 +35,35 @@ export async function getChatById(
   if (!chat) {
     return {
       chat: undefined,
-      success: false,
       error: 'Chat not found',
     }
   }
 
-  const messagesWithParts = chat.messages.map((message) => {
-    let reconstructedParts: MessagePart[] | null = null
+  const messagesWithParts: (UIMessage & ChatMessage)[] = chat.messages.map(
+    (message) => {
+      let reconstructedParts: MessagePart[] | null = null
 
-    try {
-      reconstructedParts = reconstructMessageParts(
-        JSON.parse(message.parts as string),
-      )
-    } catch (error) {
-      console.error('Error reconstructing message parts:', error)
-    }
+      try {
+        reconstructedParts = reconstructMessageParts(
+          JSON.parse(message.parts as string),
+        )
+      } catch (error) {
+        console.error('Error reconstructing message parts:', error)
+      }
 
-    return {
-      ...message,
-      userId: message.userId || userId,
-      role: message.role.toLowerCase() as MessageRole,
-      content: extractTextFromParts(reconstructedParts),
-      parts: reconstructedParts,
-    }
-  })
+      return {
+        id: message.id,
+        createdAt: message.createdAt,
+        userId: message.userId || userId,
+        content: extractTextFromParts(reconstructedParts),
+        role: String(message.role).toLowerCase() as UIMessage['role'],
+        chatId: message.chatId,
+        parts: reconstructedParts,
+      } as UIMessage & ChatMessage
+    },
+  )
 
   return {
-    success: true,
     chat: {
       ...chat,
       messages: messagesWithParts,

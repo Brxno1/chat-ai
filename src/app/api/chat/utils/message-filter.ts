@@ -1,11 +1,4 @@
-import { Message } from 'ai'
-
-type Role = 'user' | 'assistant'
-
-type InputMessage = {
-  role: Role
-  content: string
-}
+import { Message } from '@ai-sdk/react'
 
 export function extractTextFromParts(parts: unknown): string {
   if (!parts) return ''
@@ -26,7 +19,7 @@ export function extractTextFromParts(parts: unknown): string {
   }
 }
 
-export function filterValidMessages(messages: InputMessage[]): InputMessage[] {
+export function filterValidMessages(messages: Message[]): Message[] {
   return messages.filter((message) => {
     if (!message.content || typeof message.content !== 'string') {
       return false
@@ -60,12 +53,10 @@ export function validateMessages(messages: Message[]): boolean {
   })
 }
 
-export function removeDuplicateMessages(
-  messages: InputMessage[],
-): InputMessage[] {
+export function removeDuplicateMessages(messages: Message[]): Message[] {
   if (messages.length <= 1) return messages
 
-  const uniqueMessages: InputMessage[] = []
+  const uniqueMessages: Message[] = []
   const seenMessages = new Set<string>()
 
   for (const message of messages) {
@@ -80,9 +71,7 @@ export function removeDuplicateMessages(
   return uniqueMessages
 }
 
-export function processToolInvocations(
-  messages: InputMessage[],
-): InputMessage[] {
+export function processToolInvocations(messages: Message[]): Message[] {
   const uniqueMessages = messages.filter((message, index) => {
     if (index === 0) return true
 

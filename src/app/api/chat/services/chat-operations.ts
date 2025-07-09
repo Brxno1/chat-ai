@@ -1,10 +1,12 @@
 'use server'
 
+import { Message } from '@ai-sdk/react'
 import { StreamTextResult } from 'ai'
 
-import { Message } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
+import { DbMessage } from '@/types/chat'
 
+import { TextUIPart } from '../../../../../@types/ai-sdk'
 import { weatherTool } from '../tools/weather'
 import { errorHandler } from '../utils/error-handler'
 import { processStreamResult } from '../utils/message-parts'
@@ -13,8 +15,6 @@ type AllTools = {
   getWeather: typeof weatherTool
 }
 
-type Role = 'user' | 'assistant'
-
 type OperationResponse<T> = {
   success: boolean
   data: T
@@ -22,7 +22,7 @@ type OperationResponse<T> = {
 }
 
 async function findOrCreateChat(
-  messages: Array<{ role: Role; content: string }>,
+  messages: Message[],
   chatId?: string,
   userId?: string,
 ): Promise<OperationResponse<string>> {
@@ -39,10 +39,10 @@ async function findOrCreateChat(
   const lastUserMessage = messages
     .slice()
     .reverse()
-    .find((msg) => msg.role === 'user')
+    .find((msg) => msg.role.toLowerCase() === 'user')
 
-  const chatTitle = lastUserMessage?.content
-    ? lastUserMessage.content.substring(0, 50)
+  const chatTitle = lastUserMessage?.parts
+    ? lastUserMessage.parts.toLocaleString().substring(0, 50)
     : 'Novo Chat'
 
   try {
@@ -63,35 +63,35 @@ async function findOrCreateChat(
   }
 }
 
-function isConsecutiveDuplicate(
-  lastMessage: Message,
-  role: string,
-  content: string,
-): boolean {
-  if (lastMessage.role !== role) return false
+// function isConsecutiveDuplicate(
+//   lastMessage: DbMessage,
+//   role: string,
+//   content: string,
+// ): boolean {
+//   if (lastMessage.role !== role) return false
 
-  try {
-    const lastParts =
-      typeof lastMessage.parts === 'string'
-        ? JSON.parse(lastMessage.parts)
-        : lastMessage.parts
+//   try {
+//     const lastParts =
+//       typeof lastMessage.parts === 'string'
+//         ? JSON.parse(lastMessage.parts)
+//         : lastMessage.parts
 
-    if (Array.isArray(lastParts)) {
-      const lastText = lastParts
-        .filter((p) => p?.type === 'text' && p?.text)
-        .map((p) => p.text)
-        .join(' ')
-      return lastText === content
-    }
-  } catch (error) {
-    return false
-  }
+//     if (Array.isArray(lastParts)) {
+//       const lastText = lastParts
+//         .filter((p) => p?.type === 'text' && p?.text)
+//         .map((p) => p.text)
+//         .join(' ')
+//       return lastText === content
+//     }
+//   } catch (error) {
+//     return false
+//   }
 
-  return false
-}
+//   return false
+// }
 
 async function saveMessages(
-  messagesToSave: Array<{ role: Role; content: string }>,
+  messagesToSave: Message[],
   chatId: string,
   userId: string,
 ): Promise<OperationResponse<null>> {
@@ -103,35 +103,28 @@ async function saveMessages(
       parts: string
     }> = []
 
-    let existingMessages: Message[] = []
-
-    if (messagesToSave.length === 1) {
-      existingMessages = await prisma.message.findMany({
-        where: { chatId },
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-      })
-    }
+    await prisma.message.findMany({
+      where: { chatId },
+      orderBy: { createdAt: 'desc' },
+    })
 
     for (const message of messagesToSave) {
-      const role = message.role === 'user' ? 'USER' : 'ASSISTANT'
-      const content = message.content
+      const role = message.role.toLowerCase() === 'user' ? 'USER' : 'ASSISTANT'
 
-      const parts = [{ type: 'text', text: content }]
+      const textParts = message
+        .parts!.filter((part) => part.type === 'text' && part.text)
+        .map((part) => (part as TextUIPart).text)
+        .join(' ')
+
+      const parts = [{ type: 'text', text: textParts }]
       const partsString = JSON.stringify(parts)
 
-      const isDuplicate =
-        existingMessages.length > 0 &&
-        isConsecutiveDuplicate(existingMessages[0], role, content)
-
-      if (!isDuplicate) {
-        messagesToCreate.push({
-          userId,
-          role,
-          chatId,
-          parts: partsString,
-        })
-      }
+      messagesToCreate.push({
+        userId,
+        role,
+        chatId,
+        parts: partsString,
+      })
     }
 
     if (messagesToCreate.length > 0) {
@@ -154,7 +147,7 @@ type ChatResponse = {
   stream: StreamTextResult<AllTools, never>
   chatId: string
   originalChatId?: string
-  messages?: Array<{ role: Role; content: string }>
+  messages?: Message[]
   userId: string
 }
 
@@ -186,10 +179,20 @@ async function saveChatResponse({
 
         if (!originalChatId && messages?.length) {
           const userMessages = messages
-            .filter((msg) => msg.role === 'user')
-            .map((msg) => msg.content)
+            .filter((msg) => msg.role.toLowerCase() === 'user')
+            .map((msg) => {
+              if (msg.parts && Array.isArray(msg.parts)) {
+                const textParts = msg.parts
+                  .filter((part) => part.type === 'text' && part.text)
+                  .map((part) => (part as TextUIPart).text)
+                  .join(' ')
+                return textParts
+              }
+              return ''
+            })
+            .filter(Boolean)
 
-          const title = userMessages[0].substring(0, 50)
+          const title = userMessages[0]?.substring(0, 50) || 'Novo Chat'
           await tx.chat.update({
             where: { id: chatId },
             data: { title },

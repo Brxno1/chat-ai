@@ -1,4 +1,4 @@
-import { Message } from '@ai-sdk/react'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache, Suspense } from 'react'
 
@@ -22,6 +22,9 @@ export default async function ChatPageWithId({
 }) {
   const { chatId } = await params
   const { session } = await getUserSession()
+  const modelId = (await cookies()).get('ai-model-id')?.value
+
+  console.log(modelId)
 
   if (!session) {
     redirect('/auth')
@@ -41,24 +44,7 @@ export default async function ChatPageWithId({
       <DashboardPageMain>
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<ChatFallback />}>
-            <Chat
-              currentChatId={chatId}
-              initialMessages={chat!.messages.map((message) => ({
-                ...message,
-                role: String(message.role).toLowerCase() as Message['role'],
-                parts: message.parts?.map((part) => ({
-                  type: part.type,
-                  ...(part.type === 'text' && { text: part.text }),
-                  ...(part.type === 'reasoning' && {
-                    reasoning: part.reasoning,
-                  }),
-                  ...(part.type === 'tool-invocation' && {
-                    toolInvocation: part.toolInvocation,
-                  }),
-                  ...(part.type === 'source' && { source: part }),
-                })) as Message['parts'],
-              }))}
-            />
+            <Chat currentChatId={chatId} initialMessages={chat!.messages} />
           </Suspense>
         </ContainerWrapper>
       </DashboardPageMain>
@@ -74,9 +60,9 @@ export async function generateMetadata({
   const { chatId } = await params
   const { session } = await getUserSession()
 
-  const { success, chat } = await getChatByIdCached(chatId, session!.user.id)
+  const { chat } = await getChatByIdCached(chatId, session!.user.id)
 
-  if (!success && !chat) {
+  if (!chat) {
     return {
       title: `Chat`,
       description: 'Chat não encontrado',

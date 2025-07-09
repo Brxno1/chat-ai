@@ -90,6 +90,7 @@ export async function POST(req: NextRequest) {
     const headerUserId = req.headers.get('x-user-id') || undefined
     const headerChatId = req.headers.get('x-chat-id') || undefined
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
+    const headerAiModelId = req.headers.get('x-ai-model-id')
 
     const {
       stream: processedStream,
@@ -101,6 +102,7 @@ export async function POST(req: NextRequest) {
       userId: headerUserId,
       headerChatId,
       isGhostChatMode: headerGhostMode,
+      modelId: headerAiModelId!,
     })
 
     if (error || !processedStream) {
@@ -116,16 +118,23 @@ export async function POST(req: NextRequest) {
     const response = processedStream.toDataStreamResponse({
       getErrorMessage: errorHandler,
       sendReasoning: true,
+      sendUsage: true,
       headers: {
         'x-chat-id': processedChatId ?? '',
-        'x-user-id': headerUserId ?? 'anonymous',
+        'x-user-id': headerUserId ?? '',
         'x-user-name': headerUserName ?? 'Guest',
         'x-ghost-mode': headerGhostMode.toString(),
         'x-message-count': (body.messages.length + 1).toString(),
         'x-context-length': body.messages.slice(-4).length.toString(),
         'x-user-tier': headerUserId ? 'premium' : 'free',
+        'x-ai-model-id': headerAiModelId!,
       },
     })
+
+    response.headers.set(
+      'Set-Cookie',
+      `ai-model-id=${headerAiModelId}; Path=/; SameSite=none; HttpOnly; Secure; Max-Age=604800`, // 7 days
+    )
 
     return response
   } catch (error) {
