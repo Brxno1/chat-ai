@@ -14,8 +14,7 @@ import { Children, useCallback, useEffect, useRef } from 'react';
 import type {
   ComponentProps,
   HTMLAttributes,
-  KeyboardEventHandler,
-  RefObject,
+  KeyboardEventHandler
 } from 'react';
 
 type UseAutoResizeTextareaProps = {

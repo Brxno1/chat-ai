@@ -98,6 +98,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     >
       <Link
         href={`/chat/${chat.id}`}
+        prefetch
         className={cn('flex w-full flex-col items-start', {
           'cursor-default': isCurrentChat,
         })}

@@ -1,6 +1,6 @@
 'use client'
 
-import { Message as UIMessage, useChat } from '@ai-sdk/react'
+import { type Message as UIMessage, useChat } from '@ai-sdk/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -28,7 +28,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import {
-  AIButtonSubmit,
   AIForm,
   AIInputButton,
   AIInputModelSelect,
@@ -44,7 +43,7 @@ import { useSidebar } from '@/components/ui/sidebar'
 import { useUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
-import { ChatMessage } from '@/types/chat'
+import type { ChatMessage } from '@/types/chat'
 
 import { models } from '../../models/definitions'
 import { Messages } from './message'
@@ -79,11 +78,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
   const {
     model,
-    modelProvider,
-    modelId,
     setModel,
-    setModelProvider,
-    setModelId,
     isGhostChatMode,
     chatInstanceKey,
     defineChatInstanceKey,
@@ -108,7 +103,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
       'x-user-id': user?.id || '',
       'x-chat-id': currentChatId || '',
       'x-ghost-mode': isGhostChatMode.toString(),
-      'x-ai-model-id': modelId,
+      'x-ai-model-id': model.id,
     },
     onError: (error) => {
       console.log(error)
@@ -149,29 +144,34 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
     }
   }, [status])
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  })
 
   React.useEffect(() => {
     if (chatInstanceKey && !initialMessages?.length) {
       setMessages([])
     }
-  }, [chatInstanceKey, initialMessages])
+  }, [chatInstanceKey, initialMessages, setMessages])
 
   const handleModelChange = (value: string) => {
     const selectedModel = models.find((m) => m.name === value)
 
     if (selectedModel) {
-      setModel(selectedModel.name)
-      setModelProvider(selectedModel.provider)
-      setModelId(selectedModel.id)
+      setModel({
+        id: selectedModel.id,
+        name: selectedModel.name,
+        provider: selectedModel.provider,
+        disabled: selectedModel.disabled,
+      })
     }
   }
 
   const handleChatSubmit = () => {
     handleSubmit()
   }
+
+  console.log(messages)
 
   return (
     <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border border-input">
@@ -183,8 +183,8 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
           <Messages
             key={`${message.id}`}
             message={message}
-            modelName={model}
-            modelProvider={modelProvider}
+            modelName={model.name}
+            modelProvider={model.provider}
             onDeleteMessageChat={onDeleteMessageChat}
             isStreaming={status === 'streaming'}
           />
@@ -276,7 +276,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                 </div>
               )}
               <AIInputModelSelect
-                value={model}
+                value={model.name}
                 onValueChange={handleModelChange}
               >
                 <AIInputModelSelectTrigger
@@ -292,7 +292,7 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
                       value={m.name}
                       key={m.id}
                       disabled={m.disabled}
-                      data-active={m.name === model}
+                      data-active={m.name === model.name}
                       className="cursor-pointer text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
                     >
                       <Image
@@ -309,22 +309,29 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
               </AIInputModelSelect>
             </AIInputTools>
             {status === 'streaming' ? (
-              <AIButtonSubmit onClick={stop} type="button">
-                <span className="font-bold transition-all max-sm:hidden">
+              <AIInputButton
+                onClick={stop}
+                type="button"
+                variant="default"
+                size="lg"
+              >
+                <span className="flex items-center gap-2">
                   Parar
+                  <StopCircle size={16} />
                 </span>
-                <StopCircle size={16} />
-              </AIButtonSubmit>
+              </AIInputButton>
             ) : (
-              <AIButtonSubmit
+              <AIInputButton
                 disabled={!input || form.formState.isSubmitting || isLoading}
                 type="submit"
+                size="lg"
+                variant="default"
               >
-                <span className="font-bold transition-all max-sm:hidden">
+                <span className="flex items-center gap-2">
                   Enviar
+                  <SendIcon size={16} />
                 </span>
-                <SendIcon size={16} />
-              </AIButtonSubmit>
+              </AIInputButton>
             )}
           </AIInputToolbar>
         </AIForm>
