@@ -1,69 +1,82 @@
 "use client";
 
-import { Mic } from "lucide-react";
-import { useState, useEffect } from "react";
+import { AudioLines } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/utils/utils";
+import { Button } from "./button";
 
 interface AIVoiceInputProps {
   onStart?: () => void;
-  onStop?: (duration: number) => void;
+  onStop?: (audioBlob: Blob | null, duration: number) => void;
   visualizerBars?: number;
-  demoMode?: boolean;
-  demoInterval?: number;
   className?: string;
+  interval?: number;
 }
 
 export function AIVoiceInput({
   onStart,
   onStop,
-  visualizerBars = 48,
-  demoMode = false,
-  demoInterval = 3000,
-  className
+  visualizerBars = 8,
+  className,
+  interval = 4000
 }: AIVoiceInputProps) {
-  const [submitted, setSubmitted] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
-  const [isClient, setIsClient] = useState(false);
-  const [isDemo, setIsDemo] = useState(demoMode);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioStream = useRef<MediaStream | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
-    if (submitted) {
+    if (isRecording) {
       onStart?.();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
+      if (!mediaRecorder.current) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+          audioStream.current = stream;
+
+          mediaRecorder.current = new window.MediaRecorder(stream, {
+            mimeType: 'audio/webm',
+            audioBitsPerSecond: 64000,
+          });
+
+          audioChunks.current = [];
+
+          mediaRecorder.current.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              audioChunks.current.push(event.data);
+            }
+          };
+
+          mediaRecorder.current.onstop = () => {
+            const audioBlob = audioChunks.current.length > 0 ? new Blob(audioChunks.current, { type: 'audio/webm' }) : null;
+            onStop?.(audioBlob, time);
+            setTime(0);
+            audioStream.current = null;
+            mediaRecorder.current = null;
+          };
+          mediaRecorder.current.start();
+        });
+      }
     } else {
-      onStop?.(time);
-      setTime(0);
+      if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
+        mediaRecorder.current.stop();
+        if (audioStream.current) {
+          audioStream.current.getTracks().forEach((track) => track.stop());
+        }
+      } else {
+        onStop?.(null, time);
+        setTime(0);
+      }
     }
 
     return () => clearInterval(intervalId);
-  }, [submitted, time, onStart, onStop]);
-
-  useEffect(() => {
-    if (!isDemo) return;
-
-    let timeoutId: NodeJS.Timeout;
-    const runAnimation = () => {
-      setSubmitted(true);
-      timeoutId = setTimeout(() => {
-        setSubmitted(false);
-        timeoutId = setTimeout(runAnimation, 1000);
-      }, demoInterval);
-    };
-
-    const initialTimeout = setTimeout(runAnimation, 100);
-    return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(initialTimeout);
-    };
-  }, [isDemo, demoInterval]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRecording, time, onStart, onStop]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -71,75 +84,45 @@ export function AIVoiceInput({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleClick = () => {
-    if (isDemo) {
-      setIsDemo(false);
-      setSubmitted(false);
-    } else {
-      setSubmitted((prev) => !prev);
-    }
+  const handleRecordToggle = () => {
+    setIsRecording((prev) => !prev);
   };
 
   return (
-    <div className={cn("w-full py-4", className)}>
-      <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
-        <button
-          className={cn(
-            "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
-            submitted
-              ? "bg-none"
-              : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
-          )}
-          type="button"
-          onClick={handleClick}
-        >
-          {submitted ? (
-            <div
-              className="w-6 h-6 rounded-sm animate-spin bg-black dark:bg-white cursor-pointer pointer-events-auto"
-              style={{ animationDuration: "3s" }}
-            />
-          ) : (
-            <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
-          )}
-        </button>
+    <Button
+      onClick={handleRecordToggle}
+      className={cn('min-w-[6.5rem] shrink-0 gap-2 rounded-lg text-md font-bold', className)}
+      type="button"
+    >
+      {isRecording ? (
+        <>
+          <div
+            className="size-3.5 rounded-sm animate-spin bg-background cursor-pointer pointer-events-auto"
+            style={{ animationDuration: "3s" }}
+          />
+          <div className="h-4 w-10 flex items-center justify-center gap-0.5">
+            {Array.from({ length: visualizerBars }, (_, i) => {
+              const barKey = `bar-${visualizerBars}-v-${btoa(String(i * 31 + visualizerBars * 17))}`;
 
-        <span
-          className={cn(
-            "font-mono text-sm transition-opacity duration-300",
-            submitted
-              ? "text-black/70 dark:text-white/70"
-              : "text-black/30 dark:text-white/30"
-          )}
-        >
-          {formatTime(time)}
-        </span>
-
-        <div className="h-4 w-64 flex items-center justify-center gap-0.5">
-          {[...Array(visualizerBars)].map((_, i) => (
-            <div
-              key={i}
-              className={cn(
-                "w-0.5 rounded-full transition-all duration-300",
-                submitted
-                  ? "bg-black/50 dark:bg-white/50 animate-pulse"
-                  : "bg-black/10 dark:bg-white/10 h-1"
-              )}
-              style={
-                submitted && isClient
-                  ? {
-                      height: `${20 + Math.random() * 80}%`,
-                      animationDelay: `${i * 0.05}s`,
-                    }
-                  : undefined
-              }
-            />
-          ))}
-        </div>
-
-        <p className="h-4 text-xs text-black/70 dark:text-white/70">
-          {submitted ? "Listening..." : "Click to speak"}
-        </p>
-      </div>
-    </div>
-  );
+              return (
+                <div
+                  key={barKey}
+                  className="w-1 rounded-full transition-all duration-700 bg-background animate-pulse"
+                  style={{
+                    height: `${20 + Math.random() * 80}%`,
+                    animationDelay: `${i * 0.08}s`,
+                  }}
+                />
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <>
+          <span>Falar</span>
+          <AudioLines className="size-5" />
+        </>
+      )}
+    </Button>
+  )
 }

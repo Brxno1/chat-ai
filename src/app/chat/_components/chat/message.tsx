@@ -22,14 +22,14 @@ import {
 } from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
 import { useUser } from '@/context/user-provider'
-import { ChatMessage } from '@/types/chat'
+import type { ChatMessage as ChatMessageType } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
 import { ChatWeather } from './chat-weather'
 
-function getResultToolCallIds(message: ChatMessage) {
+function getResultToolCallIds(message: ChatMessageType) {
   return new Set(
     message.parts
       ?.filter((part) => part.type === 'tool-invocation')
@@ -46,7 +46,7 @@ function getResultToolCallIds(message: ChatMessage) {
   )
 }
 
-function extractReasoningParts(message: ChatMessage) {
+function extractReasoningParts(message: ChatMessageType) {
   const reasoningParts =
     message.parts
       ?.filter((part) => part.type === 'reasoning')
@@ -57,33 +57,29 @@ function extractReasoningParts(message: ChatMessage) {
 }
 
 interface MessageProps {
-  message: UIMessage & Partial<ChatMessage>
+  message: UIMessage & Partial<ChatMessageType>
   modelName: string
   modelProvider: string
-  onDeleteMessageChat?: (id: string) => void
   isStreaming?: boolean
 }
 
-export function Messages({
+export function ChatMessage({
   message,
   modelName,
   modelProvider,
   isStreaming = false,
 }: MessageProps) {
-  const [state, setState] = useState({
-    isDeleting: false,
-    openDropdown: false,
-  })
+  const [open, setOpen] = useState(false)
 
   const { user } = useUser()
 
   const handleCloseComponent = () => {
-    setState((state) => ({ ...state, openDropdown: false }))
+    setOpen(false)
   }
 
-  const reasoningParts = extractReasoningParts(message as ChatMessage)
+  const reasoningParts = extractReasoningParts(message as ChatMessageType)
 
-  const resultToolCallIds = getResultToolCallIds(message as ChatMessage)
+  const resultToolCallIds = getResultToolCallIds(message as ChatMessageType)
 
   return (
     <div className="flex w-full flex-col space-y-1">
@@ -149,15 +145,7 @@ export function Messages({
                   )}
                 >
                   <AIResponse>{part.text}</AIResponse>
-                  <DropdownMenu
-                    open={state.openDropdown}
-                    onOpenChange={() =>
-                      setState((prev) => ({
-                        ...prev,
-                        openDropdown: !prev.openDropdown,
-                      }))
-                    }
-                  >
+                  <DropdownMenu open={open} onOpenChange={setOpen}>
                     <DropdownMenuTrigger className="mb-auto mr-1.5 mt-1.5 size-4 cursor-pointer text-accent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-accent-foreground">
                       <ChevronDown size={16} />
                     </DropdownMenuTrigger>
