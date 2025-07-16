@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 
 import { models } from '@/app/chat/models/definitions'
 import { Chat } from '@/services/database/generated'
+import { Model } from '@/types/model'
 
 type MessageFromChat = {
   id: string
@@ -24,12 +25,9 @@ interface State {
   isGhostChatMode: boolean
   messages: Message[]
   isCreatingNewChat: boolean
-  model: string
-  modelProvider: string
-  modelId: string
+  model: Model
   chatInstanceKey: string
   isRateLimitReached: boolean
-  chatIsDeleting: boolean
 }
 
 interface Actions {
@@ -38,16 +36,20 @@ interface Actions {
   setToGhostChatMode: (mode: boolean) => void
   setMessages: (messages: Message[]) => void
   onDeleteMessage: (id: string) => void
-  setModel: (model: string) => void
-  setModelProvider: (provider: string) => void
-  setModelId: (id: string) => void
+  setModel: (model: Model) => void
   resetChatState: () => void
   resetModelState: () => void
   setIsRateLimitReached: (value: boolean) => void
   setChats: (chats: Chats['chats']) => void
   defineChatInstanceKey: (key: string) => void
   getChatInstanceKey: () => string
-  setChatIsDeleting: (value: boolean) => void
+}
+
+const defaultModel: Model = {
+  id: models[0].id,
+  name: models[0].name,
+  provider: models[0].provider,
+  disabled: models[0].disabled,
 }
 
 export const useChatStore = create<State & Actions>()(
@@ -59,11 +61,8 @@ export const useChatStore = create<State & Actions>()(
       isGhostChatMode: false,
       messages: [],
       isCreatingNewChat: false,
-      model: models[0].id,
-      modelProvider: models[0].provider,
-      modelId: models[0].id,
+      model: defaultModel,
       chatInstanceKey: '',
-      chatIsDeleting: false,
 
       setChats: (chats) => set({ chats }),
 
@@ -76,10 +75,6 @@ export const useChatStore = create<State & Actions>()(
       setMessages: (messages) => set({ messages }),
 
       setModel: (model) => set({ model }),
-
-      setModelProvider: (provider) => set({ modelProvider: provider }),
-
-      setModelId: (id) => set({ modelId: id }),
 
       setIsRateLimitReached: (value) => set({ isRateLimitReached: value }),
 
@@ -104,19 +99,14 @@ export const useChatStore = create<State & Actions>()(
 
       resetModelState: () => {
         set({
-          model: models[0].name,
-          modelProvider: models[0].provider,
+          model: defaultModel,
         })
       },
-
-      setChatIsDeleting: (value) => set({ chatIsDeleting: value }),
     }),
     {
-      name: 'chat-storage',
+      name: 'chat-model-storage',
       partialize: (state) => ({
         model: state.model,
-        modelProvider: state.modelProvider,
-        modelId: state.modelId,
       }),
     },
   ),

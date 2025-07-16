@@ -159,13 +159,13 @@ export const AIInputTools = ({ className, ...props }: AIInputToolsProps) => (
 export type AIInputButtonProps = ComponentProps<typeof Button>;
 
 export const AIInputButton = ({
-  variant = 'ghost',
+  variant = 'default',
   className,
   size,
   ...props
 }: AIInputButtonProps) => {
   const newSize =
-    (size ?? Children.count(props.children) > 1) ? 'default' : 'icon';
+    (size ?? Children.count(props.children) > 1) ? 'lg' : 'icon';
 
   return (
     <Button
@@ -173,8 +173,8 @@ export const AIInputButton = ({
       variant={variant}
       size={newSize}
       className={cn(
-        'shrink-0 gap-1.5 rounded-lg text-muted-foreground',
-        newSize === 'default' && 'px-3',
+        'shrink-0 gap-2 rounded-lg text-md font-bold',
+        newSize === 'lg' && 'px-3',
         className
       )}
       {...props}
