@@ -26,7 +26,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { Todo } from '@/services/database/generated'
 import { cn } from '@/utils/utils'
@@ -39,7 +39,7 @@ type TodoFormData = z.infer<typeof schema>
 
 export function TodoCreateForm() {
   const [open, setOpen] = React.useState(false)
-  const { user } = useUser()
+  const { user } = useSessionUser()
 
   const queryClient = useQueryClient()
 

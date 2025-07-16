@@ -1,8 +1,8 @@
 import { type Message as UIMessage, useChat } from '@ai-sdk/react'
 import { useQueryClient } from '@tanstack/react-query'
-import router from 'next/router'
+import { useRouter } from 'next/navigation'
 
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat-store'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
@@ -17,11 +17,11 @@ export function useChatController({
   currentChatId,
 }: UseChatControllerProps) {
   const queryClient = useQueryClient()
-
+  const router = useRouter()
   const { model, isGhostChatMode, defineChatInstanceKey, getChatInstanceKey } =
     useChatStore()
 
-  const { user } = useUser()
+  const { user } = useSessionUser()
 
   return useChat({
     initialMessages,

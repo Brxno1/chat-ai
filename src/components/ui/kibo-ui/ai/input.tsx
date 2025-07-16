@@ -194,7 +194,10 @@ export const AIButtonSubmit = ({
     type="submit"
     variant={variant}
     size={size}
-    className={cn(className)}
+    className={cn(
+      'min-w-[6rem] shrink-0 gap-2 rounded-xl text-md font-bold',
+      className
+    )}
     {...props}
   />
 );

@@ -11,7 +11,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 import { Input } from '@/components/ui/input'
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { formatDateToLocale, formatFileSize } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'
@@ -22,7 +22,7 @@ interface AvatarProps {
 }
 
 function AvatarProfile({ onFileChange, error }: AvatarProps) {
-  const { user } = useUser()
+  const { user } = useSessionUser()
 
   const {
     file,

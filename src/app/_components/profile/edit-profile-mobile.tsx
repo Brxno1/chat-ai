@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
 import { queryKeys } from '@/lib/query-client'
 import { updateProfileSchema } from '@/schemas'
@@ -45,7 +45,7 @@ interface EditProfileProps {
 }
 
 export function EditProfileMobile({ className }: EditProfileProps) {
-  const { user, setUser } = useUser()
+  const { user, setUser } = useSessionUser()
 
   if (!user) return null
 

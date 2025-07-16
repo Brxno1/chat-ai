@@ -188,7 +188,7 @@ export function ChatForm({
               disabled={form.formState.isSubmitting || status === 'streaming'}
               type="submit"
             >
-              <span className="flex items-center gap-2 font-bold">
+              <span className="flex items-center gap-1.5 font-bold">
                 Enviar
                 <SendIcon size={16} />
               </span>
