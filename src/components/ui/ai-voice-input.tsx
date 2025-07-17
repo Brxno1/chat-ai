@@ -1,20 +1,19 @@
 "use client";
 
-import { AudioLines } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { cn } from "@/utils/utils";
-import { Button } from "./button";
+import { AudioLines, Loader2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { cn } from "@/utils/utils"
+import { Button } from "./button"
+import { useChatContext } from "@/context/chat"
 
 interface AIVoiceInputProps {
   onStart?: () => void;
-  onStop?: (audioBlob: Blob | null, duration: number) => void;
   visualizerBars?: number;
   className?: string;
 }
 
 export function AIVoiceInput({
   onStart,
-  onStop,
   visualizerBars = 8,
   className,
 }: AIVoiceInputProps) {
@@ -24,6 +23,8 @@ export function AIVoiceInput({
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioStream = useRef<MediaStream | null>(null);
   const audioChunks = useRef<Blob[]>([]);
+
+  const { onGenerateTranscribe, isTranscribing } = useChatContext()
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -42,8 +43,6 @@ export function AIVoiceInput({
             audioBitsPerSecond: 64000,
           });
 
-          audioChunks.current = [];
-
           mediaRecorder.current.ondataavailable = (event) => {
             if (event.data.size > 0) {
               audioChunks.current.push(event.data);
@@ -52,7 +51,7 @@ export function AIVoiceInput({
 
           mediaRecorder.current.onstop = () => {
             const audioBlob = audioChunks.current.length > 0 ? new Blob(audioChunks.current, { type: 'audio/webm' }) : null;
-            onStop?.(audioBlob, time);
+            onGenerateTranscribe(audioBlob);
             setTime(0);
             audioStream.current = null;
             mediaRecorder.current = null;
@@ -67,14 +66,14 @@ export function AIVoiceInput({
           audioStream.current.getTracks().forEach((track) => track.stop());
         }
       } else {
-        onStop?.(null, time);
+        onGenerateTranscribe(null);
         setTime(0);
       }
     }
 
     return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRecording, time, onStart, onStop]);
+  }, [isRecording, time, onStart]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -91,6 +90,7 @@ export function AIVoiceInput({
       onClick={handleRecordToggle}
       className={cn('min-w-[6.5rem] shrink-0 gap-2 rounded-xl text-md font-bold', className)}
       type="button"
+      disabled={isTranscribing}
     >
       {isRecording ? (
         <>
@@ -114,6 +114,11 @@ export function AIVoiceInput({
               );
             })}
           </div>
+        </>
+      ) : isTranscribing ? (
+        <>
+          <span>Processando</span>
+          <Loader2 className="size-5 animate-spin" />
         </>
       ) : (
         <>

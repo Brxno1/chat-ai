@@ -10,7 +10,7 @@ import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useChatStore } from '@/store/chat-store'
+import { useChatStore } from '@/store/chat'
 
 function ChatHeader() {
   const { isGhostChatMode, setToGhostChatMode, resetChatState } = useChatStore()

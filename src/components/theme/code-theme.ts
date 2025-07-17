@@ -1,0 +1,16 @@
+export const codeThemes = [
+  { label: 'Vesper', value: { light: 'light-plus', dark: 'vesper' } },
+  { label: 'GitHub', value: { light: 'github-light', dark: 'github-dark' } },
+  { label: 'Light Plus', value: { light: 'light-plus', dark: 'houston' } },
+  { label: 'Everforest', value: { light: 'everforest-light', dark: 'everforest-dark' } },
+  { label: 'Catppuccin Latte', value: { light: 'catppuccin-latte', dark: 'catppuccin-latte' } },
+  { label: 'Github Dark High Contrast', value: { light: 'light-plus', dark: 'github-dark-high-contrast' } },
+  { label: 'Andromeeda', value: { light: 'andromeeda', dark: 'andromeeda' } },
+  { label: 'LaserWave', value: { light: 'light-plus', dark: 'laserwave' } },
+  { label: 'One Light', value: { light: 'one-light', dark: 'one-light' } },
+  { label: 'One Dark Pro', value: { light: 'one-dark-pro', dark: 'one-dark-pro' } },
+  { label: 'Nord', value: { light: 'light-plus', dark: 'nord' } },
+  { label: 'Monokai', value: { light: 'light-plus', dark: 'monokai' } },
+  { label: 'Solarized Light', value: { light: 'solarized-light', dark: 'solarized-light' } },
+  { label: 'Tokyo Night', value: { light: 'tokyo-night', dark: 'tokyo-night' } },
+];

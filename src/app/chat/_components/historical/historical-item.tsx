@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'
-import { useChatStore } from '@/store/chat-store'
+import { useChatStore } from '@/store/chat'
 import { formatDateToLocale, formatDistanceToNow } from '@/utils/format'
 import { cn } from '@/utils/utils'
 

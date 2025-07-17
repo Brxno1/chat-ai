@@ -14,7 +14,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { useChatStore } from '@/store/chat-store'
+import { useChatStore } from '@/store/chat'
 import { cn } from '@/utils/utils'
 
 import { SidebarLinks } from './sidebar-links'

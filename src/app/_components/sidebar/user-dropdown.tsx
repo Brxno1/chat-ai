@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 import { EditProfile } from '../profile/edit-profile'

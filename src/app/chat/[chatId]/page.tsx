@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache, Suspense } from 'react'
 
@@ -22,9 +21,6 @@ export default async function ChatPageWithId({
 }) {
   const { chatId } = await params
   const { session } = await getUserSession()
-  const modelId = (await cookies()).get('ai-model-id')?.value
-
-  console.log(modelId)
 
   if (!session) {
     redirect('/auth')

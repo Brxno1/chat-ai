@@ -22,6 +22,9 @@ import { memo } from 'react';
 import type { HTMLAttributes } from 'react';
 import ReactMarkdown, { type Options } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { codeThemes } from '@/components/theme/code-theme';
+import { SelectCodeTheme } from '@/components/theme/select-code-theme';
+import { useThemeStore } from '@/store/theme';
 
 export type AIResponseProps = HTMLAttributes<HTMLDivElement> & {
   options?: Options;
@@ -104,6 +107,9 @@ const components: Options['components'] = {
   code: ({ node, className, children }) => {
     let language = 'typescript';
 
+    const { theme, getTheme } = useThemeStore();
+    const selectedTheme = getTheme(theme);
+
     if (typeof node?.properties?.className === 'string') {
       language = node.properties.className.replace('language-', '');
     }
@@ -130,6 +136,7 @@ const components: Options['components'] = {
         defaultValue={data[0].language}
       >
         <CodeBlockHeader className="flex items-center bg-card/60 justify-end">
+          <SelectCodeTheme />
           <CodeBlockFiles className="hidden">
             {(item) => (
               <CodeBlockFilename key={item.language} value={item.language}>
@@ -154,7 +161,10 @@ const components: Options['components'] = {
         <CodeBlockBody>
           {(item) => (
             <CodeBlockItem key={item.language} value={item.language}>
-              <CodeBlockContent language={item.language as BundledLanguage}>
+              <CodeBlockContent
+                language={item.language as BundledLanguage}
+                themes={selectedTheme.value}
+              >
                 {item.code}
               </CodeBlockContent>
             </CodeBlockItem>
