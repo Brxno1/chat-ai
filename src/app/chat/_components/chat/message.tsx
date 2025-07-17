@@ -21,7 +21,7 @@ import {
   AIReasoningTrigger,
 } from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'
@@ -71,7 +71,7 @@ export function ChatMessage({
 }: MessageProps) {
   const [open, setOpen] = useState(false)
 
-  const { user } = useUser()
+  const { user } = useSessionUser()
 
   const handleCloseComponent = () => {
     setOpen(false)

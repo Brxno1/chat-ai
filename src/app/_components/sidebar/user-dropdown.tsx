@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 import { EditProfile } from '../profile/edit-profile'
@@ -32,14 +32,14 @@ import { EditProfileMobile } from '../profile/edit-profile-mobile'
 function UserDropdown() {
   const [open, setOpen] = React.useState(false)
 
-  const { user } = useUser()
+  const { user } = useSessionUser()
 
   const isMobile = useIsMobile()
 
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: async () => {
       await signOut({
-        redirectTo: `/auth?mode=login&name=${user?.name}`,
+        redirectTo: `/chat`,
       })
     },
     onSuccess: () => {

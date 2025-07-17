@@ -10,7 +10,6 @@ interface AIVoiceInputProps {
   onStop?: (audioBlob: Blob | null, duration: number) => void;
   visualizerBars?: number;
   className?: string;
-  interval?: number;
 }
 
 export function AIVoiceInput({
@@ -18,7 +17,6 @@ export function AIVoiceInput({
   onStop,
   visualizerBars = 8,
   className,
-  interval = 4000
 }: AIVoiceInputProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
@@ -91,13 +89,13 @@ export function AIVoiceInput({
   return (
     <Button
       onClick={handleRecordToggle}
-      className={cn('min-w-[6.5rem] shrink-0 gap-2 rounded-lg text-md font-bold', className)}
+      className={cn('min-w-[6.5rem] shrink-0 gap-2 rounded-xl text-md font-bold', className)}
       type="button"
     >
       {isRecording ? (
         <>
           <div
-            className="size-3.5 rounded-sm animate-spin bg-background cursor-pointer pointer-events-auto"
+            className="size-3 rounded-sm animate-spin bg-background cursor-pointer pointer-events-auto"
             style={{ animationDuration: "3s" }}
           />
           <div className="h-4 w-10 flex items-center justify-center gap-0.5">
@@ -107,10 +105,10 @@ export function AIVoiceInput({
               return (
                 <div
                   key={barKey}
-                  className="w-1 rounded-full transition-all duration-700 bg-background animate-pulse"
+                  className="w-1.5 rounded-full transition-all duration-700 bg-background animate-pulse"
                   style={{
                     height: `${20 + Math.random() * 80}%`,
-                    animationDelay: `${i * 0.08}s`,
+                    animationDelay: `${i * 0.10}s`,
                   }}
                 />
               );

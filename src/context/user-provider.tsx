@@ -11,20 +11,14 @@ type UserContextType = {
   session: Session | null
   user: User | undefined
   chats?: ChatWithMessages[]
-  isCreatingChat: boolean
-  setUser: (
-    userOrFn: User | undefined | ((prev: User | undefined) => User | undefined),
-  ) => void
-  setCreatingChat: (isCreating: boolean) => void
+  setUser: (userOrFn: User | ((prev: User) => User)) => void
 }
 
 export const UserContext = createContext<UserContextType>({
   session: null,
   user: undefined,
   chats: [],
-  isCreatingChat: false,
   setUser: () => {},
-  setCreatingChat: () => {},
 })
 
 type UserChatProviderProps = {
@@ -41,25 +35,18 @@ export function UserChatProvider({
   chats = [],
 }: UserChatProviderProps) {
   const [state, dispatch] = useReducer(userReducer, {
-    user,
-    isCreatingChat: false,
+    user: user!,
   })
 
-  const setUser = (
-    userOrFn: User | undefined | ((prev: User | undefined) => User | undefined),
-  ) => {
-    if (typeof userOrFn === 'function') {
+  const setUser = (user: User | ((prev: User) => User)) => {
+    if (typeof user === 'function') {
       dispatch({
         type: 'UPDATE_USER',
-        payload: userOrFn as (prev: User | undefined) => User | undefined,
+        payload: user as (prev: User) => User,
       })
     } else {
-      dispatch({ type: 'SET_USER', payload: userOrFn as User | undefined })
+      dispatch({ type: 'SET_USER', payload: user as User })
     }
-  }
-
-  const setCreatingChat = (isCreating: boolean) => {
-    dispatch({ type: 'SET_CREATING_CHAT', payload: isCreating })
   }
 
   return (
@@ -68,9 +55,7 @@ export function UserChatProvider({
         session,
         chats,
         user: state.user,
-        isCreatingChat: state.isCreatingChat,
         setUser,
-        setCreatingChat,
       }}
     >
       {children}
@@ -78,11 +63,11 @@ export function UserChatProvider({
   )
 }
 
-export function useUser() {
+export const useSessionUser = () => {
   const context = useContext(UserContext)
 
   if (!context) {
-    throw new Error('useUser must be used within a UserChatProvider')
+    throw new Error('useSessionUser must be used within a UserChatProvider')
   }
 
   return context

@@ -14,7 +14,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import { useChatStore } from '@/store/chat-store'
 import { cn } from '@/utils/utils'
 
@@ -34,7 +34,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
 
   const { open, isMobile } = useSidebar()
   const { resetChatState } = useChatStore()
-  const { user } = useUser()
+  const { user } = useSessionUser()
 
   const handleClick = () => {
     resetChatState()

@@ -12,7 +12,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { useUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user-provider'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'
 import { groupItemsByDate } from '@/utils/format'
@@ -22,7 +22,7 @@ import { HistoricalItem } from './historical-item'
 
 function Historical() {
   const [isCollapsed, setIsCollapsed] = React.useState(false)
-  const { chats: initialData } = useUser()
+  const { chats: initialData } = useSessionUser()
 
   const {
     data: chats,
