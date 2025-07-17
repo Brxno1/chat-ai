@@ -4,7 +4,7 @@ import React from 'react'
 
 import { Chat } from '@/services/database/generated'
 
-import { useChatStore } from '../chat-store'
+import { useChatStore } from '.'
 
 type MessageFromChat = {
   id: string

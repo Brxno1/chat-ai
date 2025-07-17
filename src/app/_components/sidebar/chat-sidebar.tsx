@@ -14,8 +14,8 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { useSessionUser } from '@/context/user-provider'
-import { useChatStore } from '@/store/chat-store'
+import { useSessionUser } from '@/context/user'
+import { useChatStore } from '@/store/chat'
 import { cn } from '@/utils/utils'
 
 import { Historical } from '../../chat/_components/historical'

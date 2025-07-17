@@ -12,7 +12,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'
 import { groupItemsByDate } from '@/utils/format'

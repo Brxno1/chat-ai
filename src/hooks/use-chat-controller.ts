@@ -2,14 +2,14 @@ import { type Message as UIMessage, useChat } from '@ai-sdk/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
-import { useChatStore } from '@/store/chat-store'
+import { useChatStore } from '@/store/chat'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
 type UseChatControllerProps = {
-  initialMessages: (UIMessage & Partial<ChatMessageType>)[] | undefined
-  currentChatId: string | undefined
+  initialMessages?: (UIMessage & Partial<ChatMessageType>)[] | undefined
+  currentChatId?: string | undefined
 }
 
 export function useChatController({
@@ -34,9 +34,6 @@ export function useChatController({
       'x-ghost-mode': isGhostChatMode.toString(),
       'x-ai-model-id': model.id,
     },
-    onError: (error) => {
-      console.log(error)
-    },
     onResponse: (response) => {
       const headerChatId = response.headers?.get('x-chat-id')
 
@@ -53,11 +50,12 @@ export function useChatController({
 
         const currentKey = getChatInstanceKey()
         if (currentKey) {
-          setTimeout(() => {
-            router.push(`/chat/${currentKey}`)
-          }, 2000)
+          router.push(`/chat/${currentKey}`)
         }
       }
+    },
+    onError: (error) => {
+      console.log(error)
     },
   })
 }

@@ -21,7 +21,7 @@ import {
   AIReasoningTrigger,
 } from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'

@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import { useImageUpload } from '@/hooks/use-image-upload'
 
 interface FileUploadProps {

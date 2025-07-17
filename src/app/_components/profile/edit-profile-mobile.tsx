@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
 import { queryKeys } from '@/lib/query-client'
 import { updateProfileSchema } from '@/schemas'

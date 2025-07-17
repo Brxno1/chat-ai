@@ -11,7 +11,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 import { Input } from '@/components/ui/input'
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { formatDateToLocale, formatFileSize } from '@/utils/format'
 import { truncateText } from '@/utils/truncate-text'

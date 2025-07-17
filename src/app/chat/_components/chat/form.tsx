@@ -36,6 +36,7 @@ import {
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
 import { useSidebar } from '@/components/ui/sidebar'
+import { useChatContext } from '@/context/chat'
 
 import { models } from '../../models/definitions'
 
@@ -43,16 +44,17 @@ const schema = z.object({
   message: z.string().min(1),
 })
 
-export function ChatForm({
-  onSubmitChat,
-  onModelChange,
-  onGenerateTranscribe,
-  status,
-  input,
-  onInputChange,
-  model,
-  stop,
-}) {
+export function ChatForm() {
+  const {
+    onSubmitChat,
+    onModelChange,
+    status,
+    input,
+    onInputChange,
+    model,
+    stop,
+  } = useChatContext()
+
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -123,7 +125,6 @@ export function ChatForm({
             ) : (
               <div className="flex items-center gap-2">
                 <AIInputButton
-                  disabled
                   variant={'outline'}
                   className="bg-card dark:bg-message"
                 >
@@ -185,7 +186,7 @@ export function ChatForm({
             </AIButtonSubmit>
           ) : input ? (
             <AIButtonSubmit
-              disabled={form.formState.isSubmitting || status === 'streaming'}
+              disabled={form.formState.isSubmitting}
               type="submit"
             >
               <span className="flex items-center gap-1.5 font-bold">
@@ -194,7 +195,7 @@ export function ChatForm({
               </span>
             </AIButtonSubmit>
           ) : (
-            <AIVoiceInput onStop={onGenerateTranscribe} />
+            <AIVoiceInput />
           )}
         </AIInputToolbar>
       </AIForm>

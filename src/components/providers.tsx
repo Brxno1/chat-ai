@@ -7,7 +7,7 @@ import { Session, User } from 'next-auth'
 import React from 'react'
 import { Toaster as ToasterSonner } from 'sonner'
 
-import { UserChatProvider } from '@/context/user-provider'
+import { UserChatProvider } from '@/context/user'
 import { createQueryClient } from '@/lib/query-client'
 
 import { ThemeProvider } from './theme/theme-provider'
@@ -23,7 +23,13 @@ interface ProvidersProps {
   defaultOpen?: boolean
 }
 
-export function Providers({ children, initialSession, initialUser, initialChats, defaultOpen }: ProvidersProps) {
+export function Providers({
+  children,
+  initialSession,
+  initialUser,
+  initialChats,
+  defaultOpen,
+}: ProvidersProps) {
   const [queryClient] = React.useState(() => createQueryClient())
 
   return (

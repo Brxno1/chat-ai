@@ -2,14 +2,11 @@
 
 import { type Message as UIMessage } from '@ai-sdk/react'
 import React from 'react'
-import { toast } from 'sonner'
 
-import { useChatController } from '@/hooks/use-chat-controller'
-import { useTranscribeAudio } from '@/hooks/use-transcribe-audio'
-import { useChatStore } from '@/store/chat-store'
+import { ChatProvider, useChatContext } from '@/context/chat'
+import { useChatStore } from '@/store/chat'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
-import { models } from '../../models/definitions'
 import { ChatForm } from './form'
 import { ChatMessage } from './message'
 
@@ -18,75 +15,14 @@ interface ChatProps {
   currentChatId?: string
 }
 
-export function Chat({ initialMessages, currentChatId }: ChatProps) {
+function ChatContent() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
-
-  const { model, setModel, chatInstanceKey } = useChatStore()
-  const { mutateAsync: transcribeAudio } = useTranscribeAudio()
-
-  const {
-    input,
-    messages,
-    setMessages,
-    status,
-    handleInputChange,
-    handleSubmit,
-    append,
-    stop,
-  } = useChatController({
-    initialMessages,
-    currentChatId,
-  })
+  const { messages, status, model } = useChatContext()
 
   React.useLayoutEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   })
-
-  React.useEffect(() => {
-    if (chatInstanceKey && !initialMessages?.length) {
-      setMessages([])
-    }
-  }, [chatInstanceKey, initialMessages, setMessages])
-
-  const handleModelChange = (value: string) => {
-    const selectedModel = models.find((m) => m.name === value)
-
-    if (selectedModel) {
-      setModel({
-        id: selectedModel.id,
-        name: selectedModel.name,
-        provider: selectedModel.provider,
-        disabled: selectedModel.disabled,
-      })
-    }
-  }
-
-  const onSubmitChat = () => {
-    handleSubmit()
-  }
-
-  const handleGenerateTranscribe = async (audio: Blob | null) => {
-    if (!audio) return
-
-    try {
-      const { transcription } = await transcribeAudio(audio)
-
-      append({
-        role: 'user',
-        content: transcription,
-        parts: [
-          {
-            type: 'text',
-            text: transcription,
-          },
-        ],
-        createdAt: new Date(),
-      })
-    } catch (_error) {
-      toast.error('Erro ao enviar áudio', { position: 'top-center' })
-    }
-  }
 
   return (
     <div className="flex h-full w-full flex-col rounded-lg rounded-b-xl border border-input">
@@ -106,16 +42,24 @@ export function Chat({ initialMessages, currentChatId }: ChatProps) {
 
         <div ref={messagesEndRef} />
       </div>
-      <ChatForm
-        onSubmitChat={onSubmitChat}
-        onModelChange={handleModelChange}
-        onGenerateTranscribe={handleGenerateTranscribe}
-        status={status}
-        input={input}
-        onInputChange={handleInputChange}
-        model={model}
-        stop={stop}
-      />
+      <ChatForm />
     </div>
+  )
+}
+
+export function Chat({ initialMessages, currentChatId }: ChatProps) {
+  const { chatInstanceKey } = useChatStore()
+  const [localMessages, setLocalMessages] = React.useState(initialMessages)
+
+  React.useEffect(() => {
+    if (chatInstanceKey && !initialMessages?.length) {
+      setLocalMessages([])
+    }
+  }, [chatInstanceKey, initialMessages])
+
+  return (
+    <ChatProvider initialMessages={localMessages} currentChatId={currentChatId}>
+      <ChatContent />
+    </ChatProvider>
   )
 }

@@ -26,7 +26,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { useSessionUser } from '@/context/user-provider'
+import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
 import { Todo } from '@/services/database/generated'
 import { cn } from '@/utils/utils'
