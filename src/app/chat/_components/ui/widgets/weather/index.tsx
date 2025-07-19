@@ -4,7 +4,6 @@ import {
   Cloud,
   Droplets,
   Gauge,
-  InfoIcon,
   Loader2,
   MapPin,
   Sun,
@@ -15,7 +14,6 @@ import React from 'react'
 import Flags from 'react-world-flags'
 
 import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatLocations } from '@/utils/format'
 import { cn } from '@/utils/utils'
@@ -55,11 +53,11 @@ const WeatherCard = ({ result }: WeatherCardProps) => {
 
   return (
     <div
-      className="relative w-full min-w-[15rem] max-w-[18rem] overflow-hidden rounded-3xl border border-input bg-card shadow-md transition-all duration-300 hover:shadow-xl"
+      className="w-full min-w-[15rem] max-w-[18rem] overflow-hidden rounded-lg border border-input bg-card shadow-md transition-all duration-300 hover:shadow-xl"
       aria-label={`Clima em ${result.name}: ${result.weather[0].description}, ${Math.round(result.main.temp)} graus Celsius`}
     >
-      <div className="relative space-y-4 p-3">
-        <div className="flex items-center justify-between gap-1 text-sm font-medium text-foreground/80">
+      <div className="space-y-4 p-3">
+        <div className="flex items-center gap-1 text-sm font-medium text-foreground/80">
           <div className="flex items-center gap-1">
             <MapPin className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
             <Flags code={result.sys.country} className="size-4" /> -
@@ -67,14 +65,6 @@ const WeatherCard = ({ result }: WeatherCardProps) => {
               {result.name}
             </span>
           </div>
-          <Button
-            variant={'link'}
-            size={'icon'}
-            className={cn('rounded-full border-white/20')}
-          >
-            <InfoIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-            <span className="sr-only">Copiar localização</span>
-          </Button>
         </div>
 
         <div className="flex items-center justify-start gap-4">
@@ -113,7 +103,7 @@ const WeatherCard = ({ result }: WeatherCardProps) => {
               className="h-4 w-4 text-foreground/60"
               aria-hidden="true"
             />
-            <span className="text-sm font-medium text-foreground/80">
+            <span className="text-xs font-medium text-foreground/80">
               {formattedDescription}
             </span>
           </div>

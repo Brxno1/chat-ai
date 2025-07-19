@@ -40,11 +40,7 @@ import { cn } from '@/utils/utils'
 import { BackgroundProfile } from './avatar-background'
 import { AvatarProfile } from './avatar-profile'
 
-interface EditProfileProps {
-  className?: string
-}
-
-export function EditProfileMobile({ className }: EditProfileProps) {
+export function EditProfileMobile() {
   const { user, setUser } = useSessionUser()
 
   if (!user) return null
@@ -165,7 +161,7 @@ export function EditProfileMobile({ className }: EditProfileProps) {
         />
       </DrawerPortal>
       <DrawerTrigger asChild>
-        <Button variant="outline" size="icon" className={className}>
+        <Button variant="ghost" size="icon" className="mr-1">
           <UserPen />
         </Button>
       </DrawerTrigger>

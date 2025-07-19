@@ -43,7 +43,7 @@ function ChatHeader() {
       <div className="ml-2 flex items-center gap-3 transition-all">
         <SidebarTriggerComponentMobile variant="ghost" size="icon" />
         <TooltipWrapper content="Chat fantasma" asChild side="bottom">
-          <Button variant="link" size="icon" onClick={handleGhostChatMode}>
+          <Button variant="ghost" size="icon" onClick={handleGhostChatMode}>
             <Ghost size={16} />
           </Button>
         </TooltipWrapper>
@@ -51,7 +51,7 @@ function ChatHeader() {
       <div className="mr-2 flex items-center gap-2">
         <TooltipWrapper content="Nova conversa" asChild>
           <Link href="/chat">
-            <Button variant="outline" onClick={handleCreateNewChat} size="icon">
+            <Button variant="ghost" onClick={handleCreateNewChat} size="icon">
               <MessageSquarePlus className="size-6" />
             </Button>
           </Link>

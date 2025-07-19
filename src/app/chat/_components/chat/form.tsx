@@ -8,7 +8,6 @@ import {
   StopCircle,
 } from 'lucide-react'
 import Image from 'next/image'
-import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -22,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   AIButtonSubmit,
   AIForm,
@@ -31,7 +31,6 @@ import {
   AIInputModelSelectItem,
   AIInputModelSelectTrigger,
   AIInputModelSelectValue,
-  AIInputTextarea,
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
@@ -46,13 +45,13 @@ const schema = z.object({
 
 export function ChatForm() {
   const {
+    input,
+    status,
+    model,
     onSubmitChat,
     onModelChange,
-    status,
-    input,
     onInputChange,
-    model,
-    stop,
+    onStop,
   } = useChatContext()
 
   const form = useForm<z.infer<typeof schema>>({
@@ -63,8 +62,6 @@ export function ChatForm() {
   })
 
   const { isMobile } = useSidebar()
-
-  const textAreaRef = React.useRef<HTMLTextAreaElement>(null)
 
   return (
     <Form {...form}>
@@ -78,13 +75,12 @@ export function ChatForm() {
           render={({ field }) => (
             <FormItem className="relative">
               <FormControl>
-                <AIInputTextarea
+                <Input
                   name="message"
                   autoFocus={status === 'ready'}
                   className="h-14 resize-none border-none shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
                   disabled={status === 'streaming'}
                   value={input}
-                  ref={textAreaRef}
                   onChange={(ev) => {
                     field.onChange(ev)
                     onInputChange(ev)
@@ -93,9 +89,8 @@ export function ChatForm() {
               </FormControl>
               {!input && (
                 <TypingText
-                  className="pointer-events-none absolute left-2 top-[25%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
-                  text="Pergunte-me qualquer coisa..."
-                  delay={200}
+                  className="pointer-events-none absolute left-3 top-[37%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
+                  text="Escreva para enviar uma mensagem..."
                   loop
                 />
               )}
@@ -174,7 +169,7 @@ export function ChatForm() {
           </AIInputTools>
           {status === 'streaming' ? (
             <AIButtonSubmit
-              onClick={stop}
+              onClick={onStop}
               type="button"
               variant="default"
               size="lg"
