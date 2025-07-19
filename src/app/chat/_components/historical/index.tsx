@@ -18,7 +18,7 @@ import { Chat } from '@/services/database/generated'
 import { groupItemsByDate } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
-import { HistoricalItem } from './historical-item'
+import { HistoricalItem } from './item'
 
 function Historical() {
   const [isCollapsed, setIsCollapsed] = React.useState(false)
@@ -52,7 +52,7 @@ function Historical() {
       <div className="mb-1 flex w-full items-center justify-center gap-2">
         <CollapsibleTrigger asChild>
           <Button
-            variant="outline"
+            variant="ghost"
             className="relative w-full justify-start rounded-md transition-all group-data-[sidebar=closed]/sidebar:hidden"
           >
             <AlignLeft size={16} />
@@ -62,7 +62,7 @@ function Historical() {
         </CollapsibleTrigger>
         <TooltipWrapper content="Atualizar histórico" side="right" asChild>
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             className="hover:bg-accent group-data-[sidebar=closed]/sidebar:hidden"
             disabled={!isCollapsed || isFetching || chats.length === 0}

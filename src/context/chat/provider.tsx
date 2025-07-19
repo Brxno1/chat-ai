@@ -1,5 +1,6 @@
 'use client'
 
+import { type Message as UIMessage } from '@ai-sdk/react'
 import React from 'react'
 import { toast } from 'sonner'
 
@@ -7,8 +8,15 @@ import { models } from '@/app/chat/models/definitions'
 import { useChatController } from '@/hooks/use-chat-controller'
 import { useTranscribeAudio } from '@/hooks/use-transcribe-audio'
 import { useChatStore } from '@/store/chat'
+import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
-import { ChatContext, ChatProviderProps } from './context'
+import { ChatContext } from './context'
+
+export type ChatProviderProps = {
+  children: React.ReactNode
+  initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
+  currentChatId?: string
+}
 
 export function ChatProvider({
   children,
@@ -16,24 +24,25 @@ export function ChatProvider({
   currentChatId,
 }: ChatProviderProps) {
   const { model, setModel } = useChatStore()
-  const [isTranscribing, setIsTranscribing] = React.useState(false)
 
-  const { mutateAsync: transcribeAudio } = useTranscribeAudio()
+  const { mutateAsync: transcribeAudio, isPending: isTranscribing } =
+    useTranscribeAudio()
 
   const {
     input,
     messages,
+    setMessages,
     status,
-    handleInputChange,
+    handleInputChange: onInputChange,
     handleSubmit,
     append,
-    stop,
+    stop: onStop,
   } = useChatController({
     initialMessages,
     currentChatId,
   })
 
-  const handleModelChange = (value: string) => {
+  const onModelChange = (value: string) => {
     const selectedModel = models.find((m) => m.name === value)
 
     if (selectedModel) {
@@ -50,15 +59,16 @@ export function ChatProvider({
     handleSubmit()
   }
 
-  const handleGenerateTranscribe = async (audio: Blob | null) => {
+  const onGenerateTranscribe = async (audio: Blob | null) => {
     if (!audio) return
 
-    setIsTranscribing(true)
+    console.log('audio', audio)
 
     try {
       const { transcription } = await transcribeAudio(audio)
 
       append({
+        id: crypto.randomUUID(),
         role: 'user',
         content: transcription,
         parts: [
@@ -69,10 +79,9 @@ export function ChatProvider({
         ],
         createdAt: new Date(),
       })
-    } catch (_error) {
+    } catch (error) {
+      console.error(error)
       toast.error('Erro ao enviar áudio', { position: 'top-center' })
-    } finally {
-      setIsTranscribing(false)
     }
   }
 
@@ -81,12 +90,13 @@ export function ChatProvider({
     messages,
     status,
     isTranscribing,
-    onInputChange: handleInputChange,
+    setMessages,
+    onInputChange,
     onSubmitChat,
-    onModelChange: handleModelChange,
-    onGenerateTranscribe: handleGenerateTranscribe,
+    onModelChange,
+    onGenerateTranscribe,
     model,
-    stop,
+    onStop,
   }
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>

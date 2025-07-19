@@ -90,7 +90,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
       onClick={handleDefineChatInstanceKey}
       variant={'chat'}
       className={cn(
-        'relative flex cursor-pointer items-start justify-between rounded-md border border-input p-1 text-left transition-all duration-300',
+        'relative flex cursor-pointer items-start justify-between rounded-md border border-input bg-card p-1 text-left transition-all duration-300',
         {
           'cursor-default bg-primary/15 hover:bg-primary/10': isCurrentChat,
         },

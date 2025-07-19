@@ -67,7 +67,7 @@ export const WeatherErrorCard = ({
 
   return (
     <div
-      className="w-full min-w-[15rem] max-w-[18rem] overflow-hidden rounded-3xl bg-card shadow-md transition-all duration-300 hover:shadow-xl"
+      className="w-full min-w-[15rem] max-w-[18rem] overflow-hidden rounded-lg bg-card shadow-md transition-all duration-300 hover:shadow-xl"
       aria-live="polite"
       aria-label={`Erro ao buscar clima para ${location || 'localização'}: ${errorInfo.title}`}
       role="alert"

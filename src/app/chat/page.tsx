@@ -4,6 +4,7 @@ import { Chat } from '@/app/chat/_components/chat'
 import { ChatFallback } from '@/app/chat/_components/chat/chat-fallback'
 import { ContainerWrapper } from '@/components/container'
 import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
+import { ChatProvider } from '@/context/chat'
 
 import { ChatHeader } from './_components/ui/header'
 
@@ -14,7 +15,9 @@ export default async function ChatPage() {
       <DashboardPageMain>
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<ChatFallback />}>
-            <Chat />
+            <ChatProvider>
+              <Chat />
+            </ChatProvider>
           </Suspense>
         </ContainerWrapper>
       </DashboardPageMain>

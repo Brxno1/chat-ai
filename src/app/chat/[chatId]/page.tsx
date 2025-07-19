@@ -6,6 +6,7 @@ import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
 import { Chat } from '@/app/chat/_components/chat'
 import { ContainerWrapper } from '@/components/container'
 import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
+import { ChatProvider } from '@/context/chat'
 
 import { ChatFallback } from '../_components/chat/chat-fallback'
 import { ChatHeader } from '../_components/ui/header'
@@ -40,7 +41,12 @@ export default async function ChatPageWithId({
       <DashboardPageMain>
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<ChatFallback />}>
-            <Chat currentChatId={chatId} initialMessages={chat!.messages} />
+            <ChatProvider
+              initialMessages={chat!.messages}
+              currentChatId={chatId}
+            >
+              <Chat />
+            </ChatProvider>
           </Suspense>
         </ContainerWrapper>
       </DashboardPageMain>

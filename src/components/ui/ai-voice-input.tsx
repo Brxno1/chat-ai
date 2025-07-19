@@ -1,46 +1,46 @@
 "use client";
 
 import { AudioLines, Loader2 } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import React from "react"
 import { cn } from "@/utils/utils"
 import { Button } from "./button"
 import { useChatContext } from "@/context/chat"
 
 interface AIVoiceInputProps {
-  onStart?: () => void;
   visualizerBars?: number;
   className?: string;
 }
 
 export function AIVoiceInput({
-  onStart,
   visualizerBars = 8,
   className,
 }: AIVoiceInputProps) {
-  const [isRecording, setIsRecording] = useState(false);
-  const [time, setTime] = useState(0);
+  const [isRecording, setIsRecording] = React.useState(false);
+  const [time, setTime] = React.useState(0);
 
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const audioStream = useRef<MediaStream | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
+  const mediaRecorder = React.useRef<MediaRecorder | null>(null);
+  const audioStream = React.useRef<MediaStream | null>(null);
+  const audioChunks = React.useRef<Blob[]>([]);
 
   const { onGenerateTranscribe, isTranscribing } = useChatContext()
 
-  useEffect(() => {
+  React.useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
     if (isRecording) {
-      onStart?.();
+      audioChunks.current = [];
+
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
+
       if (!mediaRecorder.current) {
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
           audioStream.current = stream;
 
           mediaRecorder.current = new window.MediaRecorder(stream, {
             mimeType: 'audio/webm',
-            audioBitsPerSecond: 64000,
+            audioBitsPerSecond: 64_000,
           });
 
           mediaRecorder.current.ondataavailable = (event) => {
@@ -51,8 +51,10 @@ export function AIVoiceInput({
 
           mediaRecorder.current.onstop = () => {
             const audioBlob = audioChunks.current.length > 0 ? new Blob(audioChunks.current, { type: 'audio/webm' }) : null;
+
             onGenerateTranscribe(audioBlob);
             setTime(0);
+
             audioStream.current = null;
             mediaRecorder.current = null;
           };
@@ -62,6 +64,7 @@ export function AIVoiceInput({
     } else {
       if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
         mediaRecorder.current.stop();
+
         if (audioStream.current) {
           audioStream.current.getTracks().forEach((track) => track.stop());
         }
@@ -72,8 +75,7 @@ export function AIVoiceInput({
     }
 
     return () => clearInterval(intervalId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRecording, time, onStart]);
+  }, [isRecording, time]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -87,9 +89,9 @@ export function AIVoiceInput({
 
   return (
     <Button
-      onClick={handleRecordToggle}
       className={cn('min-w-[6.5rem] shrink-0 gap-2 rounded-xl text-md font-bold', className)}
       type="button"
+      onClick={handleRecordToggle}
       disabled={isTranscribing}
     >
       {isRecording ? (
