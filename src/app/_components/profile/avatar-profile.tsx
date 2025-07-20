@@ -18,7 +18,7 @@ import { truncateText } from '@/utils/truncate-text'
 
 interface AvatarProps {
   error?: string
-  onFileChange: (name: 'avatar', file: File | null) => void
+  onFileChange: (name: 'avatar', file: File | FileList | null) => void
 }
 
 function AvatarProfile({ onFileChange, error }: AvatarProps) {
@@ -73,7 +73,7 @@ function AvatarProfile({ onFileChange, error }: AvatarProps) {
           accept="image/*"
           onChange={(ev) => {
             handleFileChange(ev)
-            onFileChange('avatar', ev.target.files?.[0] || null)
+            onFileChange('avatar', ev.target.files as FileList)
           }}
         />
       </div>

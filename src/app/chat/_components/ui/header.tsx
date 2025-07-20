@@ -39,7 +39,7 @@ function ChatHeader() {
   }
 
   return (
-    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-border bg-card pb-[1rem]">
+    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-input bg-card pb-[1rem]">
       <div className="ml-2 flex items-center gap-3 transition-all">
         <SidebarTriggerComponentMobile variant="ghost" size="icon" />
         <TooltipWrapper content="Chat fantasma" asChild side="bottom">

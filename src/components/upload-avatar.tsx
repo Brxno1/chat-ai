@@ -14,7 +14,7 @@ import Image from 'next/image'
 
 interface UploadAvatarProps {
   className?: string
-  onFileChange?: (name: 'avatar', file: File | null) => void
+  onFileChange?: (name: 'avatar', file: File | FileList | null) => void
   value?: File | null
 }
 
@@ -41,7 +41,7 @@ export function UploadAvatar({ className, onFileChange, value }: UploadAvatarPro
 
   const handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     handleFileChangeUpload(ev)
-    onFileChange?.('avatar', ev.target.files?.[0] ?? null)
+    onFileChange?.('avatar', ev.target.files as FileList)
   }
 
   const handleFileRemove = () => {

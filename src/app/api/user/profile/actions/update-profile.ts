@@ -1,7 +1,8 @@
 'use server'
 
-import { User } from 'next-auth'
+import { type User } from 'next-auth'
 
+import { errorHandler } from '@/app/api/chat/utils/error-handler'
 import { auth } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
 
@@ -16,7 +17,7 @@ type ProfileUpdateData = {
 
 type EditProfileResponse = {
   user: User
-  error?: Error | null
+  error?: string | null
 }
 
 export async function updateProfile(
@@ -26,7 +27,7 @@ export async function updateProfile(
 
   if (!session?.user) {
     return {
-      error: new Error('User not authenticated'),
+      error: 'User not authenticated',
       user: {} as User,
     }
   }
@@ -41,10 +42,10 @@ export async function updateProfile(
 
     if (data.avatar) {
       try {
-        updateData.image = await uploadImage(data.avatar, user.id, 'avatar')
+        updateData.image = await uploadImage(user.id, data.avatar, 'avatar')
       } catch (error) {
         return {
-          error: error instanceof Error ? error : new Error(String(error)),
+          error: errorHandler(error),
           user,
         }
       }
@@ -53,13 +54,13 @@ export async function updateProfile(
     if (data.background) {
       try {
         updateData.background = await uploadImage(
-          data.background,
           user.id,
+          data.background,
           'background',
         )
       } catch (error) {
         return {
-          error: error instanceof Error ? error : new Error(String(error)),
+          error: errorHandler(error),
           user,
         }
       }
@@ -82,11 +83,9 @@ export async function updateProfile(
       user,
     }
   } catch (error) {
-    console.error('Error in updateProfile:', error)
     return {
-      error:
-        error instanceof Error ? error : new Error('Internal server error'),
       user,
+      error: errorHandler(error),
     }
   }
 }

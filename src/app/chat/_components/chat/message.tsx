@@ -183,10 +183,14 @@ export function ChatMessage({
           case 'tool-invocation': {
             const { toolInvocation } = part
 
-            const { toolCallId } = toolInvocation!
+            if (!toolInvocation) {
+              return null
+            }
+
+            const { toolCallId } = toolInvocation
 
             if (
-              toolInvocation!.state === 'call' &&
+              toolInvocation.state === 'call' &&
               resultToolCallIds.has(toolCallId)
             ) {
               return null

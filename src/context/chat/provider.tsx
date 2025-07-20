@@ -12,6 +12,13 @@ import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
 import { ChatContext } from './context'
 
+type ImageAttachment = {
+  type: 'image'
+  url: string
+}
+
+type Attachment = ImageAttachment
+
 export type ChatProviderProps = {
   children: React.ReactNode
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
@@ -59,16 +66,34 @@ export function ChatProvider({
     handleSubmit()
   }
 
+  const onAttachImages = (imageUrls: string[], content: string) => {
+    if (!imageUrls.length) return
+
+    try {
+      const attachments: Attachment[] = imageUrls.map((url) => ({
+        type: 'image',
+        url,
+      }))
+
+      append({
+        role: 'user',
+        content,
+        experimental_attachments: attachments,
+        createdAt: new Date(),
+      })
+    } catch (error) {
+      console.error(error)
+      toast.error('Erro ao enviar imagens', { position: 'top-center' })
+    }
+  }
+
   const onGenerateTranscribe = async (audio: Blob | null) => {
     if (!audio) return
-
-    console.log('audio', audio)
 
     try {
       const { transcription } = await transcribeAudio(audio)
 
       append({
-        id: crypto.randomUUID(),
         role: 'user',
         content: transcription,
         parts: [
@@ -95,6 +120,7 @@ export function ChatProvider({
     onSubmitChat,
     onModelChange,
     onGenerateTranscribe,
+    onAttachImages,
     model,
     onStop,
   }

@@ -3,7 +3,6 @@ import {
   ChevronsUpDown,
   GlobeIcon,
   ImageUp,
-  MoreVertical,
   SendIcon,
   StopCircle,
 } from 'lucide-react'
@@ -13,13 +12,6 @@ import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
 import { AIVoiceInput } from '@/components/ui/ai-voice-input'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -31,13 +23,15 @@ import {
   AIInputModelSelectItem,
   AIInputModelSelectTrigger,
   AIInputModelSelectValue,
+  AIInputTextarea,
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
-import { useSidebar } from '@/components/ui/sidebar'
 import { useChatContext } from '@/context/chat'
+import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
 
 import { models } from '../../models/definitions'
+import { ImagePreview } from './image-preview'
 
 const schema = z.object({
   message: z.string().min(1),
@@ -52,6 +46,7 @@ export function ChatForm() {
     onModelChange,
     onInputChange,
     onStop,
+    // onAttachImages,
   } = useChatContext()
 
   const form = useForm<z.infer<typeof schema>>({
@@ -61,24 +56,36 @@ export function ChatForm() {
     },
   })
 
-  const { isMobile } = useSidebar()
+  const {
+    previewUrls,
+    fileInputRef,
+    handleThumbnailClick,
+    validateAndProcessFileInput,
+    handleRemoveItem,
+  } = useMultipleUploads()
 
   return (
     <Form {...form}>
       <AIForm
         onSubmit={form.handleSubmit(onSubmitChat)}
-        className="rounded-xl border border-input bg-card dark:bg-message"
+        className="space-y-2 overflow-y-auto rounded-md border border-input bg-card dark:bg-message"
       >
+        {previewUrls.length > 0 && (
+          <ImagePreview
+            previewUrls={previewUrls}
+            onRemoveItem={handleRemoveItem}
+          />
+        )}
         <FormField
           control={form.control}
           name="message"
           render={({ field }) => (
-            <FormItem className="relative">
+            <FormItem className="relative !border-0">
               <FormControl>
-                <Input
+                <AIInputTextarea
                   name="message"
                   autoFocus={status === 'ready'}
-                  className="h-14 resize-none border-none shadow-none outline-none ring-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
+                  className="h-14 resize-none !border-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
                   disabled={status === 'streaming'}
                   value={input}
                   onChange={(ev) => {
@@ -89,7 +96,7 @@ export function ChatForm() {
               </FormControl>
               {!input && (
                 <TypingText
-                  className="pointer-events-none absolute left-3 top-[37%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
+                  className="pointer-events-none absolute left-2 top-[22%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
                   text="Escreva para enviar uma mensagem..."
                   loop
                 />
@@ -97,49 +104,42 @@ export function ChatForm() {
             </FormItem>
           )}
         />
-        <AIInputToolbar className="p-3">
+        <AIInputToolbar className="p-2">
           <AIInputTools>
-            {isMobile ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical size={16} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem disabled>
-                    <ImageUp size={16} className="mr-2" />
-                    <span>Imagem</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled>
-                    <GlobeIcon size={16} className="mr-2" />
-                    <span>Busca</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center gap-2">
-                <AIInputButton
-                  variant={'outline'}
-                  className="bg-card dark:bg-message"
-                >
-                  <ImageUp size={16} />
-                </AIInputButton>
-                <AIInputButton
-                  disabled
-                  variant={'outline'}
-                  className="bg-card dark:bg-message"
-                >
-                  <GlobeIcon size={16} />
-                </AIInputButton>
-              </div>
-            )}
+            <div className="flex items-center gap-1">
+              <AIInputButton
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={handleThumbnailClick}
+              >
+                <ImageUp className="size-4" />
+                <Input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={validateAndProcessFileInput}
+                  className="absolute inset-0 z-10 hidden"
+                  accept="image/*"
+                  multiple
+                  aria-label="Carregar arquivo de imagem"
+                />
+              </AIInputButton>
+
+              <AIInputButton
+                disabled
+                variant="ghost"
+                size="icon"
+                className="bg-card dark:bg-message"
+              >
+                <GlobeIcon size={16} />
+              </AIInputButton>
+            </div>
             <AIInputModelSelect
               value={model.name}
               onValueChange={onModelChange}
             >
               <AIInputModelSelectTrigger
-                className="gap-1 border-none px-1.5 text-xs transition-all sm:text-sm"
+                className="gap-1 border-none px-1.5 text-sm transition-all"
                 disabled={status === 'streaming'}
               >
                 <AIInputModelSelectValue />
@@ -172,22 +172,19 @@ export function ChatForm() {
               onClick={onStop}
               type="button"
               variant="default"
-              size="lg"
+              className="flex items-center"
+              size="icon"
             >
-              <span className="flex items-center gap-2 font-bold">
-                Parar
-                <StopCircle size={16} />
-              </span>
+              <StopCircle size={16} />
             </AIButtonSubmit>
           ) : input ? (
             <AIButtonSubmit
               disabled={form.formState.isSubmitting}
               type="submit"
+              size="icon"
+              className="flex items-center"
             >
-              <span className="flex items-center gap-1.5 font-bold">
-                Enviar
-                <SendIcon size={16} />
-              </span>
+              <SendIcon size={16} />
             </AIButtonSubmit>
           ) : (
             <AIVoiceInput />

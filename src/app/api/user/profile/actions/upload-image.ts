@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase'
 import { processImage } from '@/utils/process-image'
 
 export async function uploadImage(
-  file: File,
   userId: string,
+  file: File,
   type: 'avatar' | 'background',
 ): Promise<string | null> {
   try {

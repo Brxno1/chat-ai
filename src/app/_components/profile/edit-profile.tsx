@@ -70,8 +70,8 @@ export function EditProfile() {
 
       const name = formData.get('name') as string
       const bio = formData.get('bio') as string
-      const avatar = formData.get('avatar') as File | null
-      const background = formData.get('background') as File | null
+      const avatar = formData.get('avatar') as File | FileList | null
+      const background = formData.get('background') as File | FileList | null
 
       setUser((prev) => {
         if (!prev) return user
@@ -80,9 +80,9 @@ export function EditProfile() {
           ...prev,
           name: name || prev.name,
           bio: bio || prev.bio,
-          image: avatar ? URL.createObjectURL(avatar) : prev.image,
+          image: avatar ? URL.createObjectURL(avatar as File) : prev.image,
           background: background
-            ? URL.createObjectURL(background)
+            ? URL.createObjectURL(background as File)
             : prev.background,
         }
       })
@@ -118,13 +118,12 @@ export function EditProfile() {
     },
   })
 
-  const onFileChange = (name: 'avatar' | 'background', file: File | null) => {
-    form.setValue(name, file)
+  const onFileChange = (
+    name: 'avatar' | 'background',
+    file: File | FileList | null,
+  ) => {
+    form.setValue(name, file as File)
     form.clearErrors(name)
-
-    if (file) {
-      form.trigger(name)
-    }
   }
 
   const maxLengthForBio = 180

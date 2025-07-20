@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, MessageSquare, Settings } from 'lucide-react'
+import { LayoutDashboard, MessageSquare } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
@@ -48,11 +48,6 @@ export function MainSidebarContent({ className }: ChatSidebarProps) {
       href: '/dashboard',
       icon: LayoutDashboard,
       label: 'Dashboard',
-    },
-    {
-      href: '/dashboard/settings',
-      icon: Settings,
-      label: 'Configurações',
     },
   ]
 

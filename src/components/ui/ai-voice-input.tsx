@@ -1,10 +1,10 @@
 "use client";
 
-import { AudioLines, Loader2 } from "lucide-react"
-import React from "react"
-import { cn } from "@/utils/utils"
-import { Button } from "./button"
-import { useChatContext } from "@/context/chat"
+import { Loader2, Mic } from "lucide-react";
+import React from "react";
+import { cn } from "@/utils/utils";
+import { Button } from "./button";
+import { useChatContext } from "@/context/chat";
 
 interface AIVoiceInputProps {
   visualizerBars?: number;
@@ -89,45 +89,34 @@ export function AIVoiceInput({
 
   return (
     <Button
-      className={cn('min-w-[6.5rem] shrink-0 gap-2 rounded-xl text-md font-bold', className)}
+      className={cn('min-w-[2.5rem] shrink-0 gap-2 rounded-lg text-md font-bold', className)}
       type="button"
       onClick={handleRecordToggle}
       disabled={isTranscribing}
     >
       {isRecording ? (
-        <>
-          <div
-            className="size-3 rounded-sm animate-spin bg-background cursor-pointer pointer-events-auto"
-            style={{ animationDuration: "3s" }}
-          />
-          <div className="h-4 w-10 flex items-center justify-center gap-0.5">
-            {Array.from({ length: visualizerBars }, (_, i) => {
-              const barKey = `bar-${visualizerBars}-v-${btoa(String(i * 31 + visualizerBars * 17))}`;
+        <div className="h-4 w-14 flex items-center justify-center gap-0.5">
+          {Array.from({ length: visualizerBars }, (_, i) => {
+            const barKey = `bar-${visualizerBars}-v-${btoa(String(i * 31 + visualizerBars * 17))}`;
 
-              return (
-                <div
-                  key={barKey}
-                  className="w-1.5 rounded-full transition-all duration-700 bg-background animate-pulse"
-                  style={{
-                    height: `${20 + Math.random() * 80}%`,
-                    animationDelay: `${i * 0.10}s`,
-                  }}
-                />
-              );
-            })}
-          </div>
-        </>
+            return (
+              <div
+                key={barKey}
+                className="w-1.5 rounded-full transition-all duration-700 bg-background animate-pulse"
+                style={{
+                  height: `${25 + Math.random() * 75}%`,
+                  animationDelay: `${i * 0.10}s`,
+                }}
+              />
+            );
+          })}
+        </div>
       ) : isTranscribing ? (
-        <>
-          <span>Processando</span>
-          <Loader2 className="size-5 animate-spin" />
-        </>
-      ) : (
-        <>
-          <span>Falar</span>
-          <AudioLines className="size-5" />
-        </>
-      )}
+        <div
+          className="size-3 rounded-sm animate-spin bg-background cursor-pointer pointer-events-auto"
+          style={{ animationDuration: "3s" }}
+        />
+      ) : <Mic className="size-5" />}
     </Button>
   )
 }

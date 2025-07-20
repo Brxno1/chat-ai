@@ -40,14 +40,11 @@ export default async function ChatPageWithId({
       <ChatHeader />
       <DashboardPageMain>
         <ContainerWrapper className="h-full min-h-0 flex-1">
-          <Suspense fallback={<ChatFallback />}>
-            <ChatProvider
-              initialMessages={chat!.messages}
-              currentChatId={chatId}
-            >
+          <ChatProvider initialMessages={chat!.messages} currentChatId={chatId}>
+            <Suspense fallback={<ChatFallback />}>
               <Chat />
-            </ChatProvider>
-          </Suspense>
+            </Suspense>
+          </ChatProvider>
         </ContainerWrapper>
       </DashboardPageMain>
     </DashboardPage>

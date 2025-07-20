@@ -27,9 +27,9 @@ export function Chat() {
   })
 
   return (
-    <div className="flex h-full w-full flex-col rounded-xl border border-input">
+    <div className="flex h-full w-full flex-col rounded-lg border border-input p-2">
       <div
-        className="flex-1 space-y-3 overflow-auto p-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
+        className="flex-1 space-y-3 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
         ref={containerRef}
       >
         {messages.map((message) => (
@@ -41,7 +41,6 @@ export function Chat() {
             isStreaming={status === 'streaming'}
           />
         ))}
-
         <div ref={messagesEndRef} />
       </div>
       <ChatForm />

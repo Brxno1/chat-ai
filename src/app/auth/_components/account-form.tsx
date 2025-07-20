@@ -95,8 +95,8 @@ export function CreateAccountForm() {
     },
   })
 
-  const onFileChange = (name: 'avatar', file: File | null) => {
-    form.setValue(name, file)
+  const onFileChange = (name: 'avatar', file: File | FileList | null) => {
+    form.setValue(name, file as File)
     form.clearErrors(name)
 
     if (file) {
