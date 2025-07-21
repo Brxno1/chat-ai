@@ -1,10 +1,6 @@
 import { StreamTextResult } from 'ai'
 
-import { weatherTool } from '../tools/weather'
-
-type AllTools = {
-  getWeather: typeof weatherTool
-}
+import { AllTools } from '../services/chat-processor'
 
 export function cleanReasoningText(text: string): string {
   return text

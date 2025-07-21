@@ -2,6 +2,7 @@ import { Message } from '@ai-sdk/react'
 import { StreamTextResult } from 'ai'
 
 import { generateSystemPrompt } from '../prompts'
+import { newsTool } from '../tools/news'
 import { weatherTool } from '../tools/weather'
 import { processToolInvocations } from '../utils/message-filter'
 import {
@@ -19,8 +20,9 @@ type ProcessChatAndSaveMessagesProps = {
   modelId: string
 }
 
-type AllTools = {
+export type AllTools = {
   getWeather: typeof weatherTool
+  getNews: typeof newsTool
 }
 
 type ProcessChatAndSaveMessagesResponse = {
