@@ -15,7 +15,6 @@ import type {
   ComponentProps,
   HTMLAttributes,
   KeyboardEventHandler,
-  RefObject,
 } from 'react';
 
 type UseAutoResizeTextareaProps = {
@@ -118,7 +117,7 @@ export const AIInputTextarea = ({
       placeholder={placeholder}
       ref={textareaRef}
       className={cn(
-        'w-full rounded-none border-none p-3 shadow-none outline-none ring-0',
+        'w-full !rounded-none !border-none !p-3 !shadow-none !outline-none !ring-0',
         'focus-visible:ring-0',
         className
       )}

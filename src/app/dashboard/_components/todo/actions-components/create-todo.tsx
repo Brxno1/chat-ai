@@ -116,7 +116,7 @@ export function TodoCreateForm() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline">
+        <Button variant="ghost">
           <Plus size={16} />
           Criar tarefa
         </Button>

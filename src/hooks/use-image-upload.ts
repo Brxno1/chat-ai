@@ -3,7 +3,7 @@
 import React from 'react'
 
 interface UseImageUploadProps {
-  onUpload?: (url: string) => void
+  onUpload?: (url: string | string[]) => void
 }
 
 export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
@@ -21,19 +21,22 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
 
   const handleFileChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (file) {
-        setFile(file)
-        setFileName(file.name)
-        setFileSize(file.size)
-        const url = URL.createObjectURL(file)
+      const selectedFiles = event.target.files
+      if (!selectedFiles || selectedFiles.length === 0) return
 
-        setPreviewUrl(url)
-        previewRef.current = url
-        onUpload?.(url)
-      }
+      const singleFile = selectedFiles[0]
+
+      setFile(singleFile)
+      setFileName(singleFile.name)
+      setFileSize(singleFile.size)
+
+      const url = URL.createObjectURL(singleFile)
+
+      setPreviewUrl(url)
+      previewRef.current = url
+      onUpload?.(url)
     },
-    [onUpload],
+    [onUpload, file],
   )
 
   const handleRemove = React.useCallback(() => {
@@ -43,12 +46,14 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
 
     setPreviewUrl(null)
     setFileName(null)
+    setFileSize(null)
+    setFile(null)
     previewRef.current = null
 
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
-  }, [previewUrl])
+  }, [previewUrl, file])
 
   React.useEffect(() => {
     return () => {

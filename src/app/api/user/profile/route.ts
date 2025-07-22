@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { errorHandler } from '@/app/api/chat/utils/error-handler'
 import { updateProfileSchema } from '@/schemas'
 import { auth } from '@/services/auth'
 
@@ -41,16 +42,11 @@ export async function PUT(req: NextRequest) {
     })
 
     if (error) {
-      console.error('Error updating profile:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error }, { status: 500 })
     }
 
     return NextResponse.json({ user }, { status: 200 })
   } catch (error) {
-    console.error('Error in profile update route:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: errorHandler(error) }, { status: 500 })
   }
 }

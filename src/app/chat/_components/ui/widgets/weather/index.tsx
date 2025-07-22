@@ -273,7 +273,7 @@ function WeatherSkeleton({ location }: { location: string[] }) {
 
 function LoadingWeather({ location }: { location: string[] }) {
   return (
-    <div className="mr-auto rounded-lg bg-primary/10 p-3 text-card-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[70%]">
+    <div className="mr-auto rounded-lg bg-primary/10 p-3 text-card-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[75%]">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <div className="flex animate-pulse items-center justify-center rounded-full bg-primary/15 p-1.5">

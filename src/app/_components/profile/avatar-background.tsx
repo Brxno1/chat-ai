@@ -11,7 +11,7 @@ import { useSessionUser } from '@/context/user'
 import { useImageUpload } from '@/hooks/use-image-upload'
 
 interface FileUploadProps {
-  onFileChange: (name: 'background', file: File | null) => void
+  onFileChange: (name: 'background', file: File | FileList | null) => void
 }
 
 function BackgroundProfile({ onFileChange }: FileUploadProps) {
@@ -39,7 +39,7 @@ function BackgroundProfile({ onFileChange }: FileUploadProps) {
 
   const handleFileInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     handleFileChange(ev)
-    onFileChange('background', ev.target.files?.[0] || null)
+    onFileChange('background', ev.target.files as FileList)
   }
 
   return (

@@ -18,11 +18,12 @@ type States = {
 
 type Actions = {
   setMessages: (messages: UIMessage[]) => void
-  onInputChange: (e: ChangeEvent<HTMLInputElement>) => void
+  onInputChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
   onSubmitChat: () => void
   onModelChange: (value: string) => void
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>
+  onAttachImages: (imageUrls: string[], content: string) => void
 }
 
 export type ChatContextProps = States & Actions

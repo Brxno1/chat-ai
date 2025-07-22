@@ -1,6 +1,6 @@
 import '@ai-sdk/react'
 
-import { ToolResult } from 'ai'
+import { ToolResult } from '@ai-sdk/react'
 
 interface ToolInvocation {
   toolCallId: string

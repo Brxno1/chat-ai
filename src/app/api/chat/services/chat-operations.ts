@@ -4,16 +4,11 @@ import { Message } from '@ai-sdk/react'
 import { StreamTextResult } from 'ai'
 
 import { prisma } from '@/services/database/prisma'
-import { DbMessage } from '@/types/chat'
 
 import { TextUIPart } from '../../../../../@types/ai-sdk'
-import { weatherTool } from '../tools/weather'
 import { errorHandler } from '../utils/error-handler'
 import { processStreamResult } from '../utils/message-parts'
-
-type AllTools = {
-  getWeather: typeof weatherTool
-}
+import { AllTools } from './chat-processor'
 
 type OperationResponse<T> = {
   success: boolean

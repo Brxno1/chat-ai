@@ -6,6 +6,7 @@ import {
   wrapLanguageModel,
 } from 'ai'
 
+import { newsTool } from '../tools/news'
 import { weatherTool } from '../tools/weather'
 import { errorHandler } from '../utils/error-handler'
 
@@ -64,6 +65,7 @@ export async function createStreamText({
       toolChoice: 'auto',
       tools: {
         getWeather: weatherTool,
+        getNews: newsTool,
       },
       onError: (error) => {
         console.log('error on streamText', error)

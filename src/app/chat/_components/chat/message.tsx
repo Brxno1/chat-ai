@@ -27,6 +27,7 @@ import { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
+import { ChatNews } from './chat-news'
 import { ChatWeather } from './chat-weather'
 
 function getResultToolCallIds(message: ChatMessageType) {
@@ -183,22 +184,33 @@ export function ChatMessage({
           case 'tool-invocation': {
             const { toolInvocation } = part
 
-            const { toolCallId } = toolInvocation!
-
             if (
-              toolInvocation!.state === 'call' &&
-              resultToolCallIds.has(toolCallId)
+              !toolInvocation ||
+              (toolInvocation.state === 'call' &&
+                resultToolCallIds.has(toolInvocation.toolCallId))
             ) {
               return null
+            }
+
+            if (toolInvocation.toolName === 'getNews') {
+              return (
+                <ChatNews
+                  key={`${message.id}-tool-${partIndex}`}
+                  message={message}
+                  toolInvocation={
+                    toolInvocation as ToolInvocationResult<'getNews'>
+                  }
+                />
+              )
             }
 
             return (
               <ChatWeather
                 key={`${message.id}-tool-${partIndex}`}
+                message={message}
                 toolInvocation={
                   toolInvocation as ToolInvocationResult<'getWeather'>
                 }
-                message={message}
               />
             )
           }

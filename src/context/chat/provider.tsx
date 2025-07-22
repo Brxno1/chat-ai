@@ -12,16 +12,25 @@ import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
 import { ChatContext } from './context'
 
+type ImageAttachment = {
+  type: 'image'
+  url: string
+}
+
+type Attachment = ImageAttachment
+
 export type ChatProviderProps = {
   children: React.ReactNode
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
   currentChatId?: string
+  cookieModel: string
 }
 
 export function ChatProvider({
   children,
   initialMessages,
   currentChatId,
+  cookieModel,
 }: ChatProviderProps) {
   const { model, setModel } = useChatStore()
 
@@ -40,10 +49,11 @@ export function ChatProvider({
   } = useChatController({
     initialMessages,
     currentChatId,
+    initialModel: cookieModel,
   })
 
-  const onModelChange = (value: string) => {
-    const selectedModel = models.find((m) => m.name === value)
+  const onModelChange = (name: string) => {
+    const selectedModel = models.find((m) => m.name === name)
 
     if (selectedModel) {
       setModel({
@@ -59,16 +69,34 @@ export function ChatProvider({
     handleSubmit()
   }
 
+  const onAttachImages = (imageUrls: string[], content: string) => {
+    if (!imageUrls.length) return
+
+    try {
+      const attachments: Attachment[] = imageUrls.map((url) => ({
+        type: 'image',
+        url,
+      }))
+
+      append({
+        role: 'user',
+        content,
+        experimental_attachments: attachments,
+        createdAt: new Date(),
+      })
+    } catch (error) {
+      console.error(error)
+      toast.error('Erro ao enviar imagens', { position: 'top-center' })
+    }
+  }
+
   const onGenerateTranscribe = async (audio: Blob | null) => {
     if (!audio) return
-
-    console.log('audio', audio)
 
     try {
       const { transcription } = await transcribeAudio(audio)
 
       append({
-        id: crypto.randomUUID(),
         role: 'user',
         content: transcription,
         parts: [
@@ -79,8 +107,7 @@ export function ChatProvider({
         ],
         createdAt: new Date(),
       })
-    } catch (error) {
-      console.error(error)
+    } catch (_error) {
       toast.error('Erro ao enviar áudio', { position: 'top-center' })
     }
   }
@@ -95,6 +122,7 @@ export function ChatProvider({
     onSubmitChat,
     onModelChange,
     onGenerateTranscribe,
+    onAttachImages,
     model,
     onStop,
   }

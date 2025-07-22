@@ -20,7 +20,7 @@ export default async function Page() {
 
   return (
     <DashboardPage className="flex size-full flex-col">
-      <DashboardPageHeader className="relative flex w-full items-center justify-end border-b border-border bg-card pb-[1rem]">
+      <DashboardPageHeader className="relative flex w-full items-center justify-end border-b border-input bg-card pb-[1rem]">
         <SidebarTriggerComponentMobile
           variant="ghost"
           size="icon"
