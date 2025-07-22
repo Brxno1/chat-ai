@@ -1,47 +1,17 @@
 import { tool as createTool } from 'ai'
 import { z } from 'zod'
 
+import { api } from '@/lib/axios'
+import type { WeatherErrorResponse, WeatherToolResponse } from '@/types/weather'
 import { formatLocations } from '@/utils/format'
-
-export type WeatherToolResponse = {
-  weather: [{ main: string; description: string }]
-  main: {
-    temp: number
-    feels_like: number
-    temp_min: number
-    temp_max: number
-    humidity: number
-    pressure: number
-  }
-  wind: { speed: number }
-  sys: { country: string }
-  name: string
-  cod: number
-  error?: {
-    title: string
-    message: string
-    location: string
-    code: 'NOT_FOUND' | 'API_ERROR' | 'NETWORK_ERROR' | 'INVALID_DATA'
-  }
-}
-
-export type WeatherErrorResponse = {
-  error: {
-    title: string
-    message: string
-    location: string
-    code: 'NOT_FOUND' | 'API_ERROR' | 'NETWORK_ERROR' | 'INVALID_DATA'
-  }
-}
 
 async function fetchWeatherData(
   loc: string,
 ): Promise<WeatherToolResponse | WeatherErrorResponse> {
   try {
-    const response = await fetch(
+    const { data } = await api.get<WeatherToolResponse>(
       `https://api.openweathermap.org/data/2.5/weather?q=${loc}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric&lang=pt_br`,
     )
-    const data = await response.json()
 
     let result: WeatherToolResponse | WeatherErrorResponse
 
@@ -54,50 +24,33 @@ async function fetchWeatherData(
           code: 'API_ERROR',
         },
       }
-    } else if (data.cod === 404 || data.cod !== 200) {
-      result = {
-        error: {
-          title: 'Localização não encontrada',
-          message: `Não foi possível encontrar dados para ${loc}. Verifique se o nome da cidade está correto.`,
-          location: loc,
-          code: 'NOT_FOUND',
-        },
-      }
-    } else if (!data.weather || !data.weather[0] || !data.main) {
-      result = {
-        error: {
-          title: 'Dados incompletos',
-          message: `Os dados meteorológicos para ${loc} estão incompletos ou indisponíveis no momento. Por favor, tente novamente mais tarde.`,
-          location: loc,
-          code: 'INVALID_DATA',
-        },
-      }
-    } else {
-      result = {
-        weather: [
-          {
-            main: data.weather[0].main,
-            description: data.weather[0].description,
-          },
-        ],
-        main: {
-          temp: data.main.temp,
-          feels_like: data.main.feels_like,
-          temp_min: data.main.temp_min,
-          temp_max: data.main.temp_max,
-          humidity: data.main.humidity,
-          pressure: data.main.pressure,
-        },
-        wind: {
-          speed: data.wind?.speed || 0,
-        },
-        sys: {
-          country: data.sys?.country || '',
-        },
-        name: data.name,
-        cod: data.cod,
-      }
     }
+
+    result = {
+      weather: [
+        {
+          main: data.weather[0].main,
+          description: data.weather[0].description,
+        },
+      ],
+      main: {
+        temp: data.main.temp,
+        feels_like: data.main.feels_like,
+        temp_min: data.main.temp_min,
+        temp_max: data.main.temp_max,
+        humidity: data.main.humidity,
+        pressure: data.main.pressure,
+      },
+      wind: {
+        speed: data.wind?.speed || 0,
+      },
+      sys: {
+        country: data.sys?.country || '',
+      },
+      name: data.name,
+      cod: data.cod,
+    }
+
     return result
   } catch (error) {
     const errorResponse: WeatherErrorResponse = {
@@ -121,7 +74,6 @@ export const weatherTool = createTool({
   }),
   execute: async function ({ location }) {
     if (location.length === 0) {
-      console.log('[Weather] Nenhuma localização válida fornecida')
       return [
         {
           error: {
@@ -133,10 +85,6 @@ export const weatherTool = createTool({
         },
       ]
     }
-
-    console.log(
-      `[Weather] Solicitação recebida para ${formatLocations(location)}`,
-    )
 
     try {
       const promises = location.map((loc) => fetchWeatherData(loc))
@@ -160,7 +108,6 @@ export const weatherTool = createTool({
 
       return results
     } catch (error) {
-      console.error('[Weather] Erro na execução principal:', error)
       return [
         {
           error: {

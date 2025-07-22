@@ -125,3 +125,14 @@ export const formatLocations = (locations: string[]) => {
   })
   return formatter.format(locations)
 }
+
+export const formatList = (
+  list: string[],
+  type: 'conjunction' | 'disjunction' | 'unit',
+) => {
+  const formatter = new Intl.ListFormat('pt-BR', {
+    style: 'long',
+    type,
+  })
+  return formatter.format(list)
+}

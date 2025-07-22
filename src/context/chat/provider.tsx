@@ -23,12 +23,14 @@ export type ChatProviderProps = {
   children: React.ReactNode
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
   currentChatId?: string
+  cookieModel: string
 }
 
 export function ChatProvider({
   children,
   initialMessages,
   currentChatId,
+  cookieModel,
 }: ChatProviderProps) {
   const { model, setModel } = useChatStore()
 
@@ -47,10 +49,11 @@ export function ChatProvider({
   } = useChatController({
     initialMessages,
     currentChatId,
+    initialModel: cookieModel,
   })
 
-  const onModelChange = (value: string) => {
-    const selectedModel = models.find((m) => m.name === value)
+  const onModelChange = (name: string) => {
+    const selectedModel = models.find((m) => m.name === name)
 
     if (selectedModel) {
       setModel({
@@ -104,8 +107,7 @@ export function ChatProvider({
         ],
         createdAt: new Date(),
       })
-    } catch (error) {
-      console.error(error)
+    } catch (_error) {
       toast.error('Erro ao enviar áudio', { position: 'top-center' })
     }
   }

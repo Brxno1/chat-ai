@@ -10,11 +10,13 @@ import type { ChatMessage as ChatMessageType } from '@/types/chat'
 type UseChatControllerProps = {
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[] | undefined
   currentChatId?: string | undefined
+  initialModel?: string
 }
 
 export function useChatController({
   initialMessages,
   currentChatId,
+  initialModel,
 }: UseChatControllerProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -32,7 +34,7 @@ export function useChatController({
       'x-user-id': user?.id || '',
       'x-chat-id': currentChatId || '',
       'x-ghost-mode': isGhostChatMode.toString(),
-      'x-ai-model-id': model.id,
+      'x-ai-model-id': initialModel || model.id,
     },
     onResponse: (response) => {
       const headerChatId = response.headers?.get('x-chat-id')

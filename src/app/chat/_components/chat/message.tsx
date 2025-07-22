@@ -184,20 +184,15 @@ export function ChatMessage({
           case 'tool-invocation': {
             const { toolInvocation } = part
 
-            if (!toolInvocation) {
-              return null
-            }
-
-            const { toolCallId, toolName } = toolInvocation
-
             if (
-              toolInvocation.state === 'call' &&
-              resultToolCallIds.has(toolCallId)
+              !toolInvocation ||
+              (toolInvocation.state === 'call' &&
+                resultToolCallIds.has(toolInvocation.toolCallId))
             ) {
               return null
             }
 
-            if (toolName === 'getNews') {
+            if (toolInvocation.toolName === 'getNews') {
               return (
                 <ChatNews
                   key={`${message.id}-tool-${partIndex}`}

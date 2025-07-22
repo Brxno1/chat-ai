@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { transcribeAudio } from '../services/transcribe-audio'
+import { transcribeAudioStream } from '../services/transcribe-audio'
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData()
@@ -23,7 +23,15 @@ export async function POST(req: NextRequest) {
 
   const audioAsBase64 = buffer.toString('base64')
 
-  const { transcription } = await transcribeAudio(audioAsBase64, audio.type)
+  const responseStream = await transcribeAudioStream(audioAsBase64, audio.type)
+
+  let transcription = ''
+
+  for await (const chunk of responseStream) {
+    if (chunk.text) {
+      transcription += chunk.text
+    }
+  }
 
   return NextResponse.json({ transcription })
 }

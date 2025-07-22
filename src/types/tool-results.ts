@@ -23,10 +23,8 @@ export function isWeatherResult(
   return result && (result.weather || result.error)
 }
 
-export function isNewsResult(
-  result: any,
-): result is NewsToolResponse & BaseToolResult {
-  return result && (result.articles || (result.error && result.error.topic))
+export function isNewsResult(result: any): result is NewsToolResponse & BaseToolResult {
+  return result && ((result.title && result.url) || (result.error && result.error.topic))
 }
 
 export function isOtherToolResult(
@@ -35,7 +33,9 @@ export function isOtherToolResult(
   return result && result.someOtherProperty
 }
 
-export type ToolInvocationResult<T extends 'getWeather' | 'otherTool' | 'getNews'> = {
+export type ToolInvocationResult<
+  T extends 'getWeather' | 'otherTool' | 'getNews',
+> = {
   toolCallId: string
   toolName: T
   state: 'call' | 'result'

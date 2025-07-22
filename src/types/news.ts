@@ -8,9 +8,8 @@ export type NewsArticle = {
   }
 }
 
-export type NewsToolResponse = {
-  articles: NewsArticle[]
-  error?: {
+export type NewsErrorResponse = {
+  error: {
     title: string
     message: string
     topic: string
@@ -18,8 +17,15 @@ export type NewsToolResponse = {
   }
 }
 
-export type NewsErrorResponse = {
-  error: {
+export type NewsToolResponse = {
+  title: string
+  description: string
+  url: string
+  publishedAt: string
+  source: {
+    name: string
+  }
+  error?: {
     title: string
     message: string
     topic: string
@@ -45,6 +51,7 @@ export interface NewsApiErrorResponse {
   status: 'error'
   code?: string
   message: string
+  articles: []
 }
 
 export interface NewsApiSuccessResponse {

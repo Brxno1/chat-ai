@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache, Suspense } from 'react'
 
@@ -35,12 +36,19 @@ export default async function ChatPageWithId({
     redirect('/chat')
   }
 
+  const cookieStore = await cookies()
+  const model = cookieStore.get('ai-model-id')
+
   return (
     <DashboardPage className="flex h-full w-full max-w-full flex-col">
       <ChatHeader />
       <DashboardPageMain>
         <ContainerWrapper className="h-full min-h-0 flex-1">
-          <ChatProvider initialMessages={chat!.messages} currentChatId={chatId}>
+          <ChatProvider
+            initialMessages={chat!.messages}
+            currentChatId={chatId}
+            cookieModel={model!.value}
+          >
             <Suspense fallback={<ChatFallback />}>
               <Chat />
             </Suspense>

@@ -3,24 +3,18 @@ import { z } from 'zod'
 
 import { api } from '@/lib/axios'
 import type {
-  NewsApiArticle,
-  NewsApiErrorResponse,
   NewsApiResponse,
   NewsErrorResponse,
   NewsToolResponse,
 } from '@/types/news'
 
-function isErrorResponse(data: NewsApiResponse): data is NewsApiErrorResponse {
-  return data.status === 'error'
-}
-
 async function fetchNewsData(
   topic: string,
   limit: number = 3,
-): Promise<NewsToolResponse | NewsErrorResponse> {
+): Promise<NewsToolResponse[] | NewsErrorResponse> {
   try {
     const response = await api.get<NewsApiResponse>(
-      `/everything?q=${topic}&apiKey=${process.env.NEWSAPI_KEY}&language=pt&pageSize=${limit}`,
+      `https://newsapi.org/v2/everything?q=${topic}&apiKey=${process.env.NEWSAPI_KEY}&language=pt&pageSize=${limit}`,
     )
 
     if (response.status !== 200) {
@@ -34,18 +28,7 @@ async function fetchNewsData(
       }
     }
 
-    if (isErrorResponse(response.data)) {
-      return {
-        error: {
-          title: 'Erro na API',
-          message: `Não foi possível obter notícias sobre "${topic}": ${response.data.message}`,
-          topic,
-          code: 'API_ERROR',
-        },
-      }
-    }
-
-    if (!response.data.articles || response.data.articles.length === 0) {
+    if (!response.data.articles) {
       return {
         error: {
           title: 'Sem resultados',
@@ -56,19 +39,15 @@ async function fetchNewsData(
       }
     }
 
-    return {
-      articles: response.data.articles
-        .slice(0, limit)
-        .map((article: NewsApiArticle) => ({
-          title: article.title || 'Sem título',
-          description: article.description || '',
-          url: article.url,
-          publishedAt: article.publishedAt,
-          source: {
-            name: article.source?.name || 'Fonte desconhecida',
-          },
-        })),
-    }
+    return response.data.articles.slice(0, limit).map((article) => ({
+      title: article.title || 'Sem título',
+      description: article.description || '',
+      url: article.url,
+      publishedAt: article.publishedAt,
+      source: {
+        name: article.source?.name || 'Fonte desconhecida',
+      },
+    }))
   } catch (error) {
     return {
       error: {
@@ -98,9 +77,9 @@ export const newsTool = createTool({
       return {
         error: {
           title: 'Tópico inválido',
-          topic: 'desconhecido',
           message:
             'Nenhum tópico válido foi fornecido para a busca de notícias.',
+          topic: 'desconhecido',
           code: 'NOT_FOUND',
         },
       }
