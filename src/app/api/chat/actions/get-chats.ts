@@ -2,10 +2,10 @@
 
 import { Chat } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
+import { MessagePart } from '@/types/chat'
 
 import { getUserSession } from '../../user/profile/actions/get-user-session'
-import { extractTextFromParts } from '../utils/message-filter'
-import { MessagePart, reconstructMessageParts } from '../utils/message-parts'
+import { extractTextFromParts } from '../utils/message-parts'
 
 type Message = {
   id: string
@@ -14,7 +14,7 @@ type Message = {
   content: string
   role: string
   chatId: string
-  parts?: MessagePart[] | null
+  parts: MessagePart[]
 }
 
 export type ChatWithMessages = Chat & { messages: Message[] }
@@ -63,15 +63,7 @@ export async function getChatsAction(): Promise<GetChatsResponse> {
     const processedChats = chats.map((chat) => ({
       ...chat,
       messages: chat.messages.map((message) => {
-        let reconstructedParts: MessagePart[] | null = null
-
-        try {
-          reconstructedParts = reconstructMessageParts(
-            message.parts as unknown as MessagePart[],
-          )
-        } catch (error) {
-          console.error('Erro ao reconstruir parts da mensagem:', error)
-        }
+        const reconstructedParts = JSON.parse(message.parts as string)
 
         return {
           id: message.id,

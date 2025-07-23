@@ -1,24 +1,5 @@
 import { Message } from '@ai-sdk/react'
 
-export function extractTextFromParts(parts: unknown): string {
-  if (!parts) return ''
-
-  try {
-    const partsArray = typeof parts === 'string' ? JSON.parse(parts) : parts
-    if (!Array.isArray(partsArray)) return ''
-
-    const textParts = partsArray
-      .filter((part) => part?.type === 'text' && part?.text)
-      .map((part) => part.text)
-      .join(' ')
-
-    return textParts.trim()
-  } catch (error) {
-    console.error('Error extracting text from parts:', error)
-    return ''
-  }
-}
-
 export function filterValidMessages(messages: Message[]): Message[] {
   return messages.filter((message) => {
     if (!message.content || typeof message.content !== 'string') {

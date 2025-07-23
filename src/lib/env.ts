@@ -23,7 +23,8 @@ const envSchema = z.object({
   SENDGRID_API_KEY: z.string().optional(),
   SENDGRID_EMAIL_FROM: z.string().optional(),
   NEXT_PUBLIC_LOGO_TOKEN: z.string().optional(),
-  GEMINI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string(),
+  GEMINI_API_KEY_GENERATE: z.string(),
 })
 
 export const env = envSchema.parse(process.env)

@@ -1,9 +1,12 @@
 import { Message } from '@ai-sdk/react'
-import { StreamTextResult } from 'ai'
+
+import { prisma } from '@/services/database/prisma'
+import {
+  ProcessChatAndSaveMessagesProps,
+  ProcessChatAndSaveMessagesResponse,
+} from '@/types/chat'
 
 import { generateSystemPrompt } from '../prompts'
-import { newsTool } from '../tools/news'
-import { weatherTool } from '../tools/weather'
 import { processToolInvocations } from '../utils/message-filter'
 import {
   findOrCreateChat,
@@ -11,25 +14,7 @@ import {
   saveMessages,
 } from './chat-operations'
 import { createStreamText } from './create-stream-text'
-type ProcessChatAndSaveMessagesProps = {
-  messages: Message[]
-  userName?: string
-  headerChatId?: string
-  isGhostChatMode?: boolean
-  userId?: string
-  modelId: string
-}
-
-export type AllTools = {
-  getWeather: typeof weatherTool
-  getNews: typeof newsTool
-}
-
-type ProcessChatAndSaveMessagesResponse = {
-  stream: StreamTextResult<AllTools, never> | null
-  headerChatId?: string
-  error?: string
-}
+import { generateChatTitle } from './generate-chat-title'
 
 export async function processChatAndSaveMessages({
   messages,
@@ -97,6 +82,21 @@ export async function processChatAndSaveMessages({
     }
   }
 
+  if (finalMessages.length >= 3) {
+    setImmediate(async () => {
+      try {
+        const { title } = await generateChatTitle(finalMessages)
+
+        await prisma.chat.update({
+          where: { id: finalChatId },
+          data: { title },
+        })
+      } catch (error) {
+        console.error('Failed to update chat title asynchronously:', error)
+      }
+    })
+  }
+
   const { stream, error } = await createStreamText({
     messages: finalMessages,
     modelId,
@@ -112,8 +112,6 @@ export async function processChatAndSaveMessages({
   saveChatResponse({
     stream: stream!,
     chatId: finalChatId,
-    originalChatId: headerChatId,
-    messages: processedMessages,
     userId,
   })
 
