@@ -63,7 +63,13 @@ export async function getChatsAction(): Promise<GetChatsResponse> {
     const processedChats = chats.map((chat) => ({
       ...chat,
       messages: chat.messages.map((message) => {
-        const reconstructedParts = JSON.parse(message.parts as string)
+        let reconstructedParts = []
+        try {
+          reconstructedParts = JSON.parse(message.parts as string)
+        } catch (error) {
+          console.error('Erro ao analisar JSON de partes da mensagem:', error)
+          reconstructedParts = []
+        }
 
         return {
           id: message.id,

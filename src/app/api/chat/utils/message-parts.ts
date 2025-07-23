@@ -34,9 +34,13 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
 
         switch (toolName) {
           case 'getWeather':
-            return toolSummaries[toolName]
+            return toolSummaries[toolName](
+              part.toolInvocation!.args as { location: string },
+            )
           case 'getNews':
-            return toolSummaries[toolName]
+            return toolSummaries[toolName](
+              part.toolInvocation!.args as { topic: string },
+            )
           default:
             return defaultToolSummary
         }
