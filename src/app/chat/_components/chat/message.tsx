@@ -4,7 +4,6 @@ import { Message as UIMessage } from '@ai-sdk/react'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
-import { cleanReasoningText } from '@/app/api/chat/utils/message-parts'
 import { ContainerWrapper } from '@/components/container'
 import { CopyTextComponent } from '@/components/copy-text-component'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -24,38 +23,15 @@ import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
 import { useSessionUser } from '@/context/user'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
+import {
+  extractReasoningParts,
+  getResultToolCallIds,
+} from '@/utils/chat-helpers'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
 import { ChatNews } from './chat-news'
 import { ChatWeather } from './chat-weather'
-
-function getResultToolCallIds(message: ChatMessageType) {
-  return new Set(
-    message.parts
-      ?.filter((part) => part.type === 'tool-invocation')
-      .map(
-        (part) =>
-          (part as { toolInvocation?: { toolCallId: string; state: string } })
-            .toolInvocation,
-      )
-      .filter(
-        (ti): ti is { toolCallId: string; state: string } =>
-          ti?.state === 'result' && !!ti.toolCallId,
-      )
-      .map((ti) => ti.toolCallId),
-  )
-}
-
-function extractReasoningParts(message: ChatMessageType) {
-  const reasoningParts =
-    message.parts
-      ?.filter((part) => part.type === 'reasoning')
-      .map((p) => cleanReasoningText(p.reasoning!))
-      .join(' ') || ''
-
-  return reasoningParts
-}
 
 interface MessageProps {
   message: UIMessage & Partial<ChatMessageType>

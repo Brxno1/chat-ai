@@ -6,8 +6,7 @@ import { Chat } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { ChatMessage } from '@/types/chat'
 
-import { extractTextFromParts } from '../utils/message-filter'
-import { MessagePart, reconstructMessageParts } from '../utils/message-parts'
+import { extractTextFromParts } from '../utils/message-parts'
 
 type GetChatByIdResponse = {
   chat?: Chat & { messages: (UIMessage & Partial<ChatMessage>)[] }
@@ -39,17 +38,9 @@ export async function getChatById(
     }
   }
 
-  const messagesWithParts: (UIMessage & ChatMessage)[] = chat.messages.map(
+  const messagesWithParts: (ChatMessage & UIMessage)[] = chat.messages.map(
     (message) => {
-      let reconstructedParts: MessagePart[] | null = null
-
-      try {
-        reconstructedParts = reconstructMessageParts(
-          JSON.parse(message.parts as string),
-        )
-      } catch (error) {
-        console.error('Error reconstructing message parts:', error)
-      }
+      const reconstructedParts = JSON.parse(message.parts as string)
 
       return {
         id: message.id,

@@ -28,7 +28,7 @@ export default async function ChatPageWithId({
     redirect('/auth')
   }
 
-  const userId = session!.user.id
+  const { id: userId } = session.user
 
   const { chat } = await getChatByIdCached(chatId, userId)
 

@@ -2,7 +2,7 @@ import { FetchChatResponse } from '@/app/api/chats/route'
 import { api } from '@/lib/axios'
 
 export async function fetchChats() {
-  const response = await api.get<FetchChatResponse>('/chats')
+  const { data } = await api.get<FetchChatResponse>('/chats')
 
-  return response.data.chats || []
+  return data.chats || []
 }

@@ -2,10 +2,10 @@ import { GoogleGenAI } from '@google/genai'
 
 import { env } from '@/lib/env'
 
-import { systemInstruction } from '../system-Instruction'
+import { systemInstructionTranscription } from '../utils/system-Instruction'
 
 const genAI = new GoogleGenAI({
-  apiKey: env.GEMINI_API_KEY,
+  apiKey: env.GEMINI_API_KEY_GENERATE,
 })
 
 const model = 'gemini-2.5-flash'
@@ -27,7 +27,7 @@ export async function transcribeAudioStream(
       ],
       config: {
         responseMimeType: 'text/plain',
-        systemInstruction,
+        systemInstruction: systemInstructionTranscription,
       },
     })
 
