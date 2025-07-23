@@ -40,7 +40,13 @@ export async function getChatById(
 
   const messagesWithParts: (ChatMessage & UIMessage)[] = chat.messages.map(
     (message) => {
-      const reconstructedParts = JSON.parse(message.parts as string)
+      let reconstructedParts = []
+      try {
+        reconstructedParts = JSON.parse(message.parts as string)
+      } catch (error) {
+        console.error('Erro ao analisar JSON de partes da mensagem:', error)
+        reconstructedParts = []
+      }
 
       return {
         id: message.id,
