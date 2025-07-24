@@ -1,6 +1,6 @@
 import { Message } from '@ai-sdk/react'
+import { createId } from '@paralleldrive/cuid2'
 import { NextRequest, NextResponse } from 'next/server'
-import { v4 as uuidv4 } from 'uuid'
 
 import { uploadChatImage } from './actions/upload-chat-image'
 import { defaultErrorMessage } from './config'
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     const headerUserName = req.headers.get('x-user-name') || undefined
     const headerUserId = req.headers.get('x-user-id') || undefined
-    const headerChatId = req.headers.get('x-chat-id') || uuidv4()
+    const headerChatId = req.headers.get('x-chat-id') || createId()
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
     const headerAiModelId = req.headers.get('x-ai-model-id')
 

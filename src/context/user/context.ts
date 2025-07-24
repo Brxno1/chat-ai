@@ -7,7 +7,9 @@ type UserContextType = {
   session: Session | null
   user: User | undefined
   chats?: ChatWithMessages[]
-  setUser: (userOrFn: User | ((prev: User) => User)) => void
+  setUser: (
+    userOrFn: User | ((prev: User | undefined) => User | undefined),
+  ) => void
 }
 
 export const UserContext = createContext<UserContextType>({

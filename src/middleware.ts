@@ -18,21 +18,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(getUrl('/chat')))
   }
 
-  if (pathname.startsWith('/chat/')) {
-    const match = pathname.match(/^\/chat\/([^/?]+)/)
-    if (!match) return NextResponse.redirect(new URL(getUrl('/chat')))
-
-    const chatId = match[1]
-    const isValidId =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i.test(
-        chatId,
-      )
-
-    if (!isValidId) {
-      return NextResponse.redirect(new URL(getUrl('/chat')))
-    }
-  }
-
   if (pathname === '/auth' && token) {
     return NextResponse.redirect(new URL(getUrl('/chat')))
   }
