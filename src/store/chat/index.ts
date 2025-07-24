@@ -2,25 +2,12 @@ import { Message } from '@ai-sdk/react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 import { models } from '@/app/chat/models/definitions'
-import { Chat } from '@/services/database/generated'
 import { Model } from '@/types/model'
 
-type MessageFromChat = {
-  id: string
-  createdAt: Date
-  userId: string | null
-  role: string
-  chatId: string
-  parts?: unknown
-}
-
-type Chats = {
-  chats: (Chat & { messages: MessageFromChat[] })[] | null
-}
-
 interface State {
-  chats: Chats['chats']
+  chats: ChatWithMessages[] | []
   chatId: string | undefined
   isGhostChatMode: boolean
   messages: Message[]
@@ -40,7 +27,7 @@ interface Actions {
   resetChatState: () => void
   resetModelState: () => void
   setIsRateLimitReached: (value: boolean) => void
-  setChats: (chats: Chats['chats']) => void
+  setChats: (chats: ChatWithMessages[]) => void
   defineChatInstanceKey: (key: string) => void
   getChatInstanceKey: () => string
 }
@@ -49,65 +36,75 @@ const defaultModel: Model = {
   id: models[0].id,
   name: models[0].name,
   provider: models[0].provider,
-  disabled: models[0].disabled,
 }
 
-export const useChatStore = create<State & Actions>()(
-  persist(
-    (set, get) => ({
-      chats: null,
-      chatId: undefined,
-      isRateLimitReached: false,
-      isGhostChatMode: false,
-      messages: [],
-      isCreatingNewChat: false,
-      model: defaultModel,
-      chatInstanceKey: '',
+type UseChatStoreProps = {
+  initialChats?: ChatWithMessages[]
+}
 
-      setChats: (chats) => set({ chats }),
+const createChatStore = (initialProps?: UseChatStoreProps) =>
+  create<State & Actions>()(
+    persist(
+      (set, get) => ({
+        chats: initialProps?.initialChats || [],
+        chatId: undefined,
+        isRateLimitReached: false,
+        isGhostChatMode: false,
+        messages: [],
+        isCreatingNewChat: false,
+        model: defaultModel,
+        chatInstanceKey: '',
 
-      setChatId: (id) => set({ chatId: id }),
+        setChats: (chats) => set({ chats }),
 
-      setIsCreatingNewChat: (value) => set({ isCreatingNewChat: value }),
+        setChatId: (id) => set({ chatId: id }),
 
-      setToGhostChatMode: (mode) => set({ isGhostChatMode: mode }),
+        setIsCreatingNewChat: (value) => set({ isCreatingNewChat: value }),
 
-      setMessages: (messages) => set({ messages }),
+        setToGhostChatMode: (mode) => set({ isGhostChatMode: mode }),
 
-      setModel: (model) => set({ model }),
+        setMessages: (messages) => set({ messages }),
 
-      setIsRateLimitReached: (value) => set({ isRateLimitReached: value }),
+        setModel: (model) => set({ model }),
 
-      defineChatInstanceKey: (key) => set({ chatInstanceKey: key }),
+        setIsRateLimitReached: (value) => set({ isRateLimitReached: value }),
 
-      getChatInstanceKey: () => get().chatInstanceKey,
+        defineChatInstanceKey: (key) => set({ chatInstanceKey: key }),
 
-      onDeleteMessage: (id) =>
-        set((state) => ({
-          messages: state.messages.filter((message) => message.id !== id),
-        })),
+        getChatInstanceKey: () => get().chatInstanceKey,
 
-      resetChatState: () => {
-        set({
-          chatId: undefined,
-          messages: [],
-          isCreatingNewChat: false,
-          isGhostChatMode: false,
-          chatInstanceKey: '',
-        })
-      },
+        onDeleteMessage: (id) =>
+          set((state) => ({
+            messages: state.messages.filter((message) => message.id !== id),
+          })),
 
-      resetModelState: () => {
-        set({
-          model: defaultModel,
-        })
-      },
-    }),
-    {
-      name: 'chat-model-storage',
-      partialize: (state) => ({
-        model: state.model,
+        resetChatState: () => {
+          set({
+            chatId: undefined,
+            messages: [],
+            isCreatingNewChat: false,
+            isGhostChatMode: false,
+            chatInstanceKey: '',
+          })
+        },
+
+        resetModelState: () => {
+          set({
+            model: defaultModel,
+          })
+        },
       }),
-    },
-  ),
-)
+      {
+        name: 'chat-model-storage',
+        partialize: (state) => ({
+          model: state.model,
+        }),
+      },
+    ),
+  )
+
+export const useChatStore = createChatStore()
+
+export function initializeChatStore(props?: UseChatStoreProps) {
+  return createChatStore(props)
+}

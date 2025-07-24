@@ -9,7 +9,7 @@ import { ChatMessage } from '@/types/chat'
 import { extractTextFromParts } from '../utils/message-parts'
 
 type GetChatByIdResponse = {
-  chat?: Chat & { messages: (UIMessage & Partial<ChatMessage>)[] }
+  chat: (Chat & { messages: (UIMessage & Partial<ChatMessage>)[] }) | []
   error?: string
 }
 
@@ -33,7 +33,7 @@ export async function getChatById(
 
   if (!chat) {
     return {
-      chat: undefined,
+      chat: [],
       error: 'Chat not found',
     }
   }
@@ -44,7 +44,6 @@ export async function getChatById(
       try {
         reconstructedParts = JSON.parse(message.parts as string)
       } catch (error) {
-        console.error('Erro ao analisar JSON de partes da mensagem:', error)
         reconstructedParts = []
       }
 

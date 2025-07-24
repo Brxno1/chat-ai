@@ -112,7 +112,7 @@ export function ChatMessage({
                 )}
                 <div
                   className={cn(
-                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[70%]',
+                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]',
                     {
                       'ml-auto bg-message text-accent dark:bg-primary/10':
                         message.role === 'user',

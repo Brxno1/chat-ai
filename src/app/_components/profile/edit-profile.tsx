@@ -70,12 +70,10 @@ export function EditProfile() {
 
       const name = formData.get('name') as string
       const bio = formData.get('bio') as string
-      const avatar = formData.get('avatar') as File | FileList | null
-      const background = formData.get('background') as File | FileList | null
+      const avatar = formData.get('avatar') as File | null
+      const background = formData.get('background') as File | null
 
       setUser((prev) => {
-        if (!prev) return user
-
         return {
           ...prev,
           name: name || prev.name,

@@ -1,16 +1,27 @@
 import { MessagePart } from '@/types/chat'
 
-const toolSummaries = {
-  getWeather: (args: { location: string }) =>
-    `[Consulta de previsão do tempo para ${args.location}]`,
-  getNews: (args: { topic: string }) =>
-    `[Consulta de notícias para ${args.topic}]`,
+type ToolArgs = {
+  getWeather: { location: string }
+  getNews: { topic: string }
+  default: Record<string, never>
 }
 
-const defaultToolSummary = '[Consulta de informações com ferramentas]'
+type ToolSummary<T extends keyof ToolArgs> = (args: ToolArgs[T]) => string
+
+type ToolSummaries = {
+  [K in keyof ToolArgs]: ToolSummary<K>
+}
+
+const toolSummaries: ToolSummaries = {
+  getWeather: (args: ToolArgs['getWeather']) =>
+    `[Consulta de previsão do tempo para ${args.location}]`,
+  getNews: (args: ToolArgs['getNews']) =>
+    `[Consulta de notícias para ${args.topic}]`,
+  default: () => `[Consulta de informações com ferramentas`,
+}
 
 export function extractTextFromParts(parts: MessagePart[] | undefined): string {
-  if (!parts || !Array.isArray(parts) || parts.length === 0) {
+  if (!parts) {
     return ''
   }
 
@@ -24,7 +35,7 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
   }
 
   const toolInvocationParts = parts.filter(
-    (part) => part && part.type === 'tool-invocation' && part.toolInvocation,
+    (part) => part.type === 'tool-invocation',
   )
 
   if (toolInvocationParts.length > 0) {
@@ -34,15 +45,15 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
 
         switch (toolName) {
           case 'getWeather':
-            return toolSummaries[toolName](
-              part.toolInvocation!.args as { location: string },
+            return toolSummaries.getWeather[toolName](
+              part.toolInvocation!.args as ToolArgs['getWeather'],
             )
           case 'getNews':
-            return toolSummaries[toolName](
-              part.toolInvocation!.args as { topic: string },
+            return toolSummaries.getNews[toolName](
+              part.toolInvocation!.args as ToolArgs['getNews'],
             )
           default:
-            return defaultToolSummary
+            return toolSummaries.default({})
         }
       })
       .join(' ')
