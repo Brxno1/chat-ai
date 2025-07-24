@@ -37,7 +37,7 @@ export function useChatController({
       'x-ai-model-id': initialModel || model.id,
     },
     onResponse: (response) => {
-      const headerChatId = response.headers?.get('x-chat-id')
+      const headerChatId = response.headers.get('x-chat-id')
 
       if (headerChatId) {
         defineChatInstanceKey(headerChatId)
@@ -50,9 +50,11 @@ export function useChatController({
           queryKey: queryKeys.chats.all,
         })
 
-        const currentKey = getChatInstanceKey()
-        if (currentKey) {
-          router.push(`/chat/${currentKey}`)
+        if (!currentChatId) {
+          const currentKey = getChatInstanceKey()
+          if (currentKey) {
+            router.push(`/chat/${currentKey}`)
+          }
         }
       }
     },

@@ -27,6 +27,9 @@ export async function getChatById(
         orderBy: {
           createdAt: 'asc',
         },
+        include: {
+          attachments: true,
+        },
       },
     },
   })
@@ -55,9 +58,12 @@ export async function getChatById(
         role: String(message.role).toLowerCase() as UIMessage['role'],
         chatId: message.chatId,
         parts: reconstructedParts,
+        experimental_attachments: message.attachments,
       } as UIMessage & ChatMessage
     },
   )
+
+  console.log(chat)
 
   return {
     chat: {

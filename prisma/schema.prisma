@@ -55,11 +55,25 @@ model Message {
   createdAt DateTime    @default(now())
   chatId    String
   chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  User      User?       @relation(fields: [userId], references: [id])
-  userId    String?
+  User      User        @relation(fields: [userId], references: [id])
+  userId    String
+
+  attachments Attachment[]
 
   @@index([chatId])
   @@map("messages")
+}
+
+model Attachment {
+  id          String   @id @default(cuid())
+  url         String
+  name        String
+  contentType String
+  createdAt   DateTime @default(now())
+  messageId   String
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
 }
 
 enum TodoStatus {

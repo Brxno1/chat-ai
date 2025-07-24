@@ -22,11 +22,7 @@ export function UserChatProvider({
   user,
   chats,
 }: UserChatProviderProps) {
-  if (!user) {
-    throw new Error('User is required')
-  }
-
-  const [state, dispatch] = useReducer(userReducer, { user })
+  const [state, dispatch] = useReducer(userReducer, { user: user! })
 
   const chatStore = initializeChatStore({ initialChats: chats })
 

@@ -23,7 +23,10 @@ export function middleware(request: NextRequest) {
     if (!match) return NextResponse.redirect(new URL(getUrl('/chat')))
 
     const chatId = match[1]
-    const isValidId = /^[a-zA-Z0-9]{25,}$/i.test(chatId)
+    const isValidId =
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i.test(
+        chatId,
+      )
 
     if (!isValidId) {
       return NextResponse.redirect(new URL(getUrl('/chat')))

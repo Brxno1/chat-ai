@@ -149,6 +149,15 @@ exports.Prisma.MessageScalarFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.AttachmentScalarFieldEnum = {
+  id: 'id',
+  url: 'url',
+  name: 'name',
+  contentType: 'contentType',
+  createdAt: 'createdAt',
+  messageId: 'messageId'
+};
+
 exports.Prisma.TodoScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -244,6 +253,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   Chat: 'Chat',
   Message: 'Message',
+  Attachment: 'Attachment',
   Todo: 'Todo',
   Account: 'Account',
   Session: 'Session',

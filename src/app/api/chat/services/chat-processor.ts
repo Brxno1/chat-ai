@@ -23,6 +23,7 @@ export async function processChatAndSaveMessages({
   userId,
   isGhostChatMode,
   modelId,
+  attachments,
 }: ProcessChatAndSaveMessagesProps): Promise<ProcessChatAndSaveMessagesResponse> {
   const processedMessages = processToolInvocations(messages)
 
@@ -53,11 +54,7 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const findOrCreate = await findOrCreateChat(
-    processedMessages,
-    headerChatId,
-    userId,
-  )
+  const findOrCreate = await findOrCreateChat(headerChatId, userId)
 
   if (!findOrCreate.success) {
     return {
@@ -78,7 +75,7 @@ export async function processChatAndSaveMessages({
       )
     /* eslint-enable */
     if (messagesToSave.length > 0) {
-      await saveMessages(messagesToSave, finalChatId, userId)
+      await saveMessages(messagesToSave, finalChatId, userId, attachments)
     }
   }
 

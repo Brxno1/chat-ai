@@ -17,7 +17,6 @@ export async function uploadChatImage(
 ): Promise<string | null> {
   try {
     if (!attachment.url.startsWith('data:')) {
-      // Not a data URL, cannot process
       return null
     }
 

@@ -14,7 +14,7 @@ import { Adapter } from 'next-auth/adapters'
 
 const extendedPrisma = prisma.$extends({}) as any
 
-export  const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(extendedPrisma) as Adapter,
   secret: env.AUTH_SECRET,
   trustHost: true,
