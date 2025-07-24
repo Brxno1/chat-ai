@@ -11,7 +11,7 @@ import { ChatHeader } from './_components/ui/header'
 
 export default async function ChatPage() {
   const cookieStore = await cookies()
-  const model = cookieStore.get('ai-model-id')
+  const model = cookieStore.get('ai-model-id')?.value || 'gemini-2.0-flash'
 
   return (
     <DashboardPage className="flex h-full w-full max-w-full flex-col">
@@ -19,7 +19,7 @@ export default async function ChatPage() {
       <DashboardPageMain>
         <ContainerWrapper className="h-full min-h-0 flex-1">
           <Suspense fallback={<ChatFallback />}>
-            <ChatProvider cookieModel={model!.value}>
+            <ChatProvider cookieModel={model}>
               <Chat />
             </ChatProvider>
           </Suspense>

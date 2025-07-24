@@ -7,6 +7,7 @@ import {
   StopCircle,
 } from 'lucide-react'
 import Image from 'next/image'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -35,9 +36,44 @@ import { ImagePreview } from './image-preview'
 
 const schema = z.object({
   message: z.string().min(1),
+  attachments: z.union([
+    z
+      .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
+      .refine(
+        (file) => file.size <= 10 * 1024 * 1024,
+        `O arquivo deve ter no máximo 10MB`,
+      ),
+    z
+      .array(z.instanceof(File))
+      .refine(
+        (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
+        `Os arquivos devem ter no máximo 10MB cada`,
+      ),
+    z.null(),
+    z.undefined(),
+  ]),
 })
 
 export function ChatForm() {
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      message: '',
+      attachments: null,
+    },
+  })
+
+  const {
+    files,
+    previewUrls,
+    fileInputRef,
+    handleThumbnailClick,
+    validateAndProcessFileInput,
+    handleRemoveAll,
+    handleRemoveItem,
+  } = useMultipleUploads()
+
   const {
     input,
     status,
@@ -46,35 +82,57 @@ export function ChatForm() {
     onModelChange,
     onInputChange,
     onStop,
-    // onAttachImages,
   } = useChatContext()
 
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      message: '',
-    },
-  })
+  const onRemoveItem = (index: number) => {
+    handleRemoveItem(index)
 
-  const {
-    previewUrls,
-    fileInputRef,
-    handleThumbnailClick,
-    validateAndProcessFileInput,
-    handleRemoveItem,
-  } = useMultipleUploads()
+    if (files.length <= 1) {
+      form.setValue('attachments', null)
+    }
+
+    const remainingFiles = [...files]
+    remainingFiles.splice(index, 1)
+    form.setValue('attachments', remainingFiles)
+  }
+
+  const handleSubmit = ({ message, attachments }: z.infer<typeof schema>) => {
+    const formData = new FormData()
+
+    formData.append('message', message)
+    const dataTransfer = new DataTransfer()
+
+    if (attachments) {
+      if (Array.isArray(attachments)) {
+        attachments.forEach((file) => formData.append('attachments', file))
+        attachments.forEach((file) => dataTransfer.items.add(file))
+      } else {
+        formData.append('attachments', attachments)
+      }
+    }
+
+    onSubmitChat(undefined, {
+      experimental_attachments: dataTransfer.files,
+    })
+
+    form.reset()
+    handleRemoveAll()
+  }
+
+  React.useEffect(() => {
+    if (files.length > 0) {
+      form.setValue('attachments', files)
+    }
+  }, [files, form])
 
   return (
     <Form {...form}>
       <AIForm
-        onSubmit={form.handleSubmit(onSubmitChat)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-2 overflow-y-auto rounded-md border border-input bg-card dark:bg-message"
       >
         {previewUrls.length > 0 && (
-          <ImagePreview
-            previewUrls={previewUrls}
-            onRemoveItem={handleRemoveItem}
-          />
+          <ImagePreview previewUrls={previewUrls} onRemoveItem={onRemoveItem} />
         )}
         <FormField
           control={form.control}
@@ -107,23 +165,36 @@ export function ChatForm() {
         <AIInputToolbar className="p-2">
           <AIInputTools>
             <div className="flex items-center gap-1">
-              <AIInputButton
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={handleThumbnailClick}
-              >
-                <ImageUp className="size-4" />
-                <Input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={validateAndProcessFileInput}
-                  className="absolute inset-0 z-10 hidden"
-                  accept="image/*"
-                  multiple
-                  aria-label="Carregar arquivo de imagem"
-                />
-              </AIInputButton>
+              <FormField
+                control={form.control}
+                name="attachments"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <AIInputButton
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleThumbnailClick}
+                      >
+                        <ImageUp className="size-4" />
+                        <Input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={(ev) => {
+                            validateAndProcessFileInput(ev)
+                            field.onChange(ev.target.files)
+                          }}
+                          className="absolute inset-0 z-10 hidden"
+                          accept="image/*"
+                          multiple
+                          aria-label="Carregar arquivo de imagem"
+                        />
+                      </AIInputButton>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
 
               <AIInputButton
                 disabled

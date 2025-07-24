@@ -1,5 +1,8 @@
+import { Message } from '@ai-sdk/react'
+import { nanoid } from 'nanoid'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { uploadChatImage } from './actions/upload-chat-image'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
@@ -9,7 +12,39 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    const { messages } = body
+    const { messages }: { messages: Message[] } = body
+
+    const headerUserName = req.headers.get('x-user-name') || undefined
+    const headerUserId = req.headers.get('x-user-id') || undefined
+    const headerChatId = req.headers.get('x-chat-id') || nanoid()
+    const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
+    const headerAiModelId = req.headers.get('x-ai-model-id')
+
+    if (!headerGhostMode && headerUserId) {
+      const userMessage = messages[messages.length - 1]
+      if (userMessage.role === 'user' && userMessage.experimental_attachments) {
+        const attachmentUploadPromises = userMessage.experimental_attachments
+          .filter((attachment) => !!attachment.name && !!attachment.contentType)
+          .map((attachment) =>
+            uploadChatImage(headerUserId!, headerChatId!, {
+              name: attachment.name!,
+              contentType: attachment.contentType!,
+              url: attachment.url,
+            }),
+          )
+
+        const uploadedAttachmentUrls = (
+          await Promise.all(attachmentUploadPromises)
+        ).filter((url): url is string => url !== null)
+
+        if (uploadedAttachmentUrls.length > 0) {
+          const imageUrlsText = uploadedAttachmentUrls
+            .map((url) => `[Imagem: ${url}]`)
+            .join(' ')
+          userMessage.content = `${userMessage.content} ${imageUrlsText}`.trim()
+        }
+      }
+    }
 
     const processedMessages = messages.map((message) => {
       if (
@@ -28,12 +63,6 @@ export async function POST(req: NextRequest) {
       }
       return message
     })
-
-    const headerUserName = req.headers.get('x-user-name') || undefined
-    const headerUserId = req.headers.get('x-user-id') || undefined
-    const headerChatId = req.headers.get('x-chat-id') || undefined
-    const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
-    const headerAiModelId = req.headers.get('x-ai-model-id')
 
     const {
       stream: processedStream,
@@ -67,8 +96,8 @@ export async function POST(req: NextRequest) {
         'x-user-id': headerUserId ?? '',
         'x-user-name': headerUserName ?? 'Guest',
         'x-ghost-mode': headerGhostMode.toString(),
-        'x-message-count': (body.messages.length + 1).toString(),
-        'x-context-length': body.messages.slice(-4).length.toString(),
+        'x-message-count': (processedMessages.length + 1).toString(),
+        'x-context-length': processedMessages.slice(-4).length.toString(),
         'x-user-tier': headerUserId ? 'premium' : 'free',
         'x-ai-model-id': headerAiModelId!,
       },

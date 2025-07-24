@@ -19,7 +19,6 @@ import { groupItemsByDate } from '@/utils/format'
 import { HistoricalItem } from './item'
 
 function Historical() {
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
   const { chats: initialData } = useSessionUser()
 
   const { data: chats, isFetching } = useSuspenseQuery({
@@ -27,6 +26,8 @@ function Historical() {
     queryKey: queryKeys.chats.all,
     initialData,
   })
+
+  const [isCollapsed, setIsCollapsed] = React.useState(chats.length > 0)
 
   const groupedChats = React.useMemo(() => {
     return groupItemsByDate<Chat>(chats, (chat) => new Date(chat.createdAt))

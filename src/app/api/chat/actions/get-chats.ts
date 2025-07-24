@@ -67,7 +67,6 @@ export async function getChatsAction(): Promise<GetChatsResponse> {
         try {
           reconstructedParts = JSON.parse(message.parts as string)
         } catch (error) {
-          console.error('Erro ao analisar JSON de partes da mensagem:', error)
           reconstructedParts = []
         }
 

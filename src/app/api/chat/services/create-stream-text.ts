@@ -68,7 +68,6 @@ export async function createStreamText({
         getNews: newsTool,
       },
       onError: (error) => {
-        console.log('error on streamText', error)
         errorMessage = errorHandler(error)
       },
     })

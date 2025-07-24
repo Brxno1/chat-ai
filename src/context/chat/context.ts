@@ -1,6 +1,7 @@
 'use client'
 
 import { type Message as UIMessage } from '@ai-sdk/react'
+import type { ChatRequestOptions } from 'ai'
 import { ChangeEvent, createContext, useContext } from 'react'
 
 type States = {
@@ -19,11 +20,15 @@ type States = {
 type Actions = {
   setMessages: (messages: UIMessage[]) => void
   onInputChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
-  onSubmitChat: () => void
+  onSubmitChat: (
+    event?: {
+      preventDefault?: () => void
+    },
+    chatRequestOptions?: ChatRequestOptions,
+  ) => void
   onModelChange: (value: string) => void
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>
-  onAttachImages: (imageUrls: string[], content: string) => void
 }
 
 export type ChatContextProps = States & Actions

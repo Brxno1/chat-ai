@@ -2,6 +2,6 @@ export type Model = {
   id: string
   name: string
   provider: string
-  disabled: boolean
+  disabled?: boolean
   description?: string
 }

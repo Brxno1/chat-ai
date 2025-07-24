@@ -12,13 +12,6 @@ import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
 import { ChatContext } from './context'
 
-type ImageAttachment = {
-  type: 'image'
-  url: string
-}
-
-type Attachment = ImageAttachment
-
 export type ChatProviderProps = {
   children: React.ReactNode
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
@@ -43,7 +36,7 @@ export function ChatProvider({
     setMessages,
     status,
     handleInputChange: onInputChange,
-    handleSubmit,
+    handleSubmit: onSubmitChat,
     append,
     stop: onStop,
   } = useChatController({
@@ -62,31 +55,6 @@ export function ChatProvider({
         provider: selectedModel.provider,
         disabled: selectedModel.disabled,
       })
-    }
-  }
-
-  const onSubmitChat = () => {
-    handleSubmit()
-  }
-
-  const onAttachImages = (imageUrls: string[], content: string) => {
-    if (!imageUrls.length) return
-
-    try {
-      const attachments: Attachment[] = imageUrls.map((url) => ({
-        type: 'image',
-        url,
-      }))
-
-      append({
-        role: 'user',
-        content,
-        experimental_attachments: attachments,
-        createdAt: new Date(),
-      })
-    } catch (error) {
-      console.error(error)
-      toast.error('Erro ao enviar imagens', { position: 'top-center' })
     }
   }
 
@@ -122,7 +90,6 @@ export function ChatProvider({
     onSubmitChat,
     onModelChange,
     onGenerateTranscribe,
-    onAttachImages,
     model,
     onStop,
   }
