@@ -7,14 +7,9 @@ import { errorHandler } from './utils/error-handler'
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData()
+    const body = await req.json()
     
-    const messagesValue = formData.get('messages')
-    const attachments = formData.getAll('attachments')
-    
-    console.log({ messages: messagesValue, attachments })
-    
-    const messages = messagesValue ? JSON.parse(messagesValue.toString()) : []
+    const { messages } = body
 
     const processedMessages = messages.map((message) => {
       if (
@@ -72,8 +67,8 @@ export async function POST(req: NextRequest) {
         'x-user-id': headerUserId ?? '',
         'x-user-name': headerUserName ?? 'Guest',
         'x-ghost-mode': headerGhostMode.toString(),
-        'x-message-count': (messages.length + 1).toString(),
-        'x-context-length': messages.slice(-4).length.toString(),
+        'x-message-count': (body.messages.length + 1).toString(),
+        'x-context-length': body.messages.slice(-4).length.toString(),
         'x-user-tier': headerUserId ? 'premium' : 'free',
         'x-ai-model-id': headerAiModelId!,
       },

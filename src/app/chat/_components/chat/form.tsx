@@ -62,12 +62,24 @@ export function ChatForm() {
     handleThumbnailClick,
     validateAndProcessFileInput,
     handleRemoveItem,
+    files,
+    handleRemoveAll,
   } = useMultipleUploads()
 
   return (
     <Form {...form}>
       <AIForm
-        onSubmit={form.handleSubmit(onSubmitChat)}
+        onSubmit={form.handleSubmit(() => {
+          const dataTransfer = new DataTransfer()
+          files.forEach((file) => dataTransfer.items.add(file))
+          
+          onSubmitChat(undefined, {
+            experimental_attachments: dataTransfer.files,
+          })
+          
+          form.reset()
+          handleRemoveAll()
+        })}
         className="space-y-2 overflow-y-auto rounded-md border border-input bg-card dark:bg-message"
       >
         {previewUrls.length > 0 && (
