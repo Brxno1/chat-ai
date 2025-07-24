@@ -23,12 +23,13 @@ export function middleware(request: NextRequest) {
     if (!match) return NextResponse.redirect(new URL(getUrl('/chat')))
 
     const chatId = match[1]
-    const isValidId =
+    const isValidUUID =
       /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i.test(
         chatId,
       )
+    const isValidCUID = /^c[a-z0-9]{24}$/i.test(chatId)
 
-    if (!isValidId) {
+    if (!isValidUUID && !isValidCUID) {
       return NextResponse.redirect(new URL(getUrl('/chat')))
     }
   }

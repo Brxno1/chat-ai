@@ -63,8 +63,6 @@ export async function getChatById(
     },
   )
 
-  console.log(chat)
-
   return {
     chat: {
       ...chat,

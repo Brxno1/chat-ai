@@ -22,14 +22,16 @@ export function UserChatProvider({
   user,
   chats,
 }: UserChatProviderProps) {
-  const [state, dispatch] = useReducer(userReducer, { user: user! })
+  const [state, dispatch] = useReducer(userReducer, { user })
 
   const chatStore = initializeChatStore({ initialChats: chats })
 
-  const setUser = (user: User | ((prev: User) => User)) => {
+  const setUser = (
+    user: User | ((prev: User | undefined) => User | undefined),
+  ) => {
     dispatch({
       type: 'UPDATE_USER',
-      payload: user as (prev: User) => User,
+      payload: user as (prev: User | undefined) => User | undefined,
     })
   }
 

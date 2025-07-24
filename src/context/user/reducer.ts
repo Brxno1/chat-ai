@@ -3,12 +3,12 @@ import { User } from 'next-auth'
 const UPDATE_USER = 'UPDATE_USER' as const
 
 type UserState = {
-  user: User
+  user: User | undefined
 }
 
 type UserAction = {
   type: typeof UPDATE_USER
-  payload: (prev: User) => User
+  payload: (prev: User | undefined) => User | undefined
 }
 
 export const userReducer = (
