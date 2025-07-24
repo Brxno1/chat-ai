@@ -76,7 +76,10 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     },
   })
 
-  const handleDefineChatInstanceKey = () => {
+  const handleLinkClick = () => {
+    if (isCurrentChat) {
+      return
+    }
     defineChatInstanceKey(chat.id)
     setChatId(chat.id)
   }
@@ -87,7 +90,6 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
 
   return (
     <Badge
-      onClick={handleDefineChatInstanceKey}
       variant={'chat'}
       className={cn(
         'relative flex cursor-pointer items-start justify-between rounded-md border border-input bg-card p-1 text-left transition-all duration-300',
@@ -98,6 +100,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     >
       <Link
         href={`/chat/${chat.id}`}
+        onClick={handleLinkClick}
         prefetch
         className={cn('flex w-full flex-col items-start', {
           'cursor-default': isCurrentChat,

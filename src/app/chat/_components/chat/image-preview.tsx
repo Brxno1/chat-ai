@@ -15,10 +15,15 @@ import {
 
 interface ImagePreviewProps {
   previewUrls: string[]
-  onRemoveItem: (index: number) => void
+  onRemoveItem?: (index: number) => void
+  noRemove?: boolean
 }
 
-export function ImagePreview({ previewUrls, onRemoveItem }: ImagePreviewProps) {
+export function ImagePreview({
+  previewUrls,
+  onRemoveItem,
+  noRemove = false,
+}: ImagePreviewProps) {
   const [selectedImageIndex, setSelectedImageIndex] = React.useState<
     number | null
   >(null)
@@ -30,11 +35,11 @@ export function ImagePreview({ previewUrls, onRemoveItem }: ImagePreviewProps) {
   }
 
   return (
-    <div className="flex max-w-fit flex-wrap items-center justify-center rounded-md p-2">
+    <div className="flex max-w-fit flex-row items-center justify-center rounded-md p-2">
       {previewUrls.map((url, index) => (
         <div
           key={index}
-          className="group relative flex max-w-fit flex-wrap items-center justify-center gap-2.5 rounded-md bg-card p-2"
+          className="group relative flex max-w-fit flex-row items-center justify-center gap-2.5 rounded-md bg-card p-2"
         >
           <Dialog
             open={selectedImageIndex === index}
@@ -47,7 +52,7 @@ export function ImagePreview({ previewUrls, onRemoveItem }: ImagePreviewProps) {
             />
             <DialogTrigger asChild>
               <Avatar
-                className="size-14 cursor-pointer rounded-md"
+                className="size-20 cursor-pointer rounded-md object-cover"
                 onClick={() => setSelectedImageIndex(index)}
               >
                 <AvatarImage src={url} className="object-cover" />
@@ -72,20 +77,22 @@ export function ImagePreview({ previewUrls, onRemoveItem }: ImagePreviewProps) {
                   alt="Preview"
                   width={720}
                   height={720}
-                  className="max-h-[70vh] rounded-md object-cover"
+                  className="size-full rounded-md object-cover"
                 />
               </div>
             </DialogContent>
           </Dialog>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-0 top-0 hidden size-4 rounded-full bg-card p-0.5 text-card-foreground transition-all duration-300 group-hover:flex"
-            onClick={() => onRemoveItem(index)}
-          >
-            <XIcon size={14} />
-          </Button>
+          {!noRemove && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 hidden size-4 rounded-full bg-card p-0.5 text-card-foreground transition-all duration-300 group-hover:flex"
+              onClick={() => onRemoveItem?.(index)}
+            >
+              <XIcon size={14} />
+            </Button>
+          )}
         </div>
       ))}
     </div>

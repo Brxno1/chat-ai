@@ -1,6 +1,6 @@
 import { Message } from '@ai-sdk/react'
-import { nanoid } from 'nanoid'
 import { NextRequest, NextResponse } from 'next/server'
+import { v4 as uuidv4 } from 'uuid'
 
 import { uploadChatImage } from './actions/upload-chat-image'
 import { defaultErrorMessage } from './config'
@@ -16,16 +16,24 @@ export async function POST(req: NextRequest) {
 
     const headerUserName = req.headers.get('x-user-name') || undefined
     const headerUserId = req.headers.get('x-user-id') || undefined
-    const headerChatId = req.headers.get('x-chat-id') || nanoid()
+    const headerChatId = req.headers.get('x-chat-id') || uuidv4()
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
     const headerAiModelId = req.headers.get('x-ai-model-id')
 
+    let attachmentsForDb:
+      | { name: string; contentType: string; url: string }[]
+      | undefined
+
     if (!headerGhostMode && headerUserId) {
       const userMessage = messages[messages.length - 1]
+
       if (userMessage.role === 'user' && userMessage.experimental_attachments) {
-        const attachmentUploadPromises = userMessage.experimental_attachments
-          .filter((attachment) => !!attachment.name && !!attachment.contentType)
-          .map((attachment) =>
+        const validAttachments = userMessage.experimental_attachments.filter(
+          (attachment) => !!attachment,
+        )
+
+        if (validAttachments.length > 0) {
+          const attachmentUploadPromises = validAttachments.map((attachment) =>
             uploadChatImage(headerUserId!, headerChatId!, {
               name: attachment.name!,
               contentType: attachment.contentType!,
@@ -33,15 +41,15 @@ export async function POST(req: NextRequest) {
             }),
           )
 
-        const uploadedAttachmentUrls = (
-          await Promise.all(attachmentUploadPromises)
-        ).filter((url): url is string => url !== null)
+          const uploadedUrls = await Promise.all(attachmentUploadPromises)
 
-        if (uploadedAttachmentUrls.length > 0) {
-          const imageUrlsText = uploadedAttachmentUrls
-            .map((url) => `[Imagem: ${url}]`)
-            .join(' ')
-          userMessage.content = `${userMessage.content} ${imageUrlsText}`.trim()
+          attachmentsForDb = uploadedUrls
+            .map((url, index) => ({
+              url: url!,
+              name: validAttachments[index].name!,
+              contentType: validAttachments[index].contentType!,
+            }))
+            .filter((a) => a.url)
         }
       }
     }
@@ -75,6 +83,7 @@ export async function POST(req: NextRequest) {
       headerChatId,
       isGhostChatMode: headerGhostMode,
       modelId: headerAiModelId!,
+      attachments: attachmentsForDb,
     })
 
     if (error || !processedStream) {

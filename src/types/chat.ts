@@ -14,6 +14,11 @@ export type ChatMessage = {
   userId: string | null
   chatId: string
   parts?: UIMessage['parts']
+  attachments?: {
+    name: string
+    contentType: string
+    url: string
+  }[]
 }
 
 export type DbMessage = {
@@ -23,6 +28,11 @@ export type DbMessage = {
   role: MessageRole
   chatId: string
   parts: Prisma.JsonValue
+  attachments?: {
+    name: string
+    contentType: string
+    url: string
+  }[]
 }
 
 export type MessagePart = {
@@ -54,6 +64,11 @@ export type ProcessChatAndSaveMessagesProps = {
   isGhostChatMode?: boolean
   userId?: string
   modelId: string
+  attachments?: {
+    name: string
+    contentType: string
+    url: string
+  }[]
 }
 
 export type AllTools = {

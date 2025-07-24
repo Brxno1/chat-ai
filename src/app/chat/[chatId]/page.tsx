@@ -32,7 +32,7 @@ export default async function ChatPageWithId({
 
   const { chat } = await getChatByIdCached(chatId, userId)
 
-  if (!chat) {
+  if (!chat || Array.isArray(chat)) {
     redirect('/chat')
   }
 
@@ -69,7 +69,7 @@ export async function generateMetadata({
 
   const { chat } = await getChatByIdCached(chatId, session!.user.id)
 
-  if (!chat) {
+  if (!chat || Array.isArray(chat)) {
     return {
       title: `Chat`,
       description: 'Chat não encontrado',

@@ -17,12 +17,9 @@ type OperationResponse<T> = {
 }
 
 async function findOrCreateChat(
-  messages: Message[],
   chatId?: string,
   userId?: string,
 ): Promise<OperationResponse<string>> {
-  if (chatId) return { success: true, data: chatId }
-
   if (!userId) {
     return {
       success: false,
@@ -31,9 +28,22 @@ async function findOrCreateChat(
     }
   }
 
+  if (chatId) {
+    const chat = await prisma.chat.findUnique({
+      where: {
+        id: chatId,
+        userId,
+      },
+    })
+    if (chat) {
+      return { success: true, data: chat.id }
+    }
+  }
+
   try {
     const chat = await prisma.chat.create({
       data: {
+        id: chatId || undefined,
         title: 'Nova conversa',
         userId,
       },
@@ -53,30 +63,42 @@ async function saveMessages(
   messagesToSave: Message[],
   chatId: string,
   userId: string,
+  attachments?: { name: string; contentType: string; url: string }[],
 ): Promise<OperationResponse<null>> {
   try {
-    const messagesToCreate: Array<{
-      userId: string
-      role: 'USER' | 'ASSISTANT'
-      chatId: string
-      parts: string
-    }> = []
-
     for (const message of messagesToSave) {
       const { role, parts } = formatMessageForStorage(message)
 
-      messagesToCreate.push({
-        userId,
-        role: role as 'USER' | 'ASSISTANT',
-        chatId,
-        parts,
-      })
-    }
+      if (role === 'USER' && attachments && attachments.length > 0) {
+        await prisma.$transaction(async (tx) => {
+          const createdMessage = await tx.message.create({
+            data: {
+              userId,
+              role: 'USER',
+              chatId,
+              parts,
+            },
+          })
 
-    if (messagesToCreate.length > 0) {
-      await prisma.message.createMany({
-        data: messagesToCreate,
-      })
+          const attachmentsToCreate = attachments.map((att) => ({
+            ...att,
+            messageId: createdMessage.id,
+          }))
+
+          await tx.attachment.createMany({
+            data: attachmentsToCreate,
+          })
+        })
+      } else {
+        await prisma.message.create({
+          data: {
+            userId,
+            role: role as 'USER' | 'ASSISTANT',
+            chatId,
+            parts,
+          },
+        })
+      }
     }
 
     return { success: true, data: null }

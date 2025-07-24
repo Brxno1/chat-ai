@@ -30,6 +30,7 @@ import {
 import { formatDateToLocaleWithHour } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
+import { Attachments } from './attachments'
 import { ChatNews } from './chat-news'
 import { ChatWeather } from './chat-weather'
 
@@ -92,23 +93,33 @@ export function ChatMessage({
             return (
               <ContainerWrapper
                 key={`${message.id}-text-${partIndex}`}
-                className="flex w-full flex-col"
+                className={cn('flex flex-col', {
+                  'items-end': message.role === 'user',
+                  'items-start': message.role === 'assistant',
+                })}
               >
                 {message.role === 'user' && (
-                  <Badge
-                    variant={'chat'}
-                    className="ml-auto flex w-fit items-center justify-center hover:bg-transparent"
-                  >
-                    <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
-                      {user?.name}
-                    </span>
-                    <Avatar className="size-6 rounded-sm border-0 bg-transparent max-sm:size-5">
-                      <AvatarImage src={user?.image ?? ''} />
-                      <AvatarFallback className="rounded-sm">
-                        {user?.name?.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Badge>
+                  <>
+                    <Badge
+                      variant={'chat'}
+                      className="ml-auto flex w-fit items-center justify-center hover:bg-transparent"
+                    >
+                      <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
+                        {user?.name}
+                      </span>
+                      <Avatar className="size-6 rounded-sm border-0 bg-transparent max-sm:size-5">
+                        <AvatarImage src={user?.image ?? ''} />
+                        <AvatarFallback className="rounded-sm">
+                          {user?.name?.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Badge>
+                    {message.experimental_attachments && (
+                      <Attachments
+                        attachments={message.experimental_attachments}
+                      />
+                    )}
+                  </>
                 )}
                 <div
                   className={cn(
