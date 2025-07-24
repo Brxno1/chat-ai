@@ -27,11 +27,14 @@ export function UserChatProvider({
   const chatStore = initializeChatStore({ initialChats: chats })
 
   const setUser = (
-    user: User | ((prev: User | undefined) => User | undefined),
+    userOrFn: User | ((prev: User | undefined) => User | undefined),
   ) => {
     dispatch({
       type: 'UPDATE_USER',
-      payload: user as (prev: User | undefined) => User | undefined,
+      payload:
+        typeof userOrFn === 'function'
+          ? (userOrFn as (prev: User | undefined) => User | undefined)
+          : () => userOrFn,
     })
   }
 
