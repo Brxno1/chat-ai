@@ -14,7 +14,7 @@ export function Chat() {
   const { messages } = useChatContext()
 
   React.useLayoutEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   })
 
   return (

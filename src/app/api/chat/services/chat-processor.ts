@@ -42,28 +42,31 @@ export async function processChatAndSaveMessages({
   ]
 
   if (isGhostChatMode || !userId) {
-    const { stream, error } = await createStreamText({
+    const { streamResult, streamError } = await createStreamText({
       messages: finalMessages,
       modelId,
     })
 
     return {
-      stream,
-      error: error || undefined,
+      stream: streamResult,
+      error: streamError || undefined,
       headerChatId: undefined,
     }
   }
 
-  const findOrCreate = await findOrCreateChat(headerChatId, userId)
+  const {
+    success,
+    data: finalChatId,
+    error,
+  } = await findOrCreateChat(headerChatId, userId)
 
-  if (!findOrCreate.success) {
+  if (!success) {
     return {
       stream: null,
-      error: findOrCreate.error || 'Failed to create chat',
+      error: error || 'Failed to create chat',
     }
   }
 
-  const finalChatId = findOrCreate.data
   const isNewChat = !headerChatId
 
   if (isNewChat || processedMessages.length > 0) {
@@ -74,46 +77,48 @@ export async function processChatAndSaveMessages({
         (msg) => msg?.role === 'user',
       )
     /* eslint-enable */
-    if (messagesToSave.length > 0) {
-      await saveMessages(messagesToSave, finalChatId, userId, attachments)
-    }
+    await saveMessages(messagesToSave, finalChatId, userId, attachments)
   }
 
-  if (finalMessages.length >= 3) {
+  if (finalMessages.length >= 2) {
     setImmediate(async () => {
       try {
-        const { title } = await generateChatTitle(finalMessages)
-
-        await prisma.chat.update({
-          where: { id: finalChatId },
-          data: { title },
+        const messageCount = await prisma.message.count({
+          where: { chatId: finalChatId },
         })
+        if (messageCount % 5 === 0) {
+          const { title } = await generateChatTitle(finalMessages)
+          await prisma.chat.update({
+            where: { id: finalChatId },
+            data: { title },
+          })
+        }
       } catch (error) {
         console.error('Failed to update chat title asynchronously:', error)
       }
     })
   }
 
-  const { stream, error } = await createStreamText({
+  const { streamResult, streamError } = await createStreamText({
     messages: finalMessages,
     modelId,
   })
 
-  if (error) {
+  if (streamError || !streamResult) {
     return {
-      stream: null,
-      error,
+      stream: streamResult,
+      error: streamError || undefined,
     }
   }
 
   saveChatResponse({
-    stream: stream!,
+    stream: streamResult,
     chatId: finalChatId,
     userId,
   })
 
   return {
-    stream,
+    stream: streamResult,
     headerChatId: finalChatId,
   }
 }

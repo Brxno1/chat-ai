@@ -52,7 +52,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     onSuccess: () => {
       if (currentChatId === chat.id) {
         resetChatState()
-        router.push('/chat')
+        router.push('/')
       }
 
       onDeleteMessage(chat.id)

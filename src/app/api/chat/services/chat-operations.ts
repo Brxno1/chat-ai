@@ -3,7 +3,7 @@
 import { Message } from '@ai-sdk/react'
 import { StreamTextResult } from 'ai'
 
-import type { Prisma } from '@/services/database/generated'
+import type { MessageRole, Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { AllTools } from '@/types/chat'
 
@@ -12,45 +12,44 @@ import { formatMessageForStorage } from '../utils/message-processor'
 import { processStreamResult } from './process-stream-result'
 
 type OperationResponse<T> = {
-  success: boolean
   data: T
+  success: boolean
   error?: string
 }
 
 async function findOrCreateChat(
-  chatId?: string,
-  userId?: string,
+  chatId: string | undefined,
+  userId: string,
 ): Promise<OperationResponse<string>> {
-  if (!userId) {
-    return {
-      success: false,
-      error: 'User ID not provided',
-      data: '',
-    }
-  }
-
   if (chatId) {
-    const chat = await prisma.chat.findUnique({
+    const existingChat = await prisma.chat.findUnique({
       where: {
         id: chatId,
         userId,
       },
+      select: {
+        id: true,
+      },
     })
-    if (chat) {
-      return { success: true, data: chat.id }
+
+    if (existingChat) {
+      return { success: true, data: existingChat.id }
     }
   }
 
   try {
-    const chat = await prisma.chat.create({
+    const { id } = await prisma.chat.create({
       data: {
-        id: chatId || undefined,
+        id: chatId,
         title: 'Nova conversa',
         userId,
       },
+      select: {
+        id: true,
+      },
     })
 
-    return { success: true, data: chat.id }
+    return { success: true, data: id }
   } catch (error) {
     return {
       success: false,
@@ -79,7 +78,7 @@ async function saveMessages(
           const createdMessage = await tx.message.create({
             data: {
               userId,
-              role: 'USER',
+              role,
               chatId,
               parts,
             },
@@ -87,11 +86,11 @@ async function saveMessages(
 
           const validAttachments: Prisma.AttachmentCreateManyInput[] = []
 
-          for (const attch of attachments) {
+          for (const attachment of attachments) {
             validAttachments.push({
-              name: attch.name,
-              contentType: attch.contentType,
-              url: attch.url,
+              name: attachment.name,
+              contentType: attachment.contentType,
+              url: attachment.url,
               createdAt: new Date(),
               messageId: createdMessage.id,
             })
@@ -107,7 +106,7 @@ async function saveMessages(
         await prisma.message.create({
           data: {
             userId,
-            role: role as 'USER' | 'ASSISTANT',
+            role: role as MessageRole,
             chatId,
             parts,
           },

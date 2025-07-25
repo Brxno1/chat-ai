@@ -22,7 +22,6 @@ import { memo } from 'react';
 import type { HTMLAttributes } from 'react';
 import ReactMarkdown, { type Options } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { codeThemes } from '@/components/theme/code-theme';
 import { SelectCodeTheme } from '@/components/theme/select-code-theme';
 import { useThemeStore } from '@/store/theme';
 

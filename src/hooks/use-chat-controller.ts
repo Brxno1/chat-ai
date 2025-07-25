@@ -34,7 +34,7 @@ export function useChatController({
       'x-user-id': user?.id || '',
       'x-chat-id': currentChatId || '',
       'x-ghost-mode': isGhostChatMode.toString(),
-      'x-ai-model-id': initialModel || model.id,
+      'x-ai-model': initialModel || model.id,
     },
     onResponse: (response) => {
       const headerChatId = response.headers.get('x-chat-id')
@@ -43,7 +43,6 @@ export function useChatController({
         defineChatInstanceKey(headerChatId)
       }
     },
-
     onFinish: () => {
       if (!isGhostChatMode) {
         queryClient.invalidateQueries({

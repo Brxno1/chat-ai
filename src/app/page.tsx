@@ -12,7 +12,7 @@ import { ChatHeader } from './chat/_components/ui/header'
 
 export default async function Home() {
   const cookieStore = await cookies()
-  const model = cookieStore.get('ai-model-id')?.value || 'gemini-2.0-flash'
+  const model = cookieStore.get('ai-model')?.value
 
   return (
     <div className="flex w-full justify-center overflow-hidden">

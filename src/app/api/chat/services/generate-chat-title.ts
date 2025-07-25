@@ -18,8 +18,8 @@ export async function generateChatTitle(
   try {
     const firstUserMessage = messages.find((msg) => msg.role === 'user')
     const fallbackTitle = firstUserMessage
-      ? extractTextFromMessage(firstUserMessage).substring(0, 50)
-      : 'Novo Chat'
+      ? extractTextFromMessage(firstUserMessage)
+      : 'Nova conversa'
 
     const conversationContext = messages
       .map((msg) => {
@@ -40,7 +40,7 @@ ${conversationContext}
 O título deve:
 1. Capturar o tema específico da conversa
 2. Ser único e informativo
-3. NÃO usar termos genéricos como "Assistente Virtual" ou "Conversa com IA"
+3. NÃO usar termos genéricos
 4. Focar no assunto específico discutido
 `
 

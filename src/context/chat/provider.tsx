@@ -16,7 +16,7 @@ export type ChatProviderProps = {
   children: React.ReactNode
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
   currentChatId?: string
-  cookieModel: string
+  cookieModel: string | undefined
 }
 
 export function ChatProvider({
