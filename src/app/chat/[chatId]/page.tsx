@@ -34,7 +34,7 @@ export default async function ChatPageWithId({
   const { chat } = await getChatByIdCached(chatId, userId)
 
   if (!chat) {
-    redirect('/chat')
+    redirect('/')
   }
 
   const cookieStore = await cookies()
