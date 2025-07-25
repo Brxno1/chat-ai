@@ -13,10 +13,10 @@ import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
 import { AIVoiceInput } from '@/components/ui/ai-voice-input'
+import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
-  AIButtonSubmit,
   AIForm,
   AIInputButton,
   AIInputModelSelect,
@@ -129,10 +129,14 @@ export function ChatForm() {
     <Form {...form}>
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-2 overflow-y-auto rounded-md border border-input bg-card dark:bg-message"
+        className="overflow-y-auto rounded-md border border-input bg-card dark:bg-message"
       >
         {previewUrls.length > 0 && (
-          <ImagePreview previewUrls={previewUrls} onRemoveItem={onRemoveItem} />
+          <ImagePreview
+            className="size-14"
+            previewUrls={previewUrls}
+            onRemoveItem={onRemoveItem}
+          />
         )}
         <FormField
           control={form.control}
@@ -143,7 +147,7 @@ export function ChatForm() {
                 <AIInputTextarea
                   name="message"
                   autoFocus={status === 'ready'}
-                  className="h-14 resize-none !border-0 transition-all duration-300 focus-visible:ring-0 sm:h-16"
+                  className="h-14 resize-none !border-0 transition-all duration-300 focus-visible:ring-0"
                   disabled={status === 'streaming'}
                   value={input}
                   onChange={(ev) => {
@@ -239,24 +243,24 @@ export function ChatForm() {
             </AIInputModelSelect>
           </AIInputTools>
           {status === 'streaming' ? (
-            <AIButtonSubmit
+            <Button
               onClick={onStop}
               type="button"
               variant="default"
-              className="flex items-center"
+              className="text-md min-w-[3rem] rounded-lg font-bold"
               size="icon"
             >
               <StopCircle size={16} />
-            </AIButtonSubmit>
+            </Button>
           ) : input ? (
-            <AIButtonSubmit
+            <Button
               disabled={form.formState.isSubmitting}
               type="submit"
               size="icon"
-              className="flex items-center"
+              className="text-md min-w-[3rem] rounded-lg font-bold"
             >
               <SendIcon size={16} />
-            </AIButtonSubmit>
+            </Button>
           ) : (
             <AIVoiceInput />
           )}

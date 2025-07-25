@@ -1,6 +1,6 @@
 import { Message } from '@ai-sdk/react'
-import { createId } from '@paralleldrive/cuid2'
 import { NextRequest, NextResponse } from 'next/server'
+import { v4 as uuidv4 } from 'uuid'
 
 import { uploadChatImage } from './actions/upload-chat-image'
 import { defaultErrorMessage } from './config'
@@ -16,13 +16,15 @@ export async function POST(req: NextRequest) {
 
     const headerUserName = req.headers.get('x-user-name') || undefined
     const headerUserId = req.headers.get('x-user-id') || undefined
-    const headerChatId = req.headers.get('x-chat-id') || createId()
+    const headerChatId = req.headers.get('x-chat-id') || uuidv4()
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
     const headerAiModelId = req.headers.get('x-ai-model-id')
 
-    let attachmentsForDb:
-      | { name: string; contentType: string; url: string }[]
-      | undefined
+    let attachments: {
+      name: string
+      contentType: string
+      url: string
+    }[] = []
 
     if (!headerGhostMode && headerUserId) {
       const userMessage = messages[messages.length - 1]
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
 
           const uploadedUrls = await Promise.all(attachmentUploadPromises)
 
-          attachmentsForDb = uploadedUrls
+          attachments = uploadedUrls
             .map((url, index) => ({
               url: url!,
               name: validAttachments[index].name!,
@@ -83,7 +85,7 @@ export async function POST(req: NextRequest) {
       headerChatId,
       isGhostChatMode: headerGhostMode,
       modelId: headerAiModelId!,
-      attachments: attachmentsForDb,
+      attachments,
     })
 
     if (error || !processedStream) {

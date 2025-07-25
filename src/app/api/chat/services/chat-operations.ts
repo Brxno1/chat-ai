@@ -3,6 +3,7 @@
 import { Message } from '@ai-sdk/react'
 import { StreamTextResult } from 'ai'
 
+import type { Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { AllTools } from '@/types/chat'
 
@@ -63,13 +64,17 @@ async function saveMessages(
   messagesToSave: Message[],
   chatId: string,
   userId: string,
-  attachments?: { name: string; contentType: string; url: string }[],
+  attachments?: {
+    name: string
+    contentType: string
+    url: string
+  }[],
 ): Promise<OperationResponse<null>> {
   try {
     for (const message of messagesToSave) {
       const { role, parts } = formatMessageForStorage(message)
 
-      if (role === 'USER' && attachments && attachments.length > 0) {
+      if (role === 'USER' && attachments) {
         await prisma.$transaction(async (tx) => {
           const createdMessage = await tx.message.create({
             data: {
@@ -80,14 +85,23 @@ async function saveMessages(
             },
           })
 
-          const attachmentsToCreate = attachments.map((att) => ({
-            ...att,
-            messageId: createdMessage.id,
-          }))
+          const validAttachments: Prisma.AttachmentCreateManyInput[] = []
 
-          await tx.attachment.createMany({
-            data: attachmentsToCreate,
-          })
+          for (const attch of attachments) {
+            validAttachments.push({
+              name: attch.name,
+              contentType: attch.contentType,
+              url: attch.url,
+              createdAt: new Date(),
+              messageId: createdMessage.id,
+            })
+          }
+
+          if (validAttachments.length > 0) {
+            await tx.attachment.createMany({
+              data: validAttachments,
+            })
+          }
         })
       } else {
         await prisma.message.create({

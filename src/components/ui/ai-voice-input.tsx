@@ -89,7 +89,7 @@ export function AIVoiceInput({
 
   return (
     <Button
-      className={cn('min-w-[2.5rem] shrink-0 gap-2 rounded-lg text-md font-bold', className)}
+      className={cn('min-w-[3rem] rounded-lg text-md font-bold', className)}
       type="button"
       onClick={handleRecordToggle}
       disabled={isTranscribing}
@@ -116,7 +116,7 @@ export function AIVoiceInput({
           className="size-3 rounded-sm animate-spin bg-background cursor-pointer pointer-events-auto"
           style={{ animationDuration: "3s" }}
         />
-      ) : <Mic className="size-5" />}
+      ) : <Mic size={16} />}
     </Button>
   )
 }

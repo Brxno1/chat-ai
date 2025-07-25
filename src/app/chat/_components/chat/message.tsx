@@ -20,6 +20,7 @@ import {
   AIReasoningTrigger,
 } from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
+import { useChatContext } from '@/context/chat'
 import { useSessionUser } from '@/context/user'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
@@ -36,24 +37,19 @@ import { ChatWeather } from './chat-weather'
 
 interface MessageProps {
   message: UIMessage & Partial<ChatMessageType>
-  modelName: string
-  modelProvider: string
-  isStreaming?: boolean
 }
 
-export function ChatMessage({
-  message,
-  modelName,
-  modelProvider,
-  isStreaming = false,
-}: MessageProps) {
+export function ChatMessage({ message }: MessageProps) {
   const [open, setOpen] = useState(false)
 
+  const { model, status } = useChatContext()
   const { user } = useSessionUser()
 
   const handleCloseComponent = () => {
     setOpen(false)
   }
+
+  const isStreaming = status === 'streaming'
 
   const reasoningParts = extractReasoningParts(message as ChatMessageType)
 
@@ -65,12 +61,12 @@ export function ChatMessage({
         <Badge variant={'chat'} className="hover:bg-transparent">
           <Avatar className="size-5 rounded-sm max-sm:size-4">
             <AvatarImage
-              src={`https://img.logo.dev/${modelProvider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+              src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
             />
             <AvatarFallback className="rounded-sm">AI</AvatarFallback>
           </Avatar>
           <span className="max-w-[15rem] truncate text-ellipsis whitespace-nowrap">
-            {modelName}
+            {model.name}
           </span>
         </Badge>
       )}

@@ -26,7 +26,7 @@ type ChatSidebarProps = {
   className?: string
 }
 
-export function MainSidebarContent({ className }: ChatSidebarProps) {
+export function DashboardSidebarContent({ className }: ChatSidebarProps) {
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname === path
 
@@ -39,7 +39,7 @@ export function MainSidebarContent({ className }: ChatSidebarProps) {
 
   const mainLinks = [
     {
-      href: '/chat',
+      href: '/',
       icon: MessageSquare,
       label: 'Chat',
       onClick: handleResetChat,
