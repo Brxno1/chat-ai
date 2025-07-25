@@ -78,10 +78,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const DATA = {
   user: {
-    name: 'Skyleen',
-    email: 'skyleen@example.com',
+    name: 'Redd',
+    email: 'redd@example.com',
     avatar:
-      'https://pbs.twimg.com/profile_images/1909615404789506048/MTqvRsjo_400x400.jpg',
+      'https://github.com/brxno1.png',
   },
   teams: [
     {
@@ -459,7 +459,7 @@ export const SidebarDemo = () => {
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="bg-red-500">
+      <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />

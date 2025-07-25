@@ -45,11 +45,11 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
 
         switch (toolName) {
           case 'getWeather':
-            return toolSummaries.getWeather[toolName](
+            return toolSummaries.getWeather(
               part.toolInvocation!.args as ToolArgs['getWeather'],
             )
           case 'getNews':
-            return toolSummaries.getNews[toolName](
+            return toolSummaries.getNews(
               part.toolInvocation!.args as ToolArgs['getNews'],
             )
           default:

@@ -16,7 +16,8 @@ const geistMono = GeistMono({
 })
 
 export const metadata: Metadata = {
-  title: 'Home',
+  title: 'Chat',
+  description: 'Chat com IA',
 }
 
 export default async function RootLayout({
@@ -32,9 +33,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Initializer>
-          <main className="h-screen w-full">{children}</main>
-        </Initializer>
+        <Initializer>{children}</Initializer>
       </body>
     </html>
   )

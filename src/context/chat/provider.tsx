@@ -25,7 +25,7 @@ export function ChatProvider({
   currentChatId,
   cookieModel,
 }: ChatProviderProps) {
-  const { model, setModel } = useChatStore()
+  const { model, setModel, chatInstanceKey } = useChatStore()
 
   const { mutateAsync: transcribeAudio, isPending: isTranscribing } =
     useTranscribeAudio()
@@ -80,7 +80,14 @@ export function ChatProvider({
     }
   }
 
+  React.useEffect(() => {
+    if (chatInstanceKey && !messages?.length) {
+      setMessages([])
+    }
+  }, [chatInstanceKey, messages])
+
   const value = {
+    model,
     input,
     messages,
     status,
@@ -90,7 +97,6 @@ export function ChatProvider({
     onSubmitChat,
     onModelChange,
     onGenerateTranscribe,
-    model,
     onStop,
   }
 

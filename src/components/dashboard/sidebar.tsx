@@ -75,7 +75,6 @@ function SidebarNavLink({
   return (
     <Link
       href={href}
-      prefetch
       onClick={() => onClick?.()}
       className={cn(
         'flex items-center justify-start text-secondary-foreground rounded-md py-2 text-sm transition-all hover:bg-card-foreground/5 hover:border-border',

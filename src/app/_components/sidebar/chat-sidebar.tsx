@@ -42,7 +42,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
 
   const mainLinks = [
     {
-      href: '/chat',
+      href: '/',
       icon: MessageSquare,
       label: 'Chat',
       onClick: handleClick,

@@ -1,10 +1,9 @@
 import { Message } from '@ai-sdk/react'
-import { Prisma } from '@prisma/client'
 import { StreamTextResult, UIMessage } from 'ai'
 
 import { newsTool } from '@/app/api/chat/tools/news'
 import { weatherTool } from '@/app/api/chat/tools/weather'
-import { MessageRole } from '@/services/database/generated'
+import type { MessageRole, Prisma } from '@/services/database/generated'
 
 export type ChatMessage = {
   id: string

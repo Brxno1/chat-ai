@@ -50,7 +50,7 @@ function ChatHeader() {
       </div>
       <div className="mr-2 flex items-center gap-2">
         <TooltipWrapper content="Nova conversa" asChild>
-          <Link href="/chat">
+          <Link href="/">
             <Button variant="ghost" onClick={handleCreateNewChat} size="icon">
               <MessageSquarePlus className="size-6" />
             </Button>
