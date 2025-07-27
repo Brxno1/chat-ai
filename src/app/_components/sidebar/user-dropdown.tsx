@@ -39,7 +39,7 @@ function UserDropdown() {
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: async () => {
       await signOut({
-        redirectTo: `/chat`,
+        redirectTo: `/`,
       })
     },
     onSuccess: () => {

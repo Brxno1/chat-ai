@@ -8,78 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { defaultIcon } from '@/utils/language-icon';
 import { cn } from '@/utils/utils';
-import {
-  type IconType,
-  SiAstro,
-  SiBiome,
-  SiBower,
-  SiBun,
-  SiC,
-  SiCircleci,
-  SiCoffeescript,
-  SiCplusplus,
-  SiCss,
-  SiCssmodules,
-  SiDart,
-  SiDocker,
-  SiDocusaurus,
-  SiDotenv,
-  SiEditorconfig,
-  SiEslint,
-  SiGatsby,
-  SiGitignoredotio,
-  SiGnubash,
-  SiGo,
-  SiGraphql,
-  SiGrunt,
-  SiGulp,
-  SiHandlebarsdotjs,
-  SiHtml5,
-  SiJavascript,
-  SiJest,
-  SiJson,
-  SiLess,
-  SiMarkdown,
-  SiMdx,
-  SiMintlify,
-  SiMocha,
-  SiMysql,
-  SiNextdotjs,
-  SiPerl,
-  SiPhp,
-  SiPostcss,
-  SiPrettier,
-  SiPrisma,
-  SiPug,
-  SiPython,
-  SiR,
-  SiReact,
-  SiReadme,
-  SiRedis,
-  SiRemix,
-  SiRive,
-  SiRollupdotjs,
-  SiRuby,
-  SiSanity,
-  SiSass,
-  SiScala,
-  SiSentry,
-  SiShadcnui,
-  SiStorybook,
-  SiStylelint,
-  SiSublimetext,
-  SiSvelte,
-  SiSvg,
-  SiSwift,
-  SiTailwindcss,
-  SiToml,
-  SiTypescript,
-  SiVercel,
-  SiVite,
-  SiVuedotjs,
-  SiWebassembly,
-} from '@icons-pack/react-simple-icons';
+import { IconType } from '@icons-pack/react-simple-icons';
+
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 import {
   transformerNotationDiff,
@@ -108,82 +40,6 @@ import {
   codeToHtml,
 } from 'shiki';
 export type { BundledLanguage } from 'shiki';
-
-const filenameIconMap = {
-  '.env': SiDotenv,
-  '*.astro': SiAstro,
-  'biome.json': SiBiome,
-  '.bowerrc': SiBower,
-  'bun.lockb': SiBun,
-  '*.c': SiC,
-  '*.cpp': SiCplusplus,
-  '.circleci/config.yml': SiCircleci,
-  '*.coffee': SiCoffeescript,
-  '*.module.css': SiCssmodules,
-  '*.css': SiCss,
-  '*.dart': SiDart,
-  Dockerfile: SiDocker,
-  'docusaurus.config.js': SiDocusaurus,
-  '.editorconfig': SiEditorconfig,
-  '.eslintrc': SiEslint,
-  'eslint.config.*': SiEslint,
-  'gatsby-config.*': SiGatsby,
-  '.gitignore': SiGitignoredotio,
-  '*.go': SiGo,
-  '*.graphql': SiGraphql,
-  '*.sh': SiGnubash,
-  'Gruntfile.*': SiGrunt,
-  'gulpfile.*': SiGulp,
-  '*.hbs': SiHandlebarsdotjs,
-  '*.html': SiHtml5,
-  '*.js': SiJavascript,
-  '*.json': SiJson,
-  '*.test.js': SiJest,
-  '*.less': SiLess,
-  '*.md': SiMarkdown,
-  '*.mdx': SiMdx,
-  'mintlify.json': SiMintlify,
-  'mocha.opts': SiMocha,
-  '*.mustache': SiHandlebarsdotjs,
-  '*.sql': SiMysql,
-  'next.config.*': SiNextdotjs,
-  '*.pl': SiPerl,
-  '*.php': SiPhp,
-  'postcss.config.*': SiPostcss,
-  'prettier.config.*': SiPrettier,
-  '*.prisma': SiPrisma,
-  '*.pug': SiPug,
-  '*.py': SiPython,
-  '*.r': SiR,
-  '*.rb': SiRuby,
-  '*.jsx': SiReact,
-  '*.tsx': SiReact,
-  'readme.md': SiReadme,
-  '*.rdb': SiRedis,
-  'remix.config.*': SiRemix,
-  '*.riv': SiRive,
-  'rollup.config.*': SiRollupdotjs,
-  'sanity.config.*': SiSanity,
-  '*.sass': SiSass,
-  '*.scss': SiSass,
-  '*.sc': SiScala,
-  '*.scala': SiScala,
-  'sentry.client.config.*': SiSentry,
-  'components.json': SiShadcnui,
-  'storybook.config.*': SiStorybook,
-  'stylelint.config.*': SiStylelint,
-  '.sublime-settings': SiSublimetext,
-  '*.svelte': SiSvelte,
-  '*.svg': SiSvg,
-  '*.swift': SiSwift,
-  'tailwind.config.*': SiTailwindcss,
-  '*.toml': SiToml,
-  '*.ts': SiTypescript,
-  'vercel.json': SiVercel,
-  'vite.config.*': SiVite,
-  '*.vue': SiVuedotjs,
-  '*.wasm': SiWebassembly,
-};
 
 const lineNumberClassNames = cn(
   '[&_code]:[counter-reset:line]',
@@ -391,13 +247,8 @@ export const CodeBlockFilename = ({
   ...props
 }: CodeBlockFilenameProps) => {
   const { value: activeValue } = useContext(CodeBlockContext);
-  const defaultIcon = Object.entries(filenameIconMap).find(([pattern]) => {
-    const regex = new RegExp(
-      `^${pattern.replace(/\\/g, '\\\\').replace(/\./g, '\\.').replace(/\*/g, '.*')}$`
-    );
-    return regex.test(children as string);
-  })?.[1];
-  const Icon = icon ?? defaultIcon;
+
+  const Icon = icon ?? defaultIcon(children as string);
 
   if (value !== activeValue) {
     return null;
@@ -405,10 +256,10 @@ export const CodeBlockFilename = ({
 
   return (
     <div
-      className="flex items-center gap-2 bg-secondary px-4 py-1.5 text-muted-foreground text-xs"
+      className="flex items-center justify-center gap-1.5 p-2 rounded-sm text-muted-foreground text-sm hover:bg-accent hover:text-accent-foreground"
       {...props}
     >
-      {Icon && <Icon className="h-4 w-4 shrink-0" />}
+      {Icon && <Icon className="size-4 shrink-0" />}
       <span className="flex-1 truncate">{children}</span>
     </div>
   );
@@ -521,7 +372,7 @@ export const CodeBlockCopyButton = ({
       className={cn('shrink-0', className)}
       {...props}
     >
-      {children ?? <Icon size={14} className="text-muted-foreground" />}
+      {children ?? <Icon size={14} />}
     </Button>
   );
 };
@@ -542,6 +393,19 @@ export const CodeBlockFallback = ({ children, ...props }: CodeBlockFallbackProps
     </code>
   </pre>
 );
+
+export type CodeBlockInfosProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> & {
+  children: (item: CodeBlockData) => ReactNode;
+};
+
+export const CodeBlockInfos = ({ children, ...props }: CodeBlockInfosProps) => {
+  const { data } = useContext(CodeBlockContext);
+
+  return <div {...props}>{data.map(children)}</div>;
+};
 
 export type CodeBlockBodyProps = Omit<
   HTMLAttributes<HTMLDivElement>,

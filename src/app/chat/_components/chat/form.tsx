@@ -28,7 +28,7 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
-import { useChatContext } from '@/context/chat'
+import { useChatInstance } from '@/context/chat'
 import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
 
 import { models } from '../../models/definitions'
@@ -36,22 +36,18 @@ import { ImagePreview } from './image-preview'
 
 const schema = z.object({
   message: z.string().min(1),
-  attachments: z.union([
-    z
-      .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
-      .refine(
-        (file) => file.size <= 10 * 1024 * 1024,
-        `O arquivo deve ter no máximo 10MB`,
-      ),
-    z
-      .array(z.instanceof(File))
-      .refine(
-        (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
-        `Os arquivos devem ter no máximo 10MB cada`,
-      ),
-    z.null(),
-    z.undefined(),
-  ]),
+  attachments: z
+    .array(
+      z.instanceof(File, {
+        message: 'Por favor, selecione um arquivo válido',
+      }),
+    )
+    .refine(
+      (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
+      `Os arquivos devem ter no máximo 10MB cada`,
+    )
+    .optional()
+    .nullable(),
 })
 
 export function ChatForm() {
@@ -82,7 +78,7 @@ export function ChatForm() {
     onModelChange,
     onInputChange,
     onStop,
-  } = useChatContext()
+  } = useChatInstance()
 
   const onRemoveItem = (index: number) => {
     handleRemoveItem(index)
@@ -103,12 +99,8 @@ export function ChatForm() {
     const dataTransfer = new DataTransfer()
 
     if (attachments) {
-      if (Array.isArray(attachments)) {
-        attachments.forEach((file) => formData.append('attachments', file))
-        attachments.forEach((file) => dataTransfer.items.add(file))
-      } else {
-        formData.append('attachments', attachments)
-      }
+      attachments.forEach((file) => formData.append('attachments', file))
+      attachments.forEach((file) => dataTransfer.items.add(file))
     }
 
     onSubmitChat(undefined, {

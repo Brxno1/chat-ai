@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache, Suspense } from 'react'
 
@@ -25,20 +24,13 @@ export default async function ChatPageWithId({
   const { chatId } = await params
   const { session } = await getUserSession()
 
-  if (!session) {
-    redirect('/auth')
-  }
+  const { user } = session!
 
-  const { id: userId } = session.user
-
-  const { chat } = await getChatByIdCached(chatId, userId)
+  const { chat } = await getChatByIdCached(chatId, user.id)
 
   if (!chat) {
     redirect('/')
   }
-
-  const cookieStore = await cookies()
-  const model = cookieStore.get('ai-model')?.value
 
   return (
     <div className="flex w-full justify-center overflow-hidden">
@@ -54,15 +46,14 @@ export default async function ChatPageWithId({
             <ChatHeader />
             <DashboardPageMain>
               <ContainerWrapper className="h-full min-h-0 flex-1">
-                <Suspense fallback={<ChatFallback />}>
-                  <ChatProvider
-                    initialMessages={chat!.messages}
-                    currentChatId={chatId}
-                    cookieModel={model}
-                  >
+                <ChatProvider
+                  initialMessages={chat!.messages}
+                  currentChatId={chatId}
+                >
+                  <Suspense fallback={<ChatFallback />}>
                     <Chat />
-                  </ChatProvider>
-                </Suspense>
+                  </Suspense>
+                </ChatProvider>
               </ContainerWrapper>
             </DashboardPageMain>
           </DashboardPage>

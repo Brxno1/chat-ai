@@ -11,7 +11,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { useSessionUser } from '@/context/user'
+import { useChatInstance } from '@/context/chat'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'
 import { groupItemsByDate } from '@/utils/format'
@@ -19,7 +19,7 @@ import { groupItemsByDate } from '@/utils/format'
 import { HistoricalItem } from './item'
 
 function Historical() {
-  const { chats: initialData } = useSessionUser()
+  const { chats: initialData } = useChatInstance()
 
   const { data: chats, isFetching } = useSuspenseQuery({
     queryFn: fetchChats,

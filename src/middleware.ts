@@ -14,6 +14,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (pathname.startsWith('/chat/') && !token) {
+    return NextResponse.redirect(new URL(getUrl('/')))
+  }
+
   if (pathname === '/auth' && token) {
     return NextResponse.redirect(new URL(getUrl('/')))
   }

@@ -4,7 +4,10 @@ import { type Message as UIMessage } from '@ai-sdk/react'
 import type { ChatRequestOptions } from 'ai'
 import { ChangeEvent, createContext, useContext } from 'react'
 
+import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
+
 type States = {
+  chats?: ChatWithMessages[]
   input: string
   messages: UIMessage[]
   status: 'streaming' | 'error' | 'submitted' | 'ready'
@@ -35,11 +38,11 @@ export type ChatContextProps = States & Actions
 
 export const ChatContext = createContext<ChatContextProps | null>(null)
 
-export function useChatContext() {
+export function useChatInstance() {
   const context = useContext(ChatContext)
 
   if (!context) {
-    throw new Error('useChatContext must be used within a ChatProvider')
+    throw new Error('useChatInstance must be used within a ChatProvider')
   }
 
   return context

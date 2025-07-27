@@ -4,7 +4,7 @@ import { Loader2, Mic } from "lucide-react";
 import React from "react";
 import { cn } from "@/utils/utils";
 import { Button } from "./button";
-import { useChatContext } from "@/context/chat";
+import { useChatInstance } from "@/context/chat";
 
 interface AIVoiceInputProps {
   visualizerBars?: number;
@@ -22,7 +22,7 @@ export function AIVoiceInput({
   const audioStream = React.useRef<MediaStream | null>(null);
   const audioChunks = React.useRef<Blob[]>([]);
 
-  const { onGenerateTranscribe, isTranscribing } = useChatContext()
+  const { onGenerateTranscribe, isTranscribing } = useChatInstance()
 
   React.useEffect(() => {
     let intervalId: NodeJS.Timeout;

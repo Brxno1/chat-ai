@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
 
     response.headers.set(
       'Set-Cookie',
-      `ai-model-id=${headerAiModelId}; Path=/; SameSite=none; HttpOnly; Secure; Max-Age=604800`, // 7 days
+      `ai-model=${headerAiModelId}; Path=/; SameSite=none; HttpOnly; Secure; Max-Age=604800`, // 7 days
     )
 
     return response

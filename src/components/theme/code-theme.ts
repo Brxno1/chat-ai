@@ -1,5 +1,6 @@
 export const codeThemes = [
   { label: 'Vesper', value: { light: 'light-plus', dark: 'vesper' } },
+  { label: 'Min Theme', value: { light: 'min-light', dark: 'min-dark' } },
   { label: 'GitHub', value: { light: 'github-light', dark: 'github-dark' } },
   { label: 'Light Plus', value: { light: 'light-plus', dark: 'houston' } },
   { label: 'Everforest', value: { light: 'everforest-light', dark: 'everforest-dark' } },
