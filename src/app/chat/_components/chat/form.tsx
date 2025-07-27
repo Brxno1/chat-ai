@@ -28,30 +28,32 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
-import { useChatContext } from '@/context/chat'
+import { useChatInstance } from '@/context/chat'
 import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
 
 import { models } from '../../models/definitions'
 import { ImagePreview } from './image-preview'
 
 const schema = z.object({
-  message: z.string().min(1),
-  attachments: z.union([
-    z
-      .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
-      .refine(
-        (file) => file.size <= 10 * 1024 * 1024,
-        `O arquivo deve ter no máximo 10MB`,
-      ),
-    z
-      .array(z.instanceof(File))
-      .refine(
-        (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
-        `Os arquivos devem ter no máximo 10MB cada`,
-      ),
-    z.null(),
-    z.undefined(),
-  ]),
+  message: z.string(),
+  attachments: z
+    .array(
+      z.instanceof(File, {
+        message: 'Por favor, selecione um arquivo válido',
+      }),
+    )
+    .refine(
+      (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
+      `Os arquivos devem ter no máximo 10MB cada`,
+    )
+    .optional()
+    .nullable(),
+  audio: z
+    .instanceof(File, {
+      message: 'Por favor, selecione um arquivo válido',
+    })
+    .optional()
+    .nullable(),
 })
 
 export function ChatForm() {
@@ -61,6 +63,7 @@ export function ChatForm() {
     defaultValues: {
       message: '',
       attachments: null,
+      audio: null,
     },
   })
 
@@ -82,7 +85,7 @@ export function ChatForm() {
     onModelChange,
     onInputChange,
     onStop,
-  } = useChatContext()
+  } = useChatInstance()
 
   const onRemoveItem = (index: number) => {
     handleRemoveItem(index)
@@ -96,19 +99,31 @@ export function ChatForm() {
     form.setValue('attachments', remainingFiles)
   }
 
-  const handleSubmit = ({ message, attachments }: z.infer<typeof schema>) => {
-    const formData = new FormData()
+  const handleAudioRecorded = (audioBlob: Blob | null) => {
+    if (audioBlob) {
+      const audioFile = new File([audioBlob], 'user-audio.webm', {
+        type: 'audio/webm',
+      })
 
-    formData.append('message', message)
+      const dataTransfer = new DataTransfer()
+
+      if (audioFile && audioFile.size > 0) {
+        dataTransfer.items.add(audioFile)
+      }
+
+      form.setValue('audio', audioFile)
+    }
+  }
+
+  const handleSubmit = ({ attachments, audio }: z.infer<typeof schema>) => {
     const dataTransfer = new DataTransfer()
 
-    if (attachments) {
-      if (Array.isArray(attachments)) {
-        attachments.forEach((file) => formData.append('attachments', file))
-        attachments.forEach((file) => dataTransfer.items.add(file))
-      } else {
-        formData.append('attachments', attachments)
-      }
+    if (attachments && attachments.length > 0) {
+      attachments.forEach((file) => dataTransfer.items.add(file))
+    }
+
+    if (audio && audio.size > 0) {
+      dataTransfer.items.add(audio)
     }
 
     onSubmitChat(undefined, {
@@ -262,7 +277,10 @@ export function ChatForm() {
               <SendIcon size={16} />
             </Button>
           ) : (
-            <AIVoiceInput />
+            <AIVoiceInput
+              onAudioRecorded={handleAudioRecorded}
+              isSubmitting={form.formState.isSubmitting}
+            />
           )}
         </AIInputToolbar>
       </AIForm>

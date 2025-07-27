@@ -13,8 +13,8 @@ import {
 import React from 'react'
 import Flags from 'react-world-flags'
 
-import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
 import { Skeleton } from '@/components/ui/skeleton'
+import { WeatherToolResponse } from '@/types/weather'
 import { formatLocations } from '@/utils/format'
 import { cn } from '@/utils/utils'
 

@@ -1,11 +1,15 @@
 import { ToolInvocation } from 'ai'
 
-import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
-import { isWeatherResult, ToolInvocationResult } from '@/types/tool-results'
+import {
+  isWeatherResult,
+  ToolInvocationResult,
+  ToolName,
+} from '@/types/tool-results'
+import { WeatherToolResponse } from '@/types/weather'
 
 type ToolInvocationWithResult = ToolInvocation & { result: unknown }
 
-export function useToolResult<T extends string = string>(
+export function useToolResult<T extends ToolName>(
   toolInvocation: ToolInvocation,
   toolName: T,
 ) {

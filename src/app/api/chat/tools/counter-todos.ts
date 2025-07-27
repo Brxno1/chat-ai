@@ -8,7 +8,13 @@ export const countTodosTool = tool({
     'Conte quantos todos (tarefas) o usuário tem. Use esta ferramenta APENAS quando o usuário estiver LOGADO (isLoggedIn = true) e perguntar sobre a quantidade de tarefas, to-dos. Se o usuário NÃO estiver logado, NÃO use esta ferramenta e em vez disso informe que é necessário fazer login para acessar os to-dos.',
   parameters: z.object({}),
   execute: async () => {
-    const todos = await getTodosAction()
+    const { todos } = await getTodosAction()
+
+    if (!todos) {
+      return {
+        totalCount: 0,
+      }
+    }
 
     const pendingTodos = todos.filter((todo) => todo.status === 'PENDING')
     const finishedTodos = todos.filter((todo) => todo.status === 'FINISHED')

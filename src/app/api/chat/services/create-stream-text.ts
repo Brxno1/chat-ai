@@ -42,8 +42,8 @@ export async function createStreamText({
 }: CreateStreamTextParams) {
   if (!Array.isArray(messages) || messages.length === 0) {
     return {
-      stream: null,
-      error: 'Mensagens não fornecidas',
+      streamResult: null,
+      streamError: 'Mensagens não fornecidas',
     }
   }
 
@@ -56,7 +56,7 @@ export async function createStreamText({
     const normalizedMessages = normalizeMessagesForStream(messages)
     let errorMessage: string | null = null
 
-    const stream = streamText({
+    const streamResult = streamText({
       model,
       temperature: 0.2,
       maxTokens: 2000,
@@ -72,21 +72,21 @@ export async function createStreamText({
       },
     })
 
-    if (!stream) {
+    if (!streamResult) {
       return {
-        stream: null,
-        error: errorMessage,
+        streamResult: null,
+        streamError: errorMessage,
       }
     }
 
     return {
-      stream,
-      error: null,
+      streamResult,
+      streamError: null,
     }
   } catch (error) {
     return {
-      stream: null,
-      error: errorHandler(error),
+      streamResult: null,
+      streamError: errorHandler(error),
     }
   }
 }

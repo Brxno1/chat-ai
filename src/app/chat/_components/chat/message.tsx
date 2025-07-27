@@ -20,7 +20,7 @@ import {
   AIReasoningTrigger,
 } from '@/components/ui/kibo-ui/ai/reasoning'
 import { AIResponse } from '@/components/ui/kibo-ui/ai/response'
-import { useChatContext } from '@/context/chat'
+import { useChatInstance } from '@/context/chat'
 import { useSessionUser } from '@/context/user'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
@@ -42,7 +42,7 @@ interface MessageProps {
 export function ChatMessage({ message }: MessageProps) {
   const [open, setOpen] = useState(false)
 
-  const { model, status } = useChatContext()
+  const { model, status } = useChatInstance()
   const { user } = useSessionUser()
 
   const handleCloseComponent = () => {
@@ -89,7 +89,7 @@ export function ChatMessage({ message }: MessageProps) {
             return (
               <ContainerWrapper
                 key={`${message.id}-text-${partIndex}`}
-                className={cn('flex flex-col', {
+                className={cn('flex flex-col space-y-2', {
                   'items-end': message.role === 'user',
                   'items-start': message.role === 'assistant',
                 })}
@@ -119,7 +119,7 @@ export function ChatMessage({ message }: MessageProps) {
                 )}
                 <div
                   className={cn(
-                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]',
+                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[70%]',
                     {
                       'ml-auto bg-message text-accent dark:bg-primary/10':
                         message.role === 'user',

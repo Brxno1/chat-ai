@@ -1,5 +1,6 @@
 'use client';
 
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/animate-ui/radix/collapsible';
 import { cn } from '@/utils/utils';
 import {
   type BundledLanguage,
@@ -10,6 +11,7 @@ import {
   CodeBlockFilename,
   CodeBlockFiles,
   CodeBlockHeader,
+  CodeBlockInfos,
   CodeBlockItem,
   type CodeBlockProps,
   CodeBlockSelect,
@@ -18,17 +20,66 @@ import {
   CodeBlockSelectTrigger,
   CodeBlockSelectValue,
 } from '@/components/ui/kibo-ui/code-block';
-import { memo } from 'react';
+import React, { memo } from 'react';
 import type { HTMLAttributes } from 'react';
 import ReactMarkdown, { type Options } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { codeThemes } from '@/components/theme/code-theme';
 import { SelectCodeTheme } from '@/components/theme/select-code-theme';
 import { useThemeStore } from '@/store/theme';
+import { Button } from '../../button';
+import { ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
 
 export type AIResponseProps = HTMLAttributes<HTMLDivElement> & {
   options?: Options;
   children: Options['children'];
+};
+
+const languageToFileExtension: Record<string, string> = {
+  typescript: 'ts',
+  javascript: 'js',
+  jsx: 'jsx',
+  tsx: 'tsx',
+  html: 'html',
+  css: 'css',
+  json: 'json',
+  python: 'py',
+  ruby: 'rb',
+  go: 'go',
+  rust: 'rs',
+  java: 'java',
+  csharp: 'cs',
+  php: 'php',
+  swift: 'swift',
+  kotlin: 'kt',
+  sql: 'sql',
+  bash: 'sh',
+  shell: 'sh',
+  yaml: 'yaml',
+  markdown: 'md',
+  xml: 'xml',
+  cpp: 'cpp',
+  c: 'c',
+  dart: 'dart',
+  dockerfile: 'Dockerfile',
+  graphql: 'graphql',
+  haskell: 'hs',
+  lua: 'lua',
+  perl: 'pl',
+  r: 'r',
+  scala: 'scala',
+  scss: 'scss',
+  sass: 'sass',
+  less: 'less',
+  stylus: 'styl',
+  toml: 'toml',
+  vue: 'vue',
+  svelte: 'svelte',
+  astro: 'astro',
+};
+
+const getFilenameFromLanguage = (language: string): string => {
+  const extension = languageToFileExtension[language] || language;
+  return `main.${extension}`;
 };
 
 const components: Options['components'] = {
@@ -108,9 +159,18 @@ const components: Options['components'] = {
     let language = 'typescript';
 
     const { theme, getTheme } = useThemeStore();
+    const [isOpen, setIsOpen] = React.useState(true);
     const selectedTheme = getTheme(theme);
 
-    if (typeof node?.properties?.className === 'string') {
+    if (Array.isArray(node?.properties?.className)) {
+      const langClass = node.properties.className
+        .filter((cls): cls is string => typeof cls === 'string')
+        .find(cls => cls.startsWith('language-'));
+
+      if (langClass) {
+        language = langClass.replace('language-', '');
+      }
+    } else if (typeof node?.properties?.className === 'string') {
       language = node.properties.className.replace('language-', '');
     }
 
@@ -121,10 +181,12 @@ const components: Options['components'] = {
       return <code className={className}>{children}</code>;
     }
 
+    const filename = getFilenameFromLanguage(language);
+
     const data: CodeBlockProps['data'] = [
       {
         language,
-        filename: 'index.ts',
+        filename,
         code: children as string,
       },
     ];
@@ -135,41 +197,64 @@ const components: Options['components'] = {
         data={data}
         defaultValue={data[0].language}
       >
-        <CodeBlockHeader className="flex items-center bg-card/60 justify-end">
-          <SelectCodeTheme />
-          <CodeBlockFiles className="hidden">
-            {(item) => (
-              <CodeBlockFilename key={item.language} value={item.language}>
-                {item.filename}
-              </CodeBlockFilename>
-            )}
-          </CodeBlockFiles>
-          <CodeBlockSelect>
-            <CodeBlockSelectTrigger className="hidden">
-              <CodeBlockSelectValue />
-            </CodeBlockSelectTrigger>
-            <CodeBlockSelectContent>
-              {(item) => (
-                <CodeBlockSelectItem key={item.language} value={item.language}>
-                  {item.language}
-                </CodeBlockSelectItem>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CodeBlockHeader className="flex rounded-md items-center bg-background justify-between relative">
+            <div className="flex items-center gap-0.5">
+              <CodeBlockFiles>
+                {(item) => (
+                  <CodeBlockFilename key={item.language} value={item.language}>
+                    {item.filename}
+                  </CodeBlockFilename>
+                )}
+              </CodeBlockFiles>
+              {!isOpen && (
+                <CodeBlockInfos>
+                  {(item) => (
+                    <span key={item.language} className="flex items-center gap-1 text-xs text-muted-foreground">
+                      {item.code.split('\n').length} linhas de código
+                    </span>
+                  )}
+                </CodeBlockInfos>
               )}
-            </CodeBlockSelectContent>
-          </CodeBlockSelect>
-          <CodeBlockCopyButton />
-        </CodeBlockHeader>
-        <CodeBlockBody>
-          {(item) => (
-            <CodeBlockItem key={item.language} value={item.language}>
-              <CodeBlockContent
-                language={item.language as BundledLanguage}
-                themes={selectedTheme.value}
-              >
-                {item.code}
-              </CodeBlockContent>
-            </CodeBlockItem>
-          )}
-        </CodeBlockBody>
+            </div>
+            <div className="flex items-center gap-0.5">
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="w-fit border-none text-xs shadow-none gap-1">
+                  {isOpen ? <ChevronsDownUp size={14} /> : <ChevronsUpDown size={14} />}
+                  <span className="max-md:hidden">{isOpen ? 'Ocultar código' : 'Mostrar código'}</span>
+                </Button>
+              </CollapsibleTrigger>
+              <SelectCodeTheme />
+              <CodeBlockSelect>
+                <CodeBlockSelectTrigger className="hidden">
+                  <CodeBlockSelectValue />
+                </CodeBlockSelectTrigger>
+                <CodeBlockSelectContent>
+                  {(item) => (
+                    <CodeBlockSelectItem key={item.language} value={item.language}>
+                      {item.language}
+                    </CodeBlockSelectItem>
+                  )}
+                </CodeBlockSelectContent>
+              </CodeBlockSelect>
+              <CodeBlockCopyButton />
+            </div>
+          </CodeBlockHeader>
+          <CollapsibleContent className="overflow-hidden">
+            <CodeBlockBody>
+              {(item) => (
+                <CodeBlockItem key={item.language} value={item.language}>
+                  <CodeBlockContent
+                    language={item.language as BundledLanguage}
+                    themes={selectedTheme.value}
+                  >
+                    {item.code}
+                  </CodeBlockContent>
+                </CodeBlockItem>
+              )}
+            </CodeBlockBody>
+          </CollapsibleContent>
+        </Collapsible>
       </CodeBlock>
     );
   },

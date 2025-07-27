@@ -6,6 +6,7 @@ import {
   ProcessChatAndSaveMessagesResponse,
 } from '@/types/chat'
 
+import { uploadChatImage } from '../actions/upload-chat-image'
 import { generateSystemPrompt } from '../prompts'
 import { processToolInvocations } from '../utils/message-filter'
 import {
@@ -23,7 +24,6 @@ export async function processChatAndSaveMessages({
   userId,
   isGhostChatMode,
   modelId,
-  attachments,
 }: ProcessChatAndSaveMessagesProps): Promise<ProcessChatAndSaveMessagesResponse> {
   const processedMessages = processToolInvocations(messages)
 
@@ -42,28 +42,77 @@ export async function processChatAndSaveMessages({
   ]
 
   if (isGhostChatMode || !userId) {
-    const { stream, error } = await createStreamText({
+    const { streamResult, streamError } = await createStreamText({
       messages: finalMessages,
       modelId,
     })
 
     return {
-      stream,
-      error: error || undefined,
+      stream: streamResult,
+      error: streamError || undefined,
       headerChatId: undefined,
     }
   }
 
-  const findOrCreate = await findOrCreateChat(headerChatId, userId)
+  const {
+    success,
+    data: finalChatId,
+    error,
+  } = await findOrCreateChat(headerChatId, userId)
 
-  if (!findOrCreate.success) {
+  if (!success) {
     return {
       stream: null,
-      error: findOrCreate.error || 'Failed to create chat',
+      error: error || 'Failed to create chat',
     }
   }
 
-  const finalChatId = findOrCreate.data
+  const processedAttachments: {
+    url: string
+    name: string
+    contentType: string
+  }[] = []
+
+  const { role, experimental_attachments: userAttachments } =
+    processedMessages[processedMessages.length - 1]
+
+  if (role === 'user' && userAttachments) {
+    const attachments = userAttachments.filter((attachment) => !!attachment)
+
+    if (attachments.length > 0) {
+      for await (const attach of attachments) {
+        try {
+          const isAudio = attach.contentType?.startsWith('audio/')
+
+          if (isAudio) {
+            processedAttachments.push({
+              url: attach.url,
+              name: attach.name || `audio-${new Date().getTime()}.webm`,
+              contentType: attach.contentType || 'audio/webm',
+            })
+            continue
+          }
+
+          const result = await uploadChatImage(userId, finalChatId, {
+            name: attach.name || new Date().getTime().toString(),
+            contentType: attach.contentType || 'image/webp',
+            url: attach.url,
+          })
+
+          if (result) {
+            processedAttachments.push({
+              url: result.url,
+              name: result.name,
+              contentType: result.contentType,
+            })
+          }
+        } catch (error) {
+          console.error('Error uploading attachment:', error)
+        }
+      }
+    }
+  }
+
   const isNewChat = !headerChatId
 
   if (isNewChat || processedMessages.length > 0) {
@@ -74,46 +123,53 @@ export async function processChatAndSaveMessages({
         (msg) => msg?.role === 'user',
       )
     /* eslint-enable */
-    if (messagesToSave.length > 0) {
-      await saveMessages(messagesToSave, finalChatId, userId, attachments)
-    }
+    await saveMessages(
+      messagesToSave,
+      finalChatId,
+      userId,
+      processedAttachments,
+    )
   }
 
-  if (finalMessages.length >= 3) {
+  if (finalMessages.length >= 2) {
     setImmediate(async () => {
       try {
-        const { title } = await generateChatTitle(finalMessages)
-
-        await prisma.chat.update({
-          where: { id: finalChatId },
-          data: { title },
+        const messageCount = await prisma.message.count({
+          where: { chatId: finalChatId },
         })
+        if (messageCount % 5 === 0) {
+          const { title } = await generateChatTitle(finalMessages)
+          await prisma.chat.update({
+            where: { id: finalChatId },
+            data: { title },
+          })
+        }
       } catch (error) {
         console.error('Failed to update chat title asynchronously:', error)
       }
     })
   }
 
-  const { stream, error } = await createStreamText({
+  const { streamResult, streamError } = await createStreamText({
     messages: finalMessages,
     modelId,
   })
 
-  if (error) {
+  if (streamError || !streamResult) {
     return {
-      stream: null,
-      error,
+      stream: streamResult,
+      error: streamError || undefined,
     }
   }
 
   saveChatResponse({
-    stream: stream!,
+    stream: streamResult,
     chatId: finalChatId,
     userId,
   })
 
   return {
-    stream,
+    stream: streamResult,
     headerChatId: finalChatId,
   }
 }

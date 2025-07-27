@@ -3,11 +3,11 @@
 import { Message as UIMessage } from '@ai-sdk/react'
 import React from 'react'
 
-import { WeatherToolResponse } from '@/app/api/chat/tools/weather'
 import { ContainerWrapper } from '@/components/container'
 import { Badge } from '@/components/ui/badge'
 import { ChatMessage } from '@/types/chat'
 import { ToolInvocationResult } from '@/types/tool-results'
+import { WeatherToolResponse } from '@/types/weather'
 import { formatDateToLocaleWithHour, formatLocations } from '@/utils/format'
 
 import {

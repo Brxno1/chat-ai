@@ -7,13 +7,14 @@ import { Session, User } from 'next-auth'
 import React from 'react'
 import { Toaster as ToasterSonner } from 'sonner'
 
-import { UserChatProvider } from '@/context/user'
+import { UserProvider } from '@/context/user'
 import { createQueryClient } from '@/lib/query-client'
 
 import { ThemeProvider } from './theme/theme-provider'
 import { SidebarProvider } from './ui/sidebar'
 import { TooltipProvider } from './ui/tooltip'
 import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
+import { ChatProvider } from '@/context/chat'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -21,6 +22,7 @@ interface ProvidersProps {
   initialUser: User | undefined
   initialChats: ChatWithMessages[]
   defaultOpen?: boolean
+  model?: string
 }
 
 export function Providers({
@@ -29,43 +31,46 @@ export function Providers({
   initialUser,
   initialChats,
   defaultOpen,
+  model,
 }: ProvidersProps) {
   const [queryClient] = React.useState(() => createQueryClient())
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <UserChatProvider user={initialUser} session={initialSession} chats={initialChats}>
-        <ProgressProvider
-          height=".10rem"
-          color="#556eff"
-          options={{ showSpinner: false }}
-          shallowRouting
-        >
-          <TooltipProvider>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <QueryClientProvider client={queryClient}>
-                <NextAuthSessionProvider session={initialSession}>
-                  {children}
-                </NextAuthSessionProvider>
-              </QueryClientProvider>
-            </SidebarProvider>
-          </TooltipProvider>
-          <ToasterSonner
-            richColors
-            duration={3000}
-            closeButton
-            position="top-right"
-            theme="dark"
-            pauseWhenPageIsHidden
-            visibleToasts={2}
-          />
-        </ProgressProvider>
-      </UserChatProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <UserProvider user={initialUser} session={initialSession}>
+          <ChatProvider initialChats={initialChats} cookieModel={model}>
+            <ProgressProvider
+              height=".10rem"
+              color="#556eff"
+              options={{ showSpinner: false }}
+              shallowRouting
+            >
+              <TooltipProvider>
+                <SidebarProvider defaultOpen={defaultOpen}>
+                  <NextAuthSessionProvider session={initialSession}>
+                    {children}
+                  </NextAuthSessionProvider>
+                </SidebarProvider>
+              </TooltipProvider>
+              <ToasterSonner
+                richColors
+                duration={3000}
+                closeButton
+                position="top-right"
+                theme="dark"
+                pauseWhenPageIsHidden
+                visibleToasts={2}
+              />
+            </ProgressProvider>
+          </ChatProvider>
+        </UserProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }

@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { useChatContext } from '@/context/chat'
+import { useChatInstance } from '@/context/chat'
 
 import { ChatForm } from './form'
 import { ChatMessage } from './message'
@@ -11,10 +11,10 @@ export function Chat() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
 
-  const { messages } = useChatContext()
+  const { messages } = useChatInstance()
 
   React.useLayoutEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   })
 
   return (

@@ -4,16 +4,20 @@ import { Loader2, Mic } from "lucide-react";
 import React from "react";
 import { cn } from "@/utils/utils";
 import { Button } from "./button";
-import { useChatContext } from "@/context/chat";
+import { useChatInstance } from "@/context/chat";
 
 interface AIVoiceInputProps {
   visualizerBars?: number;
   className?: string;
+  onAudioRecorded: (audioBlob: Blob | null) => void;
+  isSubmitting?: boolean;
 }
 
 export function AIVoiceInput({
   visualizerBars = 8,
   className,
+  onAudioRecorded,
+  isSubmitting,
 }: AIVoiceInputProps) {
   const [isRecording, setIsRecording] = React.useState(false);
   const [time, setTime] = React.useState(0);
@@ -22,7 +26,7 @@ export function AIVoiceInput({
   const audioStream = React.useRef<MediaStream | null>(null);
   const audioChunks = React.useRef<Blob[]>([]);
 
-  const { onGenerateTranscribe, isTranscribing } = useChatContext()
+  const { onGenerateTranscribe, isTranscribing } = useChatInstance()
 
   React.useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -50,9 +54,13 @@ export function AIVoiceInput({
           };
 
           mediaRecorder.current.onstop = () => {
-            const audioBlob = audioChunks.current.length > 0 ? new Blob(audioChunks.current, { type: 'audio/webm' }) : null;
+            const audioBlob =
+              audioChunks.current.length > 0
+                ? new Blob(audioChunks.current, { type: 'audio/webm' })
+                : null;
 
-            onGenerateTranscribe(audioBlob);
+            // onGenerateTranscribe(audioBlob);
+            onAudioRecorded(audioBlob);
             setTime(0);
 
             audioStream.current = null;
@@ -69,13 +77,13 @@ export function AIVoiceInput({
           audioStream.current.getTracks().forEach((track) => track.stop());
         }
       } else {
-        onGenerateTranscribe(null);
+        onGenerateTranscribe(null)
         setTime(0);
       }
     }
 
     return () => clearInterval(intervalId);
-  }, [isRecording, time]);
+  }, [isRecording, onAudioRecorded]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -89,10 +97,10 @@ export function AIVoiceInput({
 
   return (
     <Button
-      className={cn('min-w-[3rem] rounded-lg text-md font-bold', className)}
+      className={cn('group min-w-[3rem] rounded-lg text-md font-bold', className)}
       type="button"
       onClick={handleRecordToggle}
-      disabled={isTranscribing}
+      disabled={isSubmitting}
     >
       {isRecording ? (
         <div className="h-4 w-14 flex items-center justify-center gap-0.5">
@@ -111,12 +119,14 @@ export function AIVoiceInput({
             );
           })}
         </div>
-      ) : isTranscribing ? (
+      ) : isSubmitting || isTranscribing ? (
         <div
           className="size-3 rounded-sm animate-spin bg-background cursor-pointer pointer-events-auto"
           style={{ animationDuration: "3s" }}
         />
-      ) : <Mic size={16} />}
+      ) : (
+        <Mic size={16} />
+      )}
     </Button>
   )
 }

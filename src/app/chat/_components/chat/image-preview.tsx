@@ -52,7 +52,7 @@ export function ImagePreview({
       {previewUrls.map((url, index) => (
         <div
           key={index}
-          className="group relative flex max-w-fit flex-row items-center justify-center gap-2.5 rounded-md bg-card p-2"
+          className="group relative flex max-w-fit flex-row items-center justify-center gap-2.5 rounded-md bg-card"
         >
           {isMobile ? (
             <Drawer

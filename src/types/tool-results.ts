@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import type { NewsToolResponse } from '@/types/news'
-import type { WeatherToolResponse } from '@/app/api/chat/tools/weather'
+import type { WeatherToolResponse } from '@/types/weather'
 
 type BaseToolResult = {
   error?: string
@@ -16,6 +16,8 @@ export type ToolResult =
   | (WeatherToolResponse & BaseToolResult & { toolType: 'weather' })
   | (NewsToolResponse & BaseToolResult & { toolType: 'news' })
   | (SomeOtherToolResponse & BaseToolResult & { toolType: 'other' })
+
+export type ToolName = 'getWeather' | 'getNews' | 'otherTool'
 
 export function isWeatherResult(
   result: any,
@@ -34,7 +36,7 @@ export function isOtherToolResult(
 }
 
 export type ToolInvocationResult<
-  T extends 'getWeather' | 'otherTool' | 'getNews',
+  T extends ToolName,
 > = {
   toolCallId: string
   toolName: T

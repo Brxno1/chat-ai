@@ -74,13 +74,15 @@ export function EditProfile() {
       const background = formData.get('background') as File | null
 
       setUser((prev) => {
+        if (!prev) return user
+
         return {
           ...prev,
           name: name || prev.name,
           bio: bio || prev.bio,
-          image: avatar ? URL.createObjectURL(avatar as File) : prev.image,
+          image: avatar ? URL.createObjectURL(avatar) : prev.image,
           background: background
-            ? URL.createObjectURL(background as File)
+            ? URL.createObjectURL(background)
             : prev.background,
         }
       })

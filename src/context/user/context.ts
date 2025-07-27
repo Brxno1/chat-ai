@@ -1,3 +1,5 @@
+'use client'
+
 import { Session, User } from 'next-auth'
 import { createContext, useContext } from 'react'
 
@@ -23,7 +25,7 @@ export const useSessionUser = () => {
   const context = useContext(UserContext)
 
   if (!context) {
-    throw new Error('useSessionUser must be used within a UserChatProvider')
+    throw new Error('useSessionUser must be used within a UserProvider')
   }
 
   return context

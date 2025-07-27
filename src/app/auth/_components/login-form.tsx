@@ -89,7 +89,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
       await signIn('email', {
         email: user.email,
         redirect: false,
-        redirectTo: '/chat',
+        redirectTo: '/',
       })
     },
     onError: () => {

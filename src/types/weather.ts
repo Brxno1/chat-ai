@@ -12,7 +12,12 @@ export type WeatherToolResponse = {
   sys: { country: string }
   name: string
   cod: number
-  error?: null
+  error?: {
+    title: string
+    message: string
+    location: string
+    code: 'NOT_FOUND' | 'API_ERROR' | 'NETWORK_ERROR' | 'INVALID_DATA'
+  }
 }
 
 export type WeatherErrorResponse = {
