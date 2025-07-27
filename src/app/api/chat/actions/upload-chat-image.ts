@@ -14,7 +14,11 @@ export async function uploadChatImage(
   userId: string,
   chatId: string,
   attachment: Attachment,
-): Promise<string | null> {
+): Promise<{
+  url: string
+  name: string
+  contentType: string
+} | null> {
   try {
     if (!attachment.url.startsWith('data:')) {
       return null
@@ -53,7 +57,11 @@ export async function uploadChatImage(
       .from('chat-attachments')
       .getPublicUrl(path)
 
-    return urlData.publicUrl
+    return {
+      url: urlData.publicUrl,
+      name: attachment.name,
+      contentType: attachment.contentType,
+    }
   } catch (error) {
     console.error('Error processing chat image:', error)
     throw error

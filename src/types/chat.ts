@@ -63,11 +63,6 @@ export type ProcessChatAndSaveMessagesProps = {
   isGhostChatMode?: boolean
   userId?: string
   modelId: string
-  attachments?: {
-    name: string
-    contentType: string
-    url: string
-  }[]
 }
 
 export type AllTools = {

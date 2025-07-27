@@ -89,7 +89,7 @@ export function ChatMessage({ message }: MessageProps) {
             return (
               <ContainerWrapper
                 key={`${message.id}-text-${partIndex}`}
-                className={cn('flex flex-col', {
+                className={cn('flex flex-col space-y-2', {
                   'items-end': message.role === 'user',
                   'items-start': message.role === 'assistant',
                 })}

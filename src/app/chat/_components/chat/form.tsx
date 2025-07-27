@@ -35,7 +35,7 @@ import { models } from '../../models/definitions'
 import { ImagePreview } from './image-preview'
 
 const schema = z.object({
-  message: z.string().min(1),
+  message: z.string(),
   attachments: z
     .array(
       z.instanceof(File, {
@@ -48,6 +48,12 @@ const schema = z.object({
     )
     .optional()
     .nullable(),
+  audio: z
+    .instanceof(File, {
+      message: 'Por favor, selecione um arquivo válido',
+    })
+    .optional()
+    .nullable(),
 })
 
 export function ChatForm() {
@@ -57,6 +63,7 @@ export function ChatForm() {
     defaultValues: {
       message: '',
       attachments: null,
+      audio: null,
     },
   })
 
@@ -92,15 +99,31 @@ export function ChatForm() {
     form.setValue('attachments', remainingFiles)
   }
 
-  const handleSubmit = ({ message, attachments }: z.infer<typeof schema>) => {
-    const formData = new FormData()
+  const handleAudioRecorded = (audioBlob: Blob | null) => {
+    if (audioBlob) {
+      const audioFile = new File([audioBlob], 'user-audio.webm', {
+        type: 'audio/webm',
+      })
 
-    formData.append('message', message)
+      const dataTransfer = new DataTransfer()
+
+      if (audioFile && audioFile.size > 0) {
+        dataTransfer.items.add(audioFile)
+      }
+
+      form.setValue('audio', audioFile)
+    }
+  }
+
+  const handleSubmit = ({ attachments, audio }: z.infer<typeof schema>) => {
     const dataTransfer = new DataTransfer()
 
-    if (attachments) {
-      attachments.forEach((file) => formData.append('attachments', file))
+    if (attachments && attachments.length > 0) {
       attachments.forEach((file) => dataTransfer.items.add(file))
+    }
+
+    if (audio && audio.size > 0) {
+      dataTransfer.items.add(audio)
     }
 
     onSubmitChat(undefined, {
@@ -254,7 +277,10 @@ export function ChatForm() {
               <SendIcon size={16} />
             </Button>
           ) : (
-            <AIVoiceInput />
+            <AIVoiceInput
+              onAudioRecorded={handleAudioRecorded}
+              isSubmitting={form.formState.isSubmitting}
+            />
           )}
         </AIInputToolbar>
       </AIForm>

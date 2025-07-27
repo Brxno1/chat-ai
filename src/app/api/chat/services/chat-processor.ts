@@ -6,6 +6,7 @@ import {
   ProcessChatAndSaveMessagesResponse,
 } from '@/types/chat'
 
+import { uploadChatImage } from '../actions/upload-chat-image'
 import { generateSystemPrompt } from '../prompts'
 import { processToolInvocations } from '../utils/message-filter'
 import {
@@ -23,7 +24,6 @@ export async function processChatAndSaveMessages({
   userId,
   isGhostChatMode,
   modelId,
-  attachments,
 }: ProcessChatAndSaveMessagesProps): Promise<ProcessChatAndSaveMessagesResponse> {
   const processedMessages = processToolInvocations(messages)
 
@@ -67,6 +67,52 @@ export async function processChatAndSaveMessages({
     }
   }
 
+  const processedAttachments: {
+    url: string
+    name: string
+    contentType: string
+  }[] = []
+
+  const { role, experimental_attachments: userAttachments } =
+    processedMessages[processedMessages.length - 1]
+
+  if (role === 'user' && userAttachments) {
+    const attachments = userAttachments.filter((attachment) => !!attachment)
+
+    if (attachments.length > 0) {
+      for await (const attach of attachments) {
+        try {
+          const isAudio = attach.contentType?.startsWith('audio/')
+
+          if (isAudio) {
+            processedAttachments.push({
+              url: attach.url,
+              name: attach.name || `audio-${new Date().getTime()}.webm`,
+              contentType: attach.contentType || 'audio/webm',
+            })
+            continue
+          }
+
+          const result = await uploadChatImage(userId, finalChatId, {
+            name: attach.name || new Date().getTime().toString(),
+            contentType: attach.contentType || 'image/webp',
+            url: attach.url,
+          })
+
+          if (result) {
+            processedAttachments.push({
+              url: result.url,
+              name: result.name,
+              contentType: result.contentType,
+            })
+          }
+        } catch (error) {
+          console.error('Error uploading attachment:', error)
+        }
+      }
+    }
+  }
+
   const isNewChat = !headerChatId
 
   if (isNewChat || processedMessages.length > 0) {
@@ -77,7 +123,12 @@ export async function processChatAndSaveMessages({
         (msg) => msg?.role === 'user',
       )
     /* eslint-enable */
-    await saveMessages(messagesToSave, finalChatId, userId, attachments)
+    await saveMessages(
+      messagesToSave,
+      finalChatId,
+      userId,
+      processedAttachments,
+    )
   }
 
   if (finalMessages.length >= 2) {

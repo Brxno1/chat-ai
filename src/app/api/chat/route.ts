@@ -1,7 +1,6 @@
 import { Message } from '@ai-sdk/react'
 import { NextRequest, NextResponse } from 'next/server'
 
-import { uploadChatImage } from './actions/upload-chat-image'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
@@ -18,42 +17,6 @@ export async function POST(req: NextRequest) {
     const headerChatId = req.headers.get('x-chat-id') || undefined
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
     const headerAiModelId = req.headers.get('x-ai-model')
-
-    let attachments: {
-      name: string
-      contentType: string
-      url: string
-    }[] = []
-
-    if (!headerGhostMode && headerUserId) {
-      const userMessage = messages[messages.length - 1]
-
-      if (userMessage.role === 'user' && userMessage.experimental_attachments) {
-        const validAttachments = userMessage.experimental_attachments.filter(
-          (attachment) => !!attachment,
-        )
-
-        if (validAttachments.length > 0) {
-          const attachmentUploadPromises = validAttachments.map((attachment) =>
-            uploadChatImage(headerUserId!, headerChatId!, {
-              name: attachment.name!,
-              contentType: attachment.contentType!,
-              url: attachment.url,
-            }),
-          )
-
-          const uploadedUrls = await Promise.all(attachmentUploadPromises)
-
-          attachments = uploadedUrls
-            .map((url, index) => ({
-              url: url!,
-              name: validAttachments[index].name!,
-              contentType: validAttachments[index].contentType!,
-            }))
-            .filter((a) => a.url)
-        }
-      }
-    }
 
     const processedMessages = messages.map((message) => {
       if (
@@ -84,7 +47,6 @@ export async function POST(req: NextRequest) {
       headerChatId,
       isGhostChatMode: headerGhostMode,
       modelId: headerAiModelId!,
-      attachments,
     })
 
     if (error || !processedStream) {

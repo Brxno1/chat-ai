@@ -15,9 +15,9 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { chat, error, success } = await getChatById(chatId, session.user.id)
+  const { chat, error } = await getChatById(chatId, session.user.id)
 
-  if (!success || !chat) {
+  if (!chat) {
     return NextResponse.json(
       { error: error || 'Chat not found' },
       { status: 404 },

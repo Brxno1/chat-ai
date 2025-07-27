@@ -254,6 +254,12 @@ importers:
       react:
         specifier: ^19.1.0
         version: 19.1.0
+      react-audio-player-component:
+        specifier: ^1.2.4
+        version: 1.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-audio-player-steroids:
+        specifier: ^1.1.2
+        version: 1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-day-picker:
         specifier: ^8.10.1
         version: 8.10.1(date-fns@3.6.0)(react@19.1.0)
@@ -5228,6 +5234,26 @@ packages:
         optional: true
       '@types/react-dom':
         optional: true
+
+  react-audio-player-component@1.2.4:
+    resolution: {integrity: sha512-bW/mJzFagOzDRJouknPSHEkImwzvKwt0JQBf9nuOQ+tF/MYhwHurNWDoLxAZvhWGGG6dQ9kL2RSFBKsDTa3Irg==}
+    engines: {node: '>=18.15.0'}
+    peerDependencies:
+      react: '>=16.2.0'
+      react-dom: '>=16.2.0'
+
+  react-audio-player-steroids@1.1.2:
+    resolution: {integrity: sha512-sltcyudljT5jj0/rSQnSrNVN1bi14xd/qjXm+G+9RSAejX9VcW6bqGP+5t17cb3BPUQc5inwhG1wO/0/hOtkTQ==}
+    engines: {node: '>=18.15.0'}
+    peerDependencies:
+      react: '>=16.2.0'
+      react-dom: '>=16.2.0'
+
+  react-audio-visualize@1.2.0:
+    resolution: {integrity: sha512-rfO5nmT0fp23gjU0y2WQT6+ZOq2ZsuPTMphchwX1PCz1Di4oaIr6x7JZII8MLrbHdG7UB0OHfGONTIsWdh67kQ==}
+    peerDependencies:
+      react: '>=16.2.0'
+      react-dom: '>=16.2.0'
 
   react-day-picker@8.10.1:
     resolution: {integrity: sha512-TMx7fNbhLk15eqcMt+7Z7S2KF7mfTId/XJDjKE8f+IUcFn0l08/kI4FiYTL/0yuOLmEcbR4Fwe3GJf/NiiMnPA==}
@@ -11559,6 +11585,23 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.10
       '@types/react-dom': 19.0.4(@types/react@19.0.10)
+
+  react-audio-player-component@1.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+      react-audio-visualize: 1.2.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-dom: 19.1.0(react@19.1.0)
+
+  react-audio-player-steroids@1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+      react-audio-visualize: 1.2.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-dom: 19.1.0(react@19.1.0)
+
+  react-audio-visualize@1.2.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   react-day-picker@8.10.1(date-fns@3.6.0)(react@19.1.0):
     dependencies:
