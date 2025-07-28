@@ -1,12 +1,12 @@
-import { Message } from '@ai-sdk/react'
+import { type Message } from 'ai'
 
-import { TextUIPart } from '../../../../../@types/ai-sdk'
+import { type MessagePart } from '@/types/chat'
 
 export function extractTextFromMessage(message: Message): string {
   if (message.parts && Array.isArray(message.parts)) {
     return message.parts
       .filter((part) => part.type === 'text' && part.text)
-      .map((part) => (part as TextUIPart).text)
+      .map((part) => (part as MessagePart).text)
       .join(' ')
   }
 

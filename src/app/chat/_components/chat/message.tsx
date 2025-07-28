@@ -49,6 +49,8 @@ export function ChatMessage({ message }: MessageProps) {
     setOpen(false)
   }
 
+  console.log({ message })
+
   const isStreaming = status === 'streaming'
 
   const reasoningParts = extractReasoningParts(message as ChatMessageType)

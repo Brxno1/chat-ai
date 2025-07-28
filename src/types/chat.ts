@@ -1,5 +1,4 @@
-import { Message } from '@ai-sdk/react'
-import { StreamTextResult, UIMessage } from 'ai'
+import { type StreamTextResult, type UIMessage } from 'ai'
 
 import { newsTool } from '@/app/api/chat/tools/news'
 import { weatherTool } from '@/app/api/chat/tools/weather'
@@ -57,7 +56,7 @@ export type ToolResult = {
 }
 
 export type ProcessChatAndSaveMessagesProps = {
-  messages: Message[]
+  messages: UIMessage[]
   userName?: string
   headerChatId?: string
   isGhostChatMode?: boolean

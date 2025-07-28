@@ -1,5 +1,5 @@
-import { Message } from '@ai-sdk/react'
 import { GoogleGenAI } from '@google/genai'
+import { type Message } from 'ai'
 
 import { env } from '@/lib/env'
 
@@ -12,7 +12,7 @@ const genAI = new GoogleGenAI({
 
 const model = 'gemini-1.5-flash'
 
-export async function generateChatTitle(
+export async function generateChatTitleWIthAI(
   messages: Message[],
 ): Promise<{ title: string }> {
   try {

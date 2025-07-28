@@ -83,6 +83,19 @@ export function ChatProvider({
     }
   }
 
+  const onAudioRecorded = (
+    audioBlob: Blob | null,
+    onSetAudio: (audio: File) => void,
+  ) => {
+    if (audioBlob) {
+      const audioFile = new File([audioBlob], 'user-audio.webm', {
+        type: 'audio/webm',
+      })
+
+      onSetAudio(audioFile)
+    }
+  }
+
   React.useEffect(() => {
     if (chatInstanceKey && !messages?.length) {
       setMessages([])
@@ -101,6 +114,7 @@ export function ChatProvider({
     onSubmitChat,
     onModelChange,
     onGenerateTranscribe,
+    onAudioRecorded,
     onStop,
   }
 

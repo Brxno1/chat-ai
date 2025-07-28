@@ -1,7 +1,6 @@
 'use server'
 
-import { Message } from '@ai-sdk/react'
-import { StreamTextResult } from 'ai'
+import { type Message, type StreamTextResult } from 'ai'
 
 import type { MessageRole, Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'

@@ -11,8 +11,8 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { AIVoiceInput } from '@/app/chat/_components/chat/ai-voice-input'
 import { TypingText } from '@/components/animate-ui/text/typing'
-import { AIVoiceInput } from '@/components/ui/ai-voice-input'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -87,6 +87,10 @@ export function ChatForm() {
     onStop,
   } = useChatInstance()
 
+  const onSetAudio = (audio: File) => {
+    form.setValue('audio', audio)
+  }
+
   const onRemoveItem = (index: number) => {
     handleRemoveItem(index)
 
@@ -97,22 +101,6 @@ export function ChatForm() {
     const remainingFiles = [...files]
     remainingFiles.splice(index, 1)
     form.setValue('attachments', remainingFiles)
-  }
-
-  const handleAudioRecorded = (audioBlob: Blob | null) => {
-    if (audioBlob) {
-      const audioFile = new File([audioBlob], 'user-audio.webm', {
-        type: 'audio/webm',
-      })
-
-      const dataTransfer = new DataTransfer()
-
-      if (audioFile && audioFile.size > 0) {
-        dataTransfer.items.add(audioFile)
-      }
-
-      form.setValue('audio', audioFile)
-    }
   }
 
   const handleSubmit = ({ attachments, audio }: z.infer<typeof schema>) => {
@@ -278,7 +266,7 @@ export function ChatForm() {
             </Button>
           ) : (
             <AIVoiceInput
-              onAudioRecorded={handleAudioRecorded}
+              onSetAudio={onSetAudio}
               isSubmitting={form.formState.isSubmitting}
             />
           )}

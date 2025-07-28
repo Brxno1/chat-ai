@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
+import React from 'react'
 import { toast } from 'sonner'
 
 import { deleteChatById } from '@/app/(http)/chat/delete-chat'
@@ -88,6 +89,14 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     await deleteChatMutation(chat.id)
   }
 
+  const formattedFullDate = React.useMemo(() => {
+    return formatDateToLocale(new Date(chat.createdAt))
+  }, [chat.createdAt])
+
+  const formattedDistanceDate = React.useMemo(() => {
+    return formatDistanceToNow(new Date(chat.createdAt))
+  }, [chat.createdAt])
+
   return (
     <Badge
       variant={'chat'}
@@ -120,13 +129,9 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
             {chat.title}
           </span>
         </TooltipWrapper>
-        <TooltipWrapper
-          content={formatDateToLocale(new Date(chat.createdAt))}
-          side="right"
-          asChild
-        >
+        <TooltipWrapper content={formattedFullDate} side="right" asChild>
           <span className="text-2xs text-muted-foreground">
-            {formatDistanceToNow(new Date(chat.createdAt))}
+            {formattedDistanceDate}
           </span>
         </TooltipWrapper>
       </Link>
