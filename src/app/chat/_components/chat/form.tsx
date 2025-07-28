@@ -36,7 +36,7 @@ import { ImagePreview } from './image-preview'
 
 const schema = z.object({
   message: z.string(),
-  attachments: z
+  files: z
     .array(
       z.instanceof(File, {
         message: 'Por favor, selecione um arquivo válido',
@@ -62,7 +62,7 @@ export function ChatForm() {
     mode: 'onChange',
     defaultValues: {
       message: '',
-      attachments: null,
+      files: null,
       audio: null,
     },
   })
@@ -95,19 +95,20 @@ export function ChatForm() {
     handleRemoveItem(index)
 
     if (files.length <= 1) {
-      form.setValue('attachments', null)
+      form.setValue('files', null)
     }
 
     const remainingFiles = [...files]
     remainingFiles.splice(index, 1)
-    form.setValue('attachments', remainingFiles)
+    form.setValue('files', remainingFiles)
   }
 
-  const handleSubmit = ({ attachments, audio }: z.infer<typeof schema>) => {
+  const handleSubmit = ({ files, audio }: z.infer<typeof schema>) => {
     const dataTransfer = new DataTransfer()
 
-    if (attachments && attachments.length > 0) {
-      attachments.forEach((file) => dataTransfer.items.add(file))
+    if (files && files.length > 0) {
+      files.forEach((file) => dataTransfer.items.add(file))
+      handleRemoveAll()
     }
 
     if (audio && audio.size > 0) {
@@ -119,12 +120,11 @@ export function ChatForm() {
     })
 
     form.reset()
-    handleRemoveAll()
   }
 
   React.useEffect(() => {
     if (files.length > 0) {
-      form.setValue('attachments', files)
+      form.setValue('files', files)
     }
   }, [files, form])
 
@@ -174,7 +174,7 @@ export function ChatForm() {
             <div className="flex items-center gap-1">
               <FormField
                 control={form.control}
-                name="attachments"
+                name="files"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>

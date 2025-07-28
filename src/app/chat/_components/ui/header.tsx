@@ -10,10 +10,12 @@ import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useChatInstance } from '@/context/chat'
 import { useChatStore } from '@/store/chat'
 
 function ChatHeader() {
   const { isGhostChatMode, setToGhostChatMode, resetChatState } = useChatStore()
+  const { setMessages } = useChatInstance()
 
   const handleGhostChatMode = () => {
     setToGhostChatMode(!isGhostChatMode)
@@ -36,6 +38,7 @@ function ChatHeader() {
 
   const handleCreateNewChat = () => {
     resetChatState()
+    setMessages([])
   }
 
   return (

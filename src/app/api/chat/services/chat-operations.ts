@@ -129,38 +129,28 @@ type ChatResponse = {
   userId: string
 }
 
-function saveChatResponse({
+async function saveChatResponse({
   stream,
   chatId,
   userId,
-}: ChatResponse): Promise<OperationResponse<null>> {
-  const processingPromise = new Promise<OperationResponse<null>>((resolve) => {
-    setImmediate(async () => {
-      try {
-        const { parts } = await processStreamResult(stream)
+}: ChatResponse): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { parts } = await processStreamResult(stream)
 
-        await prisma.message.create({
-          data: {
-            role: 'ASSISTANT',
-            chatId,
-            parts: JSON.stringify(parts),
-            userId,
-          },
-        })
-
-        resolve({ success: true, data: null })
-      } catch (error) {
-        console.error(`Error saving chat response for chat ${chatId}:`, error)
-        resolve({
-          success: false,
-          error: errorHandler(error),
-          data: null,
-        })
-      }
+    await prisma.message.create({
+      data: {
+        role: 'ASSISTANT',
+        chatId,
+        parts: JSON.stringify(parts),
+        userId,
+      },
     })
-  })
 
-  return processingPromise
+    return { success: true }
+  } catch (error) {
+    console.error(`Error saving chat response for chat ${chatId}:`, error)
+    return { success: false, error: errorHandler(error) }
+  }
 }
 
 export { findOrCreateChat, saveChatResponse, saveMessages }

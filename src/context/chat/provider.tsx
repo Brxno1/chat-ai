@@ -28,7 +28,7 @@ export function ChatProvider({
   cookieModel,
   initialChats,
 }: ChatProviderProps) {
-  const { model, setModel, chatInstanceKey } = useChatStore()
+  const { model, setModel } = useChatStore()
 
   const { mutateAsync: transcribeAudio, isPending: isTranscribing } =
     useTranscribeAudio()
@@ -95,12 +95,6 @@ export function ChatProvider({
       onSetAudio(audioFile)
     }
   }
-
-  React.useEffect(() => {
-    if (chatInstanceKey && !messages?.length) {
-      setMessages([])
-    }
-  }, [chatInstanceKey, messages])
 
   const value: ChatContextProps = {
     chats: initialChats || [],

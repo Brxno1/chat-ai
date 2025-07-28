@@ -9,6 +9,7 @@ import { deleteChatById } from '@/app/(http)/chat/delete-chat'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useChatInstance } from '@/context/chat'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'
 import { useChatStore } from '@/store/chat'
@@ -22,6 +23,7 @@ type HistoricalItemProps = {
 
 export function HistoricalItem({ chat }: HistoricalItemProps) {
   const queryClient = useQueryClient()
+  const { setMessages } = useChatInstance()
 
   const router = useRouter()
   const { chatId: currentChatId } = useParams()
@@ -77,15 +79,17 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     },
   })
 
-  const handleLinkClick = () => {
-    if (isCurrentChat) {
-      return
-    }
+  const handleNavigateToConversation = () => {
+    if (isCurrentChat) return
+
     defineChatInstanceKey(chat.id)
     setChatId(chat.id)
   }
 
   const handleDeleteChat = async () => {
+    if (isCurrentChat) {
+      setMessages([])
+    }
     await deleteChatMutation(chat.id)
   }
 
@@ -109,7 +113,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     >
       <Link
         href={`/chat/${chat.id}`}
-        onClick={handleLinkClick}
+        onClick={handleNavigateToConversation}
         prefetch
         className={cn('flex w-full flex-col items-start', {
           'cursor-default': isCurrentChat,

@@ -1,4 +1,4 @@
-import { Message } from '@ai-sdk/react'
+import { type Message } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { defaultErrorMessage } from './config'
@@ -19,18 +19,15 @@ export async function POST(req: NextRequest) {
     const headerAiModelId = req.headers.get('x-ai-model')
 
     const processedMessages = messages.map((message) => {
-      if (
-        message.role === 'assistant' &&
-        message.content.trim() === '' &&
-        message.parts?.some((part) => part.type === 'tool-invocation')
-      ) {
+      if (message.content.trim() === '') {
         return {
           ...message,
-          content: 'Informações sendo solicitadas via ferramentas...',
-          parts: message.parts.filter(
-            (part) =>
-              part.type !== 'tool-invocation' || Object.keys(part).length > 1,
-          ),
+          content: '.',
+          parts:
+            message.parts?.filter(
+              (part) =>
+                part.type !== 'tool-invocation' || Object.keys(part).length > 1,
+            ) ?? [],
         }
       }
       return message

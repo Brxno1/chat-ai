@@ -1,4 +1,4 @@
-import { type StreamTextResult, type UIMessage } from 'ai'
+import { type Message, type StreamTextResult } from 'ai'
 
 import { newsTool } from '@/app/api/chat/tools/news'
 import { weatherTool } from '@/app/api/chat/tools/weather'
@@ -8,10 +8,10 @@ export type ChatMessage = {
   id: string
   createdAt: Date
   content: string
-  role: UIMessage['role']
+  role: Message['role']
   userId: string | null
   chatId: string
-  parts?: UIMessage['parts']
+  parts?: Message['parts']
   attachments?: {
     name: string
     contentType: string
@@ -56,7 +56,7 @@ export type ToolResult = {
 }
 
 export type ProcessChatAndSaveMessagesProps = {
-  messages: UIMessage[]
+  messages: Message[]
   userName?: string
   headerChatId?: string
   isGhostChatMode?: boolean

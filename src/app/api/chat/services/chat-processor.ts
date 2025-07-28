@@ -148,10 +148,16 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  saveChatResponse({
-    stream: streamResult,
-    chatId: finalChatId,
-    userId,
+  setImmediate(async () => {
+    const { success, error } = await saveChatResponse({
+      stream: streamResult,
+      chatId: finalChatId,
+      userId,
+    })
+
+    if (!success) {
+      console.error(error)
+    }
   })
 
   return {
