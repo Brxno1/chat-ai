@@ -19,15 +19,18 @@ export async function POST(req: NextRequest) {
     const headerAiModelId = req.headers.get('x-ai-model')
 
     const processedMessages = messages.map((message) => {
-      if (message.content.trim() === '') {
+      if (
+        message.role === 'assistant' &&
+        message.content.trim() === '' &&
+        message.parts?.some((part) => part.type === 'tool-invocation')
+      ) {
         return {
           ...message,
-          content: '.',
-          parts:
-            message.parts?.filter(
-              (part) =>
-                part.type !== 'tool-invocation' || Object.keys(part).length > 1,
-            ) ?? [],
+          content: 'Informações sendo solicitadas via ferramentas...',
+          parts: message.parts.filter(
+            (part) =>
+              part.type !== 'tool-invocation' || Object.keys(part).length > 1,
+          ),
         }
       }
       return message

@@ -32,6 +32,7 @@ type Actions = {
   onModelChange: (value: string) => void
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>
+  onResetChat: () => void
   onAudioRecorded: (
     audio: Blob | null,
     onSetAudio: (audio: File) => void,

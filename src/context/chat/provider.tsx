@@ -28,7 +28,7 @@ export function ChatProvider({
   cookieModel,
   initialChats,
 }: ChatProviderProps) {
-  const { model, setModel } = useChatStore()
+  const { model, setModel, resetChatState } = useChatStore()
 
   const { mutateAsync: transcribeAudio, isPending: isTranscribing } =
     useTranscribeAudio()
@@ -47,6 +47,11 @@ export function ChatProvider({
     currentChatId,
     initialModel: cookieModel,
   })
+
+  const onResetChat = () => {
+    resetChatState()
+    setMessages([])
+  }
 
   const onModelChange = (name: string) => {
     const selectedModel = models.find((m) => m.name === name)
@@ -110,6 +115,7 @@ export function ChatProvider({
     onGenerateTranscribe,
     onAudioRecorded,
     onStop,
+    onResetChat,
   }
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createTodoAction } from '@/app/api/todo/actions/create-todo'
+import { createTodo } from '@/app/(http)/todo/create-todo'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/sheet'
 import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
-import { Todo } from '@/services/database/generated'
+import type { Todo } from '@/services/database/generated'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({
@@ -41,6 +41,10 @@ export function TodoCreateForm() {
   const [open, setOpen] = React.useState(false)
   const { user } = useSessionUser()
 
+  if (!user) {
+    return null
+  }
+
   const queryClient = useQueryClient()
 
   const form = useForm<TodoFormData>({
@@ -52,7 +56,7 @@ export function TodoCreateForm() {
   })
 
   const { mutateAsync: createTodoFn, isPending } = useMutation({
-    mutationFn: createTodoAction,
+    mutationFn: createTodo,
     mutationKey: queryKeys.todoMutations.create,
 
     onMutate: async (newTodo) => {
@@ -61,17 +65,18 @@ export function TodoCreateForm() {
       const previousTodos: Todo[] =
         queryClient.getQueryData(queryKeys.todos.all) || []
 
-      const optimisticTodo: Todo = {
+      const optimisticTodo: Partial<Todo> = {
         ...newTodo,
-        id: 'temp-id',
+        id: 'new-todo',
         status: 'PENDING',
         completed: false,
         createdAt: new Date(),
         updatedAt: new Date(),
         doneAt: null,
         cancelledAt: null,
-        userId: user!.id!,
       }
+
+      console.log(optimisticTodo)
 
       queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[]) => [
         optimisticTodo,
@@ -84,7 +89,7 @@ export function TodoCreateForm() {
     onSuccess: ({ todo }) => {
       queryClient.setQueryData(queryKeys.todos.all, (oldTodos: Todo[]) => [
         todo,
-        ...oldTodos.filter((todo) => todo.id !== 'temp-id'),
+        ...oldTodos.filter((todo) => todo.id !== 'new-todo'),
       ])
 
       toast(`Tarefa "${todo!.title}" criada com sucesso`, {
@@ -110,7 +115,7 @@ export function TodoCreateForm() {
   })
 
   async function handleCreateTodo(data: TodoFormData) {
-    await createTodoFn({ title: data.title, userId: user!.id! })
+    await createTodoFn({ title: data.title })
   }
 
   return (

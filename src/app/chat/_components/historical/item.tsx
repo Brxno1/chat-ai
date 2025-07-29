@@ -43,6 +43,12 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
         queryKeys.chats.all,
       )
 
+      const isCurrentChat = currentChatId === chat.id
+
+      const previousChatState = isCurrentChat
+        ? queryClient.getQueryData(queryKeys.chats.detail(chat.id))
+        : undefined
+
       queryClient.setQueryData<Chat[]>(
         queryKeys.chats.all,
         (old: Chat[] | undefined) => {
@@ -50,14 +56,15 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
         },
       )
 
-      return { previousChats }
-    },
-    onSuccess: () => {
-      if (currentChatId === chat.id) {
+      if (isCurrentChat) {
         resetChatState()
         router.push('/')
+        return { previousChats, isCurrentChat, previousChatState }
       }
 
+      return { previousChats, isCurrentChat, previousChatState }
+    },
+    onSuccess: () => {
       onDeleteMessage(chat.id)
       toast('Conversa excluída', {
         position: 'top-center',
@@ -67,6 +74,15 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     onError: (_error: Error, _variables, context) => {
       if (context?.previousChats) {
         queryClient.setQueryData(queryKeys.chats.all, context.previousChats)
+      }
+
+      if (context?.isCurrentChat && context?.previousChatState) {
+        queryClient.setQueryData(
+          queryKeys.chats.detail(chat.id),
+          context.previousChatState,
+        )
+
+        router.push(`/chat/${chat.id}`)
       }
 
       toast('Erro ao excluir conversa', {

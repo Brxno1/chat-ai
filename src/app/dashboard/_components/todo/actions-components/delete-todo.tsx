@@ -1,8 +1,10 @@
+'use client'
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LoaderCircle, Trash } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { deleteTodoAction } from '@/app/api/todo/actions/delete-todo'
+import { deleteTodo } from '@/app/(http)/todo/delete-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { queryKeys } from '@/lib/query-client'
 
@@ -12,8 +14,8 @@ export function DeleteTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
   const queryClient = useQueryClient()
 
   const { mutateAsync: deleteTodoFn, isPending: isDeleting } = useMutation({
-    mutationFn: deleteTodoAction,
     mutationKey: queryKeys.todoMutations.deleteById(todo.id),
+    mutationFn: deleteTodo,
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -37,7 +39,7 @@ export function DeleteTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
     ev.preventDefault()
     ev.stopPropagation()
 
-    await deleteTodoFn({ id: todo.id, userId: todo.userId })
+    await deleteTodoFn(todo.id)
   }
 
   return (

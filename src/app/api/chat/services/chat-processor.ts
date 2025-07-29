@@ -114,21 +114,14 @@ export async function processChatAndSaveMessages({
 
   const isNewChat = !headerChatId
 
-  if (isNewChat) {
-    /* eslint-disable */
-    const messagesToSave = isNewChat
-      ? processedMessages
-      : [processedMessages[processedMessages.length - 1]].filter(
-        (msg) => msg?.role === 'user',
-      )
-    /* eslint-enable */
-    await saveMessages(
-      messagesToSave,
-      finalChatId,
-      userId,
-      processedAttachments,
+  /* eslint-disable */
+  const messagesToSave = isNewChat
+    ? processedMessages
+    : [processedMessages[processedMessages.length - 1]].filter(
+      (msg) => msg?.role === 'user',
     )
-  }
+  /* eslint-enable */
+  await saveMessages(messagesToSave, finalChatId, userId, processedAttachments)
 
   if (finalMessages.length >= 2) {
     setImmediate(async () => {
