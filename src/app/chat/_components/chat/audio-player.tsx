@@ -36,7 +36,7 @@ export default function AudioPlayer({
   const audioRef = useRef<HTMLAudioElement>(null)
 
   const waveformBars = Array.from({ length: minimal ? 20 : 60 }, (_, index) => ({
-    height: Math.random() * 100 + 10,
+    height: Math.random() * 50 + 10,
     played: index / (minimal ? 20 : 60) < currentTime / duration,
   }))
 
@@ -120,16 +120,17 @@ export default function AudioPlayer({
     return (
       <div
         className={cn(
-          'max-w-md rounded-lg border bg-primary/10 p-4 shadow-sm dark:border-border',
+          'max-w-md rounded-lg border bg-message p-3 shadow-sm dark:border-border',
           className,
         )}
       >
         <audio ref={audioRef} src={src} />
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-2.5">
           <Button
             onClick={togglePlay}
-            className="h-8 w-8 p-0"
+            size="icon"
+            className="h-8 w-8 p-0 dark:bg-message dark:text-card-foreground"
           >
             {isPlaying ? (
               <Pause className="h-4 w-4" />
@@ -138,19 +139,21 @@ export default function AudioPlayer({
             )}
           </Button>
 
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 items-end gap-0.5">
-              {waveformBars.map((bar, index) => (
-                <div
-                  key={index}
-                  className={`w-1 rounded-sm transition-colors ${bar.played ? 'bg-primary' : 'bg-primary/60'
-                    }`}
-                  style={{ height: `${(bar.height / 100) * 24}px` }}
-                />
-              ))}
-            </div>
+          <div className="flex h-8 items-center gap-0.5">
+            {waveformBars.map((bar, index) => (
+              <div
+                key={index}
+                className={cn(
+                  'w-1 rounded-sm transition-colors',
+                  isPlaying
+                    ? 'bg-card-foreground'
+                    : 'bg-zinc-400',
+                )}
+                style={{ height: `${(bar.height / 100) * 26}px` }}
+              />
+            ))}
           </div>
-          <span className="min-w-[40px] font-mono text-sm text-muted-foreground">
+          <span className="font-mono text-sm text-muted-foreground">
             {formatTime(currentTime)}
           </span>
         </div>

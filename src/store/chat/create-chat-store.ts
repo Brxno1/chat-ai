@@ -73,14 +73,14 @@ export const createChatStore = (): StoreApi<
 
         onDeleteMessage: (id) =>
           set((state) => ({
-            messages: state.messages.filter((message) => message.id !== id),
+            messages: state.chatId === id ? [] : state.messages,
           })),
 
         resetChatState: () => {
           set({
             chatId: undefined,
             messages: [],
-            isCreatingNewChat: false,
+            isCreatingNewChat: true,
             isGhostChatMode: false,
             chatInstanceKey: '',
           })

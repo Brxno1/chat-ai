@@ -1,11 +1,11 @@
-import { Message } from '@ai-sdk/react'
+import { type Message } from 'ai'
 
-import { prisma } from '@/services/database/prisma'
 import {
   ProcessChatAndSaveMessagesProps,
   ProcessChatAndSaveMessagesResponse,
 } from '@/types/chat'
 
+import { generateTitle } from '../actions/generate-title'
 import { uploadChatImage } from '../actions/upload-chat-image'
 import { generateSystemPrompt } from '../prompts'
 import { processToolInvocations } from '../utils/message-filter'
@@ -15,7 +15,6 @@ import {
   saveMessages,
 } from './chat-operations'
 import { createStreamText } from './create-stream-text'
-import { generateChatTitle } from './generate-chat-title'
 
 export async function processChatAndSaveMessages({
   messages,
@@ -115,38 +114,18 @@ export async function processChatAndSaveMessages({
 
   const isNewChat = !headerChatId
 
-  if (isNewChat || processedMessages.length > 0) {
-    /* eslint-disable */
-    const messagesToSave = isNewChat
-      ? processedMessages
-      : [processedMessages[processedMessages.length - 1]].filter(
-        (msg) => msg?.role === 'user',
-      )
-    /* eslint-enable */
-    await saveMessages(
-      messagesToSave,
-      finalChatId,
-      userId,
-      processedAttachments,
+  /* eslint-disable */
+  const messagesToSave = isNewChat
+    ? processedMessages
+    : [processedMessages[processedMessages.length - 1]].filter(
+      (msg) => msg?.role === 'user',
     )
-  }
+  /* eslint-enable */
+  await saveMessages(messagesToSave, finalChatId, userId, processedAttachments)
 
   if (finalMessages.length >= 2) {
     setImmediate(async () => {
-      try {
-        const messageCount = await prisma.message.count({
-          where: { chatId: finalChatId },
-        })
-        if (messageCount % 5 === 0) {
-          const { title } = await generateChatTitle(finalMessages)
-          await prisma.chat.update({
-            where: { id: finalChatId },
-            data: { title },
-          })
-        }
-      } catch (error) {
-        console.error('Failed to update chat title asynchronously:', error)
-      }
+      await generateTitle(finalChatId, finalMessages)
     })
   }
 
@@ -162,10 +141,16 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  saveChatResponse({
-    stream: streamResult,
-    chatId: finalChatId,
-    userId,
+  setImmediate(async () => {
+    const { success, error } = await saveChatResponse({
+      stream: streamResult,
+      chatId: finalChatId,
+      userId,
+    })
+
+    if (!success) {
+      console.error(error)
+    }
   })
 
   return {

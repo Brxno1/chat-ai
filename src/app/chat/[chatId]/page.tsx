@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache, Suspense } from 'react'
 
@@ -23,6 +24,8 @@ export default async function ChatPageWithId({
 }) {
   const { chatId } = await params
   const { session } = await getUserSession()
+  const cookieStore = await cookies()
+  const model = cookieStore.get('ai-model')?.value
 
   const { user } = session!
 
@@ -49,6 +52,7 @@ export default async function ChatPageWithId({
                 <ChatProvider
                   initialMessages={chat!.messages}
                   currentChatId={chatId}
+                  cookieModel={model}
                 >
                   <Suspense fallback={<ChatFallback />}>
                     <Chat />

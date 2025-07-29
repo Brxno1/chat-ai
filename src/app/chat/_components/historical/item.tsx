@@ -2,12 +2,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
+import React from 'react'
 import { toast } from 'sonner'
 
 import { deleteChatById } from '@/app/(http)/chat/delete-chat'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useChatInstance } from '@/context/chat'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'
 import { useChatStore } from '@/store/chat'
@@ -21,6 +23,7 @@ type HistoricalItemProps = {
 
 export function HistoricalItem({ chat }: HistoricalItemProps) {
   const queryClient = useQueryClient()
+  const { setMessages } = useChatInstance()
 
   const router = useRouter()
   const { chatId: currentChatId } = useParams()
@@ -40,6 +43,12 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
         queryKeys.chats.all,
       )
 
+      const isCurrentChat = currentChatId === chat.id
+
+      const previousChatState = isCurrentChat
+        ? queryClient.getQueryData(queryKeys.chats.detail(chat.id))
+        : undefined
+
       queryClient.setQueryData<Chat[]>(
         queryKeys.chats.all,
         (old: Chat[] | undefined) => {
@@ -47,14 +56,15 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
         },
       )
 
-      return { previousChats }
-    },
-    onSuccess: () => {
-      if (currentChatId === chat.id) {
+      if (isCurrentChat) {
         resetChatState()
         router.push('/')
+        return { previousChats, isCurrentChat, previousChatState }
       }
 
+      return { previousChats, isCurrentChat, previousChatState }
+    },
+    onSuccess: () => {
       onDeleteMessage(chat.id)
       toast('Conversa excluída', {
         position: 'top-center',
@@ -64,6 +74,15 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     onError: (_error: Error, _variables, context) => {
       if (context?.previousChats) {
         queryClient.setQueryData(queryKeys.chats.all, context.previousChats)
+      }
+
+      if (context?.isCurrentChat && context?.previousChatState) {
+        queryClient.setQueryData(
+          queryKeys.chats.detail(chat.id),
+          context.previousChatState,
+        )
+
+        router.push(`/chat/${chat.id}`)
       }
 
       toast('Erro ao excluir conversa', {
@@ -76,17 +95,27 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     },
   })
 
-  const handleLinkClick = () => {
-    if (isCurrentChat) {
-      return
-    }
+  const handleNavigateToConversation = () => {
+    if (isCurrentChat) return
+
     defineChatInstanceKey(chat.id)
     setChatId(chat.id)
   }
 
   const handleDeleteChat = async () => {
+    if (isCurrentChat) {
+      setMessages([])
+    }
     await deleteChatMutation(chat.id)
   }
+
+  const formattedFullDate = React.useMemo(() => {
+    return formatDateToLocale(new Date(chat.createdAt))
+  }, [chat.createdAt])
+
+  const formattedDistanceDate = React.useMemo(() => {
+    return formatDistanceToNow(new Date(chat.createdAt))
+  }, [chat.createdAt])
 
   return (
     <Badge
@@ -100,7 +129,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
     >
       <Link
         href={`/chat/${chat.id}`}
-        onClick={handleLinkClick}
+        onClick={handleNavigateToConversation}
         prefetch
         className={cn('flex w-full flex-col items-start', {
           'cursor-default': isCurrentChat,
@@ -120,13 +149,9 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
             {chat.title}
           </span>
         </TooltipWrapper>
-        <TooltipWrapper
-          content={formatDateToLocale(new Date(chat.createdAt))}
-          side="right"
-          asChild
-        >
+        <TooltipWrapper content={formattedFullDate} side="right" asChild>
           <span className="text-2xs text-muted-foreground">
-            {formatDistanceToNow(new Date(chat.createdAt))}
+            {formattedDistanceDate}
           </span>
         </TooltipWrapper>
       </Link>

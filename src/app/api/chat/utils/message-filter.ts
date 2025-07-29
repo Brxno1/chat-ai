@@ -1,4 +1,4 @@
-import { Message } from '@ai-sdk/react'
+import { type Message } from 'ai'
 
 export function filterValidMessages(messages: Message[]): Message[] {
   return messages.filter((message) => {

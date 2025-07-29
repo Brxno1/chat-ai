@@ -28,7 +28,7 @@ export function ChatProvider({
   cookieModel,
   initialChats,
 }: ChatProviderProps) {
-  const { model, setModel, chatInstanceKey } = useChatStore()
+  const { model, setModel, resetChatState } = useChatStore()
 
   const { mutateAsync: transcribeAudio, isPending: isTranscribing } =
     useTranscribeAudio()
@@ -47,6 +47,11 @@ export function ChatProvider({
     currentChatId,
     initialModel: cookieModel,
   })
+
+  const onResetChat = () => {
+    resetChatState()
+    setMessages([])
+  }
 
   const onModelChange = (name: string) => {
     const selectedModel = models.find((m) => m.name === name)
@@ -83,11 +88,18 @@ export function ChatProvider({
     }
   }
 
-  React.useEffect(() => {
-    if (chatInstanceKey && !messages?.length) {
-      setMessages([])
+  const onAudioRecorded = (
+    audioBlob: Blob | null,
+    onSetAudio: (audio: File) => void,
+  ) => {
+    if (audioBlob) {
+      const audioFile = new File([audioBlob], 'user-audio.webm', {
+        type: 'audio/webm',
+      })
+
+      onSetAudio(audioFile)
     }
-  }, [chatInstanceKey, messages])
+  }
 
   const value: ChatContextProps = {
     chats: initialChats || [],
@@ -101,7 +113,9 @@ export function ChatProvider({
     onSubmitChat,
     onModelChange,
     onGenerateTranscribe,
+    onAudioRecorded,
     onStop,
+    onResetChat,
   }
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>

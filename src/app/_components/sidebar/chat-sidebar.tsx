@@ -14,8 +14,8 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useChatInstance } from '@/context/chat'
 import { useSessionUser } from '@/context/user'
-import { useChatStore } from '@/store/chat'
 import { cn } from '@/utils/utils'
 
 import { Historical } from '../../chat/_components/historical'
@@ -33,19 +33,15 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
   const isActivePath = (path: string) => pathname.startsWith(path)
 
   const { open, isMobile } = useSidebar()
-  const { resetChatState } = useChatStore()
+  const { onResetChat } = useChatInstance()
   const { user } = useSessionUser()
-
-  const handleClick = () => {
-    resetChatState()
-  }
 
   const mainLinks = [
     {
       href: '/',
       icon: MessageSquare,
       label: 'Chat',
-      onClick: handleClick,
+      onClick: onResetChat,
     },
     {
       href: '/dashboard',

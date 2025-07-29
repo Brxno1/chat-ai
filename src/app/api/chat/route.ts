@@ -1,4 +1,4 @@
-import { Message } from '@ai-sdk/react'
+import { type Message } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { defaultErrorMessage } from './config'

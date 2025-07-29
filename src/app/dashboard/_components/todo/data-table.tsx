@@ -222,7 +222,7 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
                   className={cn(
                     'max-md:max-p-0 text-center max-md:max-w-[4rem]',
                     {
-                      'animate-pulse': cell.id === 'temp-id',
+                      'animate-pulse': cell.id === 'new-todo',
                     },
                   )}
                 >

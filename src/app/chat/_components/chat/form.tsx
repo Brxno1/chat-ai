@@ -11,8 +11,8 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { AIVoiceInput } from '@/app/chat/_components/chat/ai-voice-input'
 import { TypingText } from '@/components/animate-ui/text/typing'
-import { AIVoiceInput } from '@/components/ui/ai-voice-input'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -36,7 +36,7 @@ import { ImagePreview } from './image-preview'
 
 const schema = z.object({
   message: z.string(),
-  attachments: z
+  files: z
     .array(
       z.instanceof(File, {
         message: 'Por favor, selecione um arquivo válido',
@@ -62,7 +62,7 @@ export function ChatForm() {
     mode: 'onChange',
     defaultValues: {
       message: '',
-      attachments: null,
+      files: null,
       audio: null,
     },
   })
@@ -87,39 +87,28 @@ export function ChatForm() {
     onStop,
   } = useChatInstance()
 
+  const onSetAudio = (audio: File) => {
+    form.setValue('audio', audio)
+  }
+
   const onRemoveItem = (index: number) => {
     handleRemoveItem(index)
 
     if (files.length <= 1) {
-      form.setValue('attachments', null)
+      form.setValue('files', null)
     }
 
     const remainingFiles = [...files]
     remainingFiles.splice(index, 1)
-    form.setValue('attachments', remainingFiles)
+    form.setValue('files', remainingFiles)
   }
 
-  const handleAudioRecorded = (audioBlob: Blob | null) => {
-    if (audioBlob) {
-      const audioFile = new File([audioBlob], 'user-audio.webm', {
-        type: 'audio/webm',
-      })
-
-      const dataTransfer = new DataTransfer()
-
-      if (audioFile && audioFile.size > 0) {
-        dataTransfer.items.add(audioFile)
-      }
-
-      form.setValue('audio', audioFile)
-    }
-  }
-
-  const handleSubmit = ({ attachments, audio }: z.infer<typeof schema>) => {
+  const handleSubmit = ({ files, audio }: z.infer<typeof schema>) => {
     const dataTransfer = new DataTransfer()
 
-    if (attachments && attachments.length > 0) {
-      attachments.forEach((file) => dataTransfer.items.add(file))
+    if (files && files.length > 0) {
+      files.forEach((file) => dataTransfer.items.add(file))
+      handleRemoveAll()
     }
 
     if (audio && audio.size > 0) {
@@ -131,12 +120,11 @@ export function ChatForm() {
     })
 
     form.reset()
-    handleRemoveAll()
   }
 
   React.useEffect(() => {
     if (files.length > 0) {
-      form.setValue('attachments', files)
+      form.setValue('files', files)
     }
   }, [files, form])
 
@@ -186,7 +174,7 @@ export function ChatForm() {
             <div className="flex items-center gap-1">
               <FormField
                 control={form.control}
-                name="attachments"
+                name="files"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -278,7 +266,7 @@ export function ChatForm() {
             </Button>
           ) : (
             <AIVoiceInput
-              onAudioRecorded={handleAudioRecorded}
+              onSetAudio={onSetAudio}
               isSubmitting={form.formState.isSubmitting}
             />
           )}
