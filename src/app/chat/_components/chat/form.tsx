@@ -85,6 +85,7 @@ export function ChatForm() {
     onModelChange,
     onInputChange,
     onStop,
+    buttonSubmitRef,
   } = useChatInstance()
 
   const onSetAudio = (audio: File) => {
@@ -228,7 +229,6 @@ export function ChatForm() {
                   <AIInputModelSelectItem
                     value={m.name}
                     key={m.id}
-                    disabled={m.disabled}
                     data-active={m.name === model.name}
                     className="cursor-pointer text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
                   >
@@ -257,6 +257,7 @@ export function ChatForm() {
             </Button>
           ) : input ? (
             <Button
+              ref={buttonSubmitRef}
               disabled={form.formState.isSubmitting}
               type="submit"
               size="icon"

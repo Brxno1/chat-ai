@@ -96,8 +96,8 @@ const createChatStore = (initialProps?: UseChatStoreProps) =>
       }),
       {
         name: 'chat-model-storage',
-        partialize: (state) => ({
-          model: state.model,
+        partialize: ({ model }) => ({
+          model,
         }),
       },
     ),

@@ -16,7 +16,6 @@ type UseChatControllerProps = {
 export function useChatController({
   initialMessages,
   currentChatId,
-  initialModel,
 }: UseChatControllerProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -34,7 +33,7 @@ export function useChatController({
       'x-user-id': user?.id || '',
       'x-chat-id': currentChatId || '',
       'x-ghost-mode': isGhostChatMode.toString(),
-      'x-ai-model': initialModel || model.id,
+      'x-ai-model': model.id,
     },
     onResponse: (response) => {
       const headerChatId = response.headers.get('x-chat-id')
