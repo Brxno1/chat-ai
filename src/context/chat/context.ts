@@ -29,6 +29,7 @@ type Actions = {
     },
     chatRequestOptions?: ChatRequestOptions,
   ) => void
+  append: (message: UIMessage) => void
   onModelChange: (value: string) => void
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>

@@ -111,6 +111,7 @@ export function ChatProvider({
     setMessages,
     onInputChange,
     onSubmitChat,
+    append,
     onModelChange,
     onGenerateTranscribe,
     onAudioRecorded,
