@@ -41,14 +41,13 @@ import { BackgroundProfile } from './avatar-background'
 import { AvatarProfile } from './avatar-profile'
 
 export function EditProfile() {
+  const [open, setOpen] = React.useState(false)
+  const id = React.useId()
+
   const { user, setUser } = useSessionUser()
+  const { update } = useSession()
 
   if (!user) return null
-
-  const id = React.useId()
-  const [open, setOpen] = React.useState(false)
-
-  const { update } = useSession()
 
   const form = useForm<z.infer<typeof updateProfileSchema>>({
     resolver: zodResolver(updateProfileSchema),

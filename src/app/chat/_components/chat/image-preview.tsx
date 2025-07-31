@@ -2,16 +2,15 @@ import { XIcon } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/animate-ui/radix/dialog'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   Drawer,
   DrawerClose,
@@ -48,11 +47,11 @@ export function ImagePreview({
   }
 
   return (
-    <div className="flex max-w-fit flex-row items-center justify-center rounded-md">
+    <div className="flex max-w-fit flex-row items-center justify-center gap-2 rounded-md p-1.5">
       {previewUrls.map((url, index) => (
         <div
           key={index}
-          className="group relative flex max-w-fit flex-row items-center justify-center gap-2.5 rounded-md bg-card"
+          className="group relative flex max-w-fit flex-row items-center justify-center rounded-md"
         >
           {isMobile ? (
             <Drawer
@@ -111,20 +110,19 @@ export function ImagePreview({
                   <AvatarImage src={url} className="object-cover" />
                 </Avatar>
               </DialogTrigger>
-              <DialogContent className="overflow-y-auto rounded-md">
-                <DialogHeader className="sr-only">
+              <DialogContent
+                className="fixed left-[40%] top-[20%] z-50 -translate-x-1/2 -translate-y-1/2 rounded-md [&>button]:hidden"
+                from="left"
+                transition={{
+                  type: 'spring',
+                  stiffness: 350,
+                  damping: 40,
+                }}
+              >
+                <DialogHeader>
                   <DialogTitle>Preview</DialogTitle>
-                  <DialogClose asChild>
-                    <Button
-                      variant="link"
-                      size="icon"
-                      className="absolute right-4 top-2"
-                    >
-                      <XIcon size={16} />
-                    </Button>
-                  </DialogClose>
                 </DialogHeader>
-                <div className="relative flex items-center justify-center">
+                <div className="">
                   <Image
                     src={url}
                     alt="Preview"
@@ -141,7 +139,7 @@ export function ImagePreview({
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-0 top-0 hidden size-4 rounded-full bg-card p-0.5 text-card-foreground transition-all duration-300 group-hover:flex"
+              className="absolute -right-1.5 -top-1.5 size-4 rounded-full bg-card p-0.5 text-card-foreground transition-all duration-300 group-hover:flex"
               onClick={() => onRemoveItem?.(index)}
             >
               <XIcon size={14} />

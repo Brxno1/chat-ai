@@ -120,7 +120,7 @@ export default function AudioPlayer({
     return (
       <div
         className={cn(
-          'max-w-md rounded-lg border bg-message p-3 shadow-sm dark:border-border',
+          'max-w-md mt-1 flex items-center gap-2 rounded-lg border bg-message dark:bg-primary/10 p-3 shadow-sm dark:border-border',
           className,
         )}
       >
@@ -130,7 +130,8 @@ export default function AudioPlayer({
           <Button
             onClick={togglePlay}
             size="icon"
-            className="h-8 w-8 p-0 dark:bg-message dark:text-card-foreground"
+            variant="ghost"
+            className="h-8 w-8"
           >
             {isPlaying ? (
               <Pause className="h-4 w-4" />
@@ -144,16 +145,16 @@ export default function AudioPlayer({
               <div
                 key={index}
                 className={cn(
-                  'w-1 rounded-sm transition-colors',
+                  'w-1 rounded-lg transition-colors',
                   isPlaying
-                    ? 'bg-card-foreground'
-                    : 'bg-zinc-400',
+                    ? 'bg-accent-foreground'
+                    : 'bg-muted-foreground',
                 )}
-                style={{ height: `${(bar.height / 100) * 26}px` }}
+                style={{ height: `${isPlaying ? (bar.height / 100) * 26 : 3}px` }}
               />
             ))}
           </div>
-          <span className="font-mono text-sm text-muted-foreground">
+          <span className="font-mono text-sm text-accent-foreground">
             {formatTime(currentTime)}
           </span>
         </div>

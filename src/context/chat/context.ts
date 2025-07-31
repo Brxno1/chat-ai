@@ -33,6 +33,7 @@ type Actions = {
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>
   onResetChat: () => void
+  buttonSubmitRef: React.RefObject<HTMLButtonElement | null>
   onAudioRecorded: (
     audio: Blob | null,
     onSetAudio: (audio: File) => void,

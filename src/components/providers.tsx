@@ -15,6 +15,7 @@ import { SidebarProvider } from './ui/sidebar'
 import { TooltipProvider } from './ui/tooltip'
 import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 import { ChatProvider } from '@/context/chat'
+import { UserStoreProvider } from '@/store/user/provider'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -44,31 +45,33 @@ export function Providers({
         disableTransitionOnChange
       >
         <UserProvider user={initialUser} session={initialSession}>
-          <ChatProvider initialChats={initialChats} cookieModel={model}>
-            <ProgressProvider
-              height=".10rem"
-              color="#556eff"
-              options={{ showSpinner: false }}
-              shallowRouting
-            >
-              <TooltipProvider>
-                <SidebarProvider defaultOpen={defaultOpen}>
-                  <NextAuthSessionProvider session={initialSession}>
-                    {children}
-                  </NextAuthSessionProvider>
-                </SidebarProvider>
-              </TooltipProvider>
-              <ToasterSonner
-                richColors
-                duration={3000}
-                closeButton
-                position="top-right"
-                theme="dark"
-                pauseWhenPageIsHidden
-                visibleToasts={2}
-              />
-            </ProgressProvider>
-          </ChatProvider>
+          <UserStoreProvider session={initialSession} user={initialUser}>
+            <ChatProvider initialChats={initialChats} cookieModel={model}>
+              <ProgressProvider
+                height=".10rem"
+                color="#556eff"
+                options={{ showSpinner: false }}
+                shallowRouting
+              >
+                <TooltipProvider>
+                  <SidebarProvider defaultOpen={defaultOpen}>
+                    <NextAuthSessionProvider session={initialSession}>
+                      {children}
+                    </NextAuthSessionProvider>
+                  </SidebarProvider>
+                </TooltipProvider>
+                <ToasterSonner
+                  richColors
+                  duration={3000}
+                  closeButton
+                  position="top-right"
+                  theme="dark"
+                  pauseWhenPageIsHidden
+                  visibleToasts={2}
+                />
+              </ProgressProvider>
+            </ChatProvider>
+          </UserStoreProvider>
         </UserProvider>
       </ThemeProvider>
     </QueryClientProvider>

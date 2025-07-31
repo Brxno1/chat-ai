@@ -159,7 +159,7 @@ const components: Options['components'] = {
     let language = 'typescript';
 
     const { theme, getTheme } = useThemeStore();
-    const [isOpen, setIsOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(true);
     const selectedTheme = getTheme(theme);
 
     if (Array.isArray(node?.properties?.className)) {
@@ -193,11 +193,11 @@ const components: Options['components'] = {
 
     return (
       <CodeBlock
-        className={cn('my-4', className)}
+        className={cn('my-2', className)}
         data={data}
         defaultValue={data[0].language}
       >
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <Collapsible open={open} onOpenChange={setOpen}>
           <CodeBlockHeader className="flex rounded-md items-center bg-background justify-between relative">
             <div className="flex items-center gap-0.5">
               <CodeBlockFiles>
@@ -207,21 +207,12 @@ const components: Options['components'] = {
                   </CodeBlockFilename>
                 )}
               </CodeBlockFiles>
-              {!isOpen && (
-                <CodeBlockInfos>
-                  {(item) => (
-                    <span key={item.language} className="flex items-center gap-1 text-xs text-muted-foreground">
-                      {item.code.split('\n').length} linhas de código
-                    </span>
-                  )}
-                </CodeBlockInfos>
-              )}
             </div>
             <div className="flex items-center gap-0.5">
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="w-fit border-none text-xs shadow-none gap-1">
-                  {isOpen ? <ChevronsDownUp size={14} /> : <ChevronsUpDown size={14} />}
-                  <span className="max-md:hidden">{isOpen ? 'Ocultar código' : 'Mostrar código'}</span>
+                  {open ? <ChevronsDownUp size={14} /> : <ChevronsUpDown size={14} />}
+                  <span className="max-md:hidden">{open ? 'Ocultar código' : 'Mostrar código'}</span>
                 </Button>
               </CollapsibleTrigger>
               <SelectCodeTheme />
@@ -254,6 +245,17 @@ const components: Options['components'] = {
               )}
             </CodeBlockBody>
           </CollapsibleContent>
+          {!open && (
+            <div className="flex justify-center p-1 bg-background">
+              <CodeBlockInfos>
+                {(item) => (
+                  <span key={item.language} className="flex text-sm text-muted-foreground">
+                    {item.code.split('\n').length} linhas de código
+                  </span>
+                )}
+              </CodeBlockInfos>
+            </div>
+          )}
         </Collapsible>
       </CodeBlock>
     );

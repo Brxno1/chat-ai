@@ -6,7 +6,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+} from '@/components/animate-ui/radix/collapsible';
 import { Brain, ChevronRight } from 'lucide-react';
 import { createContext, memo, useContext, useEffect, useState } from 'react';
 import type { ComponentProps } from 'react';
