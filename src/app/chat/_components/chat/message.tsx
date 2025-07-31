@@ -89,7 +89,7 @@ export function ChatMessage({ message }: MessageProps) {
             return (
               <ContainerWrapper
                 key={`${message.id}-text-${partIndex}`}
-                className={cn('flex flex-col space-y-2', {
+                className={cn('flex flex-col', {
                   'items-end': message.role === 'user',
                   'items-start': message.role === 'assistant',
                 })}
@@ -110,20 +110,15 @@ export function ChatMessage({ message }: MessageProps) {
                         </AvatarFallback>
                       </Avatar>
                     </Badge>
-                    {message.experimental_attachments && (
-                      <Attachments
-                        attachments={message.experimental_attachments}
-                      />
-                    )}
                   </>
                 )}
                 <div
                   className={cn(
-                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[70%]',
+                    'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg border border-input p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[70%]',
                     {
                       'ml-auto bg-message text-accent dark:bg-primary/10':
                         message.role === 'user',
-                      'mr-auto bg-primary/10 text-card-foreground':
+                      'mr-auto bg-primary/5 text-card-foreground':
                         message.role === 'assistant',
                     },
                   )}
@@ -150,6 +145,9 @@ export function ChatMessage({ message }: MessageProps) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+                {message.experimental_attachments && (
+                  <Attachments attachments={message.experimental_attachments} />
+                )}
                 <Badge
                   variant={'chat'}
                   className={cn(

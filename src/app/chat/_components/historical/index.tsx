@@ -5,12 +5,12 @@ import { AlignLeft, ChevronRight } from 'lucide-react'
 import React from 'react'
 
 import { fetchChats } from '@/app/(http)/chat/fetch-chats'
-import { Button } from '@/components/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible'
+} from '@/components/animate-ui/radix/collapsible'
+import { Button } from '@/components/ui/button'
 import { useChatInstance } from '@/context/chat'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'
@@ -27,7 +27,8 @@ function Historical() {
     initialData,
   })
 
-  const [isCollapsed, setIsCollapsed] = React.useState(chats.length > 0)
+  const [isOpen, setIsOpen] = React.useState(chats.length > 0)
+  console.log(isOpen)
 
   const groupedChats = React.useMemo(() => {
     return groupItemsByDate<Chat>(chats, (chat) => new Date(chat.createdAt))
@@ -35,10 +36,10 @@ function Historical() {
 
   return (
     <Collapsible
-      open={isCollapsed}
-      onOpenChange={setIsCollapsed}
+      open={isOpen}
+      onOpenChange={setIsOpen}
       className="group/collapsible flex h-full flex-col"
-      data-collapsed={isCollapsed ? 'open' : 'closed'}
+      data-collapsed={isOpen ? 'open' : 'closed'}
     >
       <div className="mb-1 flex w-full items-center justify-center gap-2">
         <CollapsibleTrigger asChild>

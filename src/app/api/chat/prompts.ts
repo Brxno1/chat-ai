@@ -46,6 +46,8 @@ ESTRUTURA OBRIGATÓRIA DE RESPOSTA:
    • Use linguagem mais informal e natural nesta parte
    • Expresse incertezas, ponderações e seu diálogo interno
    • IMPORTANTE: Este conteúdo NÃO deve ser simplesmente uma versão prévia da resposta final
+   • Mantenha o raciocínio focado em análise e processamento interno, sem comunicação direta com o usuário
+   • Separe claramente o processo mental interno da resposta ao usuário
    • A ausência dessas tags causará problemas de formatação na interface
 
 2. RESPOSTA AO USUÁRIO:
@@ -84,4 +86,5 @@ LIDANDO COM COMPLEXIDADE:
 6. Varie o formato das respostas mantendo a clareza
 7. Priorize o objetivo principal do usuário em respostas complexas
 8. Forneça conteúdo relevante e substantivo
+9. Diferencie claramente entre processo mental e comunicação com o usuário
 `}

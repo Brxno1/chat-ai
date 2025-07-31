@@ -193,7 +193,7 @@ const components: Options['components'] = {
 
     return (
       <CodeBlock
-        className={cn('my-4', className)}
+        className={cn('my-2', className)}
         data={data}
         defaultValue={data[0].language}
       >
@@ -207,14 +207,6 @@ const components: Options['components'] = {
                   </CodeBlockFilename>
                 )}
               </CodeBlockFiles>
-              {!open && (<CodeBlockInfos>
-                {(item) => (
-                  <span key={item.language} className="flex items-center gap-1 text-xs text-muted-foreground">
-                    {item.code.split('\n').length} linhas de código
-                  </span>
-                )}
-              </CodeBlockInfos>
-              )}
             </div>
             <div className="flex items-center gap-0.5">
               <CollapsibleTrigger asChild>
@@ -239,7 +231,7 @@ const components: Options['components'] = {
               <CodeBlockCopyButton />
             </div>
           </CodeBlockHeader>
-          <CollapsibleContent className="overflow-hidden" transition={{ type: 'spring', stiffness: 200, damping: 35 }}>
+          <CollapsibleContent className="overflow-hidden">
             <CodeBlockBody>
               {(item) => (
                 <CodeBlockItem key={item.language} value={item.language}>
@@ -253,6 +245,17 @@ const components: Options['components'] = {
               )}
             </CodeBlockBody>
           </CollapsibleContent>
+          {!open && (
+            <div className="flex justify-center p-1 bg-background">
+              <CodeBlockInfos>
+                {(item) => (
+                  <span key={item.language} className="flex text-sm text-muted-foreground">
+                    {item.code.split('\n').length} linhas de código
+                  </span>
+                )}
+              </CodeBlockInfos>
+            </div>
+          )}
         </Collapsible>
       </CodeBlock>
     );

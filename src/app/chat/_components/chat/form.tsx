@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ChevronsUpDown,
+  Files,
   GlobeIcon,
   ImageUp,
   SendIcon,
@@ -11,7 +12,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { AIVoiceInput } from '@/app/chat/_components/chat/ai-voice-input'
+import { RecorderAudio } from '@/app/chat/_components/chat/recorder-audio'
 import { TypingText } from '@/components/animate-ui/text/typing'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
@@ -35,7 +36,7 @@ import { models } from '../../models/definitions'
 import { ImagePreview } from './image-preview'
 
 const schema = z.object({
-  message: z.string(),
+  message: z.string().optional(),
   files: z
     .array(
       z.instanceof(File, {
@@ -44,7 +45,7 @@ const schema = z.object({
     )
     .refine(
       (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
-      `Os arquivos devem ter no máximo 10MB cada`,
+      `${Files.length > 1 ? 'Os arquivos devem ter no máximo 10MB cada' : 'O arquivo deve ter no máximo 10MB'}`,
     )
     .optional()
     .nullable(),
@@ -88,10 +89,6 @@ export function ChatForm() {
     buttonSubmitRef,
   } = useChatInstance()
 
-  const onSetAudio = (audio: File) => {
-    form.setValue('audio', audio)
-  }
-
   const onRemoveItem = (index: number) => {
     handleRemoveItem(index)
 
@@ -121,6 +118,10 @@ export function ChatForm() {
     })
 
     form.reset()
+  }
+
+  const onSetAudio = (audio: File) => {
+    form.setValue('audio', audio)
   }
 
   React.useEffect(() => {
@@ -266,7 +267,7 @@ export function ChatForm() {
               <SendIcon size={16} />
             </Button>
           ) : (
-            <AIVoiceInput
+            <RecorderAudio
               onSetAudio={onSetAudio}
               isSubmitting={form.formState.isSubmitting}
             />

@@ -7,19 +7,19 @@ import { Button } from '@/components/ui/button'
 import { useChatInstance } from '@/context/chat'
 import { cn } from '@/utils/utils'
 
-interface AIVoiceInputProps {
+interface RecorderAudioProps {
   visualizerBars?: number
   className?: string
   onSetAudio: (audio: File) => void
   isSubmitting?: boolean
 }
 
-export function AIVoiceInput({
+export function RecorderAudio({
   visualizerBars = 8,
   className,
   onSetAudio,
   isSubmitting,
-}: AIVoiceInputProps) {
+}: RecorderAudioProps) {
   const [isRecording, setIsRecording] = React.useState(false)
   const [time, setTime] = React.useState(0)
 

@@ -2,16 +2,16 @@
 
 import type { Message } from '@ai-sdk/react'
 
-import { cn } from '@/utils/utils'
-
 import AudioPlayer from './audio-player'
 import { ImagePreview } from './image-preview'
 
 type AttachmentsProps = {
-  attachments: Message['experimental_attachments'] | undefined
+  attachments: Message['experimental_attachments']
 }
 export function Attachments({ attachments }: AttachmentsProps) {
-  const imageAttachments = attachments?.filter((attachment) =>
+  if (!attachments) return null
+
+  const imageAttachments = attachments.filter((attachment) =>
     attachment.contentType?.startsWith('image/'),
   )
 
@@ -24,16 +24,15 @@ export function Attachments({ attachments }: AttachmentsProps) {
   return (
     <>
       {imageUrls && imageUrls.length > 0 && (
-        <ImagePreview previewUrls={imageUrls} noRemove />
+        <ImagePreview
+          previewUrls={imageUrls}
+          noRemove
+          className="size-14 rounded-md"
+        />
       )}
 
       {audioAttachments && audioAttachments.length > 0 && (
-        <div
-          className={cn(
-            'flex flex-col',
-            audioAttachments.length > 1 ? 'gap-2' : '',
-          )}
-        >
+        <div>
           {audioAttachments.map((audio, index) => (
             <AudioPlayer
               key={`audio-${index}`}
