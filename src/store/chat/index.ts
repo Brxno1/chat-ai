@@ -20,7 +20,7 @@ interface State {
 interface Actions {
   setChatId: (id: string | undefined) => void
   setIsCreatingNewChat: (value: boolean) => void
-  setToGhostChatMode: (mode: boolean) => void
+  setToGhostChatMode: (mode: boolean | ((prev: boolean) => boolean)) => void
   setMessages: (messages: Message[]) => void
   onDeleteMessage: (id: string) => void
   setModel: (model: Model) => void
@@ -61,7 +61,13 @@ const createChatStore = (initialProps?: UseChatStoreProps) =>
 
         setIsCreatingNewChat: (value) => set({ isCreatingNewChat: value }),
 
-        setToGhostChatMode: (mode) => set({ isGhostChatMode: mode }),
+        setToGhostChatMode: (mode) => {
+          if (typeof mode === 'function') {
+            set((state) => ({ isGhostChatMode: mode(state.isGhostChatMode) }))
+          } else {
+            set({ isGhostChatMode: mode })
+          }
+        },
 
         setMessages: (messages) => set({ messages }),
 

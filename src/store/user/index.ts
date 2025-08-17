@@ -17,6 +17,7 @@ export type UserState = State & Actions
 type UseUserStoreProps = {
   initialSession?: Session | null
   initialUser?: User
+  notifications?: Notification[]
 }
 
 export function createUserStore({

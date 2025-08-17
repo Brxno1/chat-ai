@@ -97,8 +97,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.bio = user.bio
         token.image = user.image
         token.background = user.background
-        token.createdAt = user.createdAt
-        token.updatedAt = user.updatedAt
+        token.createdAt = user.createdAt || undefined
+        token.updatedAt = user.updatedAt || undefined
       }
 
       if (trigger === 'update' && session) {
@@ -128,6 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           createdAt: token.createdAt as Date,
           updatedAt: token.updatedAt as Date
         }
+        session.accessToken = token.raw as string
       }
       return session
     },

@@ -3,12 +3,12 @@
 import { Session, User } from 'next-auth'
 import { createContext, useContext } from 'react'
 
-import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
+import { Notification } from '@/types/notifications'
 
 type UserContextType = {
   session: Session | null
   user: User | undefined
-  chats?: ChatWithMessages[]
+  notifications?: Notification[]
   setUser: (
     userOrFn: User | ((prev: User | undefined) => User | undefined),
   ) => void
@@ -17,7 +17,7 @@ type UserContextType = {
 export const UserContext = createContext<UserContextType>({
   session: null,
   user: undefined,
-  chats: [],
+  notifications: [],
   setUser: () => {},
 })
 
