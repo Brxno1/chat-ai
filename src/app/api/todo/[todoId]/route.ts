@@ -5,9 +5,9 @@ import { deleteTodoAction } from '../actions/delete-todo'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { todoId: string } },
+  { params }: { params: Promise<{ todoId: string }> },
 ) {
-  const { todoId } = params
+  const { todoId } = await params
   const { session, error } = await getUserSession()
 
   if (error || !session) {

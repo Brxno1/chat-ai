@@ -3,6 +3,7 @@
 import { Bell, Check, Ghost, MessageSquarePlus } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import React from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { toast } from 'sonner'
 
@@ -12,16 +13,15 @@ import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { useChatInstance } from '@/context/chat'
 import { useSessionUser } from '@/context/user'
 import { useChatStore } from '@/store/chat'
-import { formatDateToLocaleWithHour } from '@/utils/format'
+import { formatDistanceToNow } from '@/utils/format'
 import { cn } from '@/utils/utils'
 
 function ChatHeader() {
@@ -30,6 +30,8 @@ function ChatHeader() {
   const { isGhostChatMode, setToGhostChatMode, resetChatState } = useChatStore()
   const { setMessages } = useChatInstance()
   const { notifications } = useSessionUser()
+
+  const [isOpen, setIsOpen] = React.useState(false)
 
   const handleGhostChatMode = () => {
     setToGhostChatMode((prev) => !prev)
@@ -68,57 +70,68 @@ function ChatHeader() {
   const unreadNotifications =
     notifications?.filter((noti) => !noti.readAt) || []
 
-  console.log(notifications)
-
   return (
     <DashboardPageHeader className="flex w-full items-center justify-between border-b border-input bg-card pb-[1rem]">
       <div className="ml-2 flex items-center gap-3 transition-all">
-        <SidebarTriggerComponentMobile variant="ghost" size="icon" />
+        <SidebarTriggerComponentMobile size="icon" variant="outline" />
         <TooltipWrapper content="Chat fantasma (Shift+g)" asChild side="bottom">
-          <Button variant="ghost" size="icon" onClick={handleGhostChatMode}>
+          <Button size="icon" onClick={handleGhostChatMode} variant="ghost">
             <Ghost size={16} />
           </Button>
         </TooltipWrapper>
       </div>
       <div className="mr-2 flex items-center gap-2">
         {notifications && notifications.length > 0 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+              <Button size="icon" className="relative" variant="outline">
                 <Bell size={16} />
-                <span className="absolute -right-1 -top-1 flex size-3.5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                  {unreadNotifications.length}
-                </span>
+                <p className="absolute -right-1 -top-1 flex size-3.5 items-center justify-center rounded-full bg-red-500 text-white">
+                  {unreadNotifications.length > 9 ? (
+                    <span className="text-[11px]">9+</span>
+                  ) : (
+                    unreadNotifications.length
+                  )}
+                </p>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64" align="end">
+            </PopoverTrigger>
+            <PopoverContent
+              className="max-h-[620px] w-80 space-y-1.5 overflow-y-auto rounded-2xl bg-background p-1.5"
+              align="end"
+            >
               {notifications.map((notification) => (
-                <DropdownMenuItem
+                <div
                   key={notification.id}
-                  className="flex items-center justify-between gap-2 text-xs"
+                  className="flex items-start justify-between gap-2 rounded-lg border border-input bg-card p-2 text-xs hover:bg-primary/10"
                 >
-                  <div className="flex flex-col items-start justify-between gap-1">
-                    <p>{notification.content}</p>
-                    <p>{formatDateToLocaleWithHour(notification.createdAt)}</p>
+                  <div className="flex flex-col justify-center gap-2">
+                    <div className="relative flex gap-1">
+                      <span>{notification.category}</span>
+                      <span className="text-muted-foreground">•</span>
+                      <span className="text-muted-foreground/90">
+                        {formatDistanceToNow(notification.createdAt)}
+                      </span>
+                    </div>
+                    <p className="text-sm">{notification.content}</p>
                   </div>
-                  <Button variant="ghost" size="icon">
+                  <Button size="icon" variant="link" className="my-auto">
                     <Check
                       size={16}
-                      className={cn('text-green-500', {
-                        'text-zinc-500': notification.readAt,
+                      className={cn('text-green-400', {
+                        'text-muted-foreground': notification.readAt,
                       })}
                     />
                   </Button>
-                </DropdownMenuItem>
+                </div>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverContent>
+          </Popover>
         )}
         <Separator orientation="vertical" className="h-4" />
 
         <TooltipWrapper content="Nova conversa (Shift+n)" asChild>
           <Link href="/">
-            <Button variant="ghost" onClick={handleCreateNewChat} size="icon">
+            <Button onClick={handleCreateNewChat} size="icon" variant="outline">
               <MessageSquarePlus className="size-6" />
             </Button>
           </Link>

@@ -70,8 +70,8 @@ model Attachment {
   name        String
   contentType String
   createdAt   DateTime @default(now())
-  messageId   String
   message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId   String
 
   @@map("attachments")
 }
