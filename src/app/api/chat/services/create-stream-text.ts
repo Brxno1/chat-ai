@@ -1,5 +1,4 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import {
   extractReasoningMiddleware,
   Message,
@@ -15,12 +14,6 @@ import { errorHandler } from '../utils/error-handler'
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
-})
-
-const lmStudio = createOpenAICompatible({
-  baseURL: process.env.LM_STUDIO_API_BASE!,
-  apiKey: process.env.NEWSAPI_KEY!,
-  name: 'lm-studio',
 })
 
 function normalizeMessagesForStream(messages: Message[]): Message[] {

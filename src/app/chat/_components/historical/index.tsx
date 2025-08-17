@@ -3,6 +3,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { AlignLeft, ChevronRight } from 'lucide-react'
 import React from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import { fetchChats } from '@/app/(http)/chat/fetch-chats'
 import {
@@ -28,7 +29,10 @@ function Historical() {
   })
 
   const [isOpen, setIsOpen] = React.useState(chats.length > 0)
-  console.log(isOpen)
+
+  useHotkeys('shift+h', () => {
+    setIsOpen((prev) => !prev)
+  })
 
   const groupedChats = React.useMemo(() => {
     return groupItemsByDate<Chat>(chats, (chat) => new Date(chat.createdAt))

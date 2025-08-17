@@ -3,16 +3,24 @@
 import { Session, User } from 'next-auth'
 import { ReactNode, useReducer } from 'react'
 
+import { Notification } from '@/types/notifications'
+
 import { UserContext } from './context'
 import { userReducer } from './reducer'
 
 type UserProviderProps = {
   session: Session | null
   user: User | undefined
+  notifications?: Notification[]
   children: ReactNode
 }
 
-export function UserProvider({ children, session, user }: UserProviderProps) {
+export function UserProvider({
+  children,
+  session,
+  user,
+  notifications,
+}: UserProviderProps) {
   const [state, dispatch] = useReducer(userReducer, { user })
 
   const setUser = (
@@ -33,6 +41,7 @@ export function UserProvider({ children, session, user }: UserProviderProps) {
         session,
         user: state.user,
         setUser,
+        notifications,
       }}
     >
       {children}

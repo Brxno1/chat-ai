@@ -75,7 +75,6 @@ function UserDropdown() {
       />
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
           size="lg"
           data-dropdown={open ? 'open' : 'closed'}
           className="group relative z-50 mb-px flex w-full items-center justify-start space-x-2 rounded-xl border border-input px-2 py-6 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:p-6"

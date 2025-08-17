@@ -24,6 +24,7 @@ export async function getUserSession(): Promise<GetUserSessionResponse> {
       session,
     }
   } catch (error) {
+    console.error('Error in getUserSession:', error)
     return {
       session: null,
       error: 'Error getting user session',

@@ -2,6 +2,7 @@
 
 import { Mic } from 'lucide-react'
 import React from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import { Button } from '@/components/ui/button'
 import { useChatInstance } from '@/context/chat'
@@ -94,6 +95,10 @@ export function RecorderAudio({
   const handleRecordToggle = () => {
     setIsRecording((prev) => !prev)
   }
+
+  useHotkeys('shift+r', () => {
+    handleRecordToggle()
+  })
 
   return (
     <Button

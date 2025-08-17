@@ -164,7 +164,7 @@ export function ChatForm() {
               {!input && (
                 <TypingText
                   className="pointer-events-none absolute left-2 top-[22%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
-                  text="Escreva para enviar uma mensagem..."
+                  text="O que você quer saber?"
                   loop
                 />
               )}

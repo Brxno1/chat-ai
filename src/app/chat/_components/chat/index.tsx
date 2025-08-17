@@ -9,7 +9,6 @@ import { ChatMessage } from './message'
 
 export function Chat() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
-  const containerRef = React.useRef<HTMLDivElement>(null)
 
   const { messages, onInputChange, buttonSubmitRef } = useChatInstance()
 
@@ -19,10 +18,7 @@ export function Chat() {
 
   return (
     <div className="flex h-full flex-col space-y-2 rounded-lg border border-input p-2">
-      <div
-        className="flex-1 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md"
-        ref={containerRef}
-      >
+      <div className="flex-1 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <div>
@@ -37,7 +33,7 @@ export function Chat() {
                     } as React.ChangeEvent<HTMLTextAreaElement>
 
                     onInputChange(event)
-                    setTimeout(() => buttonSubmitRef?.current?.click(), 100)
+                    setTimeout(() => buttonSubmitRef?.current?.click(), 50)
                   }}
                   className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm"
                 >
@@ -70,7 +66,7 @@ export function Chat() {
                     } as React.ChangeEvent<HTMLTextAreaElement>
 
                     onInputChange(event)
-                    setTimeout(() => buttonSubmitRef?.current?.click(), 100)
+                    setTimeout(() => buttonSubmitRef?.current?.click(), 50)
                   }}
                   className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm"
                 >
