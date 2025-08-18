@@ -120,7 +120,7 @@ export default function AudioPlayer({
     return (
       <div
         className={cn(
-          'max-w-md mt-1 flex items-center gap-2 rounded-lg border bg-message dark:bg-primary/10 p-3 shadow-sm dark:border-border',
+          'max-w-md mt-1 flex items-center gap-2 rounded-lg border bg-message p-3 shadow-sm dark:border-border',
           className,
         )}
       >
@@ -130,8 +130,8 @@ export default function AudioPlayer({
           <Button
             onClick={togglePlay}
             size="icon"
-            variant="ghost"
-            className="h-8 w-8"
+            variant="link"
+            className="text-zinc-50"
           >
             {isPlaying ? (
               <Pause className="h-4 w-4" />
@@ -147,14 +147,14 @@ export default function AudioPlayer({
                 className={cn(
                   'w-1 rounded-lg transition-colors',
                   isPlaying
-                    ? 'bg-accent-foreground'
-                    : 'bg-muted-foreground',
+                    ? 'bg-zinc-50'
+                    : 'bg-zinc-200',
                 )}
                 style={{ height: `${isPlaying ? (bar.height / 100) * 26 : 3}px` }}
               />
             ))}
           </div>
-          <span className="font-mono text-sm text-accent-foreground">
+          <span className="font-mono text-sm text-zinc-50">
             {formatTime(currentTime)}
           </span>
         </div>
@@ -165,15 +165,15 @@ export default function AudioPlayer({
   return (
     <div
       className={cn(
-        'max-w-lg rounded-lg border bg-card p-6 shadow-sm dark:border-border',
+        'max-w-lg flex flex-col items-center rounded-lg border bg-card p-4 shadow-sm dark:border-border',
         className,
       )}
     >
       <audio ref={audioRef} src={src} />
 
       {/* Waveform and Time Display */}
-      <div className="mb-6 flex items-center gap-4">
-        <span className="min-w-[40px] font-mono text-sm text-muted-foreground">
+      <div className="mb-4 flex items-center justify-center gap-4">
+        <span className="min-w-[40px] font-mono text-sm text-zinc-50">
           {formatTime(currentTime)}
         </span>
 
@@ -182,7 +182,7 @@ export default function AudioPlayer({
             {waveformBars.map((bar, index) => (
               <div
                 key={index}
-                className={`w-1 rounded-sm transition-colors ${bar.played ? 'bg-primary' : 'bg-muted'
+                className={`w-1 rounded-sm transition-colors ${bar.played ? 'bg-primary' : 'bg-zinc-200'
                   }`}
                 style={{ height: `${(bar.height / 100) * 40}px` }}
                 onClick={() =>
@@ -193,7 +193,7 @@ export default function AudioPlayer({
           </div>
         </div>
 
-        <span className="min-w-[40px] font-mono text-sm text-muted-foreground">
+        <span className="min-w-[40px] hidden font-mono text-sm text-zinc-50">
           {formatTime(duration)}
         </span>
       </div>
@@ -204,7 +204,7 @@ export default function AudioPlayer({
           variant="ghost"
           size="sm"
           onClick={toggleLoop}
-          className={`h-8 w-8 p-0 ${isLooping ? 'text-primary' : 'text-muted-foreground'
+          className={`h-8 w-8 p-0 ${isLooping ? 'text-primary' : 'text-zinc-50'
             }`}
         >
           <RotateCcw className="h-4 w-4" />
@@ -244,7 +244,7 @@ export default function AudioPlayer({
         </div>
 
         <div className="flex items-center gap-2">
-          <Volume2 className="h-4 w-4 text-muted-foreground" />
+          <Volume2 className="h-4 w-4 text-zinc-50" />
           <Slider
             value={[volume * 100]}
             onValueChange={handleVolumeChange}

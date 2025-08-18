@@ -22,16 +22,12 @@ export async function Initializer({ children }: InitializerProps) {
 
   let notifications: Notification[] = []
   if (sessionToken && session) {
-    try {
-      const { data } = await api.get<{ notifications: Notification[] }>(`http://localhost:3333/notifications/${session.user.id}/list?page=1&limit=10`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      notifications = data.notifications
-    } catch (error) {
-      console.error('Erro ao buscar notificações:', error)
-    }
+    const { data } = await api.get<{ notifications: Notification[] }>(`http://localhost:3333/notifications/${session.user.id}/list?page=1&limit=10`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    notifications = data.notifications
   }
 
   return (

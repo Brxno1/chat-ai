@@ -36,7 +36,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
   const { onResetChat } = useChatInstance()
   const { user } = useSessionUser()
 
-  const mainLinks = [
+  const links = [
     {
       href: '/',
       icon: MessageSquare,
@@ -73,7 +73,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
       <Separator />
       <SidebarContent className="flex h-screen flex-col overflow-hidden bg-card">
         <SidebarGroup className="space-y-2">
-          {mainLinks.map((link) => (
+          {links.map((link) => (
             <SidebarLinks
               key={link.href}
               link={link}

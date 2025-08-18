@@ -77,7 +77,7 @@ function SidebarNavLink({
       href={href}
       onClick={() => onClick?.()}
       className={cn(
-        'flex items-center justify-start text-secondary-foreground rounded-md py-2 text-sm transition-all hover:bg-card-foreground/5 hover:border-border',
+        'flex items-center justify-start text-secondary-foreground rounded-md py-2 text-sm transition-all hover:bg-accent hover:border-border',
         className,
         {
           'cursor-default bg-primary hover:bg-primary text-primary-foreground font-semibold':

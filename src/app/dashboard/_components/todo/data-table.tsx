@@ -122,7 +122,7 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
           <div className="flex max-w-sm items-center justify-center gap-2">
             <div className="relative flex items-center justify-center">
               <Input
-                className="bg-background pr-8 placeholder:text-sm max-sm:max-w-[8.5rem]"
+                className="bg-transparent pr-8 placeholder:text-sm max-sm:max-w-[8.5rem]"
                 placeholder="Filtrar Todos..."
                 value={filterValue ?? ''}
                 onChange={(ev) =>
@@ -142,9 +142,9 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
             <Button
               onClick={handleRefreshTodos}
               disabled={isFetching || isLoading}
-              variant="outline"
+              variant="ghost"
               className={cn(
-                'max-w-[8rem] gap-2',
+                'max-w-[8rem] gap-2 border border-input',
                 isFetching && 'animate-pulse',
               )}
             >
@@ -164,8 +164,8 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="outline"
-                className="ml-auto"
+                variant="ghost"
+                className="ml-auto border border-input"
                 disabled={isFetching || isLoading}
               >
                 Colunas <ChevronDown />
@@ -247,7 +247,8 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
           </div>
           <div className="space-x-2">
             <Button
-              variant="outline"
+              variant="ghost"
+              className="border border-input"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage() || isFetching}
@@ -255,7 +256,8 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
               Anterior
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
+              className="border border-input"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage() || isFetching}

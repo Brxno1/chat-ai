@@ -116,8 +116,7 @@ export function ChatMessage({ message }: MessageProps) {
                   className={cn(
                     'group inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg border border-input p-1 text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[70%]',
                     {
-                      'ml-auto bg-message text-accent dark:bg-primary/10':
-                        message.role === 'user',
+                      'ml-auto bg-message text-accent': message.role === 'user',
                       'mr-auto bg-primary/5 text-card-foreground':
                         message.role === 'assistant',
                     },

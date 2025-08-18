@@ -35,7 +35,7 @@ export function Chat() {
                     onInputChange(event)
                     setTimeout(() => buttonSubmitRef?.current?.click(), 50)
                   }}
-                  className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm"
+                  className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm hover:bg-accent"
                 >
                   "Qual a melhor forma de economizar dinheiro?"
                 </div>
@@ -52,7 +52,7 @@ export function Chat() {
                     onInputChange(event)
                     setTimeout(() => buttonSubmitRef?.current?.click(), 50)
                   }}
-                  className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm"
+                  className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm hover:bg-accent"
                 >
                   "Recomende filmes para assistir no final de semana"
                 </div>
@@ -68,7 +68,7 @@ export function Chat() {
                     onInputChange(event)
                     setTimeout(() => buttonSubmitRef?.current?.click(), 50)
                   }}
-                  className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm"
+                  className="flex h-28 cursor-pointer items-center justify-center rounded-lg border border-input bg-card p-2.5 text-center text-sm hover:bg-accent"
                 >
                   "Como posso aprender programação?"
                 </div>
