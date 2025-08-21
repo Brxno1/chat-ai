@@ -50,6 +50,7 @@ export function useChatController({
 
         if (!currentChatId) {
           const currentKey = getChatInstanceKey()
+          console.log('currentKey', currentKey)
           if (currentKey) {
             router.push(`/chat/${currentKey}`)
           }

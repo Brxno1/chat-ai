@@ -1,6 +1,6 @@
 import { Message } from '@ai-sdk/react'
 import { persist } from 'zustand/middleware'
-import { createStore, StoreApi } from 'zustand/vanilla'
+import { createStore } from 'zustand/vanilla'
 
 import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 import { models } from '@/app/chat/models/definitions'
@@ -20,7 +20,7 @@ export interface StateChatStore {
 export interface ActionsChatStore {
   setChatId: (id: string | undefined) => void
   setIsCreatingNewChat: (value: boolean) => void
-  setToGhostChatMode: (mode: boolean) => void
+  defineChatToGhostMode: (mode: boolean) => void
   setMessages: (messages: Message[]) => void
   onDeleteMessage: (id: string) => void
   setModel: (model: Model) => void
@@ -38,10 +38,8 @@ const defaultModel: Model = {
   provider: models[0].provider,
 }
 
-export const createChatStore = (): StoreApi<
-  StateChatStore & ActionsChatStore
-> =>
-  createStore<StateChatStore & ActionsChatStore>()(
+export function createChatStore() {
+  return createStore<StateChatStore & ActionsChatStore>()(
     persist(
       (set, get) => ({
         chats: [],
@@ -59,7 +57,7 @@ export const createChatStore = (): StoreApi<
 
         setIsCreatingNewChat: (value) => set({ isCreatingNewChat: value }),
 
-        setToGhostChatMode: (mode) => set({ isGhostChatMode: mode }),
+        defineChatToGhostMode: (mode) => set({ isGhostChatMode: mode }),
 
         setMessages: (messages) => set({ messages }),
 
@@ -100,3 +98,4 @@ export const createChatStore = (): StoreApi<
       },
     ),
   )
+}

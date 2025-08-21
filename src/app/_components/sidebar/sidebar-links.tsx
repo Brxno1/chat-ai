@@ -36,19 +36,17 @@ export function SidebarLinks({
       sideOffset={sideOffset}
       asChild
     >
-      <div>
-        <SidebarNavLink
-          href={link.href}
-          active={isActiveLink(link.href)}
-          onClick={link.onClick}
-          className="gap-2 px-2 group-data-[sidebar=closed]/sidebar:flex group-data-[sidebar=closed]/sidebar:justify-center"
-        >
-          <link.icon size={20} />
-          <span className="group-data-[sidebar=open]/sidebar:block group-data-[sidebar=closed]/sidebar:hidden">
-            {link.label}
-          </span>
-        </SidebarNavLink>
-      </div>
+      <SidebarNavLink
+        href={link.href}
+        active={isActiveLink(link.href)}
+        onClick={link.onClick}
+        className="gap-2 px-2 group-data-[sidebar=closed]/sidebar:flex group-data-[sidebar=closed]/sidebar:justify-center"
+      >
+        <link.icon size={20} />
+        <span className="group-data-[sidebar=open]/sidebar:block group-data-[sidebar=closed]/sidebar:hidden">
+          {link.label}
+        </span>
+      </SidebarNavLink>
     </TooltipWrapper>
   )
 }

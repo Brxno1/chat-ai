@@ -62,7 +62,7 @@ function SidebarNavMain({ className, children }: SidebarGenericProps) {
 type SidebarNavLinkProps = {
   href: string
   active?: boolean
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
 }
 
 function SidebarNavLink({
@@ -75,7 +75,7 @@ function SidebarNavLink({
   return (
     <Link
       href={href}
-      onClick={() => onClick?.()}
+      onClick={onClick}
       className={cn(
         'flex items-center justify-start text-secondary-foreground rounded-md py-2 text-sm transition-all hover:bg-accent hover:border-border',
         className,

@@ -231,7 +231,7 @@ export function ChatForm() {
                     value={m.name}
                     key={m.id}
                     data-active={m.name === model.name}
-                    className="cursor-pointer text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
+                    className="flex cursor-pointer flex-row items-center text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
                   >
                     <Image
                       src={`https://img.logo.dev/${m.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
@@ -240,7 +240,13 @@ export function ChatForm() {
                       width={16}
                       height={16}
                     />
-                    <span>{m.name}</span>
+                    {m.premium ? (
+                      <span className="bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent">
+                        {m.name}
+                      </span>
+                    ) : (
+                      <span>{m.name}</span>
+                    )}
                   </AIInputModelSelectItem>
                 ))}
               </AIInputModelSelectContent>

@@ -56,7 +56,7 @@ export function ChatMessage({ message }: MessageProps) {
   const resultToolCallIds = getResultToolCallIds(message as ChatMessageType)
 
   return (
-    <div className="flex w-full flex-col space-y-1">
+    <div className="flex w-full flex-col space-y-1 pr-2">
       {message.role === 'assistant' && (
         <Badge variant={'chat'} className="hover:bg-transparent">
           <Avatar className="size-5 rounded-sm max-sm:size-4">
@@ -94,7 +94,7 @@ export function ChatMessage({ message }: MessageProps) {
                   'items-start': message.role === 'assistant',
                 })}
               >
-                {message.role === 'user' && (
+                {user && message.role === 'user' && (
                   <>
                     <Badge
                       variant={'chat'}

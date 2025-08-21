@@ -1,5 +1,5 @@
 import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
-import { Providers } from './providers'
+import { Providers } from './globals-providers'
 import { cookies } from 'next/headers'
 import { getChatsAction } from '@/app/api/chat/actions/get-chats'
 import { type Notification } from '@/types/notifications'

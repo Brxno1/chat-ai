@@ -50,8 +50,8 @@ export function ChatProvider({
   })
 
   const onResetChat = () => {
-    resetChatState()
     setMessages([])
+    resetChatState()
   }
 
   const onModelChange = (name: string) => {

@@ -24,11 +24,13 @@ export const models: Model[] = [
   {
     id: 'gemini-2.0-flash-exp',
     name: 'Gemini 2.0 Flash Exp',
+    premium: true,
     provider: 'google.com',
   },
   {
     id: 'gemini-2.0-flash-thinking-exp',
     name: 'Gemini 2.0 Flash Thinking Exp',
+    premium: true,
     provider: 'google.com',
   },
 ]

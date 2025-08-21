@@ -23,14 +23,13 @@ type HistoricalItemProps = {
 
 export function HistoricalItem({ chat }: HistoricalItemProps) {
   const queryClient = useQueryClient()
-  const { setMessages } = useChatInstance()
+  const { onResetChat } = useChatInstance()
 
   const router = useRouter()
   const { chatId: currentChatId } = useParams()
   const isCurrentChat = currentChatId === chat.id
 
-  const { resetChatState, onDeleteMessage, defineChatInstanceKey, setChatId } =
-    useChatStore()
+  const { defineChatInstanceKey, setChatId } = useChatStore()
 
   const { mutateAsync: deleteChatMutation } = useMutation({
     mutationKey: queryKeys.chatMutations.deleteById(chat.id),
@@ -57,7 +56,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
       )
 
       if (isCurrentChat) {
-        resetChatState()
+        onResetChat()
         router.push('/')
         return { previousChats, isCurrentChat, previousChatState }
       }
@@ -65,7 +64,6 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
       return { previousChats, isCurrentChat, previousChatState }
     },
     onSuccess: () => {
-      onDeleteMessage(chat.id)
       toast('Conversa excluída', {
         position: 'top-center',
         duration: 1500,
@@ -96,15 +94,15 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
   })
 
   const handleNavigateToConversation = () => {
-    if (isCurrentChat) return
-
-    defineChatInstanceKey(chat.id)
-    setChatId(chat.id)
+    if (!isCurrentChat) {
+      defineChatInstanceKey(chat.id)
+      setChatId(chat.id)
+    }
   }
 
   const handleDeleteChat = async () => {
     if (isCurrentChat) {
-      setMessages([])
+      onResetChat()
     }
     await deleteChatMutation(chat.id)
   }
@@ -142,7 +140,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
           disabled={chat.title!.length <= 28}
         >
           <span
-            className={cn('max-w-[81%] truncate text-xs', {
+            className={cn('max-w-[80%] truncate text-xs', {
               'text-accent-foreground': isCurrentChat,
             })}
           >

@@ -60,8 +60,7 @@ export async function createStreamText({
 
     const streamResult = streamText({
       model,
-      temperature: 0.2,
-      maxTokens: 2000,
+      temperature: 1,
       maxSteps: 1,
       messages: normalizedMessages,
       toolChoice: 'auto',

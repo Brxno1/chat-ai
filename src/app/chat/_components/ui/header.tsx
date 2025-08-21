@@ -9,21 +9,27 @@ import { toast } from 'sonner'
 import { SidebarTriggerComponentMobile } from '@/app/_components/sidebar/sidebar-trigger-mobile'
 import { DashboardPageHeader } from '@/components/dashboard'
 import { Notifications } from '@/components/notifications'
+import { NotificationsMobile } from '@/components/notifications/notification-mobile'
 import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useChatInstance } from '@/context/chat'
 import { useChatStore } from '@/store/chat'
 
 function ChatHeader() {
   const router = useRouter()
+  const { isMobile } = useSidebar()
 
-  const { isGhostChatMode, setToGhostChatMode, resetChatState } = useChatStore()
-  const { setMessages } = useChatInstance()
+  const { isGhostChatMode, defineChatToGhostMode, resetChatState } =
+    useChatStore()
+  const { messages, setMessages } = useChatInstance()
+
+  const hasMessages = messages.length > 0
 
   const handleGhostChatMode = () => {
-    setToGhostChatMode((prev) => !prev)
+    defineChatToGhostMode((prev) => !prev)
 
     toast('', {
       action: (
@@ -43,11 +49,13 @@ function ChatHeader() {
   }
 
   const handleCreateNewChat = () => {
-    resetChatState()
     setMessages([])
+    resetChatState()
   }
 
   useHotkeys('shift+n', () => {
+    if (!hasMessages) return
+
     router.push('/')
     handleCreateNewChat()
   })
@@ -59,23 +67,32 @@ function ChatHeader() {
   return (
     <DashboardPageHeader className="flex w-full items-center justify-between border-b border-input bg-card pb-[1rem]">
       <div className="ml-2 flex items-center gap-3 transition-all">
-        <SidebarTriggerComponentMobile size="icon" variant="outline" />
-        <TooltipWrapper content="Chat fantasma (Shift+g)" asChild side="bottom">
+        <SidebarTriggerComponentMobile size="icon" variant="ghost" />
+        <TooltipWrapper content="Chat fantasma (Shift+G)" asChild side="bottom">
           <Button size="icon" onClick={handleGhostChatMode} variant="ghost">
             <Ghost size={16} />
           </Button>
         </TooltipWrapper>
       </div>
       <div className="mr-2 flex items-center gap-2">
-        <Notifications />
+        {isMobile ? <NotificationsMobile /> : <Notifications />}
         <Separator orientation="vertical" className="h-6" />
-
-        <TooltipWrapper content="Nova conversa (Shift+n)" asChild>
-          <Link href="/">
-            <Button onClick={handleCreateNewChat} size="icon" variant="ghost">
+        <TooltipWrapper
+          content="Nova conversa (Shift+n)"
+          asChild
+          disabled={!hasMessages}
+        >
+          <Button
+            onClick={handleCreateNewChat}
+            size="icon"
+            variant="ghost"
+            className="border border-input"
+            disabled={!hasMessages}
+          >
+            <Link href="/">
               <MessageSquarePlus className="size-6" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </TooltipWrapper>
         <Separator orientation="vertical" className="h-6" />
         <ToggleTheme />
