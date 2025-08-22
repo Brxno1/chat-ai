@@ -3,9 +3,6 @@
 import { LayoutDashboard, MessageSquare } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
-import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
-import { Logo } from '@/components/logo'
-import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +10,10 @@ import {
   SidebarGroup,
   SidebarHeader,
   useSidebar,
-} from '@/components/ui/sidebar'
+} from '@/components/animate-ui/radix/sidebar'
+import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
+import { Logo } from '@/components/logo'
+import { Separator } from '@/components/ui/separator'
 import { useChatInstance } from '@/context/chat'
 import { useSessionUser } from '@/context/user'
 import { cn } from '@/utils/utils'
@@ -32,7 +32,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname.startsWith(path)
 
-  const { open, isMobile } = useSidebar()
+  const { open, isMobile, setOpen } = useSidebar()
   const { onResetChat } = useChatInstance()
   const { user } = useSessionUser()
 
@@ -53,8 +53,11 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
   return (
     <Sidebar
       collapsible="icon"
-      className={cn(className, 'group/sidebar')}
       side="left"
+      draggable
+      onMouseOver={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      className={cn(className, 'group/sidebar')}
       data-sidebar={open ? 'open' : 'closed'}
     >
       <SidebarHeader className="w-full !border-r-0 bg-card group-data-[sidebar=closed]/sidebar:py-3">

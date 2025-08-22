@@ -19,7 +19,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import { useSidebar } from '@/components/ui/sidebar'
+import { useSidebar } from '@/components/animate-ui/radix/sidebar'
 import { cn } from '@/utils/utils'
 
 interface ImagePreviewProps {

@@ -13,7 +13,7 @@ import {
   SidebarGroup,
   SidebarHeader,
   useSidebar,
-} from '@/components/ui/sidebar'
+} from '@/components/animate-ui/radix/sidebar'
 import { useChatStore } from '@/store/chat'
 import { cn } from '@/utils/utils'
 

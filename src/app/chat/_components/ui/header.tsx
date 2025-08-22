@@ -14,7 +14,7 @@ import { ToggleTheme } from '@/components/theme/toggle-theme'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useSidebar } from '@/components/ui/sidebar'
+import { useSidebar } from '@/components/animate-ui/radix/sidebar'
 import { useChatInstance } from '@/context/chat'
 import { useChatStore } from '@/store/chat'
 
