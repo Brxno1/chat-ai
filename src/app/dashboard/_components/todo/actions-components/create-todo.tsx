@@ -1,13 +1,15 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { ClipboardPen } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { createTodo } from '@/app/(http)/todo/create-todo'
+import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -53,6 +55,10 @@ export function TodoCreateForm() {
     defaultValues: {
       title: '',
     },
+  })
+
+  useHotkeys('shift+n', () => {
+    setOpen((prev) => !prev)
   })
 
   const { mutateAsync: createTodoFn, isPending } = useMutation({
@@ -120,12 +126,13 @@ export function TodoCreateForm() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" className="border border-input">
-          <Plus size={16} />
-          Criar tarefa
-        </Button>
-      </SheetTrigger>
+      <TooltipWrapper content="Criar tarefa (shift+n)" asChild>
+        <SheetTrigger asChild>
+          <Button variant="ghost" className="border border-input">
+            <ClipboardPen size={16} />
+          </Button>
+        </SheetTrigger>
+      </TooltipWrapper>
       <SheetContent side={'right'}>
         <SheetHeader>
           <SheetTitle>Olá, {user?.name}</SheetTitle>

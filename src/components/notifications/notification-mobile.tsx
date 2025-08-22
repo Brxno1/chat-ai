@@ -47,8 +47,8 @@ export function NotificationsMobile() {
             </TabsTrigger>
             <TabsTrigger value="read">Lidas {notifications.length > 0 && `(${readNotifications.length})`}</TabsTrigger>
           </TabsList>
-          <UnreadNotification unreadNotifications={unreadNotifications} />
-          <ReadNotification readNotifications={readNotifications} />
+          <UnreadNotification unreadNotifications={unreadNotifications} setIsOpen={setIsOpen} />
+          <ReadNotification readNotifications={readNotifications} setIsOpen={setIsOpen} />
         </Tabs>
         <SheetFooter className="mt-4 p-1.5 grid grid-cols-2 gap-2">
           <Button variant="ghost" className="border border-input">

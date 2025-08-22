@@ -29,9 +29,12 @@ export function Notifications() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="max-h-[620px] w-80 rounded-2xl bg-background p-1.5"
+        className="max-h-[45.80rem] rounded-2xl p-0.5 border border-input"
         align="end"
       >
+        <header className="flex items-center justify-center w-full p-2">
+          <h1 className="text-lg font-semibold">Notificações</h1>
+        </header>
         <Tabs defaultValue="unread">
           <TabsList className="grid w-full grid-cols-2 bg-card [&>button[data-state=active]]:bg-primary [&>button[data-state=active]]:text-primary-foreground">
             <TabsTrigger value="unread">
@@ -39,8 +42,8 @@ export function Notifications() {
             </TabsTrigger>
             <TabsTrigger value="read">Lidas {notifications.length > 0 && `(${readNotifications.length})`}</TabsTrigger>
           </TabsList>
-          <UnreadNotification unreadNotifications={unreadNotifications} />
-          <ReadNotification readNotifications={readNotifications} />
+          <UnreadNotification unreadNotifications={unreadNotifications} setIsOpen={setIsOpen} />
+          <ReadNotification readNotifications={readNotifications} setIsOpen={setIsOpen} />
         </Tabs>
       </PopoverContent>
     </Popover>

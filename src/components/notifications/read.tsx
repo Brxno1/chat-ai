@@ -1,37 +1,32 @@
 import { Notification } from "@/types/notifications";
 import { TabsContent } from "../ui/tabs";
-import { formatDistanceToNow } from "@/utils/format";
+import { NotificationItem } from "./item";
+import { Button } from "../ui/button";
 
 type ReadNotificationProps = {
   readNotifications: Notification[]
+  setIsOpen: (isOpen: boolean) => void
 }
 
-export function ReadNotification({ readNotifications }: ReadNotificationProps) {
+export function ReadNotification({ readNotifications, setIsOpen }: ReadNotificationProps) {
   return (
-    <TabsContent value="read" className="p-1 space-y-2 max-h-[34.6875rem] overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
-      {readNotifications.length === 0 ? (
-        <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
-          Nenhuma notificação lida
-        </div>
-      ) : (
-        readNotifications.map((notification) => (
-          <div
-            key={notification.id}
-            className="flex items-start justify-between gap-2 rounded-lg border border-input bg-card p-2 text-xs hover:bg-primary/10"
-          >
-            <div className="flex flex-col justify-center gap-2">
-              <div className="relative flex gap-1">
-                <span>{notification.category}</span>
-                <span className="text-muted-foreground">•</span>
-                <span className="text-muted-foreground/90">
-                  {formatDistanceToNow(notification.createdAt)}
-                </span>
-              </div>
-              <p className="text-sm">{notification.content}</p>
-            </div>
+    <TabsContent value="read" className="flex flex-col h-full">
+      <div className="p-1 space-y-1.5 max-h-[33.7875rem] overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
+        {readNotifications.length === 0 ? (
+          <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
+            Nenhuma notificação lida
           </div>
-        ))
-      )}
+        ) : (
+          readNotifications.map((notification) => (
+            <NotificationItem key={notification.id} notification={notification} />
+          ))
+        )}
+      </div>
+      <footer className="grid grid-cols-1 gap-2 mt-2 p-2">
+        <Button variant="ghost" onClick={() => setIsOpen(false)}>
+          Fechar
+        </Button>
+      </footer>
     </TabsContent>
   )
 }

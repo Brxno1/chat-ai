@@ -32,7 +32,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname.startsWith(path)
 
-  const { open, isMobile, setOpen } = useSidebar()
+  const { open, isMobile } = useSidebar()
   const { onResetChat } = useChatInstance()
   const { user } = useSessionUser()
 
@@ -54,9 +54,6 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
     <Sidebar
       collapsible="icon"
       side="left"
-      draggable
-      onMouseOver={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
       className={cn(className, 'group/sidebar')}
       data-sidebar={open ? 'open' : 'closed'}
     >
