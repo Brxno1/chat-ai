@@ -1,5 +1,4 @@
 import { Notification } from "@/types/notifications";
-import { TabsContent } from "../ui/tabs";
 import { NotificationItem } from "./item";
 import { Button } from "../ui/button";
 
@@ -10,11 +9,11 @@ type ReadNotificationProps = {
 
 export function ReadNotification({ readNotifications, setIsOpen }: ReadNotificationProps) {
   return (
-    <TabsContent value="read" className="flex flex-col h-full">
-      <div className="p-1 space-y-1.5 max-h-[33.7875rem] overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
+    <>
+      <div className="p-1 space-y-1.5 max-h-[35.6260rem] overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
         {readNotifications.length === 0 ? (
           <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
-            Nenhuma notificação lida
+            <p>Nenhuma notificação lida</p>
           </div>
         ) : (
           readNotifications.map((notification) => (
@@ -22,11 +21,21 @@ export function ReadNotification({ readNotifications, setIsOpen }: ReadNotificat
           ))
         )}
       </div>
-      <footer className="grid grid-cols-1 gap-2 mt-2 p-2">
-        <Button variant="ghost" onClick={() => setIsOpen(false)}>
+      <footer className="grid grid-cols-2 gap-2 mt-2 p-2">
+        <Button
+          disabled={readNotifications.length === 0}
+          className="transition-all hover:bg-primary/90"
+        >
+          Limpar todas
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => setIsOpen(false)}
+          className="transition-all"
+        >
           Fechar
         </Button>
       </footer>
-    </TabsContent>
+    </>
   )
 }

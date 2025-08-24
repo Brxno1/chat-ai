@@ -5,17 +5,17 @@ import React from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetHeader, SheetFooter, SheetClose } from "@/components/ui/sheet"
+import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetHeader } from "@/components/ui/sheet"
 import { UnreadNotification } from "./unread"
 import { ReadNotification } from "./read"
 import { CountNotifications } from "./count"
 
 export function NotificationsMobile() {
+  const [isOpen, setIsOpen] = React.useState(false)
+  
   const { notifications, user } = useSessionUser()
 
   if (!notifications || !user) return null
-
-  const [isOpen, setIsOpen] = React.useState(false)
 
   const unreadNotifications = notifications.filter((notification) => !notification.readAt)
   const readNotifications = notifications.filter((notification) => notification.readAt)
@@ -50,16 +50,6 @@ export function NotificationsMobile() {
           <UnreadNotification unreadNotifications={unreadNotifications} setIsOpen={setIsOpen} />
           <ReadNotification readNotifications={readNotifications} setIsOpen={setIsOpen} />
         </Tabs>
-        <SheetFooter className="mt-4 p-1.5 grid grid-cols-2 gap-2">
-          <Button variant="ghost" className="border border-input">
-            Ler todas
-          </Button>
-          <SheetClose asChild>
-            <Button variant="ghost" className="border border-input">
-              Fechar
-            </Button>
-          </SheetClose>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   )
