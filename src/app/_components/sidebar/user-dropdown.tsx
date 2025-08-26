@@ -1,8 +1,12 @@
 'use client'
 
+import { randomBytes } from 'node:crypto'
+
 import { useMutation } from '@tanstack/react-query'
 import {
   ChevronUp,
+  Eye,
+  EyeClosed,
   Loader2,
   LogOut,
   Rocket,
@@ -24,11 +28,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Separator } from '@/components/ui/separator'
 import { useSessionUser } from '@/context/user'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { cn } from '@/utils/utils'
 
 import { EditProfile } from '../profile/edit-profile'
 import { EditProfileMobile } from '../profile/edit-profile-mobile'
+
 function UserDropdown() {
   const [open, setOpen] = React.useState(false)
 
@@ -77,7 +84,7 @@ function UserDropdown() {
         <Button
           size="lg"
           data-dropdown={open ? 'open' : 'closed'}
-          className="group relative z-50 mb-px flex w-full items-center justify-start space-x-2 rounded-xl border border-input px-2 py-6 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:p-6"
+          className="group relative z-50 mb-2 flex w-full items-center justify-start space-x-2 rounded-xl border border-input px-2 py-6 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:p-6"
         >
           <Avatar className="size-9 cursor-grab rounded-md">
             <AvatarImage src={user.image || ''} alt="user avatar" />
@@ -98,15 +105,9 @@ function UserDropdown() {
         className="z-50 mb-5 w-56 bg-background"
         align="center"
       >
-        <DropdownMenuGroup className="flex w-full items-center justify-between font-normal">
-          <DropdownMenuItem className="flex flex-1 cursor-default flex-col items-start">
-            <span className="max-w-[8.5rem] truncate text-sm font-medium leading-none">
-              {user?.name}
-            </span>
-            <span className="max-w-[8.5rem] truncate text-xs leading-none text-muted-foreground">
-              {user?.email}
-            </span>
-          </DropdownMenuItem>
+        <DropdownMenuGroup className="flex w-full items-center justify-start gap-2">
+          <UserInfo />
+          <Separator orientation="vertical" className="h-6" />
           {isMobile ? <EditProfileMobile /> : <EditProfile />}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -140,6 +141,44 @@ function UserDropdown() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+function UserInfo() {
+  const [showEmail, setShowEmail] = React.useState(true)
+
+  const { user } = useSessionUser()
+
+  return (
+    <DropdownMenuItem className="flex flex-1 cursor-default flex-col items-start gap-0.5 hover:!bg-transparent">
+      <span className="max-w-[8rem] truncate text-sm font-medium leading-none">
+        {user?.name}
+      </span>
+      <div className="flex max-w-[8.5rem] items-center justify-center gap-2">
+        <span
+          className={cn(
+            'w-[8rem] truncate text-xs text-muted-foreground',
+            showEmail ? 'blur-sm' : 'blur-none',
+          )}
+        >
+          {showEmail ? randomBytes(8).toString('hex') : user?.email}
+        </span>
+        <button
+          className="my-auto rounded-md p-1.5 hover:bg-muted/50"
+          aria-label="Toggle email visibility"
+          onClick={(ev) => {
+            ev.preventDefault()
+            setShowEmail((prev) => !prev)
+          }}
+        >
+          {showEmail ? (
+            <Eye className="size-3.5" />
+          ) : (
+            <EyeClosed className="size-3.5" />
+          )}
+        </button>
+      </div>
+    </DropdownMenuItem>
   )
 }
 

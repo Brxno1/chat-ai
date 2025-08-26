@@ -10,7 +10,8 @@ type UnreadNotificationProps = {
 export function UnreadNotification({ unreadNotifications, setIsOpen }: UnreadNotificationProps) {
   return (
     <>
-      <div className="p-1 space-y-1.5 max-h-[35.6260rem] overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
+      <div className="space-y-1 max-h-[26rem] md:max-h-[calc(100vh-27.9rem)] overflow-auto 
+      scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
         {unreadNotifications.length === 0 ? (
           <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
             <p>Nenhuma notificação nova</p>
@@ -21,7 +22,7 @@ export function UnreadNotification({ unreadNotifications, setIsOpen }: UnreadNot
           ))
         )}
       </div>
-      <footer className="grid grid-cols-2 gap-2 mt-2 p-2">
+      <footer className="grid grid-cols-2 gap-2 mt-2 p-1">
         <Button
           disabled={unreadNotifications.length === 0}
           className="transition-all hover:bg-primary/90"
@@ -29,7 +30,7 @@ export function UnreadNotification({ unreadNotifications, setIsOpen }: UnreadNot
           Ler todas
         </Button>
         <Button
-          variant="ghost"
+          variant="secondary"
           onClick={() => setIsOpen(false)}
           className="transition-all"
         >

@@ -57,7 +57,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
       className={cn(className, 'group/sidebar')}
       data-sidebar={open ? 'open' : 'closed'}
     >
-      <SidebarHeader className="w-full !border-r-0 bg-card group-data-[sidebar=closed]/sidebar:py-3">
+      <SidebarHeader className="w-full !border-r-0 bg-background group-data-[sidebar=closed]/sidebar:py-3">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5">
           <Logo className="group-data-[sidebar=closed]/sidebar:mx-auto" />
           {isMobile ? (
@@ -71,7 +71,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         </SidebarHeaderTitle>
       </SidebarHeader>
       <Separator />
-      <SidebarContent className="flex h-screen flex-col overflow-hidden bg-card">
+      <SidebarContent className="flex h-screen flex-col overflow-hidden bg-background">
         <SidebarGroup className="space-y-2">
           {links.map((link) => (
             <SidebarLinks
@@ -99,7 +99,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter className="flex w-full items-center justify-center bg-card">
+      <SidebarFooter className="flex w-full items-center justify-center bg-background">
         <UserDropdown />
       </SidebarFooter>
     </Sidebar>

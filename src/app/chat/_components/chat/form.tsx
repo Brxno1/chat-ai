@@ -134,7 +134,7 @@ export function ChatForm() {
     <Form {...form}>
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="overflow-y-auto rounded-md border border-input bg-card dark:bg-message"
+        className="overflow-y-auto rounded-md border border-input"
       >
         {previewUrls.length > 0 && (
           <ImagePreview
