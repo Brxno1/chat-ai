@@ -10,10 +10,10 @@ type ReadNotificationProps = {
 export function ReadNotification({ readNotifications, setIsOpen }: ReadNotificationProps) {
   return (
     <>
-      <div className="space-y-1 max-h-[26rem] md:max-h-[calc(100vh-27.8rem)] overflow-auto 
+      <div className="space-y-1.5 max-h-[26rem] md:max-h-[calc(100vh-29rem)] overflow-auto 
       scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
         {readNotifications.length === 0 ? (
-          <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center py-6 text-sm text-muted-foreground">
             <p>Nenhuma notificação lida</p>
           </div>
         ) : (

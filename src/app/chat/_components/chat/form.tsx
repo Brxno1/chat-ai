@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ChevronsUpDown,
   Files,
-  GlobeIcon,
   ImageUp,
   SendIcon,
   StopCircle,
@@ -29,6 +28,7 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
+import { Separator } from '@/components/ui/separator'
 import { useChatInstance } from '@/context/chat'
 import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
 
@@ -87,6 +87,7 @@ export function ChatForm() {
     onInputChange,
     onStop,
     buttonSubmitRef,
+    inputRef,
   } = useChatInstance()
 
   const onRemoveItem = (index: number) => {
@@ -151,6 +152,7 @@ export function ChatForm() {
               <FormControl>
                 <AIInputTextarea
                   name="message"
+                  ref={inputRef}
                   autoFocus={status === 'ready'}
                   className="h-14 resize-none !border-0 transition-all duration-300 focus-visible:ring-0"
                   disabled={status === 'streaming'}
@@ -172,7 +174,7 @@ export function ChatForm() {
           )}
         />
         <AIInputToolbar className="p-2">
-          <AIInputTools>
+          <AIInputTools className="gap-1.5">
             <div className="flex items-center gap-1">
               <FormField
                 control={form.control}
@@ -204,16 +206,8 @@ export function ChatForm() {
                   </FormItem>
                 )}
               />
-
-              <AIInputButton
-                disabled
-                variant="ghost"
-                size="icon"
-                className="bg-card dark:bg-message"
-              >
-                <GlobeIcon size={16} />
-              </AIInputButton>
             </div>
+            <Separator orientation="vertical" className="h-6" />
             <AIInputModelSelect
               value={model.name}
               onValueChange={onModelChange}

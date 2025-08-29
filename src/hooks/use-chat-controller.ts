@@ -19,6 +19,7 @@ export function useChatController({
 }: UseChatControllerProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
+
   const { model, isGhostChatMode, defineChatInstanceKey, getChatInstanceKey } =
     useChatStore()
 

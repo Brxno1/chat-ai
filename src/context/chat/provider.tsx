@@ -28,6 +28,7 @@ export function ChatProvider({
   cookieModel,
   initialChats,
 }: ChatProviderProps) {
+  const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const buttonSubmitRef = React.useRef<HTMLButtonElement | null>(null)
   const { model, setModel, resetChatState } = useChatStore()
 
@@ -105,6 +106,8 @@ export function ChatProvider({
     chats: initialChats || [],
     model,
     input,
+    buttonSubmitRef,
+    inputRef,
     messages,
     status,
     isTranscribing,
@@ -116,7 +119,6 @@ export function ChatProvider({
     onAudioRecorded,
     onStop,
     onResetChat,
-    buttonSubmitRef,
   }
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>

@@ -1,5 +1,6 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import {
+  convertToCoreMessages,
   extractReasoningMiddleware,
   Message,
   streamText,
@@ -16,23 +17,6 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 })
 
-function normalizeMessagesForStream(messages: Message[]): Message[] {
-  return messages.map((message) => {
-    const { parts, ...cleanMessage } = message
-
-    const normalizedParts = parts?.map((part) => {
-      if (!('details' in part)) {
-        return {
-          ...part,
-          details: [],
-        }
-      }
-      return part
-    })
-    return { ...cleanMessage, parts: normalizedParts }
-  })
-}
-
 type CreateStreamTextParams = {
   messages: Message[]
   modelId: Model['id']
@@ -42,27 +26,19 @@ export async function createStreamText({
   messages,
   modelId,
 }: CreateStreamTextParams) {
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return {
-      streamResult: null,
-      streamError: 'Mensagens não fornecidas',
-    }
-  }
-
   const model = wrapLanguageModel({
     model: google(modelId),
     middleware: [extractReasoningMiddleware({ tagName: 'think' })],
   })
 
   try {
-    const normalizedMessages = normalizeMessagesForStream(messages)
     let errorMessage: string | null = null
 
     const streamResult = streamText({
       model,
-      temperature: 1,
+      temperature: 0.8,
       maxSteps: 1,
-      messages: normalizedMessages,
+      messages: convertToCoreMessages(messages),
       toolChoice: 'auto',
       tools: {
         getWeather: weatherTool,

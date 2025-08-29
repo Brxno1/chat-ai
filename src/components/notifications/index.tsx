@@ -68,32 +68,30 @@ export function Notifications() {
       </PopoverTrigger>
       <PopoverContent
         side="left"
-        className="max-h-[90svh] space-y-1 w-full md:w-96 mt-3 rounded-xl p-0.5 border border-input shadow-lg transition-all duration-200 animate-in fade-in-80"
+        className="max-h-[90svh] space-y-1 w-full md:w-96 mt-3.5 rounded-xl p-0.5 border border-input shadow-lg transition-all duration-200 animate-in fade-in-80"
       >
-        <header className="flex flex-col items-center justify-center w-full">
+        <header className="flex flex-col items-center justify-center w-full p-1 gap-2">
           <h1 className="text-lg font-semibold">Notificações</h1>
-          <div className="p-2 w-full">
-            <div className="relative flex items-center justify-center">
-              <Input
-                type="text"
-                placeholder="Pesquisar notificações..."
-                className="w-full bg-transparent p-2 text-sm rounded-md border border-input placeholder:text-muted-foreground pr-8"
-                value={globalFilter ?? ""}
-                onChange={(ev) => setGlobalFilter(ev.target.value)}
-              />
-              {globalFilter && globalFilter.length > 0 && (
-                <button
-                  onClick={() => setGlobalFilter("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label="Limpar filtro"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
+          <div className="relative flex items-center justify-center w-full">
+            <Input
+              type="text"
+              placeholder="Pesquisar notificações..."
+              className="w-full bg-transparent p-2 text-sm rounded-md border border-input placeholder:text-muted-foreground pr-8"
+              value={globalFilter ?? ""}
+              onChange={(ev) => setGlobalFilter(ev.target.value)}
+            />
+            {globalFilter && globalFilter.length > 0 && (
+              <button
+                onClick={() => setGlobalFilter("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Limpar filtro"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
         </header>
-        <Tabs defaultValue="unread" className="p-1">
+        <Tabs defaultValue="unread" className="p-1.5">
           <TabsList className="grid w-full grid-cols-2 bg-card [&>button[data-state=active]]:bg-primary [&>button[data-state=active]]:text-primary-foreground">
             <TabsTrigger value="unread">
               Novas {unreadCount}

@@ -21,6 +21,8 @@ type States = {
 }
 
 type Actions = {
+  inputRef: React.RefObject<HTMLTextAreaElement | null>
+  buttonSubmitRef: React.RefObject<HTMLButtonElement | null>
   setMessages: (messages: UIMessage[]) => void
   onInputChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
   onSubmitChat: (
@@ -33,7 +35,6 @@ type Actions = {
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>
   onResetChat: () => void
-  buttonSubmitRef: React.RefObject<HTMLButtonElement | null>
   onAudioRecorded: (
     audio: Blob | null,
     onSetAudio: (audio: File) => void,

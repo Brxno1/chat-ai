@@ -22,12 +22,16 @@ export async function Initializer({ children }: InitializerProps) {
 
   let notifications: Notification[] = []
   if (sessionToken && session) {
-    const { data } = await api.get<{ notifications: Notification[] }>(`http://localhost:3333/notifications/${session.user.id}/list?page=1&limit=10`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    notifications = data.notifications
+    try {
+      const { data } = await api.get<{ notifications: Notification[] }>(`http://localhost:3333/notifications/${session.user.id}/list?page=1&limit=10`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      notifications = data.notifications ?? []
+    } catch (_) {
+      notifications = []
+    }
   }
 
   return (
