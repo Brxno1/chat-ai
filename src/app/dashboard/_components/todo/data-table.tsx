@@ -116,7 +116,7 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
   const handleRefreshTodos = async () => await refetch()
 
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-border bg-card p-3">
+    <div className="w-full overflow-x-auto rounded-lg border border-input p-3">
       {hasTodos && (
         <ContainerWrapper className="flex items-center gap-2 py-4">
           <div className="flex max-w-sm items-center justify-center gap-2">
@@ -220,7 +220,7 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
                 <TableCell
                   key={cell.id}
                   className={cn(
-                    'max-md:max-p-0 text-center max-md:max-w-[4rem]',
+                    'max-md:max-p-0 border-b border-input text-center max-md:max-w-[4rem]',
                     {
                       'animate-pulse': cell.id === 'new-todo',
                     },

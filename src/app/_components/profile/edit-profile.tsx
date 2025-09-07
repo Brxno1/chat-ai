@@ -260,7 +260,7 @@ export function EditProfile() {
             </div>
           </form>
         </Form>
-        <DialogFooter className="mt-4 justify-between gap-2 border-t p-6">
+        <DialogFooter className="mt-4 justify-between gap-2 p-6">
           <Button
             form="update-profile-form"
             type="submit"

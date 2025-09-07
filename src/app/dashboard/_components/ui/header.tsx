@@ -8,7 +8,7 @@ import { TodoCreateForm } from '../todo/actions-components/create-todo'
 
 export function DashboardHeader() {
   return (
-    <DashboardPageHeader className="relative flex w-full items-center justify-end border-b border-input bg-card pb-[1rem]">
+    <DashboardPageHeader className="relative flex w-full items-center justify-end border-b border-input pb-[1rem]">
       <SidebarTriggerComponentMobile
         variant="ghost"
         size="icon"

@@ -3,9 +3,6 @@
 import { LayoutDashboard, MessageSquare } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
-import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
-import { Logo } from '@/components/logo'
-import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +11,9 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/animate-ui/radix/sidebar'
+import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
+import { Logo } from '@/components/logo'
+import { Separator } from '@/components/ui/separator'
 import { useChatStore } from '@/store/chat'
 import { cn } from '@/utils/utils'
 
@@ -22,11 +22,11 @@ import { SidebarTriggerComponent } from './sidebar-trigger'
 import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
 import { UserDropdown } from './user-dropdown'
 
-type ChatSidebarProps = {
+type DashboardSidebarProps = {
   className?: string
 }
 
-export function DashboardSidebarContent({ className }: ChatSidebarProps) {
+export function DashboardSidebarContent({ className }: DashboardSidebarProps) {
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname === path
 
@@ -54,11 +54,11 @@ export function DashboardSidebarContent({ className }: ChatSidebarProps) {
   return (
     <Sidebar
       collapsible="icon"
-      className={cn(className, 'group/sidebar')}
+      className={cn(className, 'group/sidebar border border-input')}
       side="left"
       data-sidebar={open ? 'open' : 'closed'}
     >
-      <SidebarHeader className="w-full !border-r-0 bg-card">
+      <SidebarHeader className="w-full !border-r-0 bg-background">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5 group-data-[sidebar=closed]/sidebar:py-2.5">
           <Logo className="group-data-[sidebar=closed]/sidebar:mx-auto group-data-[sidebar=open]/sidebar:ml-4" />
           {isMobile ? (
@@ -76,7 +76,7 @@ export function DashboardSidebarContent({ className }: ChatSidebarProps) {
         </SidebarHeaderTitle>
       </SidebarHeader>
       <Separator />
-      <SidebarContent className="flex flex-col overflow-hidden bg-card">
+      <SidebarContent className="flex flex-col overflow-hidden bg-background">
         <SidebarGroup className="space-y-2">
           {mainLinks.map((link) => (
             <SidebarLinks
@@ -96,7 +96,7 @@ export function DashboardSidebarContent({ className }: ChatSidebarProps) {
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter className="flex w-full items-center justify-center bg-card">
+      <SidebarFooter className="flex w-full items-center justify-center bg-background">
         <UserDropdown />
       </SidebarFooter>
     </Sidebar>

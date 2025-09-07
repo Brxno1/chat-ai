@@ -54,7 +54,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
     <Sidebar
       collapsible="icon"
       side="left"
-      className={cn(className, 'group/sidebar')}
+      className={cn(className, 'group/sidebar border border-input')}
       data-sidebar={open ? 'open' : 'closed'}
     >
       <SidebarHeader className="w-full !border-r-0 bg-background group-data-[sidebar=closed]/sidebar:py-3">
