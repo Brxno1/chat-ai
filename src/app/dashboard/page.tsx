@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
 
+import { getTodosAction } from '@/actions/todo/get-todos'
 import { ContainerWrapper } from '@/components/container'
 import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
 
-import { getTodosAction } from '../api/todo/actions/get-todos'
 import { TodoDataTable } from './_components/todo/data-table'
 import { TodoDataTableFallback } from './_components/todo/data-table-fallback'
 import { DashboardHeader } from './_components/ui/header'

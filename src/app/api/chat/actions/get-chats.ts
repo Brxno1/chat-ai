@@ -4,7 +4,7 @@ import { Chat } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { MessagePart } from '@/types/chat'
 
-import { getUserSession } from '../../user/profile/actions/get-user-session'
+import { getUserSession } from '../../../../actions/user/profile/get-user-session'
 import { extractTextFromParts } from '../utils/message-parts'
 
 type Message = {

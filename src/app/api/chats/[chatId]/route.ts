@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { deleteChatById } from '@/app/api/chat/actions/delete-chat-by-id'
 import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
-import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 
 export async function GET(
   req: NextRequest,

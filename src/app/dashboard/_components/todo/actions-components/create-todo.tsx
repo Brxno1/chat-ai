@@ -9,7 +9,6 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { createTodo } from '@/app/(http)/todo/create-todo'
-import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -126,13 +125,11 @@ export function TodoCreateForm() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <TooltipWrapper content="Criar tarefa (shift+n)" asChild>
-        <SheetTrigger asChild>
-          <Button variant="ghost" className="border border-input">
-            <ClipboardPen size={16} />
-          </Button>
-        </SheetTrigger>
-      </TooltipWrapper>
+      <SheetTrigger asChild>
+        <Button variant="ghost" className="border border-input">
+          <ClipboardPen size={16} />
+        </Button>
+      </SheetTrigger>
       <SheetContent side={'right'}>
         <SheetHeader>
           <SheetTitle>Olá, {user?.name}</SheetTitle>

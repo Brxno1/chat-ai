@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createUserAndSendMagicLink } from '@/actions/login/create-user-and-send-magic-link'
+import { createUserAndSendMagicLink } from '@/actions/user/login/create-user-and-send-magic-link'
 import { createAccountSchema } from '@/schemas'
-// import { uploadAndDeleteFile } from '@/lib/upload-and-remove'
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData()
@@ -26,8 +25,6 @@ export async function POST(req: NextRequest) {
   if (userExists) {
     return NextResponse.json({ error }, { status: 400 })
   }
-
-  // await uploadAndDeleteFile({ file, timer: 180000 }) // 3 minutes in milliseconds
 
   if (error) {
     return NextResponse.json({ error }, { status: 500 })

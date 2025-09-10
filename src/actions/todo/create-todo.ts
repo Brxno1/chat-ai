@@ -13,7 +13,7 @@ type CreateTodoResponse = {
   error?: string
 }
 
-export async function createTodoAction({
+export async function createTodo({
   title,
   userId,
 }: CreateTodoDataProps): Promise<CreateTodoResponse> {

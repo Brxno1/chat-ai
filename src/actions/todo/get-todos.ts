@@ -1,9 +1,8 @@
 'use server'
 
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 import { Todo } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
-
-import { getUserSession } from '../../user/profile/actions/get-user-session'
 
 type GetTodosResponse = {
   todos: Todo[]

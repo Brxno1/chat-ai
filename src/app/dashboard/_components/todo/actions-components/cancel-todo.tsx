@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LoaderCircle, XCircleIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { cancelTodoAction } from '@/app/api/todo/actions/cancel-todo'
+import { cancelTodoAction } from '@/actions/todo/cancel-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { queryKeys, todoInvalidations } from '@/lib/query-client'
 

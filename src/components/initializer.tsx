@@ -1,4 +1,4 @@
-import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 import { Providers } from './globals-providers'
 import { cookies } from 'next/headers'
 import { getChatsAction } from '@/app/api/chat/actions/get-chats'

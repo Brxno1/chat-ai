@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateTodoAction } from '@/app/api/todo/actions/update-todo'
+import { updateTodoAction } from '@/actions/todo/update-todo'
 import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
 import {

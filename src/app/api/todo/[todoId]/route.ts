@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { getUserSession } from '../../user/profile/actions/get-user-session'
+import { getUserSession } from '../../../../actions/user/profile/get-user-session'
 import { deleteTodoAction } from '../actions/delete-todo'
 
 export async function DELETE(

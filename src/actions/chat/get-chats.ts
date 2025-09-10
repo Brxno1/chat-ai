@@ -1,7 +1,7 @@
 'use server'
 
 import { extractTextFromParts } from '@/app/api/chat/utils/message-parts'
-import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 import { Chat } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { MessagePart } from '@/types/chat'

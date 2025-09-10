@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 
-import { getUserSession } from '@/app/api/user/profile/actions/get-user-session'
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 import { api } from '@/lib/axios'
 import { getJwtToken } from '@/lib/get-jwt-token'
 import { type Notification } from '@/types/notifications'

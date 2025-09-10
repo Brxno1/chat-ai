@@ -4,7 +4,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { magicLink } from 'better-auth/plugins'
 import nodemailer from 'nodemailer'
 
-import { getUserByEmail } from '@/actions/login/get-user-by-email'
+import { getUserByEmail } from '@/actions/user/login/get-user-by-email'
 import { env } from '@/lib/env'
 
 import { prisma } from '../database/prisma'

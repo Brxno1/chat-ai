@@ -11,7 +11,7 @@ type FormValues = {
 
 export async function createAccount(data: FormData) {
   const response = await api.post<FormValues, AxiosResponse<User>>(
-    '/login',
+    '/user/login',
     data,
   )
 

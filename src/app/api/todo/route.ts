@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { getUserSession } from '../user/profile/actions/get-user-session'
-import { createTodoAction } from './actions/create-todo'
-import { getTodosAction } from './actions/get-todos'
+import { createTodo } from '@/actions/todo/create-todo'
+import { getTodosAction } from '@/actions/todo/get-todos'
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 
 export async function GET() {
   try {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { title } = createTodoSchemaBody.parse(body)
 
-  const { todo, error: createTodoError } = await createTodoAction({
+  const { todo, error: createTodoError } = await createTodo({
     title,
     userId: session.user.id,
   })

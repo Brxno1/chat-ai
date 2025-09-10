@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BookmarkCheck, CheckCircleIcon, LoaderCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { markTodoAsDoneAction } from '@/app/api/todo/actions/done-at-todo'
+import { markTodoAsDoneAction } from '@/actions/todo/done-at-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { queryKeys, todoInvalidations } from '@/lib/query-client'
 
