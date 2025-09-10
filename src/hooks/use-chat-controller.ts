@@ -20,8 +20,9 @@ export function useChatController({
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  const { model, isGhostChatMode, defineChatInstanceKey, getChatInstanceKey } =
-    useChatStore()
+  const model = useChatStore((state) => state.model)
+  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode)
+  const { defineChatInstanceKey, getChatInstanceKey } = useChatStore()
 
   const { user } = useSessionUser()
 

@@ -30,7 +30,9 @@ export function ChatProvider({
 }: ChatProviderProps) {
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const buttonSubmitRef = React.useRef<HTMLButtonElement | null>(null)
-  const { model, setModel, resetChatState } = useChatStore()
+
+  const model = useChatStore((state) => state.model)
+  const { setModel, resetChatState } = useChatStore()
 
   const { mutateAsync: transcribeAudio, isPending: isTranscribing } =
     useTranscribeAudio()

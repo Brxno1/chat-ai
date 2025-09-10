@@ -22,8 +22,12 @@ function ChatHeader() {
   const router = useRouter()
   const { isMobile } = useSidebar()
 
-  const { isGhostChatMode, defineChatToGhostMode, resetChatState } =
-    useChatStore()
+  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode)
+  const defineChatToGhostMode = useChatStore(
+    (state) => state.defineChatToGhostMode,
+  )
+  const resetChatState = useChatStore((state) => state.resetChatState)
+
   const { messages, setMessages } = useChatInstance()
 
   const hasMessages = messages.length > 0

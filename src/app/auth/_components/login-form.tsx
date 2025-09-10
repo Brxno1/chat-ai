@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
+import { getUserByEmail } from '@/actions/login/get-user-by-email'
 import { InteractiveHoverButton } from '@/components/magicui/interactive-hover-button'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { TypingAnimation } from '@/components/magicui/typing-animation'

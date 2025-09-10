@@ -8,7 +8,7 @@ import { prisma } from '@/services/database/prisma'
 
 import { Email } from '../email/'
 import { env } from '@/lib/env'
-import { getUserByEmail } from '@/app/api/login/actions/get-user-by-email'
+import { getUserByEmail } from '@/actions/login/get-user-by-email'
 import { User } from 'next-auth'
 import { Adapter } from 'next-auth/adapters'
 
