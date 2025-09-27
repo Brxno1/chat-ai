@@ -5,8 +5,7 @@ import { toast } from 'sonner'
 import { cancelTodoAction } from '@/actions/todo/cancel-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { queryKeys, todoInvalidations } from '@/lib/query-client'
-
-import { ActionsStatusProps } from './types'
+import { ActionsStatusProps } from '@/types/todo'
 
 export function CancelTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
   const queryClient = useQueryClient()

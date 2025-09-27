@@ -10,9 +10,9 @@ import type { NewsArticle, NewsToolResponse } from '@/types/news'
 import type { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 
-import { NewsCard, NewsLoading } from '../ui/widgets/news'
-import { NewsError } from '../ui/widgets/news/error'
-import { NewsHeader } from '../ui/widgets/news/header'
+import { NewsCard, NewsLoading } from './ui/widgets/news'
+import { NewsError } from './ui/widgets/news/error'
+import { NewsHeader } from './ui/widgets/news/header'
 
 interface ChatNewsProps {
   toolInvocation: ToolInvocationResult<'getNews'>

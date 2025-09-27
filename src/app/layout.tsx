@@ -18,6 +18,9 @@ const geistMono = GeistMono({
 export const metadata: Metadata = {
   title: 'Chat',
   description: 'Chat com IA',
+  icons: {
+    icon: '/logo.svg',
+  },
 }
 
 export default async function RootLayout({

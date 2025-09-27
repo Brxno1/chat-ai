@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/animate-ui/radix/dialog'
+import { useSidebar } from '@/components/animate-ui/radix/sidebar'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,7 +20,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import { useSidebar } from '@/components/animate-ui/radix/sidebar'
 import { cn } from '@/utils/utils'
 
 interface ImagePreviewProps {

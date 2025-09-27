@@ -14,8 +14,8 @@ import {
   LoadingWeather,
   WeatherCard,
   WeatherSkeleton,
-} from '../ui/widgets/weather'
-import { WeatherErrorCard } from '../ui/widgets/weather/weather-error'
+} from './ui/widgets/weather'
+import { WeatherErrorCard } from './ui/widgets/weather/weather-error'
 
 interface ChatWeatherProps {
   toolInvocation: ToolInvocationResult<'getWeather'>

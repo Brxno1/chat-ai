@@ -7,8 +7,7 @@ import { toast } from 'sonner'
 import { deleteTodo } from '@/app/(http)/todo/delete-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { queryKeys } from '@/lib/query-client'
-
-import { ActionsStatusProps } from './types'
+import { ActionsStatusProps } from '@/types/todo'
 
 export function DeleteTodo({ todo, onCloseDropdown }: ActionsStatusProps) {
   const queryClient = useQueryClient()

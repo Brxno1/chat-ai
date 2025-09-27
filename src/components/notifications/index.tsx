@@ -71,7 +71,7 @@ export function Notifications() {
         className="max-h-[90svh] space-y-1 w-full md:w-96 mt-3.5 rounded-xl p-0.5 border border-input shadow-lg transition-all duration-200 animate-in fade-in-80"
       >
         <header className="flex flex-col items-center justify-center w-full p-1 gap-2">
-          <h1 className="text-lg font-semibold">Notificações</h1>
+          <h1 className="text-lg font-semibold py-1">Notificações</h1>
           <div className="relative flex items-center justify-center w-full">
             <Input
               type="text"

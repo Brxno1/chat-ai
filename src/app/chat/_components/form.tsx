@@ -11,7 +11,6 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { RecorderAudio } from '@/app/chat/_components/chat/recorder-audio'
 import { TypingText } from '@/components/animate-ui/text/typing'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
@@ -32,8 +31,9 @@ import { Separator } from '@/components/ui/separator'
 import { useChatInstance } from '@/context/chat'
 import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
 
-import { models } from '../../models/definitions'
+import { models } from '../models/definitions'
 import { ImagePreview } from './image-preview'
+import { RecorderAudio } from './recorder-audio'
 
 const schema = z.object({
   message: z.string().optional(),

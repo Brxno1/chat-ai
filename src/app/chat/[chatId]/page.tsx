@@ -2,16 +2,16 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache, Suspense } from 'react'
 
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 import { ChatSidebar } from '@/app/_components/sidebar/chat-sidebar'
 import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
 import { getChatsAction } from '@/app/api/chat/actions/get-chats'
-import { getUserSession } from '@/actions/user/profile/get-user-session'
-import { Chat } from '@/app/chat/_components/chat'
+import { Chat } from '@/app/chat/_components/'
 import { ContainerWrapper } from '@/components/container'
 import { DashboardPage, DashboardPageMain } from '@/components/dashboard'
 import { ChatProvider } from '@/context/chat'
 
-import { ChatFallback } from '../_components/chat/chat-fallback'
+import { ChatFallback } from '../_components/chat-fallback'
 import { ChatHeader } from '../_components/ui/header'
 
 const getChatByIdCached = cache(async (chatId: string, userId: string) => {

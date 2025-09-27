@@ -5,8 +5,7 @@ import { toast } from 'sonner'
 import { markTodoAsDoneAction } from '@/actions/todo/done-at-todo'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { queryKeys, todoInvalidations } from '@/lib/query-client'
-
-import { ActionsStatusProps } from './types'
+import { ActionsStatusProps } from '@/types/todo'
 
 export function MarkTodoAsDone({ todo, onCloseDropdown }: ActionsStatusProps) {
   const queryClient = useQueryClient()

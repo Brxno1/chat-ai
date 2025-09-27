@@ -13,12 +13,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ActionsForTodoProps } from '@/types/todo'
 import { formatDistanceToNow } from '@/utils/format'
 
 import { CancelTodo } from './cancel-todo'
 import { DeleteTodo } from './delete-todo'
 import { MarkTodoAsDone } from './todo-as-done'
-import { ActionsForTodoProps } from './types'
 import { UpdateTodo } from './update-todo'
 
 export function ActionsForTodo({ todo }: ActionsForTodoProps) {

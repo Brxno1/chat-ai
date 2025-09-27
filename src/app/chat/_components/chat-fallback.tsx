@@ -10,6 +10,7 @@ import {
 
 import { ContainerWrapper } from '@/components/container'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   AIButtonSubmit,
   AIForm,
@@ -18,8 +19,6 @@ import {
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
 import { Skeleton } from '@/components/ui/skeleton'
-
-import { Input } from '../../../../components/ui/input'
 
 export function ChatFallback() {
   return (
