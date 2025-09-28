@@ -6,14 +6,14 @@ import {
 } from '@/types/chat'
 
 import { generateTitle } from '../actions/generate-title'
-import { uploadChatImage } from '../actions/upload-chat-image'
+import { uploadChatImage } from './upload-chat-image'
 import { generateSystemPrompt } from '../prompts'
 import { processToolInvocations } from '../utils/message-filter'
 import {
   findOrCreateChat,
   saveChatResponse,
   saveMessages,
-} from './chat-operations'
+} from '../actions/chat-operations'
 import { createStreamText } from './create-stream-text'
 
 export async function processChatAndSaveMessages({

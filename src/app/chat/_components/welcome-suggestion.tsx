@@ -2,7 +2,7 @@
 
 import { useChatInstance } from '@/context/chat'
 
-export function SuggestionCards() {
+export function WelcomeSuggestion() {
   const suggestions = [
     'Qual a melhor forma de economizar dinheiro?',
     'Qual a melhor forma de investir?',

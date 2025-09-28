@@ -109,7 +109,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
             className="size-2 rounded-full mr-2 bg-emerald-500 my-auto"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 500 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 500 }}
           />
         )}
       </motion.div>

@@ -8,6 +8,12 @@ interface State {
   chatId: string | undefined
   isGhostChatMode: boolean
   isCreatingNewChat: boolean
+  suggestions: {
+    id: string
+    role: 'assistant'
+    content: string
+  }[]
+  isLoadingSuggestions: boolean
   model: Model
   chatInstanceKey: string
   isRateLimitReached: boolean
@@ -17,6 +23,14 @@ interface Actions {
   setChatId: (id: string | undefined) => void
   setIsCreatingNewChat: (value: boolean) => void
   defineChatToGhostMode: (mode: boolean | ((prev: boolean) => boolean)) => void
+  setSuggestions: (
+    suggestions: {
+      id: string
+      role: 'assistant'
+      content: string
+    }[],
+  ) => void
+  setIsLoadingSuggestions: (loading: boolean) => void
   setModel: (model: Model) => void
   resetChatState: () => void
   resetModel: () => void
@@ -45,7 +59,8 @@ const createChatStore = (props?: UseChatStoreProps) =>
         isCreatingNewChat: false,
         model: props?.initialModel || defaultModel,
         chatInstanceKey: '',
-
+        suggestions: [],
+        isLoadingSuggestions: false,
         setChatId: (id) => set({ chatId: id }),
 
         setIsCreatingNewChat: (value) => set({ isCreatingNewChat: value }),
@@ -57,6 +72,11 @@ const createChatStore = (props?: UseChatStoreProps) =>
             set({ isGhostChatMode: mode })
           }
         },
+
+        setSuggestions: (suggestions) => set({ suggestions }),
+
+        setIsLoadingSuggestions: (loading) =>
+          set({ isLoadingSuggestions: loading }),
 
         setModel: (model) => set({ model }),
 
@@ -72,6 +92,7 @@ const createChatStore = (props?: UseChatStoreProps) =>
             isCreatingNewChat: false,
             isGhostChatMode: false,
             chatInstanceKey: '',
+            suggestions: [],
           })
         },
 

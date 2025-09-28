@@ -1,3 +1,5 @@
+'use client'
+
 import { type Message as UIMessage, useChat } from '@ai-sdk/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
@@ -6,6 +8,8 @@ import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
+
+import { useGenerateSuggestions } from './use-generate-suggestions'
 
 type UseChatControllerProps = {
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[] | undefined
@@ -22,9 +26,16 @@ export function useChatController({
 
   const model = useChatStore((state) => state.model)
   const isGhostChatMode = useChatStore((state) => state.isGhostChatMode)
-  const { defineChatInstanceKey, getChatInstanceKey } = useChatStore()
+  const {
+    defineChatInstanceKey,
+    getChatInstanceKey,
+    setSuggestions,
+    setIsLoadingSuggestions,
+  } = useChatStore()
 
   const { user } = useSessionUser()
+
+  const { mutateAsync: generateSuggestions } = useGenerateSuggestions()
 
   return useChat({
     initialMessages,
@@ -38,13 +49,14 @@ export function useChatController({
       'x-ai-model': model.id,
     },
     onResponse: (response) => {
+      setSuggestions([])
       const headerChatId = response.headers.get('x-chat-id')
 
       if (headerChatId) {
         defineChatInstanceKey(headerChatId)
       }
     },
-    onFinish: () => {
+    onFinish: async (message) => {
       if (!isGhostChatMode) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.chats.all,
@@ -52,11 +64,20 @@ export function useChatController({
 
         if (!currentChatId) {
           const currentKey = getChatInstanceKey()
-          console.log('currentKey', currentKey)
           if (currentKey) {
             router.push(`/chat/${currentKey}`)
           }
         }
+      }
+
+      try {
+        setIsLoadingSuggestions(true)
+        const suggestions = await generateSuggestions({ messages: message })
+        setSuggestions(suggestions)
+      } catch (error) {
+        console.error('Error generating suggestions:', error)
+      } finally {
+        setIsLoadingSuggestions(false)
       }
     },
     onError: (error) => {

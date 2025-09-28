@@ -1,7 +1,7 @@
 import { GradientText } from '@/components/react-bits/GradientText/GradientText'
 import { useSessionUser } from '@/context/user'
 
-import { SuggestionCards } from './suggestion'
+import { WelcomeSuggestion } from './welcome-suggestion'
 
 export function ChatWelcome() {
   const { user } = useSessionUser()
@@ -16,7 +16,7 @@ export function ChatWelcome() {
           Olá, {user.name}!
         </GradientText>
       )}
-      <SuggestionCards />
+      <WelcomeSuggestion />
     </div>
   )
 }

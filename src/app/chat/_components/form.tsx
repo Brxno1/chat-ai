@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
+import { SuggestionQuestion } from '@/components/suggestion'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -133,6 +134,7 @@ export function ChatForm() {
 
   return (
     <Form {...form}>
+      <SuggestionQuestion />
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
         className="overflow-y-auto rounded-md border border-input"

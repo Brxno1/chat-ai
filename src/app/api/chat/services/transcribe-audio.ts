@@ -35,6 +35,6 @@ export async function transcribeAudioStream(
 
     return responseStream
   } catch (error) {
-    throw new Error('Falha ao transcrever áudio')
+    throw new Error('Failed to transcribe audio')
   }
 }
