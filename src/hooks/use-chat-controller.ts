@@ -72,7 +72,7 @@ export function useChatController({
 
       try {
         setIsLoadingSuggestions(true)
-        const suggestions = await generateSuggestions({ messages: message })
+        const suggestions = await generateSuggestions({ message })
         setSuggestions(suggestions)
       } catch (error) {
         console.error('Error generating suggestions:', error)

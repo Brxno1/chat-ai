@@ -13,13 +13,13 @@ const genAI = new GoogleGenAI({
 
 const model = 'gemini-2.5-flash'
 
-export async function suggestQuestions(messages: Message[]) {
+export async function suggestQuestions(message: Message) {
   try {
     const response = await genAI.models.generateContent({
       model,
-      contents: messages.map((message) => ({
+      contents: {
         text: message.content,
-      })),
+      },
       config: {
         responseMimeType: 'text/plain',
         systemInstruction: systemInstructionQuestionSuggestions,

@@ -6,9 +6,9 @@ import type { MessageRole, Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { AllTools } from '@/types/chat'
 
-import { processStreamResult } from '../services/process-stream-result'
-import { errorHandler } from '../utils/error-handler'
-import { formatMessageForStorage } from '../utils/message-processor'
+import { processStreamResult } from '../../app/api/chat/services/process-stream-result'
+import { errorHandler } from '../../app/api/chat/utils/error-handler'
+import { formatMessageForStorage } from '../../app/api/chat/utils/message-processor'
 
 type OperationResponse<T> = {
   data: T

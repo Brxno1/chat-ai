@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useChatInstance } from '@/context/chat'
 import { useChatStore } from '@/store/chat'
 import { cn } from '@/utils/utils'
+import { TooltipWrapper } from '../tooltip-wrapper'
 
 export function SuggestionQuestion() {
   const suggestions = useChatStore((state) => state.suggestions)
@@ -19,7 +20,7 @@ export function SuggestionQuestion() {
   }
 
   return (
-    <div className={cn('grid grid-cols-1 gap-4 md:grid-cols-3')}>
+    <div className={cn('grid grid-cols-3 gap-2')}>
       {suggestions.length > 0 &&
         suggestions.map((suggestion, index) => (
           <QuestionCard key={index} suggestion={suggestion} />
@@ -36,23 +37,28 @@ function QuestionCard({
   const { onInputChange, buttonSubmitRef } = useChatInstance()
 
   return (
-    <Button
-      variant="outline"
-      onClick={() => {
-        const event = {
-          target: { value: suggestion.content },
-          preventDefault: () => {},
-        } as React.ChangeEvent<HTMLTextAreaElement>
+    <TooltipWrapper
+      content={suggestion.content}
+      align='start'
+      asChild>
+      <Button
+        variant="outline"
+        onClick={() => {
+          const event = {
+            target: { value: suggestion.content },
+            preventDefault: () => { },
+          } as React.ChangeEvent<HTMLTextAreaElement>
 
-        onInputChange(event)
-        setTimeout(() => buttonSubmitRef?.current?.click(), 100)
-      }}
-      className={cn(
-        'flex h-10 cursor-pointer items-center justify-center rounded-lg border border-input bg-primary/5 p-1 text-center text-sm shadow-md transition-all duration-300 hover:bg-accent',
-      )}
-    >
-      <span className="truncate px-2">{suggestion.content}</span>
-    </Button>
+          onInputChange(event)
+          setTimeout(() => buttonSubmitRef?.current?.click(), 100)
+        }}
+        className={cn(
+          'flex h-10 cursor-pointer items-center justify-center rounded-md border border-input bg-primary/5 p-1 text-center text-sm shadow-md transition-all duration-300 hover:bg-accent',
+        )}
+      >
+        <span className="truncate px-2">{suggestion.content}</span>
+      </Button>
+    </TooltipWrapper>
   )
 }
 

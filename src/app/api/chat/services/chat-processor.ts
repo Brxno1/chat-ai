@@ -1,20 +1,20 @@
 import { type Message } from 'ai'
 
+import { generateTitle } from '@/actions/chat/generate-title'
 import {
   ProcessChatAndSaveMessagesProps,
   ProcessChatAndSaveMessagesResponse,
 } from '@/types/chat'
 
-import { generateTitle } from '../actions/generate-title'
-import { uploadChatImage } from './upload-chat-image'
-import { generateSystemPrompt } from '../prompts'
-import { processToolInvocations } from '../utils/message-filter'
 import {
   findOrCreateChat,
   saveChatResponse,
   saveMessages,
-} from '../actions/chat-operations'
+} from '../../../../actions/chat/chat-operations'
+import { generateSystemPrompt } from '../prompts'
+import { processToolInvocations } from '../utils/message-filter'
 import { createStreamText } from './create-stream-text'
+import { processAttachments } from './processes-attachments'
 
 export async function processChatAndSaveMessages({
   messages,
@@ -25,6 +25,7 @@ export async function processChatAndSaveMessages({
   modelId,
 }: ProcessChatAndSaveMessagesProps): Promise<ProcessChatAndSaveMessagesResponse> {
   const processedMessages = processToolInvocations(messages)
+  const lastMessage = processedMessages[processedMessages.length - 1]
 
   const finalMessages: Message[] = [
     {
@@ -48,7 +49,7 @@ export async function processChatAndSaveMessages({
 
     return {
       stream: streamResult,
-      error: streamError || undefined,
+      error: streamError || 'Failed to create stream',
       headerChatId: undefined,
     }
   }
@@ -66,61 +67,18 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const processedAttachments: {
-    url: string
-    name: string
-    contentType: string
-  }[] = []
-
-  const { role, experimental_attachments: userAttachments } =
-    processedMessages[processedMessages.length - 1]
-
-  if (role === 'user' && userAttachments) {
-    const attachments = userAttachments.filter((attachment) => !!attachment)
-
-    if (attachments.length > 0) {
-      for await (const attach of attachments) {
-        try {
-          const isAudio = attach.contentType?.startsWith('audio/')
-
-          if (isAudio) {
-            processedAttachments.push({
-              url: attach.url,
-              name: attach.name || `audio-${new Date().getTime()}.webm`,
-              contentType: attach.contentType || 'audio/webm',
-            })
-            continue
-          }
-
-          const result = await uploadChatImage(userId, finalChatId, {
-            name: attach.name || new Date().getTime().toString(),
-            contentType: attach.contentType || 'image/webp',
-            url: attach.url,
-          })
-
-          if (result) {
-            processedAttachments.push({
-              url: result.url,
-              name: result.name,
-              contentType: result.contentType,
-            })
-          }
-        } catch (error) {
-          console.error('Error uploading attachment:', error)
-        }
-      }
-    }
-  }
+  const { processedAttachments } = await processAttachments(
+    lastMessage,
+    userId,
+    finalChatId,
+  )
 
   const isNewChat = !headerChatId
 
-  /* eslint-disable */
   const messagesToSave = isNewChat
     ? processedMessages
-    : [processedMessages[processedMessages.length - 1]].filter(
-      (msg) => msg?.role === 'user',
-    )
-  /* eslint-enable */
+    : [lastMessage].filter((msg) => msg?.role === 'user')
+
   await saveMessages(messagesToSave, finalChatId, userId, processedAttachments)
 
   if (finalMessages.length >= 2) {

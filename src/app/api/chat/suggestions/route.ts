@@ -7,16 +7,16 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    const { messages }: { messages: Message[] } = body
+    const { message }: { message: Message } = body
 
-    if (!messages || messages.length === 0) {
+    if (!message) {
       return NextResponse.json(
-        { error: 'No messages provided' },
+        { error: 'No message provided' },
         { status: 400 },
       )
     }
 
-    const suggestions = await suggestQuestions(messages)
+    const suggestions = await suggestQuestions(message)
 
     return NextResponse.json(suggestions)
   } catch (error) {

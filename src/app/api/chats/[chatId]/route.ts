@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { deleteChatById } from '@/app/api/chat/actions/delete-chat-by-id'
-import { getChatById } from '@/app/api/chat/actions/get-chat-by-id'
+import { deleteChatById } from '@/actions/chat/delete-chat-by-id'
+import { getChatById } from '@/actions/chat/get-chat-by-id'
 import { getUserSession } from '@/actions/user/profile/get-user-session'
 
 export async function GET(

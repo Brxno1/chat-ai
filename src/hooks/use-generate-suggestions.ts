@@ -13,13 +13,13 @@ export function useGenerateSuggestions() {
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ['generate-suggestions'],
     mutationFn: async ({
-      messages,
+      message,
     }: {
-      messages: Message
+      message: Message
     }): Promise<GenerateSuggestionsResponse> => {
       const { data } = await api.post<GenerateSuggestionsResponse>(
         `/chat/suggestions`,
-        { messages: [messages] },
+        { message },
       )
 
       return data

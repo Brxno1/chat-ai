@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
-import { suggestQuestions } from './services/suggest-questions'
 import { errorHandler } from './utils/error-handler'
 
 export async function POST(req: NextRequest) {
@@ -59,30 +58,6 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       )
     }
-
-    setImmediate(async () => {
-      try {
-        const aiResponse = await processedStream.text
-        console.log('Resposta da IA:', aiResponse)
-        const lastUserMessage = processedMessages[processedMessages.length - 1]
-
-        if (lastUserMessage && lastUserMessage.role === 'user' && aiResponse) {
-          const conversationForSuggestions = [
-            lastUserMessage,
-            {
-              id: 'assistant-response',
-              role: 'assistant' as const,
-              content: aiResponse.trim(),
-            },
-          ]
-
-          const suggestions = await suggestQuestions(conversationForSuggestions)
-          console.log('Sugestões geradas:', suggestions)
-        }
-      } catch (error) {
-        console.error('Erro ao gerar sugestões:', error)
-      }
-    })
 
     const response = processedStream.toDataStreamResponse({
       getErrorMessage: errorHandler,

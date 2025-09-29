@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
 
-import {
-  ChatWithMessages,
-  getChatsAction,
-} from '@/app/api/chat/actions/get-chats'
+import { getChatsAction } from '@/actions/chat/get-chats'
+import { Chat } from '@/services/database/generated'
 
 export type FetchChatResponse = {
-  chats: ChatWithMessages[] | null
+  chats: Chat[] | null
   error?: string
 }
 

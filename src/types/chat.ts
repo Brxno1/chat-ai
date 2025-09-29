@@ -37,6 +37,7 @@ export type MessagePart = {
   type: 'text' | 'tool-invocation' | 'reasoning' | 'source'
   text?: string
   reasoning?: string
+  details?: unknown[]
   toolInvocation?: {
     toolCallId: string
     toolName: 'getWeather' | 'getNews'

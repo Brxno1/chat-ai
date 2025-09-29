@@ -5,7 +5,7 @@ import { Message as UIMessage } from '@ai-sdk/react'
 import { extractTextFromParts } from '@/app/api/chat/utils/message-parts'
 import { Chat } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
-import { ChatMessage } from '@/types/chat'
+import { ChatMessage, MessagePart } from '@/types/chat'
 
 type GetChatByIdResponse = {
   chat: (Chat & { messages: (UIMessage & Partial<ChatMessage>)[] }) | null
@@ -42,21 +42,26 @@ export async function getChatById(
 
   const messagesWithParts: (ChatMessage & UIMessage)[] = chat.messages.map(
     (message) => {
-      let reconstructedParts = []
+      let parts: MessagePart[]
+
       try {
-        reconstructedParts = JSON.parse(message.parts as string)
+        const parsedParts = JSON.parse(message.parts as string)
+        parts = parsedParts.map((part: MessagePart) => ({
+          ...part,
+          details: [],
+        }))
       } catch (error) {
-        reconstructedParts = []
+        parts = []
       }
 
       return {
         id: message.id,
         createdAt: message.createdAt,
         userId: message.userId || userId,
-        content: extractTextFromParts(reconstructedParts),
+        content: extractTextFromParts(parts),
         role: String(message.role).toLowerCase() as UIMessage['role'],
         chatId: message.chatId,
-        parts: reconstructedParts,
+        parts,
         experimental_attachments: message.attachments,
       } as UIMessage & ChatMessage
     },
