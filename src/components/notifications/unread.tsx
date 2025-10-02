@@ -10,7 +10,7 @@ type UnreadNotificationProps = {
 export function UnreadNotification({ unreadNotifications, setIsOpen }: UnreadNotificationProps) {
   return (
     <>
-      <div className="space-y-1.5 max-h-[26rem] md:max-h-[calc(100vh-26.3rem)] overflow-auto 
+      <div className="space-y-1.5 max-h-[26rem] md:max-h-[calc(100vh-26.7rem)] overflow-auto 
       scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 scrollbar-thumb-rounded-md">
         {unreadNotifications.length === 0 ? (
           <div className="flex items-center justify-center py-6 text-sm text-muted-foreground">

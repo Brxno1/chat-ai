@@ -8,6 +8,7 @@ import { useChatInstance } from '@/context/chat'
 import { useChatStore } from '@/store/chat'
 import { cn } from '@/utils/utils'
 import { TooltipWrapper } from '../tooltip-wrapper'
+import { GenerateSuggestionsResponse } from '@/hooks/use-generate-suggestions'
 
 export function SuggestionQuestion() {
   const suggestions = useChatStore((state) => state.suggestions)
@@ -20,7 +21,7 @@ export function SuggestionQuestion() {
   }
 
   return (
-    <div className={cn('grid grid-cols-3 gap-2')}>
+    <div className={cn('grid grid-cols-3 gap-1.5')}>
       {suggestions.length > 0 &&
         suggestions.map((suggestion, index) => (
           <QuestionCard key={index} suggestion={suggestion} />
@@ -32,7 +33,7 @@ export function SuggestionQuestion() {
 function QuestionCard({
   suggestion,
 }: {
-  suggestion: { id: string; role: 'assistant'; content: string }
+  suggestion: GenerateSuggestionsResponse
 }) {
   const { onInputChange, buttonSubmitRef } = useChatInstance()
 

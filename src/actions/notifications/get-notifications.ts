@@ -20,7 +20,7 @@ export async function getNotificationsAction(): Promise<GetNotificationsResponse
   if (!sessionToken) {
     return {
       notifications: [],
-      error: 'No session token',
+      error: 'Unauthorized',
       unauthorized: true,
     }
   }
@@ -38,7 +38,7 @@ export async function getNotificationsAction(): Promise<GetNotificationsResponse
 
   try {
     const { data } = await api.get<{ notifications: Notification[] }>(
-      `http://localhost:3333/notifications/${session.user.id}/list?page=1&limit=10`,
+      `http://localhost:3333/notifications/${session.user.id}/list`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

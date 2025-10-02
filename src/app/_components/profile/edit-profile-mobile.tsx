@@ -152,7 +152,7 @@ export function EditProfileMobile() {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen} direction="right">
+    <Drawer open={open} onOpenChange={setOpen}>
       <DrawerPortal>
         <div
           data-dialog={open ? 'open' : 'closed'}

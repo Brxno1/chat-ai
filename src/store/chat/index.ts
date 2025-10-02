@@ -2,17 +2,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import { models } from '@/app/chat/models/definitions'
+import { GenerateSuggestionsResponse } from '@/hooks/use-generate-suggestions'
 import { Model } from '@/types/model'
 
 interface State {
   chatId: string | undefined
   isGhostChatMode: boolean
   isCreatingNewChat: boolean
-  suggestions: {
-    id: string
-    role: 'assistant'
-    content: string
-  }[]
+  suggestions: GenerateSuggestionsResponse[]
   isLoadingSuggestions: boolean
   model: Model
   chatInstanceKey: string
@@ -23,13 +20,7 @@ interface Actions {
   setChatId: (id: string | undefined) => void
   setIsCreatingNewChat: (value: boolean) => void
   defineChatToGhostMode: (mode: boolean | ((prev: boolean) => boolean)) => void
-  setSuggestions: (
-    suggestions: {
-      id: string
-      role: 'assistant'
-      content: string
-    }[],
-  ) => void
+  setSuggestions: (suggestions: GenerateSuggestionsResponse[]) => void
   setIsLoadingSuggestions: (loading: boolean) => void
   setModel: (model: Model) => void
   resetChatState: () => void

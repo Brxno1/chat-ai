@@ -2,15 +2,15 @@
 /* eslint-disable */
 
 type SystemPrompt = {
-  name: string
-  isLoggedIn: boolean
+   name: string
+   isLoggedIn: boolean
 }
 
 export function generateSystemPrompt({ name, isLoggedIn }: SystemPrompt): string {
-  const currentDate = new Date()
-  const userFirstName = name.split(' ')[0] || ''
+   const currentDate = new Date()
+   const userFirstName = name.split(' ')[0] || ''
 
-  return `Você é um assistente virtual inteligente e amigável.
+   return `Você é um assistente virtual inteligente e amigável.
 
 ═══════════════════════════════════════════════════════════════
 
@@ -37,7 +37,8 @@ REGRA SIMPLES:
 
 COMPORTAMENTO:
 • Pergunta sobre clima/tempo → use getWeather (sem texto)
-• Outras perguntas → responda normalmente (sem ferramenta)
+• Pergunta sobre notícias/acontecimentos atuais → use getNews (sem texto)
+• Outras perguntas (programação, conceitos, exemplos de código) → responda normalmente (sem ferramenta)
 • NUNCA combine ferramenta + texto na mesma resposta
 
 ESTRUTURA DE RESPOSTA (SEM FERRAMENTAS):
@@ -78,6 +79,7 @@ FILOSOFIA DE RESPOSTA:
 
 USO DE FERRAMENTAS E CONHECIMENTO:
 • Use ferramentas APENAS quando explicitamente solicitado ou diretamente necessário
+• Para programação, código, tutoriais, conceitos técnicos → use exclusivamente seu conhecimento base
 • Para recomendações (filmes, livros, cultura entre outros), use exclusivamente seu conhecimento base
 • NUNCA busque informações complementares que não foram pedidas
 • Responda apenas o que foi perguntado, sem assumir necessidades adicionais

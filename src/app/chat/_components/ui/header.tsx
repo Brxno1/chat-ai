@@ -17,9 +17,11 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useChatInstance } from '@/context/chat'
 import { useChatStore } from '@/store/chat'
+import { useSessionUser } from '@/context/user'
 
 function ChatHeader() {
   const router = useRouter()
+  const { user } = useSessionUser()
   const { isMobile } = useSidebar()
 
   const isGhostChatMode = useChatStore((state) => state.isGhostChatMode)
@@ -55,6 +57,7 @@ function ChatHeader() {
   const handleCreateNewChat = () => {
     setMessages([])
     resetChatState()
+    router.push('/')
   }
 
   useHotkeys('shift+n', () => {
@@ -73,7 +76,7 @@ function ChatHeader() {
       <div className="ml-2 flex items-center gap-3 transition-all">
         <SidebarTriggerComponentMobile size="icon" variant="ghost" />
         <TooltipWrapper content="Chat fantasma (Shift+G)" asChild side="bottom">
-          <Button size="icon" onClick={handleGhostChatMode} variant="ghost">
+          <Button size="icon" onClick={handleGhostChatMode} variant="ghost" disabled={!user}>
             <Ghost size={16} />
           </Button>
         </TooltipWrapper>

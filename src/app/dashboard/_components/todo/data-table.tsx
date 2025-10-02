@@ -40,6 +40,7 @@ import { Todo } from '@/services/database/generated'
 import { cn } from '@/utils/utils'
 
 import { columns } from './columns'
+import { getTodosAction } from '@/actions/todo/get-todos'
 
 interface SelectionTextProps {
   table: TableInstance<Todo>
@@ -75,7 +76,10 @@ export function TodoDataTable({ initialData }: TodoDataTableProps) {
     refetch,
   } = useSuspenseQuery({
     queryKey: queryKeys.todos.all,
-    queryFn: getTodos,
+    queryFn: async () => {
+      const { todos } = await getTodosAction()
+      return todos
+    },
     initialData,
   })
 

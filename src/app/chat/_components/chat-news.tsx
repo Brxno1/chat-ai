@@ -6,7 +6,7 @@ import React from 'react'
 import { ContainerWrapper } from '@/components/container'
 import { Badge } from '@/components/ui/badge'
 import type { ChatMessage } from '@/types/chat'
-import type { NewsArticle, NewsToolResponse } from '@/types/news'
+import type { NewsArticle, NewsErrorResponse, NewsToolResponse } from '@/types/news'
 import type { ToolInvocationResult } from '@/types/tool-results'
 import { formatDateToLocaleWithHour } from '@/utils/format'
 
@@ -58,24 +58,28 @@ export function ChatNews({ toolInvocation, message }: ChatNewsProps) {
       case 'result':
         if (!result) return null
 
+        if ('error' in result) {
+          const errorResult = result as NewsErrorResponse
+          return (
+            <div className="mr-auto max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
+              <NewsError
+                title={errorResult.error.title}
+                message={errorResult.error.message}
+              />
+            </div>
+          )
+        }
+
         return (
           <div className="mr-auto rounded-lg bg-primary/10 p-3 text-card-foreground max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[60%]">
             <div className="flex flex-col gap-1">
               <NewsHeader topic={args.topic} />
-              {result.map((item: NewsToolResponse, index: number) =>
-                item.error ? (
-                  <NewsError
-                    key={`news-error-${index}`}
-                    title={item.error.title}
-                    message={item.error.message}
-                  />
-                ) : (
-                  <NewsCard
-                    key={`news-${index}`}
-                    article={item as NewsArticle}
-                  />
-                ),
-              )}
+              {result.map((item: NewsToolResponse, index: number) => (
+                <NewsCard
+                  key={`news-${index}`}
+                  article={item as NewsArticle}
+                />
+              ))}
             </div>
           </div>
         )

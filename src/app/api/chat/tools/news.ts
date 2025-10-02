@@ -1,7 +1,6 @@
 import { tool as createTool } from 'ai'
 import { z } from 'zod'
 
-import { api } from '@/lib/axios'
 import type {
   NewsApiResponse,
   NewsErrorResponse,
@@ -13,22 +12,17 @@ async function fetchNewsData(
   limit: number = 3,
 ): Promise<NewsToolResponse[] | NewsErrorResponse> {
   try {
-    const response = await api.get<NewsApiResponse>(
-      `https://newsapi.org/v2/everything?q=${topic}&apiKey=${process.env.NEWSAPI_KEY}&language=pt&pageSize=${limit}`,
+    const response = await fetch(
+      `https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&apiKey=${process.env.NEWSAPI_KEY}&language=pt&pageSize=${limit}`,
     )
 
-    if (response.status !== 200) {
-      return {
-        error: {
-          title: 'Erro na API',
-          message: `Não foi possível obter notícias sobre "${topic}": Erro de conexão`,
-          topic,
-          code: 'API_ERROR',
-        },
-      }
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
-    if (!response.data.articles) {
+    const data: NewsApiResponse = await response.json()
+
+    if (!data.articles) {
       return {
         error: {
           title: 'Sem resultados',
@@ -39,7 +33,7 @@ async function fetchNewsData(
       }
     }
 
-    return response.data.articles.slice(0, limit).map((article) => ({
+    return data.articles.slice(0, limit).map((article) => ({
       title: article.title || 'Sem título',
       description: article.description || '',
       url: article.url,

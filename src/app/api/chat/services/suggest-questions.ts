@@ -15,7 +15,7 @@ const model = 'gemini-2.5-flash'
 
 export async function suggestQuestions(message: Message) {
   try {
-    const response = await genAI.models.generateContent({
+    const stream = await genAI.models.generateContentStream({
       model,
       contents: {
         text: message.content,
@@ -26,11 +26,17 @@ export async function suggestQuestions(message: Message) {
       },
     })
 
-    const text = response.text || ''
-    const questions = text
-      .split('\n')
-      .filter((q) => q.trim())
-      .slice(0, 3)
+    const questions: string[] = []
+
+    for await (const chunk of stream) {
+      if (chunk.text) {
+        const formattedQuestion = chunk.text
+          .split('\n')
+          .filter((q) => q.trim())
+
+        questions.push(...formattedQuestion)
+      }
+    }
 
     return questions.map((question, index) => ({
       id: `suggestion-${index}`,

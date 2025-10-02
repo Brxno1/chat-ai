@@ -49,7 +49,7 @@ export async function processChatAndSaveMessages({
 
     return {
       stream: streamResult,
-      error: streamError || 'Failed to create stream',
+      error: streamError || undefined,
       headerChatId: undefined,
     }
   }
@@ -63,7 +63,7 @@ export async function processChatAndSaveMessages({
   if (!success) {
     return {
       stream: null,
-      error: error || 'Failed to create chat',
+      error: error || undefined,
     }
   }
 

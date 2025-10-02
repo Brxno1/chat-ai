@@ -7,27 +7,22 @@ export type GenerateSuggestionsResponse = {
   id: string
   role: 'assistant'
   content: string
-}[]
+}
 
 export function useGenerateSuggestions() {
-  const { mutateAsync, isPending } = useMutation({
+  return useMutation({
     mutationKey: ['generate-suggestions'],
     mutationFn: async ({
       message,
     }: {
       message: Message
-    }): Promise<GenerateSuggestionsResponse> => {
-      const { data } = await api.post<GenerateSuggestionsResponse>(
+    }): Promise<GenerateSuggestionsResponse[]> => {
+      const { data } = await api.post<GenerateSuggestionsResponse[]>(
         `/chat/suggestions`,
         { message },
       )
 
-      return data
+      return data.slice(0, 3)
     },
   })
-
-  return {
-    mutateAsync,
-    isPending,
-  }
 }

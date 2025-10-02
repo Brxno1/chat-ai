@@ -10,7 +10,7 @@ const genAI = new GoogleGenAI({
   apiKey: env.GEMINI_API_KEY_GENERATE,
 })
 
-const model = 'gemini-1.5-flash'
+const model = 'gemini-2.5-flash'
 
 export async function generateChatTitleWIthAI(
   messages: Message[],

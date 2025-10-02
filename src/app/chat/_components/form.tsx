@@ -134,7 +134,7 @@ export function ChatForm() {
 
   return (
     <Form {...form}>
-      <SuggestionQuestion />
+      {/* <SuggestionQuestion /> */}
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
         className="overflow-y-auto rounded-md border border-input"

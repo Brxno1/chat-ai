@@ -35,7 +35,8 @@ export function useChatController({
 
   const { user } = useSessionUser()
 
-  const { mutateAsync: generateSuggestions } = useGenerateSuggestions()
+  // const { mutateAsync: generateSuggestions, isPending } =
+  //   useGenerateSuggestions()
 
   return useChat({
     initialMessages,
@@ -45,7 +46,7 @@ export function useChatController({
       'x-user-name': user?.name || '',
       'x-user-id': user?.id || '',
       'x-chat-id': currentChatId || '',
-      'x-ghost-mode': isGhostChatMode.toString(),
+      'x-ghost-mode': String(isGhostChatMode),
       'x-ai-model': model.id,
     },
     onResponse: (response) => {
@@ -70,15 +71,15 @@ export function useChatController({
         }
       }
 
-      try {
-        setIsLoadingSuggestions(true)
-        const suggestions = await generateSuggestions({ message })
-        setSuggestions(suggestions)
-      } catch (error) {
-        console.error('Error generating suggestions:', error)
-      } finally {
-        setIsLoadingSuggestions(false)
-      }
+      // try {
+      //   setIsLoadingSuggestions(isPending)
+      //   const suggestions = await generateSuggestions({ message })
+      //   setSuggestions(suggestions)
+      // } catch (error) {
+      //   console.error('Error generating suggestions:', error)
+      // } finally {
+      //   setIsLoadingSuggestions(isPending)
+      // }
     },
     onError: (error) => {
       console.log(error)
