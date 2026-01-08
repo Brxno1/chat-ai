@@ -12,7 +12,6 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { TypingText } from '@/components/animate-ui/text/typing'
-import { SuggestionQuestion } from '@/components/suggestion'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -35,6 +34,7 @@ import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
 import { models } from '../models/definitions'
 import { ImagePreview } from './image-preview'
 import { RecorderAudio } from './recorder-audio'
+import { cn } from '@/utils/utils'
 
 const schema = z.object({
   message: z.string().optional(),
@@ -134,7 +134,6 @@ export function ChatForm() {
 
   return (
     <Form {...form}>
-      {/* <SuggestionQuestion /> */}
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
         className="overflow-y-auto rounded-md border border-input"
@@ -228,6 +227,7 @@ export function ChatForm() {
                     key={m.id}
                     data-active={m.name === model.name}
                     className="flex cursor-pointer flex-row items-center text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
+                    disabled={m.disabled}
                   >
                     <Image
                       src={`https://img.logo.dev/${m.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
@@ -236,13 +236,9 @@ export function ChatForm() {
                       width={16}
                       height={16}
                     />
-                    {m.premium ? (
-                      <span className="bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent">
-                        {m.name}
-                      </span>
-                    ) : (
-                      <span>{m.name}</span>
-                    )}
+                    <span className={cn(m.premium && "bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent")}>
+                      {m.name}
+                    </span>
                   </AIInputModelSelectItem>
                 ))}
               </AIInputModelSelectContent>

@@ -3,4 +3,5 @@ export type Model = {
   name: string
   provider: string
   premium?: boolean
+  disabled?: boolean
 }

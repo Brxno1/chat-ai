@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: 'Chat',
   description: 'Chat com IA',
   icons: {
-    icon: '/logo.svg',
+    icon: '/favi.ico',
   },
 }
 

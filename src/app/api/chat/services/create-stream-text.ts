@@ -1,4 +1,5 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import {
   convertToCoreMessages,
   extractReasoningMiddleware,
@@ -8,6 +9,7 @@ import {
 } from 'ai'
 
 import type { Model } from '@/types/model'
+import { env } from '@/lib/env'
 
 import { newsTool } from '../tools/news'
 import { weatherTool } from '../tools/weather'
@@ -15,6 +17,11 @@ import { errorHandler } from '../utils/error-handler'
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
+})
+
+const compatibleAi = createOpenAICompatible({
+  name: 'qwen/qwen3-4b-thinking-2507',
+  baseURL: env.LM_STUDIO_URL,
 })
 
 type CreateStreamTextParams = {
@@ -26,8 +33,15 @@ export async function createStreamText({
   messages,
   modelId,
 }: CreateStreamTextParams) {
+  const getModel = () => {
+    if (modelId === 'qwen/qwen3-4b-thinking-2507') {
+      return compatibleAi(modelId)
+    }
+    return google(modelId)
+  }
+
   const model = wrapLanguageModel({
-    model: google(modelId),
+    model: getModel(),
     middleware: [extractReasoningMiddleware({ tagName: 'think' })],
   })
 

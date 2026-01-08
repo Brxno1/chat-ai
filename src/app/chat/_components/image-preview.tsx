@@ -21,6 +21,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { cn } from '@/utils/utils'
+import { DialogDescription } from '@/components/ui/dialog'
 
 interface ImagePreviewProps {
   className?: string
@@ -122,7 +123,7 @@ export function ImagePreview({
                 <DialogHeader>
                   <DialogTitle>Preview</DialogTitle>
                 </DialogHeader>
-                <div className="">
+                <div>
                   <Image
                     src={url}
                     alt="Preview"

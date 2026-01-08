@@ -4,7 +4,6 @@ import { type Message as UIMessage } from '@ai-sdk/react'
 import React from 'react'
 import { toast } from 'sonner'
 
-import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
 import { models } from '@/app/chat/models/definitions'
 import { useChatController } from '@/hooks/use-chat-controller'
 import { useTranscribeAudio } from '@/hooks/use-transcribe-audio'
@@ -12,10 +11,11 @@ import { useChatStore } from '@/store/chat'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
 import { ChatContext, ChatContextProps } from './context'
+import { Chat } from '@/services/database/generated'
 
 export type ChatProviderProps = {
   children: React.ReactNode
-  initialChats?: ChatWithMessages[]
+  initialChats?: Chat[]
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
   currentChatId?: string
   cookieModel?: string | undefined

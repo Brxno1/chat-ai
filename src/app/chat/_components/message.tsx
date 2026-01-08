@@ -88,7 +88,7 @@ export function ChatMessage({ message }: MessageProps) {
 
             return (
               <ContainerWrapper
-                key={`${message.id}-text-${partIndex}`}
+                key={message.id}
                 className={cn('flex flex-col', {
                   'items-end': message.role === 'user',
                   'items-start': message.role === 'assistant',
@@ -111,6 +111,9 @@ export function ChatMessage({ message }: MessageProps) {
                       </Avatar>
                     </Badge>
                   </>
+                )}
+                {message.experimental_attachments && (
+                  <Attachments attachments={message.experimental_attachments} />
                 )}
                 <div
                   className={cn(
@@ -144,9 +147,6 @@ export function ChatMessage({ message }: MessageProps) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-                {message.experimental_attachments && (
-                  <Attachments attachments={message.experimental_attachments} />
-                )}
                 <Badge
                   variant={'chat'}
                   className={cn(

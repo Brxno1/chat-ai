@@ -9,8 +9,6 @@ import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
-import { useGenerateSuggestions } from './use-generate-suggestions'
-
 type UseChatControllerProps = {
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[] | undefined
   currentChatId?: string | undefined
@@ -30,13 +28,9 @@ export function useChatController({
     defineChatInstanceKey,
     getChatInstanceKey,
     setSuggestions,
-    setIsLoadingSuggestions,
   } = useChatStore()
 
   const { user } = useSessionUser()
-
-  // const { mutateAsync: generateSuggestions, isPending } =
-  //   useGenerateSuggestions()
 
   return useChat({
     initialMessages,
@@ -57,7 +51,7 @@ export function useChatController({
         defineChatInstanceKey(headerChatId)
       }
     },
-    onFinish: async (message) => {
+    onFinish: async () => {
       if (!isGhostChatMode) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.chats.all,
@@ -70,16 +64,6 @@ export function useChatController({
           }
         }
       }
-
-      // try {
-      //   setIsLoadingSuggestions(isPending)
-      //   const suggestions = await generateSuggestions({ message })
-      //   setSuggestions(suggestions)
-      // } catch (error) {
-      //   console.error('Error generating suggestions:', error)
-      // } finally {
-      //   setIsLoadingSuggestions(isPending)
-      // }
     },
     onError: (error) => {
       console.log(error)

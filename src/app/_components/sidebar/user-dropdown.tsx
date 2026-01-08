@@ -63,11 +63,7 @@ function UserDropdown() {
     },
   })
 
-  const handleSignOut = async (ev: React.MouseEvent) => {
-    ev.preventDefault()
-
-    await signOutFn()
-  }
+  const handleSignOut = async () => await signOutFn()
 
   if (!user) {
     return <NotFoundUserDropdown />
@@ -88,7 +84,7 @@ function UserDropdown() {
         >
           <Avatar className="size-9 cursor-grab rounded-md">
             <AvatarImage src={user.image || ''} alt="user avatar" />
-            <AvatarFallback className="rounded-md font-semibold">
+            <AvatarFallback className="rounded-md font-semibold bg-background text-foreground">
               {user.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -107,25 +103,25 @@ function UserDropdown() {
       >
         <DropdownMenuGroup className="flex w-full items-center justify-start gap-2">
           <UserInfo />
-          <Separator orientation="vertical" className="h-6" />
+          <Separator orientation="vertical" className="h-6 bg-input" />
           {isMobile ? <EditProfileMobile /> : <EditProfile />}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className='bg-input' />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="flex items-center justify-between">
+          <DropdownMenuItem className="flex rounded-md cursor-pointer items-center justify-between">
             Configurações
             <Settings2 className="mr-2 size-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center justify-between">
+          <DropdownMenuItem className="flex rounded-md cursor-pointer items-center justify-between">
             Upgrade
             <Rocket className="mr-2 size-4" />
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className='bg-input' />
         <DropdownMenuItem
           onClick={handleSignOut}
           disabled={isSigningOut}
-          className="flex items-center justify-between hover:hover:bg-destructive hover:hover:text-destructive-foreground"
+          className="flex rounded-md cursor-pointer items-center justify-between hover:hover:bg-destructive hover:hover:text-destructive-foreground"
         >
           {isSigningOut ? (
             <>
@@ -150,21 +146,22 @@ function UserInfo() {
   const { user } = useSessionUser()
 
   return (
-    <DropdownMenuItem className="flex flex-1 cursor-default flex-col items-start gap-0.5 hover:!bg-transparent">
+    <DropdownMenuItem className="flex rounded-md flex-1 cursor-default flex-col items-start gap-0.5 hover:!bg-transparent">
       <span className="max-w-[8rem] truncate text-sm font-medium leading-none">
         {user?.name}
       </span>
       <div className="flex max-w-[8.5rem] items-center justify-center gap-2">
         <span
           className={cn(
-            'w-[8rem] truncate text-xs text-muted-foreground',
-            showEmail ? 'blur-sm' : 'blur-none',
+            'w-[8rem] truncate text-xs text-muted-foreground blur-none', {
+            'blur-sm': showEmail,
+          },
           )}
         >
           {showEmail ? randomBytes(8).toString('hex') : user?.email}
         </span>
         <button
-          className="my-auto rounded-md p-1.5 hover:bg-muted/50"
+          className="my-auto rounded-md cursor-pointer p-1.5 hover:bg-muted/50"
           aria-label="Toggle email visibility"
           onClick={(ev) => {
             ev.preventDefault()
@@ -188,7 +185,7 @@ function NotFoundUserDropdown() {
       <Button
         variant="secondary"
         size="lg"
-        className="mb-px flex w-full items-center justify-center rounded-lg p-4"
+        className="mb-px flex w-full border border-input items-center justify-center rounded-lg p-4"
       >
         <UserPlus size={20} />
         <span className="group-data-[sidebar=closed]/sidebar:hidden">

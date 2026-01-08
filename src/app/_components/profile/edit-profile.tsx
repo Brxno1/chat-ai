@@ -225,7 +225,7 @@ export function EditProfile() {
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          className="max-h-36"
+                          className="max-h-36 border border-input"
                           placeholder="Escreva uma biografia para o seu perfil"
                           aria-describedby={`${id}-description`}
                           {...rest}
@@ -261,6 +261,15 @@ export function EditProfile() {
           </form>
         </Form>
         <DialogFooter className="mt-4 justify-between gap-2 p-6">
+          <DialogClose asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              className="font-semibold text-red-600 hover:bg-transparent hover:text-red-600"
+            >
+              Cancelar
+            </Button>
+          </DialogClose>
           <Button
             form="update-profile-form"
             type="submit"
@@ -273,15 +282,6 @@ export function EditProfile() {
               <>Salvar alterações</>
             )}
           </Button>
-          <DialogClose asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              className="rounded-md border font-semibold text-red-600 hover:border hover:border-red-600 hover:bg-transparent hover:text-red-600"
-            >
-              Cancelar
-            </Button>
-          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

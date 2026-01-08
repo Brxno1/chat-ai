@@ -54,38 +54,8 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const {
-    success,
-    data: finalChatId,
-    error,
-  } = await findOrCreateChat(headerChatId, userId)
-
-  if (!success) {
-    return {
-      stream: null,
-      error: error || undefined,
-    }
-  }
-
-  const { processedAttachments } = await processAttachments(
-    lastMessage,
-    userId,
-    finalChatId,
-  )
-
+  const chatId = headerChatId || crypto.randomUUID()
   const isNewChat = !headerChatId
-
-  const messagesToSave = isNewChat
-    ? processedMessages
-    : [lastMessage].filter((msg) => msg?.role === 'user')
-
-  await saveMessages(messagesToSave, finalChatId, userId, processedAttachments)
-
-  if (finalMessages.length >= 2) {
-    setImmediate(async () => {
-      await generateTitle(finalChatId, finalMessages)
-    })
-  }
 
   const { streamResult, streamError } = await createStreamText({
     messages: finalMessages,
@@ -100,19 +70,48 @@ export async function processChatAndSaveMessages({
   }
 
   setImmediate(async () => {
-    const { success, error } = await saveChatResponse({
-      stream: streamResult,
-      chatId: finalChatId,
-      userId,
-    })
+    try {
+      const { success, error } = await findOrCreateChat(chatId, userId)
 
-    if (!success) {
-      console.error(error)
+      if (!success) {
+        console.error('Failed to create/find chat:', error)
+        return
+      }
+
+      const { processedAttachments } = await processAttachments(
+        lastMessage,
+        userId,
+        chatId,
+      )
+
+      const messagesToSave = isNewChat
+        ? processedMessages
+        : [lastMessage].filter((msg) => msg?.role === 'user')
+
+      await saveMessages(messagesToSave, chatId, userId, processedAttachments)
+
+      const { success: saveSuccess, error: saveError } = await saveChatResponse(
+        {
+          stream: streamResult,
+          chatId,
+          userId,
+        },
+      )
+
+      if (!saveSuccess) {
+        console.error('Failed to save chat response:', saveError)
+      }
+
+      if (finalMessages.length >= 2) {
+        await generateTitle(chatId, finalMessages)
+      }
+    } catch (error) {
+      console.error('Background task error:', error)
     }
   })
 
   return {
     stream: streamResult,
-    headerChatId: finalChatId,
+    headerChatId: chatId,
   }
 }

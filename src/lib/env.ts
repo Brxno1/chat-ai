@@ -25,6 +25,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_LOGO_TOKEN: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   GEMINI_API_KEY_GENERATE: z.string().optional(),
+  LM_STUDIO_URL: z.string().default('http://localhost:1234/v1'),
 })
 
 export const env = envSchema.parse(process.env)

@@ -17,35 +17,19 @@ type OperationResponse<T> = {
 }
 
 async function findOrCreateChat(
-  chatId: string | undefined,
+  chatId: string,
   userId: string,
 ): Promise<OperationResponse<string>> {
-  if (chatId) {
-    const existingChat = await prisma.chat.findUnique({
-      where: {
-        id: chatId,
-        userId,
-      },
-      select: {
-        id: true,
-      },
-    })
-
-    if (existingChat) {
-      return { success: true, data: existingChat.id }
-    }
-  }
-
   try {
-    const { id } = await prisma.chat.create({
-      data: {
+    const { id } = await prisma.chat.upsert({
+      where: { id: chatId },
+      update: {},
+      create: {
         id: chatId,
         title: 'Nova conversa',
         userId,
       },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     })
 
     return { success: true, data: id }

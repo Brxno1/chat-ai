@@ -13,7 +13,7 @@ import { createQueryClient } from '@/lib/query-client'
 import { ThemeProvider } from './theme/theme-provider'
 import { SidebarProvider } from './animate-ui/radix/sidebar'
 import { TooltipProvider } from './ui/tooltip'
-import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
+import { ChatWithMessages } from '@/app/chat/actions/get-chats'
 import { ChatProvider } from '@/context/chat'
 import { Notification } from '@/types/notifications'
 
