@@ -5,6 +5,11 @@ import { toast } from 'sonner'
 
 const MAX_IMAGES = 2
 
+export type ImagePreviewItem = {
+  url: string
+  name?: string
+}
+
 interface UseMultipleUploadsProps {
   onUpload?: (url: string | string[]) => void
 }
@@ -15,9 +20,7 @@ export function useMultipleUploads({ onUpload }: UseMultipleUploadsProps = {}) {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const [files, setFiles] = React.useState<File[]>([])
-  const [fileNames, setFileNames] = React.useState<string[]>([])
-  const [fileSizes, setFileSizes] = React.useState<number[]>([])
-  const [previewUrls, setPreviewUrls] = React.useState<string[]>([])
+  const [images, setImages] = React.useState<ImagePreviewItem[]>([])
 
   const handleThumbnailClick = React.useCallback(() => {
     fileInputRef.current?.click()
@@ -29,47 +32,40 @@ export function useMultipleUploads({ onUpload }: UseMultipleUploadsProps = {}) {
       if (!selectedFiles || selectedFiles.length === 0) return
 
       const newFiles: File[] = Array.from(selectedFiles)
-
-      const newNames: string[] = newFiles.map((file) => file.name)
-      const newSizes: number[] = newFiles.map((file) => file.size)
-      const newUrls: string[] = newFiles.map((file) =>
-        URL.createObjectURL(file),
-      )
+      const newImages: ImagePreviewItem[] = newFiles.map((file) => ({
+        url: URL.createObjectURL(file),
+        name: file.name,
+      }))
 
       setFiles((prevFiles) => [...newFiles, ...prevFiles])
-      setFileNames((prevNames) => [...newNames, ...prevNames])
-      setFileSizes((prevSizes) => [...newSizes, ...prevSizes])
-      setPreviewUrls((prevUrls) => [...newUrls, ...prevUrls])
+      setImages((prev) => [...newImages, ...prev])
 
+      const newUrls = newImages.map((img) => img.url)
       previewsRef.current = newUrls
       onUpload?.(newUrls)
     },
-    [onUpload, previewUrls],
+    [onUpload],
   )
 
   const handleRemove = React.useCallback(() => {
-    previewUrls.forEach((url) => URL.revokeObjectURL(url))
+    images.forEach((img) => URL.revokeObjectURL(img.url))
 
     setFiles([])
-    setFileNames([])
-    setFileSizes([])
-    setPreviewUrls([])
+    setImages([])
     previewsRef.current = []
 
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
-  }, [previewUrls])
+  }, [images])
 
   const handleRemoveItem = React.useCallback(
     (itemIndex: number) => {
-      if (itemIndex >= 0 && itemIndex < previewUrls.length) {
-        URL.revokeObjectURL(previewUrls[itemIndex])
+      if (itemIndex >= 0 && itemIndex < images.length) {
+        URL.revokeObjectURL(images[itemIndex].url)
 
-        setPreviewUrls((prev) => prev.filter((_, i) => i !== itemIndex))
+        setImages((prev) => prev.filter((_, i) => i !== itemIndex))
         setFiles((prev) => prev.filter((_, i) => i !== itemIndex))
-        setFileNames((prev) => prev.filter((_, i) => i !== itemIndex))
-        setFileSizes((prev) => prev.filter((_, i) => i !== itemIndex))
 
         previewsRef.current = previewsRef.current.filter(
           (_, i) => i !== itemIndex,
@@ -80,44 +76,42 @@ export function useMultipleUploads({ onUpload }: UseMultipleUploadsProps = {}) {
         }
       }
     },
-    [previewUrls, fileNames, fileSizes, files],
+    [images],
   )
 
   const handleRemoveAll = React.useCallback(() => {
-    previewUrls.forEach((url) => URL.revokeObjectURL(url))
+    images.forEach((img) => URL.revokeObjectURL(img.url))
 
-    setPreviewUrls([])
+    setImages([])
     setFiles([])
-    setFileNames([])
-    setFileSizes([])
     previewsRef.current = []
 
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
-  }, [previewUrls])
+  }, [images])
 
   const validateAndProcessFileInput = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const files = event.target.files
+    const inputFiles = event.target.files
 
-    if (!files) return
+    if (!inputFiles) return
 
-    const totalImages = previewUrls.length + files.length
+    const totalImages = images.length + inputFiles.length
 
     if (totalImages > MAX_IMAGES) {
       toast.warning(`Máximo de ${MAX_IMAGES} imagens permitido`, {
         position: 'top-center',
       })
 
-      const availableSlots = Math.max(0, MAX_IMAGES - previewUrls.length)
+      const availableSlots = Math.max(0, MAX_IMAGES - images.length)
 
       const dataTransfer = new DataTransfer()
 
       for (let i = 0; i < availableSlots; i++) {
-        if (i < files.length) {
-          dataTransfer.items.add(files[i])
+        if (i < inputFiles.length) {
+          dataTransfer.items.add(inputFiles[i])
         }
       }
 
@@ -147,9 +141,7 @@ export function useMultipleUploads({ onUpload }: UseMultipleUploadsProps = {}) {
 
   return {
     files,
-    previewUrls,
-    fileNames,
-    fileSizes,
+    images,
     fileInputRef,
     handleThumbnailClick,
     handleFileChange,

@@ -1,20 +1,21 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ChevronsUpDown,
   Files,
-  ImageUp,
+  Ghost,
+  Paperclip,
   SendIcon,
   StopCircle,
-} from 'lucide-react'
-import Image from 'next/image'
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+} from "lucide-react";
+import Image from "next/image";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { TypingText } from '@/components/animate-ui/text/typing'
-import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { TypingText } from "@/components/animate-ui/text/typing";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   AIForm,
   AIInputButton,
@@ -26,58 +27,62 @@ import {
   AIInputTextarea,
   AIInputToolbar,
   AIInputTools,
-} from '@/components/ui/kibo-ui/ai/input'
-import { Separator } from '@/components/ui/separator'
-import { useChatInstance } from '@/context/chat'
-import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
+} from "@/components/ui/kibo-ui/ai/input";
+import { Separator } from "@/components/ui/separator";
+import { useChatInstance } from "@/context/chat";
+import { useMultipleUploads } from "@/hooks/use-multiple-uploads";
 
-import { models } from '../models/definitions'
-import { ImagePreview } from './image-preview'
-import { RecorderAudio } from './recorder-audio'
-import { cn } from '@/utils/utils'
+import { models } from "../models/definitions";
+import { ImagePreview } from "./image-preview";
+import { RecorderAudio } from "./recorder-audio";
+import { cn } from "@/utils/utils";
+import { useChatStore } from "@/store/chat";
+import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { ModelTierIcon } from "../models/model-tier-icon";
 
 const schema = z.object({
   message: z.string().optional(),
   files: z
     .array(
       z.instanceof(File, {
-        message: 'Por favor, selecione um arquivo válido',
+        message: "Por favor, selecione um arquivo válido",
       }),
     )
     .refine(
       (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
-      `${Files.length > 1 ? 'Os arquivos devem ter no máximo 10MB cada' : 'O arquivo deve ter no máximo 10MB'}`,
+      `${Files.length > 1 ? "Os arquivos devem ter no máximo 10MB cada" : "O arquivo deve ter no máximo 10MB"}`,
     )
     .optional()
     .nullable(),
   audio: z
     .instanceof(File, {
-      message: 'Por favor, selecione um arquivo válido',
+      message: "Por favor, selecione um arquivo válido",
     })
     .optional()
     .nullable(),
-})
+});
 
 export function ChatForm() {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    mode: 'onChange',
+    mode: "onChange",
     defaultValues: {
-      message: '',
+      message: "",
       files: null,
       audio: null,
     },
-  })
+  });
 
   const {
     files,
-    previewUrls,
+    images,
     fileInputRef,
     handleThumbnailClick,
     validateAndProcessFileInput,
     handleRemoveAll,
     handleRemoveItem,
-  } = useMultipleUploads()
+  } = useMultipleUploads();
 
   const {
     input,
@@ -89,94 +94,70 @@ export function ChatForm() {
     onStop,
     buttonSubmitRef,
     inputRef,
-  } = useChatInstance()
+  } = useChatInstance();
+
+  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode);
 
   const onRemoveItem = (index: number) => {
-    handleRemoveItem(index)
+    handleRemoveItem(index);
 
     if (files.length <= 1) {
-      form.setValue('files', null)
+      form.setValue("files", null);
     }
 
-    const remainingFiles = [...files]
-    remainingFiles.splice(index, 1)
-    form.setValue('files', remainingFiles)
-  }
+    const remainingFiles = [...files];
+    remainingFiles.splice(index, 1);
+    form.setValue("files", remainingFiles);
+  };
 
   const handleSubmit = ({ files, audio }: z.infer<typeof schema>) => {
-    const dataTransfer = new DataTransfer()
+    const dataTransfer = new DataTransfer();
 
     if (files && files.length > 0) {
-      files.forEach((file) => dataTransfer.items.add(file))
-      handleRemoveAll()
+      files.forEach((file) => dataTransfer.items.add(file));
+      handleRemoveAll();
     }
 
     if (audio && audio.size > 0) {
-      dataTransfer.items.add(audio)
+      dataTransfer.items.add(audio);
     }
 
     onSubmitChat(undefined, {
       experimental_attachments: dataTransfer.files,
-    })
+    });
 
-    form.reset()
-  }
+    form.reset();
+  };
 
   const onSetAudio = (audio: File) => {
-    form.setValue('audio', audio)
-  }
+    form.setValue("audio", audio);
+  };
 
   React.useEffect(() => {
     if (files.length > 0) {
-      form.setValue('files', files)
+      form.setValue("files", files);
     }
-  }, [files, form])
+  }, [files, form]);
 
   return (
     <Form {...form}>
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="overflow-y-auto rounded-md border border-input"
+        className={cn(
+          "!m-0 items-center overflow-y-auto rounded-md border border-input bg-sidebar px-2",
+          isGhostChatMode && "border-dashed",
+        )}
       >
-        {previewUrls.length > 0 && (
+        {images.length > 0 && (
           <ImagePreview
             className="size-14"
-            previewUrls={previewUrls}
+            images={images}
             onRemoveItem={onRemoveItem}
           />
         )}
-        <FormField
-          control={form.control}
-          name="message"
-          render={({ field }) => (
-            <FormItem className="relative !border-0">
-              <FormControl>
-                <AIInputTextarea
-                  name="message"
-                  ref={inputRef}
-                  autoFocus={status === 'ready'}
-                  className="h-14 resize-none !border-0 transition-all duration-300 focus-visible:ring-0"
-                  disabled={status === 'streaming'}
-                  value={input}
-                  onChange={(ev) => {
-                    field.onChange(ev)
-                    onInputChange(ev)
-                  }}
-                />
-              </FormControl>
-              {!input && (
-                <TypingText
-                  className="pointer-events-none absolute left-2 top-[22%] -translate-y-1/2 text-sm text-muted-foreground transition-all duration-300"
-                  text="O que você quer saber?"
-                  loop
-                />
-              )}
-            </FormItem>
-          )}
-        />
-        <AIInputToolbar className="p-2">
-          <AIInputTools className="gap-1.5">
-            <div className="flex items-center gap-1">
+        <AIInputToolbar>
+          <AIInputTools className="mr-1 w-full flex-1 items-center">
+            <div className="flex shrink-0 items-center">
               <FormField
                 control={form.control}
                 name="files"
@@ -189,13 +170,13 @@ export function ChatForm() {
                         size="icon"
                         onClick={handleThumbnailClick}
                       >
-                        <ImageUp className="size-4" />
+                        <Paperclip className="size-4 text-muted-foreground" />
                         <Input
                           type="file"
                           ref={fileInputRef}
                           onChange={(ev) => {
-                            validateAndProcessFileInput(ev)
-                            field.onChange(ev.target.files)
+                            validateAndProcessFileInput(ev);
+                            field.onChange(ev.target.files);
                           }}
                           className="absolute inset-0 z-10 hidden"
                           accept="image/*"
@@ -208,17 +189,44 @@ export function ChatForm() {
                 )}
               />
             </div>
-            <Separator orientation="vertical" className="h-6" />
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem className="relative flex flex-1 items-center">
+                  <FormControl>
+                    <AIInputTextarea
+                      name="message"
+                      ref={inputRef}
+                      autoFocus={status === "ready"}
+                      disabled={status === "streaming"}
+                      value={input}
+                      onChange={(ev) => {
+                        field.onChange(ev);
+                        onInputChange(ev);
+                      }}
+                    />
+                  </FormControl>
+                  {!input && (
+                    <TypingText
+                      loop
+                      text="O que você quer saber?"
+                      className="pointer-events-none absolute left-1 top-[1.4375rem] -translate-y-1/2 text-sm text-muted-foreground sm:top-[1.25rem]"
+                    />
+                  )}
+                </FormItem>
+              )}
+            />
             <AIInputModelSelect
               value={model.name}
               onValueChange={onModelChange}
             >
               <AIInputModelSelectTrigger
-                className="gap-1 border-none px-1.5 text-sm transition-all"
-                disabled={status === 'streaming'}
+                className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all sm:!px-6 [&>span]:hidden sm:[&>span]:inline-flex [&>svg]:inline-flex sm:[&>svg]:hidden"
+                disabled={status === "streaming"}
               >
-                <AIInputModelSelectValue />
-                <ChevronsUpDown size={16} />
+                <span>{model.name}</span>
+                <ModelTierIcon tier={model.tier} className="size-4" />
               </AIInputModelSelectTrigger>
               <AIInputModelSelectContent className="bg-card">
                 {models.map((m) => (
@@ -236,20 +244,27 @@ export function ChatForm() {
                       width={16}
                       height={16}
                     />
-                    <span className={cn(m.premium && "bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent")}>
+                    <span
+                      className={cn(
+                        m.premium &&
+                          "bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent",
+                      )}
+                    >
                       {m.name}
                     </span>
                   </AIInputModelSelectItem>
                 ))}
+                <Separator orientation="horizontal" />
+                <TemporaryChatSwitch />
               </AIInputModelSelectContent>
             </AIInputModelSelect>
           </AIInputTools>
-          {status === 'streaming' ? (
+          {status === "streaming" ? (
             <Button
               onClick={onStop}
               type="button"
               variant="default"
-              className="text-md min-w-[3rem] rounded-lg font-bold"
+              className="text-md min-w-[3rem] rounded-md font-bold"
               size="icon"
             >
               <StopCircle size={16} />
@@ -260,7 +275,7 @@ export function ChatForm() {
               disabled={form.formState.isSubmitting}
               type="submit"
               size="icon"
-              className="text-md min-w-[3rem] rounded-lg font-bold"
+              className="text-md min-w-[3rem] rounded-md font-bold"
             >
               <SendIcon size={16} />
             </Button>
@@ -268,10 +283,29 @@ export function ChatForm() {
             <RecorderAudio
               onSetAudio={onSetAudio}
               isSubmitting={form.formState.isSubmitting}
-            />
+              />
           )}
         </AIInputToolbar>
       </AIForm>
     </Form>
-  )
+  );
+}
+
+function TemporaryChatSwitch() {
+  const { defineChatToGhostMode, isGhostChatMode } = useChatStore();
+
+  return (
+    <div className="flex w-full items-center justify-between rounded-md p-2 text-sm transition-colors hover:bg-accent">
+      <label htmlFor="ghost-mode-switch" className="flex items-center gap-2">
+        <Ghost size={16} className="text-muted-foreground" />
+        Conversa temporária
+      </label>
+      <Switch
+        id="ghost-mode-switch"
+        checked={isGhostChatMode}
+        onCheckedChange={() => defineChatToGhostMode((prev) => !prev)}
+        aria-label="Conversa temporária"
+      />
+    </div>
+  );
 }

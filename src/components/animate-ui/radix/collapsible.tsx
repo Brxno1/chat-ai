@@ -92,7 +92,7 @@ function CollapsibleContent({
           data-slot="collapsible-content"
           layout
           animate={isOpen ?
-            { opacity: 1, height: 'auto', overflow: 'hidden' } :
+            { opacity: 1, height: 'auto' } :
             { opacity: 0, height: 0, overflow: 'hidden' }
           }
           transition={transition}

@@ -45,7 +45,7 @@ export default async function ChatPageWithId({
   return (
     <ChatProvider
       initialChats={chats}
-      initialMessages={chat.messages}
+      initialMessages={chat?.messages ?? []}
       currentChatId={chatId}
       cookieModel={model}
     >

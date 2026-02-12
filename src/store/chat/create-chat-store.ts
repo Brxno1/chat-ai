@@ -2,12 +2,12 @@ import { Message } from '@ai-sdk/react'
 import { persist } from 'zustand/middleware'
 import { createStore } from 'zustand/vanilla'
 
-import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
+import { Chat } from '@/services/database/generated'
 import { models } from '@/app/chat/models/definitions'
 import { Model } from '@/types/model'
 
 export interface StateChatStore {
-  chats: ChatWithMessages[] | []
+  chats: Chat[] | []
   chatId: string | undefined
   isGhostChatMode: boolean
   messages: Message[]
@@ -27,7 +27,7 @@ export interface ActionsChatStore {
   resetChatState: () => void
   resetModelState: () => void
   setIsRateLimitReached: (value: boolean) => void
-  setChats: (chats: ChatWithMessages[]) => void
+  setChats: (chats: Chat[]) => void
   defineChatInstanceKey: (key: string) => void
   getChatInstanceKey: () => string
 }

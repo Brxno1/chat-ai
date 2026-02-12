@@ -4,24 +4,20 @@ import { type Message as UIMessage } from '@ai-sdk/react'
 import type { ChatRequestOptions } from 'ai'
 import { ChangeEvent, createContext, useContext } from 'react'
 
-import { ChatWithMessages } from '@/app/api/chat/actions/get-chats'
+import { Chat } from '@/services/database/generated'
+import type { Model } from '@/types/model'
 
 type States = {
-  chats?: ChatWithMessages[]
+  chats?: Chat[]
   input: string
   messages: UIMessage[]
   status: 'streaming' | 'error' | 'submitted' | 'ready'
   isTranscribing: boolean
-  model: {
-    id: string
-    name: string
-    provider: string
-    disabled?: boolean
-  }
+  model: Model
 }
 
 type Actions = {
-  inputRef: React.RefObject<HTMLTextAreaElement | null>
+    inputRef: React.RefObject<HTMLTextAreaElement | null>
   buttonSubmitRef: React.RefObject<HTMLButtonElement | null>
   setMessages: (messages: UIMessage[]) => void
   onInputChange: (e: ChangeEvent<HTMLTextAreaElement>) => void

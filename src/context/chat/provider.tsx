@@ -61,11 +61,7 @@ export function ChatProvider({
     const selectedModel = models.find((m) => m.name === name)
 
     if (selectedModel) {
-      setModel({
-        id: selectedModel.id,
-        name: selectedModel.name,
-        provider: selectedModel.provider,
-      })
+      setModel(selectedModel)
     }
   }
 

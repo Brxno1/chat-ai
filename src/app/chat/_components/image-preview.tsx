@@ -21,18 +21,22 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { cn } from '@/utils/utils'
-import { DialogDescription } from '@/components/ui/dialog'
+
+type ImageItem = {
+  url: string
+  name?: string
+}
 
 interface ImagePreviewProps {
   className?: string
-  previewUrls: string[]
+  images: ImageItem[]
   onRemoveItem?: (index: number) => void
   noRemove?: boolean
 }
 
 export function ImagePreview({
   className,
-  previewUrls,
+  images,
   onRemoveItem,
   noRemove = false,
 }: ImagePreviewProps) {
@@ -49,7 +53,7 @@ export function ImagePreview({
 
   return (
     <div className="flex max-w-fit flex-row items-center justify-center gap-2 rounded-md p-1.5">
-      {previewUrls.map((url, index) => (
+      {images.map(({ url, name }, index) => (
         <div
           key={index}
           className="group relative flex max-w-fit flex-row items-center justify-center rounded-md"
@@ -82,7 +86,7 @@ export function ImagePreview({
                 <div className="relative flex h-full items-center justify-center p-4">
                   <Image
                     src={url}
-                    alt="Preview"
+                    alt={name || 'Preview'}
                     width={320}
                     height={320}
                     className="size-full max-h-[70vh] rounded-md object-cover"
@@ -112,7 +116,7 @@ export function ImagePreview({
                 </Avatar>
               </DialogTrigger>
               <DialogContent
-                className="fixed left-[40%] top-[20%] z-50 -translate-x-1/2 -translate-y-1/2 rounded-md [&>button]:hidden"
+                className="fixed left-[30%] top-[20%] z-50 -translate-x-1/2 -translate-y-1/2 rounded-md"
                 from="left"
                 transition={{
                   type: 'spring',
@@ -121,12 +125,12 @@ export function ImagePreview({
                 }}
               >
                 <DialogHeader>
-                  <DialogTitle>Preview</DialogTitle>
+                  <DialogTitle>{name || 'Imagem'}</DialogTitle>
                 </DialogHeader>
                 <div>
                   <Image
                     src={url}
-                    alt="Preview"
+                    alt={name || 'Preview'}
                     width={520}
                     height={520}
                     className="size-[30rem] rounded-md object-cover"

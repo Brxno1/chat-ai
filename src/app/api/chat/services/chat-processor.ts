@@ -41,21 +41,6 @@ export async function processChatAndSaveMessages({
     })),
   ]
 
-  if (isGhostChatMode || !userId) {
-    const { streamResult, streamError } = await createStreamText({
-      messages: finalMessages,
-      modelId,
-    })
-
-    return {
-      stream: streamResult,
-      error: streamError || undefined,
-      headerChatId: undefined,
-    }
-  }
-
-  const chatId = headerChatId || crypto.randomUUID()
-  const isNewChat = !headerChatId
 
   const { streamResult, streamError } = await createStreamText({
     messages: finalMessages,
@@ -68,6 +53,16 @@ export async function processChatAndSaveMessages({
       error: streamError || undefined,
     }
   }
+
+  if (isGhostChatMode || !userId) {
+    return {
+      stream: streamResult,
+      headerChatId: undefined,
+    }
+  }
+
+  const chatId = headerChatId || crypto.randomUUID()
+  const isNewChat = !headerChatId
 
   setImmediate(async () => {
     try {

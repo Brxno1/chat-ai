@@ -74,7 +74,7 @@ function SidebarNavLink({
 }: SidebarGenericProps<SidebarNavLinkProps>) {
   return (
     <Link
-      href={href}
+      href={href as any}
       onClick={onClick}
       className={cn(
         'flex items-center justify-start text-secondary-foreground rounded-md py-2 text-sm transition-all hover:bg-accent hover:border-border',
