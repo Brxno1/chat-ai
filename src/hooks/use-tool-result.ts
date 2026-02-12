@@ -1,5 +1,3 @@
-import { ToolInvocation } from 'ai'
-
 import {
   isWeatherResult,
   ToolInvocationResult,
@@ -7,10 +5,18 @@ import {
 } from '@/types/tool-results'
 import { WeatherToolResponse } from '@/types/weather'
 
-type ToolInvocationWithResult = ToolInvocation & { result: unknown }
+type ToolInvocationPart = {
+  type: string
+  toolCallId: string
+  toolName: string
+  state: string
+  output?: unknown
+}
+
+type ToolInvocationWithResult = ToolInvocationPart & { output: unknown }
 
 export function useToolResult<T extends ToolName>(
-  toolInvocation: ToolInvocation,
+  toolInvocation: ToolInvocationPart,
   toolName: T,
 ) {
   if (
@@ -21,9 +27,9 @@ export function useToolResult<T extends ToolName>(
   }
 
   const invocation = toolInvocation as ToolInvocationWithResult
-  const results = Array.isArray(invocation.result)
-    ? invocation.result
-    : [invocation.result]
+  const results = Array.isArray(invocation.output)
+    ? invocation.output
+    : [invocation.output]
 
   const typedResults = results as ToolInvocationResult<T>[]
 
@@ -42,11 +48,11 @@ export function useToolResult<T extends ToolName>(
   }
 }
 
-export function useWeatherResult(toolInvocation: ToolInvocation) {
+export function useWeatherResult(toolInvocation: ToolInvocationPart) {
   const invocation = toolInvocation as ToolInvocationWithResult
-  const results = Array.isArray(invocation.result)
-    ? invocation.result
-    : [invocation.result]
+  const results = Array.isArray(invocation.output)
+    ? invocation.output
+    : [invocation.output]
 
   const weatherResults = results.filter(isWeatherResult)
   const errorResults = results.filter(

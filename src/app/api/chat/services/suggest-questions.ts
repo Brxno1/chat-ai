@@ -1,7 +1,7 @@
 'use server'
 
 import { GoogleGenAI } from '@google/genai'
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 
 import { env } from '@/lib/env'
 
@@ -13,12 +13,22 @@ const genAI = new GoogleGenAI({
 
 const model = 'gemini-2.5-flash'
 
-export async function suggestQuestions(message: Message) {
+function getTextFromParts(message: UIMessage): string {
+  return message.parts
+    .filter(
+      (part): part is { type: 'text'; text: string } => part.type === 'text',
+    )
+    .map((part) => part.text)
+    .join('')
+}
+
+export async function suggestQuestions(message: UIMessage) {
   try {
+    const messageText = getTextFromParts(message)
     const stream = await genAI.models.generateContentStream({
       model,
       contents: {
-        text: message.content,
+        text: messageText,
       },
       config: {
         responseMimeType: 'text/plain',
@@ -30,9 +40,7 @@ export async function suggestQuestions(message: Message) {
 
     for await (const chunk of stream) {
       if (chunk.text) {
-        const formattedQuestion = chunk.text
-          .split('\n')
-          .filter((q) => q.trim())
+        const formattedQuestion = chunk.text.split('\n').filter((q) => q.trim())
 
         questions.push(...formattedQuestion)
       }

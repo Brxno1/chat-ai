@@ -1,17 +1,17 @@
 'use client'
 
-import { type Message as UIMessage } from '@ai-sdk/react'
+import { type FileUIPart, type UIMessage } from 'ai'
 import React from 'react'
 import { toast } from 'sonner'
 
 import { models } from '@/app/chat/models/definitions'
 import { useChatController } from '@/hooks/use-chat-controller'
 import { useTranscribeAudio } from '@/hooks/use-transcribe-audio'
+import { Chat } from '@/services/database/generated'
 import { useChatStore } from '@/store/chat'
 import type { ChatMessage as ChatMessageType } from '@/types/chat'
 
 import { ChatContext, ChatContextProps } from './context'
-import { Chat } from '@/services/database/generated'
 
 export type ChatProviderProps = {
   children: React.ReactNode
@@ -19,6 +19,11 @@ export type ChatProviderProps = {
   initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
   currentChatId?: string
   cookieModel?: string | undefined
+}
+
+type SendMessageOptions = {
+  files?: File[]
+  body?: Record<string, unknown>
 }
 
 export function ChatProvider({
@@ -30,6 +35,7 @@ export function ChatProvider({
 }: ChatProviderProps) {
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const buttonSubmitRef = React.useRef<HTMLButtonElement | null>(null)
+  const [input, setInput] = React.useState('')
 
   const model = useChatStore((state) => state.model)
   const { setModel, resetChatState } = useChatStore()
@@ -38,13 +44,10 @@ export function ChatProvider({
     useTranscribeAudio()
 
   const {
-    input,
     messages,
     setMessages,
     status,
-    handleInputChange: onInputChange,
-    handleSubmit: onSubmitChat,
-    append,
+    sendMessage,
     stop: onStop,
   } = useChatController({
     initialMessages,
@@ -52,8 +55,46 @@ export function ChatProvider({
     initialModel: cookieModel,
   })
 
+  const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value)
+  }
+
+  const onSubmitChat = async (
+    event?: { preventDefault?: () => void },
+    options?: SendMessageOptions,
+  ) => {
+    event?.preventDefault?.()
+
+    if (!input.trim() && !options?.files?.length) return
+
+    const fileParts: FileUIPart[] = []
+
+    if (options?.files) {
+      for (const file of options.files) {
+        const base64 = await fileToBase64(file)
+        fileParts.push({
+          type: 'file',
+          mediaType: file.type,
+          filename: file.name,
+          url: base64,
+        })
+      }
+    }
+
+    sendMessage({
+      text: input,
+      files: fileParts.length > 0 ? fileParts : undefined,
+      metadata: {
+        createdAt: Date.now(),
+      },
+    })
+
+    setInput('')
+  }
+
   const onResetChat = () => {
     setMessages([])
+    setInput('')
     resetChatState()
   }
 
@@ -71,17 +112,7 @@ export function ChatProvider({
     try {
       const { transcription } = await transcribeAudio(audio)
 
-      append({
-        role: 'user',
-        content: transcription,
-        parts: [
-          {
-            type: 'text',
-            text: transcription,
-          },
-        ],
-        createdAt: new Date(),
-      })
+      sendMessage({ text: transcription })
     } catch (_error) {
       toast.error('Erro ao enviar áudio', { position: 'top-center' })
     }
@@ -110,6 +141,7 @@ export function ChatProvider({
     status,
     isTranscribing,
     setMessages,
+    setInput,
     onInputChange,
     onSubmitChat,
     onModelChange,
@@ -120,4 +152,13 @@ export function ChatProvider({
   }
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>
+}
+
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+  })
 }

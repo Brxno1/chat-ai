@@ -1,27 +1,26 @@
-import type { ChatMessage as ChatMessageType } from '@/types/chat'
+import type { UIMessage } from 'ai'
 
-export function getResultToolCallIds(message: ChatMessageType) {
+export function getResultToolCallIds(message: UIMessage) {
   return new Set(
     message.parts
-      ?.filter((part) => part.type === 'tool-invocation')
-      .map(
-        (part) =>
-          (part as { toolInvocation?: { toolCallId: string; state: string } })
-            .toolInvocation,
-      )
-      .filter(
-        (ti): ti is { toolCallId: string; state: string } =>
-          ti?.state === 'result' && !!ti.toolCallId,
-      )
-      .map((ti) => ti.toolCallId),
+      .filter((part) => part.type.startsWith('tool-'))
+      .filter((part) => {
+        const toolPart = part as { state?: string; toolCallId?: string }
+        const hasResult =
+          toolPart.state === 'result' ||
+          toolPart.state === 'output-available' ||
+          toolPart.state === 'done'
+        return hasResult && !!toolPart.toolCallId
+      })
+      .map((part) => (part as { toolCallId: string }).toolCallId),
   )
 }
 
-export function extractReasoningParts(message: ChatMessageType) {
+export function extractReasoningParts(message: UIMessage) {
   const reasoningParts =
     message.parts
-      ?.filter((part) => part.type === 'reasoning')
-      .map((p) => p.reasoning!)
+      .filter((part) => part.type === 'reasoning')
+      .map((p) => (p as { text: string }).text)
       .join(' ') || ''
 
   return reasoningParts

@@ -2,9 +2,9 @@
 
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
+import { useSidebar } from '@/components/animate-ui/radix/sidebar'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button, ButtonProps } from '@/components/ui/button'
-import { useSidebar } from '@/components/animate-ui/radix/sidebar'
 
 interface SidebarTriggerComponentProps {
   className?: string

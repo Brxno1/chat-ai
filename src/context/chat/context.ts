@@ -1,11 +1,15 @@
 'use client'
 
-import { type Message as UIMessage } from '@ai-sdk/react'
-import type { ChatRequestOptions } from 'ai'
+import { type UIMessage } from 'ai'
 import { ChangeEvent, createContext, useContext } from 'react'
 
 import { Chat } from '@/services/database/generated'
 import type { Model } from '@/types/model'
+
+type SendMessageOptions = {
+  files?: File[]
+  body?: Record<string, unknown>
+}
 
 type States = {
   chats?: Chat[]
@@ -17,15 +21,16 @@ type States = {
 }
 
 type Actions = {
-    inputRef: React.RefObject<HTMLTextAreaElement | null>
+  inputRef: React.RefObject<HTMLTextAreaElement | null>
   buttonSubmitRef: React.RefObject<HTMLButtonElement | null>
   setMessages: (messages: UIMessage[]) => void
+  setInput: (input: string) => void
   onInputChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
   onSubmitChat: (
     event?: {
       preventDefault?: () => void
     },
-    chatRequestOptions?: ChatRequestOptions,
+    options?: SendMessageOptions,
   ) => void
   onModelChange: (value: string) => void
   onStop: () => void

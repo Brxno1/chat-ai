@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai'
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 
 import { env } from '@/lib/env'
 
@@ -13,7 +13,7 @@ const genAI = new GoogleGenAI({
 const model = 'gemini-2.5-flash'
 
 export async function generateChatTitleWIthAI(
-  messages: Message[],
+  messages: UIMessage[],
 ): Promise<{ title: string }> {
   try {
     const firstUserMessage = messages.find((msg) => msg.role === 'user')

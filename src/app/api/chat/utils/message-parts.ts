@@ -34,24 +34,26 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
     return textFromParts
   }
 
-  const toolInvocationParts = parts.filter(
-    (part) => part.type === 'tool-invocation',
+  const toolInvocationParts = parts.filter((part) =>
+    part.type.startsWith('tool-'),
   )
 
   if (toolInvocationParts.length > 0) {
     return toolInvocationParts
       .map((part) => {
-        const { toolName } = part.toolInvocation!
+        const toolPart = part as {
+          toolName?: string
+          input?: Record<string, unknown>
+          args?: Record<string, unknown>
+        }
+        const toolName = toolPart.toolName
+        const args = toolPart.args ?? toolPart.input
 
         switch (toolName) {
           case 'getWeather':
-            return toolSummaries.getWeather(
-              part.toolInvocation!.args as ToolArgs['getWeather'],
-            )
+            return toolSummaries.getWeather(args as ToolArgs['getWeather'])
           case 'getNews':
-            return toolSummaries.getNews(
-              part.toolInvocation!.args as ToolArgs['getNews'],
-            )
+            return toolSummaries.getNews(args as ToolArgs['getNews'])
           default:
             return toolSummaries.default({})
         }

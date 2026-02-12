@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 
 import { api } from '@/lib/axios'
 
@@ -15,7 +15,7 @@ export function useGenerateSuggestions() {
     mutationFn: async ({
       message,
     }: {
-      message: Message
+      message: UIMessage
     }): Promise<GenerateSuggestionsResponse[]> => {
       const { data } = await api.post<GenerateSuggestionsResponse[]>(
         `/chat/suggestions`,

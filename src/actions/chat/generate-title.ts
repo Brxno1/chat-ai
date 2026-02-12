@@ -1,11 +1,11 @@
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 
 import { generateChatTitleWIthAI } from '@/app/api/chat/services/generate-chat-title'
 import { prisma } from '@/services/database/prisma'
 
 export async function generateTitle(
   finalChatId: string,
-  finalMessages: Message[],
+  finalMessages: UIMessage[],
 ) {
   try {
     const messageCount = await prisma.message.count({

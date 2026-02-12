@@ -23,23 +23,21 @@ import {
   AIInputModelSelectContent,
   AIInputModelSelectItem,
   AIInputModelSelectTrigger,
-  AIInputModelSelectValue,
   AIInputTextarea,
   AIInputToolbar,
   AIInputTools,
 } from "@/components/ui/kibo-ui/ai/input";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { useChatInstance } from "@/context/chat";
 import { useMultipleUploads } from "@/hooks/use-multiple-uploads";
+import { useChatStore } from "@/store/chat";
+import { cn } from "@/utils/utils";
 
 import { models } from "../models/definitions";
+import { ModelTierIcon } from "../models/model-tier-icon";
 import { ImagePreview } from "./image-preview";
 import { RecorderAudio } from "./recorder-audio";
-import { cn } from "@/utils/utils";
-import { useChatStore } from "@/store/chat";
-import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
-import { ModelTierIcon } from "../models/model-tier-icon";
 
 const schema = z.object({
   message: z.string().optional(),
@@ -111,19 +109,19 @@ export function ChatForm() {
   };
 
   const handleSubmit = ({ files, audio }: z.infer<typeof schema>) => {
-    const dataTransfer = new DataTransfer();
+    const allFiles: File[] = [];
 
     if (files && files.length > 0) {
-      files.forEach((file) => dataTransfer.items.add(file));
+      allFiles.push(...files);
       handleRemoveAll();
     }
 
     if (audio && audio.size > 0) {
-      dataTransfer.items.add(audio);
+      allFiles.push(audio);
     }
 
     onSubmitChat(undefined, {
-      experimental_attachments: dataTransfer.files,
+      files: allFiles.length > 0 ? allFiles : undefined,
     });
 
     form.reset();
@@ -222,11 +220,24 @@ export function ChatForm() {
               onValueChange={onModelChange}
             >
               <AIInputModelSelectTrigger
-                className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all sm:!px-6 [&>span]:hidden sm:[&>span]:inline-flex [&>svg]:inline-flex sm:[&>svg]:hidden"
+                className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all [&>span]:hidden sm:[&>span]:inline-flex [&>svg]:inline-flex sm:[&>svg]:hidden"
                 disabled={status === "streaming"}
               >
-                <span>{model.name}</span>
-                <ModelTierIcon tier={model.tier} className="size-4" />
+                <span className="flex items-center gap-1">
+                  <Image
+                    src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+                    alt={model.provider}
+                    className="mr-2 inline-flex size-4 rounded-sm"
+                    width={16}
+                    height={16}
+                  />
+                  {model.name}
+                  <ChevronsUpDown className="size-4 text-muted-foreground" />
+                </span>
+                <ModelTierIcon
+                  tier={model.tier}
+                  className="size-4 text-muted-foreground"
+                />
               </AIInputModelSelectTrigger>
               <AIInputModelSelectContent className="bg-card">
                 {models.map((m) => (
@@ -283,7 +294,7 @@ export function ChatForm() {
             <RecorderAudio
               onSetAudio={onSetAudio}
               isSubmitting={form.formState.isSubmitting}
-              />
+            />
           )}
         </AIInputToolbar>
       </AIForm>
@@ -292,7 +303,10 @@ export function ChatForm() {
 }
 
 function TemporaryChatSwitch() {
-  const { defineChatToGhostMode, isGhostChatMode } = useChatStore();
+  const defineChatToGhostMode = useChatStore(
+    (state) => state.defineChatToGhostMode,
+  );
+  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode);
 
   return (
     <div className="flex w-full items-center justify-between rounded-md p-2 text-sm transition-colors hover:bg-accent">

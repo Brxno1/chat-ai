@@ -1,6 +1,6 @@
 'use client'
 
-import { Message as UIMessage } from '@ai-sdk/react'
+import type { UIMessage } from 'ai'
 import React from 'react'
 
 import { ContainerWrapper } from '@/components/container'
@@ -24,14 +24,19 @@ interface ChatWeatherProps {
 
 export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
   const [stuckToolIds, setStuckToolIds] = React.useState<Set<string>>(new Set())
-  const { toolCallId, args, state, result } = toolInvocation
+  const { toolCallId, state } = toolInvocation
+  const args = toolInvocation.args ?? toolInvocation.input
+  const result = toolInvocation.result ?? toolInvocation.output
 
   React.useEffect(() => {
     if (!message.parts) return
 
     const toolCalls = message.parts
-      .filter((part) => part.type === 'tool-invocation')
-      .map((part) => part.toolInvocation)
+      .filter((part) => part.type.startsWith('tool-'))
+      .map(
+        (part) =>
+          part as { toolCallId: string; toolName: string; state: string },
+      )
       .filter((tool) => tool.state === 'call' && tool.toolName === 'getWeather')
 
     if (toolCalls.length === 0) return
@@ -52,16 +57,29 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
       variant={'chat'}
       className="text-xs text-muted-foreground hover:bg-transparent"
     >
-      {formatDateToLocaleWithHour(message.createdAt!)}
+      {formatDateToLocaleWithHour(
+        message.createdAt ??
+          ((message.metadata as { createdAt?: number })?.createdAt
+            ? new Date((message.metadata as { createdAt?: number }).createdAt!)
+            : undefined),
+      )}
     </Badge>
   )
 
   const renderContent = () => {
-    switch (state) {
-      case 'result':
-        return (
-          <div className="mr-auto grid grid-cols-1 gap-2.5 transition-all duration-300 lg:grid-cols-2">
-            {result.map((weatherResult: WeatherToolResponse, index: number) =>
+    const locations = args?.location ?? []
+
+    // v6 states: 'input-streaming', 'call', 'output-available', 'output-denied', 'done'
+    const hasResult =
+      state === 'result' || state === 'output-available' || state === 'done'
+    const isLoading = state === 'call' || state === 'input-streaming'
+
+    if (hasResult && result) {
+      const resultArray = Array.isArray(result) ? result : [result]
+      return (
+        <div className="mr-auto grid grid-cols-1 gap-2.5 transition-all duration-300 lg:grid-cols-2">
+          {resultArray.map(
+            (weatherResult: WeatherToolResponse, index: number) =>
               weatherResult.error ? (
                 <WeatherErrorCard
                   key={`weather-error-${index}`}
@@ -72,27 +90,27 @@ export function ChatWeather({ toolInvocation, message }: ChatWeatherProps) {
               ) : (
                 <WeatherCard key={`weather-${index}`} result={weatherResult} />
               ),
-            )}
+          )}
+        </div>
+      )
+    }
+
+    if (isLoading) {
+      if (stuckToolIds.has(toolCallId)) {
+        return (
+          <div className="mr-auto max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
+            <WeatherErrorCard
+              location={formatLocations(locations)}
+              error={`Não foi possível obter os dados meteorológicos para ${formatLocations(locations)}. Por favor, tente novamente ou verifique se o nome da localização está correto.`}
+              code="NETWORK_ERROR"
+            />
           </div>
         )
-
-      case 'call':
-        if (stuckToolIds.has(toolCallId)) {
-          return (
-            <div className="mr-auto max-md:max-w-[95%] md:max-w-[80%] lg:max-w-[73%]">
-              <WeatherErrorCard
-                location={formatLocations(args.location)}
-                error={`Não foi possível obter os dados meteorológicos para ${formatLocations(args.location)}. Por favor, tente novamente ou verifique se o nome da localização está correto.`}
-                code="NETWORK_ERROR"
-              />
-            </div>
-          )
-        }
-        return <LoadingWeather location={args.location} />
-
-      default:
-        return <WeatherSkeleton location={args.location} />
+      }
+      return <LoadingWeather location={locations} />
     }
+
+    return <WeatherSkeleton location={locations} />
   }
 
   return (

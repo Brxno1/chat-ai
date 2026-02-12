@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { LayoutDashboard, MessageSquare } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { LayoutDashboard, MessageSquare } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 import {
   Sidebar,
@@ -10,52 +10,52 @@ import {
   SidebarGroup,
   SidebarHeader,
   useSidebar,
-} from "@/components/animate-ui/radix/sidebar";
-import { SidebarHeaderTitle } from "@/components/dashboard/sidebar";
-import { Logo } from "@/components/logo";
-import { Separator } from "@/components/ui/separator";
-import { useChatInstance } from "@/context/chat";
-import { useSessionUser } from "@/context/user";
-import { cn } from "@/utils/utils";
+} from '@/components/animate-ui/radix/sidebar'
+import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
+import { Logo } from '@/components/logo'
+import { Separator } from '@/components/ui/separator'
+import { useChatInstance } from '@/context/chat'
+import { useSessionUser } from '@/context/user'
+import { cn } from '@/utils/utils'
 
-import { Historical } from "../../chat/_components/historical";
-import { SidebarLinks } from "./sidebar-links";
-import { SidebarTriggerComponent } from "./sidebar-trigger";
-import { SidebarTriggerComponentMobile } from "./sidebar-trigger-mobile";
-import { UserDropdown } from "./user-dropdown";
+import { Historical } from '../../chat/_components/historical'
+import { SidebarLinks } from './sidebar-links'
+import { SidebarTriggerComponent } from './sidebar-trigger'
+import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
+import { UserDropdown } from './user-dropdown'
 
 type ChatSidebarProps = {
-  className?: string;
-};
+  className?: string
+}
 
 export function ChatSidebar({ className }: ChatSidebarProps) {
-  const pathname = usePathname();
-  const isActivePath = (path: string) => pathname.startsWith(path);
+  const pathname = usePathname()
+  const isActivePath = (path: string) => pathname.startsWith(path)
 
-  const { open, isMobile } = useSidebar();
-  const { onResetChat } = useChatInstance();
-  const { user } = useSessionUser();
+  const { open, isMobile } = useSidebar()
+  const { onResetChat } = useChatInstance()
+  const { user } = useSessionUser()
 
   const links = [
     {
-      href: "/",
+      href: '/',
       icon: MessageSquare,
-      label: "Chat",
+      label: 'Chat',
       onClick: onResetChat,
     },
     {
-      href: "/dashboard",
+      href: '/dashboard',
       icon: LayoutDashboard,
-      label: "Dashboard",
+      label: 'Dashboard',
     },
-  ];
+  ]
 
   return (
     <Sidebar
       collapsible="icon"
       side="left"
-      className={cn(className, "group/sidebar border border-input")}
-      data-sidebar={open ? "open" : "closed"}
+      className={cn(className, 'group/sidebar border border-input')}
+      data-sidebar={open ? 'open' : 'closed'}
     >
       <SidebarHeader className="w-full !border-r-0 group-data-[sidebar=closed]/sidebar:py-3">
         <SidebarHeaderTitle className="flex w-full items-center justify-between p-1.5">
@@ -103,5 +103,5 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         <UserDropdown />
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }

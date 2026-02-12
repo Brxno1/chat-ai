@@ -8,4 +8,3 @@ export type Model = {
   disabled?: boolean
   tier?: ModelTier
 }
-

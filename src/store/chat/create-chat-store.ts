@@ -2,8 +2,8 @@ import { Message } from '@ai-sdk/react'
 import { persist } from 'zustand/middleware'
 import { createStore } from 'zustand/vanilla'
 
-import { Chat } from '@/services/database/generated'
 import { models } from '@/app/chat/models/definitions'
+import { Chat } from '@/services/database/generated'
 import { Model } from '@/types/model'
 
 export interface StateChatStore {

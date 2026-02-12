@@ -1,12 +1,12 @@
 import { tool } from 'ai'
 import { z } from 'zod'
 
-import { getTodosAction } from '@/app/api/todo/actions/get-todos'
+import { getTodosAction } from '@/actions/todo/get-todos'
 
 export const countTodosTool = tool({
   description:
     'Conte quantos todos (tarefas) o usuário tem. Use esta ferramenta APENAS quando o usuário estiver LOGADO (isLoggedIn = true) e perguntar sobre a quantidade de tarefas, to-dos. Se o usuário NÃO estiver logado, NÃO use esta ferramenta e em vez disso informe que é necessário fazer login para acessar os to-dos.',
-  parameters: z.object({}),
+  inputSchema: z.object({}),
   execute: async () => {
     const { todos } = await getTodosAction()
 

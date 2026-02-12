@@ -1,39 +1,47 @@
 'use client'
 
-import type { Message } from '@ai-sdk/react'
+import type { UIMessage } from 'ai'
 
 import AudioPlayer from './audio-player'
 import { ImagePreview } from './image-preview'
 
-type AttachmentsProps = {
-  attachments: Message['experimental_attachments']
+type FilePart = {
+  type: 'file'
+  url: string
+  mediaType: string
+  filename?: string
 }
-export function Attachments({ attachments }: AttachmentsProps) {
-  if (!attachments) return null
 
-  const { images, audioAttachments } = attachments.reduce(
-    (acc, attachment) => {
-      if (attachment.contentType?.startsWith('image/')) {
-        acc.images.push({ url: attachment.url, name: attachment.name })
-      } else if (attachment.contentType?.startsWith('audio/')) {
-        acc.audioAttachments.push(attachment)
+type AttachmentsProps = {
+  parts: UIMessage['parts']
+}
+
+export function Attachments({ parts }: AttachmentsProps) {
+  const fileParts = parts.filter(
+    (part): part is FilePart => part.type === 'file',
+  )
+
+  if (fileParts.length === 0) return null
+
+  const { images, audioAttachments } = fileParts.reduce(
+    (acc, part) => {
+      if (part.mediaType?.startsWith('image/')) {
+        acc.images.push({ url: part.url, name: part.filename })
+      } else if (part.mediaType?.startsWith('audio/')) {
+        acc.audioAttachments.push(part)
       }
       return acc
     },
     {
       images: [] as { url: string; name?: string }[],
-      audioAttachments: [] as NonNullable<typeof attachments>,
+      audioAttachments: [] as FilePart[],
     },
   )
 
   return (
     <>
       {images.length > 0 && (
-        <ImagePreview
-          images={images}
-          noRemove
-          className="size-16 rounded-md"
-        />
+        <ImagePreview images={images} noRemove className="size-16 rounded-md" />
       )}
 
       {audioAttachments.length > 0 && (

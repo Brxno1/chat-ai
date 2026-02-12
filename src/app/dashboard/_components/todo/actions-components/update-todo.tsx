@@ -47,9 +47,7 @@ const schema = z.object({
           code: z.ZodIssueCode.custom,
           message: 'O título não pode conter apenas espaços',
         })
-        return false
       }
-      return true
     }),
 })
 

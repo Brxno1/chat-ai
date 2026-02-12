@@ -1,10 +1,10 @@
 'use server'
 
-import { type Message, type StreamTextResult } from 'ai'
+import { type UIMessage } from 'ai'
 
 import type { MessageRole, Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
-import { AllTools } from '@/types/chat'
+import { StreamResult } from '@/types/chat'
 
 import { processStreamResult } from '../../app/api/chat/services/process-stream-result'
 import { errorHandler } from '../../app/api/chat/utils/error-handler'
@@ -43,7 +43,7 @@ async function findOrCreateChat(
 }
 
 async function saveMessages(
-  messagesToSave: Message[],
+  messagesToSave: UIMessage[],
   chatId: string,
   userId: string,
   attachments?: {
@@ -108,7 +108,7 @@ async function saveMessages(
 }
 
 type ChatResponse = {
-  stream: StreamTextResult<AllTools, never>
+  stream: StreamResult
   chatId: string
   userId: string
 }
