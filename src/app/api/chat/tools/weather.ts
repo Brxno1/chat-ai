@@ -67,7 +67,7 @@ async function fetchWeatherData(
 
 export const weatherTool = createTool({
   description: 'Disponibiliza a previsão do tempo para um ou mais locais',
-  parameters: z.object({
+  inputSchema: z.object({
     location: z
       .array(z.string())
       .describe('Os locais para obter a previsão do tempo'),

@@ -1,6 +1,6 @@
 'use server'
 
-import { Message as UIMessage } from '@ai-sdk/react'
+import type { UIMessage } from 'ai'
 
 import { extractTextFromParts } from '@/app/api/chat/utils/message-parts'
 import { Chat } from '@/services/database/generated'
@@ -42,7 +42,7 @@ export async function getChatById(
 
   const messagesWithParts: (ChatMessage & UIMessage)[] = chat.messages.map(
     (message) => {
-      let parts: MessagePart[]
+      let parts: MessagePart[] = []
 
       try {
         const parsedParts = JSON.parse(message.parts as string)
@@ -54,15 +54,28 @@ export async function getChatById(
         parts = []
       }
 
+      if (message.attachments && message.attachments.length > 0) {
+        const fileParts = message.attachments.map((att) => ({
+          type: 'file' as const,
+          mediaType: att.contentType,
+          filename: att.name,
+          url: att.url,
+        }))
+        parts = [...fileParts, ...parts]
+      }
+
+      const textContent = extractTextFromParts(parts)
+      if (parts.length === 0 || !parts.some((p) => p.type === 'text')) {
+        parts.unshift({ type: 'text', text: textContent || '' })
+      }
+
       return {
         id: message.id,
         createdAt: message.createdAt,
         userId: message.userId || userId,
-        content: extractTextFromParts(parts),
         role: String(message.role).toLowerCase() as UIMessage['role'],
         chatId: message.chatId,
         parts,
-        experimental_attachments: message.attachments,
       } as UIMessage & ChatMessage
     },
   )

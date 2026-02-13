@@ -15,7 +15,10 @@ export function formatDateToLocale(date: Date): string {
   return format(date, 'dd/MM/yyyy HH:mm', { locale: ptBR })
 }
 
-export function formatDateToLocaleWithHour(date: Date): string {
+export function formatDateToLocaleWithHour(date: Date | undefined): string {
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+    return ''
+  }
   return format(date, 'HH:mm', { locale: ptBR })
 }
 

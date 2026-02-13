@@ -157,7 +157,7 @@ export function HistoricalItem({ chat }: HistoricalItemProps) {
         size="icon"
         variant="link"
         onClick={handleDeleteChat}
-        className="absolute right-1 top-1/2 -translate-y-1/2 border-none transition-all opacity-0 duration-300 hover:bg-background/30 group-hover/item:opacity-100"
+        className="absolute right-1 top-1/2 -translate-y-1/2 border-none opacity-0 transition-all duration-300 hover:bg-background/30 group-hover/item:opacity-100"
       >
         <Trash2 size={16} />
       </Button>

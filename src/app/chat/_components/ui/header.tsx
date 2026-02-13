@@ -1,44 +1,44 @@
-"use client";
+'use client'
 
-import { MessageSquarePlus } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useHotkeys } from "react-hotkeys-hook";
+import { MessageSquarePlus } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useHotkeys } from 'react-hotkeys-hook'
 
-import { SidebarTriggerComponentMobile } from "@/app/_components/sidebar/sidebar-trigger-mobile";
-import { useSidebar } from "@/components/animate-ui/radix/sidebar";
-import { DashboardPageHeader } from "@/components/dashboard";
-import { Notifications } from "@/components/notifications";
-import { NotificationsMobile } from "@/components/notifications/notification-mobile";
-import { ToggleTheme } from "@/components/theme/toggle-theme";
-import { TooltipWrapper } from "@/components/tooltip-wrapper";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { useChatInstance } from "@/context/chat";
-import { useChatStore } from "@/store/chat";
+import { SidebarTriggerComponentMobile } from '@/app/_components/sidebar/sidebar-trigger-mobile'
+import { useSidebar } from '@/components/animate-ui/radix/sidebar'
+import { DashboardPageHeader } from '@/components/dashboard'
+import { Notifications } from '@/components/notifications'
+import { NotificationsMobile } from '@/components/notifications/notification-mobile'
+import { ToggleTheme } from '@/components/theme/toggle-theme'
+import { TooltipWrapper } from '@/components/tooltip-wrapper'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { useChatInstance } from '@/context/chat'
+import { useChatStore } from '@/store/chat'
 
 function ChatHeader() {
-  const router = useRouter();
-  const { isMobile } = useSidebar();
+  const router = useRouter()
+  const { isMobile } = useSidebar()
 
-  const resetChatState = useChatStore((state) => state.resetChatState);
+  const resetChatState = useChatStore((state) => state.resetChatState)
 
-  const { messages, setMessages } = useChatInstance();
+  const { messages, setMessages } = useChatInstance()
 
-  const hasMessages = messages.length > 0;
+  const hasMessages = messages.length > 0
 
   const handleCreateNewChat = () => {
-    setMessages([]);
-    resetChatState();
-    router.push("/");
-  };
+    setMessages([])
+    resetChatState()
+    router.push('/')
+  }
 
-  useHotkeys("shift+n", () => {
-    if (!hasMessages) return;
+  useHotkeys('shift+n', () => {
+    if (!hasMessages) return
 
-    router.push("/");
-    handleCreateNewChat();
-  });
+    router.push('/')
+    handleCreateNewChat()
+  })
 
   return (
     <DashboardPageHeader className="flex w-full items-center justify-between border-b border-input bg-sidebar pb-[1rem]">
@@ -69,7 +69,7 @@ function ChatHeader() {
         <ToggleTheme />
       </div>
     </DashboardPageHeader>
-  );
+  )
 }
 
-export { ChatHeader };
+export { ChatHeader }

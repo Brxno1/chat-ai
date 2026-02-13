@@ -1,12 +1,18 @@
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 
-export function filterValidMessages(messages: Message[]): Message[] {
+function getTextFromParts(message: UIMessage): string {
+  return message.parts
+    .filter(
+      (part): part is { type: 'text'; text: string } => part.type === 'text',
+    )
+    .map((part) => part.text)
+    .join('')
+}
+
+export function filterValidMessages(messages: UIMessage[]): UIMessage[] {
   return messages.filter((message) => {
-    if (!message.content || typeof message.content !== 'string') {
-      return false
-    }
-
-    if (message.content.trim().length === 0) {
+    const text = getTextFromParts(message)
+    if (!text || text.trim().length === 0) {
       return false
     }
 
@@ -18,30 +24,26 @@ export function filterValidMessages(messages: Message[]): Message[] {
   })
 }
 
-export function validateMessages(messages: Message[]): boolean {
+export function validateMessages(messages: UIMessage[]): boolean {
   if (!Array.isArray(messages) || messages.length === 0) {
     return false
   }
 
-  const hasSystemMessage = messages.some((msg) => msg.role === 'system')
-  if (!hasSystemMessage) {
-    return false
-  }
-
   return messages.every((msg) => {
-    if (msg.role === 'system') return true
-    return msg.content && msg.content.trim().length > 0
+    const text = getTextFromParts(msg)
+    return text && text.trim().length > 0
   })
 }
 
-export function removeDuplicateMessages(messages: Message[]): Message[] {
+export function removeDuplicateMessages(messages: UIMessage[]): UIMessage[] {
   if (messages.length <= 1) return messages
 
-  const uniqueMessages: Message[] = []
+  const uniqueMessages: UIMessage[] = []
   const seenMessages = new Set<string>()
 
   for (const message of messages) {
-    const messageKey = `${message.role}:${message.content}`
+    const text = getTextFromParts(message)
+    const messageKey = `${message.role}:${text}`
 
     if (!seenMessages.has(messageKey)) {
       uniqueMessages.push(message)
@@ -52,35 +54,35 @@ export function removeDuplicateMessages(messages: Message[]): Message[] {
   return uniqueMessages
 }
 
-export function processToolInvocations(messages: Message[]): Message[] {
+export function processToolInvocations(messages: UIMessage[]): UIMessage[] {
   const uniqueMessages = messages.filter((message, index) => {
     if (index === 0) return true
 
     if (message.role === 'user') return true
 
     const prevMessage = messages[index - 1]
-    return !(
-      message.role === prevMessage.role &&
-      message.content === prevMessage.content
-    )
+    const currentText = getTextFromParts(message)
+    const prevText = getTextFromParts(prevMessage)
+    return !(message.role === prevMessage.role && currentText === prevText)
   })
 
   return uniqueMessages.map((message, index) => {
-    if (
-      message.role === 'assistant' &&
-      message.content.includes('tool-invocation')
-    ) {
-      const hasResultAfter = uniqueMessages
-        .slice(index + 1)
-        .some(
-          (msg) =>
-            msg.role === 'assistant' && msg.content.includes('já obtidos'),
-        )
+    const text = getTextFromParts(message)
+    if (message.role === 'assistant' && text.includes('tool-invocation')) {
+      const hasResultAfter = uniqueMessages.slice(index + 1).some((msg) => {
+        const msgText = getTextFromParts(msg)
+        return msg.role === 'assistant' && msgText.includes('já obtidos')
+      })
 
       if (hasResultAfter) {
         return {
           ...message,
-          content: '[Consulta anterior já processada]',
+          parts: [
+            {
+              type: 'text' as const,
+              text: '[Consulta anterior já processada]',
+            },
+          ],
         }
       }
     }

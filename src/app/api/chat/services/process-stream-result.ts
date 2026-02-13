@@ -1,12 +1,8 @@
-import { StreamTextResult } from 'ai'
-
-import { AllTools, MessagePart, ToolResult } from '@/types/chat'
+import { MessagePart, StreamResult } from '@/types/chat'
 
 import { extractTextFromParts } from '../utils/message-parts'
 
-export async function processStreamResult(
-  stream: StreamTextResult<AllTools, never>,
-) {
+export async function processStreamResult(stream: StreamResult) {
   try {
     const text = await stream.text
     const toolResults = await stream.toolResults
@@ -21,28 +17,39 @@ export async function processStreamResult(
       })
     }
 
-    if (reasoning) {
-      parts.push({
-        type: 'reasoning',
-        reasoning,
-      })
+    if (reasoning && reasoning.length > 0) {
+      const reasoningText = reasoning
+        .filter((r) => 'text' in r && typeof r.text === 'string')
+        .map((r) => (r as { text: string }).text)
+        .join('\n')
+      if (reasoningText) {
+        parts.push({
+          type: 'reasoning',
+          reasoning: reasoningText,
+        })
+      }
     }
 
     if (toolResults) {
-      toolResults.forEach((result: ToolResult) => {
-        const part: MessagePart = {
-          type: 'tool-invocation',
-          toolInvocation: {
-            toolCallId: result.toolCallId,
-            toolName: result.toolName,
-            state: 'result' as const,
-            callTimestamp: new Date().getTime(),
-            args: result.args,
-            result: result.result,
-          },
+      for (const result of toolResults) {
+        if ('toolCallId' in result && 'toolName' in result) {
+          const part: MessagePart = {
+            type: 'tool-invocation',
+            toolInvocation: {
+              toolCallId: result.toolCallId,
+              toolName: result.toolName as 'getWeather' | 'getNews',
+              state: 'result' as const,
+              callTimestamp: new Date().getTime(),
+              args:
+                'args' in result
+                  ? (result.args as Record<string, unknown>)
+                  : {},
+              result: 'output' in result ? result.output : undefined,
+            },
+          }
+          parts.push(part)
         }
-        parts.push(part)
-      })
+      }
     }
 
     const finalText = text ? text.trim() : extractTextFromParts(parts)

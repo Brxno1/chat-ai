@@ -71,11 +71,16 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
 
       toast('Verifique seu e-mail para acessar a sua conta', {
         action: (
-          <Link href={env.MAILHOG_UI} target="_blank" ref={magicLinkRef}>
+          <a
+            href={env.MAILHOG_UI}
+            target="_blank"
+            rel="noopener noreferrer"
+            ref={magicLinkRef}
+          >
             <Button className="ml-2" size="icon">
               <Mail size={16} />
             </Button>
-          </Link>
+          </a>
         ),
         duration: 10000,
       })

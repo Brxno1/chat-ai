@@ -13,9 +13,9 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@ai-sdk/google": "^1.2.19",
-    "@ai-sdk/openai-compatible": "^0.2.16",
-    "@ai-sdk/react": "^1.1.23",
+    "@ai-sdk/google": "^3.0.26",
+    "@ai-sdk/openai-compatible": "^2.0.29",
+    "@ai-sdk/react": "^3.0.84",
     "@auth/prisma-adapter": "2.7.4",
     "@base-ui-components/react": "1.0.0-alpha.8",
     "@bprogress/next": "^3.2.12",
@@ -63,7 +63,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "ai": "^4.3.16",
+    "ai": "^6.0.82",
     "axios": "^1.8.3",
     "better-auth": "^1.2.7",
     "cheerio": "^1.0.0",
@@ -112,7 +112,7 @@
     "use-stick-to-bottom": "^1.1.1",
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
-    "zod": "^3.24.2",
+    "zod": "^4.3.6",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

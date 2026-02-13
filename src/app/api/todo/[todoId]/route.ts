@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { deleteTodoAction } from '@/actions/todo/delete-todo'
+
 import { getUserSession } from '../../../../actions/user/profile/get-user-session'
-import { deleteTodoAction } from '../actions/delete-todo'
 
 export async function DELETE(
   request: NextRequest,

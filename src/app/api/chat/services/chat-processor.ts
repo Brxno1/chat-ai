@@ -1,4 +1,4 @@
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 
 import { generateTitle } from '@/actions/chat/generate-title'
 import {
@@ -27,20 +27,21 @@ export async function processChatAndSaveMessages({
   const processedMessages = processToolInvocations(messages)
   const lastMessage = processedMessages[processedMessages.length - 1]
 
-  const finalMessages: Message[] = [
-    {
-      id: 'system',
-      role: 'system',
-      content: generateSystemPrompt({
-        name: userName || '',
-        isLoggedIn: !!userId,
-      }),
-    },
-    ...processedMessages.map((message) => ({
-      ...message,
-    })),
-  ]
+  const systemMessage: UIMessage = {
+    id: 'system',
+    role: 'system',
+    parts: [
+      {
+        type: 'text',
+        text: generateSystemPrompt({
+          name: userName || '',
+          isLoggedIn: !!userId,
+        }),
+      },
+    ],
+  }
 
+  const finalMessages: UIMessage[] = [systemMessage, ...processedMessages]
 
   const { streamResult, streamError } = await createStreamText({
     messages: finalMessages,

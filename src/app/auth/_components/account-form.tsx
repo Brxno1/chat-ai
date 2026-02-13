@@ -58,11 +58,11 @@ export function CreateAccountForm() {
     onSuccess: () => {
       toast('Verifique seu e-mail para acessar a sua conta', {
         action: (
-          <Link href={env.MAILHOG_UI} target="_blank">
+          <a href={env.MAILHOG_UI} target="_blank" rel="noopener noreferrer">
             <Button className="ml-2" size="icon">
               <Mail size={16} />
             </Button>
-          </Link>
+          </a>
         ),
         duration: 10000,
       })

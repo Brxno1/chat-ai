@@ -1,4 +1,4 @@
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { suggestQuestions } from '../services/suggest-questions'
@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    const { message }: { message: Message } = body
+    const { message }: { message: UIMessage } = body
 
     if (!message) {
       return NextResponse.json(

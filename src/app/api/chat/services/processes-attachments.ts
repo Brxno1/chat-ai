@@ -1,4 +1,4 @@
-import { type Message } from 'ai'
+import { type UIMessage } from 'ai'
 
 import { uploadChatImage } from './upload-chat-image'
 
@@ -8,41 +8,50 @@ type ProcessedAttachment = {
   contentType: string
 }
 
+type FilePart = {
+  type: 'file'
+  url: string
+  mediaType: string
+  filename?: string
+}
+
 export async function processAttachments(
-  lastMessage: Message,
+  lastMessage: UIMessage,
   userId: string,
   chatId: string,
 ): Promise<{ processedAttachments: ProcessedAttachment[] }> {
-  const { role, experimental_attachments: userAttachments } = lastMessage
+  const { role, parts } = lastMessage
 
-  if (role !== 'user' || !userAttachments) {
+  if (role !== 'user') {
     return { processedAttachments: [] }
   }
 
-  const attachments = userAttachments.filter((attachment) => !!attachment)
+  const fileParts = parts.filter(
+    (part): part is FilePart => part.type === 'file',
+  )
 
-  if (attachments.length === 0) {
+  if (fileParts.length === 0) {
     return { processedAttachments: [] }
   }
 
   const processedAttachments: ProcessedAttachment[] = []
 
-  for await (const attach of attachments) {
+  for await (const attach of fileParts) {
     try {
-      const isAudio = attach.contentType?.startsWith('audio/')
+      const isAudio = attach.mediaType?.startsWith('audio/')
 
       if (isAudio) {
         processedAttachments.push({
           url: attach.url,
-          name: attach.name || `audio-${new Date().getTime()}.webm`,
-          contentType: attach.contentType || 'audio/webm',
+          name: attach.filename || `audio-${new Date().getTime()}.webm`,
+          contentType: attach.mediaType || 'audio/webm',
         })
         continue
       }
 
       const result = await uploadChatImage(userId, chatId, {
-        name: attach.name || new Date().getTime().toString(),
-        contentType: attach.contentType || 'image/webp',
+        name: attach.filename || new Date().getTime().toString(),
+        contentType: attach.mediaType || 'image/webp',
         url: attach.url,
       })
 

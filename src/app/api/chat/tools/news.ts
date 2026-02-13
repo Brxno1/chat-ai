@@ -56,7 +56,7 @@ async function fetchNewsData(
 
 export const newsTool = createTool({
   description: 'Busca notícias recentes sobre um tópico específico',
-  parameters: z.object({
+  inputSchema: z.object({
     topic: z
       .string()
       .describe('O tópico ou assunto das notícias a serem buscadas'),
