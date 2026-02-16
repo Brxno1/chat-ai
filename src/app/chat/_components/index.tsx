@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import React from "react";
+import React from 'react'
 
-import { useChatInstance } from "@/context/chat";
+import { useChatInstance } from '@/context/chat'
 
-import { ChatForm } from "./form";
-import { ChatMessage } from "./message";
-import { ChatWelcome } from "./welcome";
+import { ChatForm } from './form'
+import { ChatMessage } from './message'
+import { ChatWelcome } from './welcome'
 
 export function Chat() {
-  const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
+  const scrollToBottomRef = React.useRef<HTMLDivElement>(null)
 
-  const { messages } = useChatInstance();
+  const { messages } = useChatInstance()
 
   React.useLayoutEffect(() => {
-    scrollToBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  });
+    scrollToBottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  })
 
   return (
     <div className="flex h-full flex-col space-y-2 rounded-lg border border-input p-2">
@@ -33,5 +33,5 @@ export function Chat() {
       </div>
       <ChatForm />
     </div>
-  );
+  )
 }

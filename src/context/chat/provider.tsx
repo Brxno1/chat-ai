@@ -49,6 +49,7 @@ export function ChatProvider({
     status,
     sendMessage,
     stop: onStop,
+    regenerate
   } = useChatController({
     initialMessages,
     currentChatId,
@@ -90,6 +91,10 @@ export function ChatProvider({
     })
 
     setInput('')
+  }
+
+  const onRegenerateResponse = () => {
+    regenerate()
   }
 
   const onResetChat = () => {
@@ -149,6 +154,7 @@ export function ChatProvider({
     onAudioRecorded,
     onStop,
     onResetChat,
+    onRegenerateResponse,
   }
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>
