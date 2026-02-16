@@ -1,4 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ChevronsUpDown,
   Files,
@@ -6,16 +6,16 @@ import {
   Paperclip,
   SendIcon,
   StopCircle,
-} from "lucide-react";
-import Image from "next/image";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+} from 'lucide-react'
+import Image from 'next/image'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import { TypingText } from "@/components/animate-ui/text/typing";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { TypingText } from '@/components/animate-ui/text/typing'
+import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   AIForm,
   AIInputButton,
@@ -26,51 +26,51 @@ import {
   AIInputTextarea,
   AIInputToolbar,
   AIInputTools,
-} from "@/components/ui/kibo-ui/ai/input";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { useChatInstance } from "@/context/chat";
-import { useMultipleUploads } from "@/hooks/use-multiple-uploads";
-import { useChatStore } from "@/store/chat";
-import { cn } from "@/utils/utils";
+} from '@/components/ui/kibo-ui/ai/input'
+import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { useChatInstance } from '@/context/chat'
+import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
+import { useChatStore } from '@/store/chat'
+import { cn } from '@/utils/utils'
 
-import { models } from "../models/definitions";
-import { ModelTierIcon } from "../models/model-tier-icon";
-import { ImagePreview } from "./image-preview";
-import { RecorderAudio } from "./recorder-audio";
+import { models } from '../models/definitions'
+import { ModelTierIcon } from '../models/model-tier-icon'
+import { ImagePreview } from './image-preview'
+import { RecorderAudio } from './recorder-audio'
 
 const schema = z.object({
   message: z.string().optional(),
   files: z
     .array(
       z.instanceof(File, {
-        message: "Por favor, selecione um arquivo válido",
+        message: 'Por favor, selecione um arquivo válido',
       }),
     )
     .refine(
       (files) => files.every((file) => file.size <= 10 * 1024 * 1024),
-      `${Files.length > 1 ? "Os arquivos devem ter no máximo 10MB cada" : "O arquivo deve ter no máximo 10MB"}`,
+      `${Files.length > 1 ? 'Os arquivos devem ter no máximo 10MB cada' : 'O arquivo deve ter no máximo 10MB'}`,
     )
     .optional()
     .nullable(),
   audio: z
     .instanceof(File, {
-      message: "Por favor, selecione um arquivo válido",
+      message: 'Por favor, selecione um arquivo válido',
     })
     .optional()
     .nullable(),
-});
+})
 
 export function ChatForm() {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
-      message: "",
+      message: '',
       files: null,
       audio: null,
     },
-  });
+  })
 
   const {
     files,
@@ -80,7 +80,7 @@ export function ChatForm() {
     validateAndProcessFileInput,
     handleRemoveAll,
     handleRemoveItem,
-  } = useMultipleUploads();
+  } = useMultipleUploads()
 
   const {
     input,
@@ -92,58 +92,58 @@ export function ChatForm() {
     onStop,
     buttonSubmitRef,
     inputRef,
-  } = useChatInstance();
+  } = useChatInstance()
 
-  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode);
+  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode)
 
   const onRemoveItem = (index: number) => {
-    handleRemoveItem(index);
+    handleRemoveItem(index)
 
     if (files.length <= 1) {
-      form.setValue("files", null);
+      form.setValue('files', null)
     }
 
-    const remainingFiles = [...files];
-    remainingFiles.splice(index, 1);
-    form.setValue("files", remainingFiles);
-  };
+    const remainingFiles = [...files]
+    remainingFiles.splice(index, 1)
+    form.setValue('files', remainingFiles)
+  }
 
   const handleSubmit = ({ files, audio }: z.infer<typeof schema>) => {
-    const allFiles: File[] = [];
+    const allFiles: File[] = []
 
     if (files && files.length > 0) {
-      allFiles.push(...files);
-      handleRemoveAll();
+      allFiles.push(...files)
+      handleRemoveAll()
     }
 
     if (audio && audio.size > 0) {
-      allFiles.push(audio);
+      allFiles.push(audio)
     }
 
     onSubmitChat(undefined, {
       files: allFiles.length > 0 ? allFiles : undefined,
-    });
+    })
 
-    form.reset();
-  };
+    form.reset()
+  }
 
   const onSetAudio = (audio: File) => {
-    form.setValue("audio", audio);
-  };
+    form.setValue('audio', audio)
+  }
 
   React.useEffect(() => {
     if (files.length > 0) {
-      form.setValue("files", files);
+      form.setValue('files', files)
     }
-  }, [files, form]);
+  }, [files, form])
 
   return (
     <Form {...form}>
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
         className={cn(
-          "!m-0 items-center overflow-y-auto rounded-md border border-input bg-sidebar px-2",
-          isGhostChatMode && "border-dashed",
+          '!m-0 items-center overflow-y-auto rounded-md border border-input bg-sidebar px-2',
+          isGhostChatMode && 'border-dashed',
         )}
       >
         {images.length > 0 && (
@@ -173,8 +173,8 @@ export function ChatForm() {
                           type="file"
                           ref={fileInputRef}
                           onChange={(ev) => {
-                            validateAndProcessFileInput(ev);
-                            field.onChange(ev.target.files);
+                            validateAndProcessFileInput(ev)
+                            field.onChange(ev.target.files)
                           }}
                           className="absolute inset-0 z-10 hidden"
                           accept="image/*"
@@ -196,12 +196,12 @@ export function ChatForm() {
                     <AIInputTextarea
                       name="message"
                       ref={inputRef}
-                      autoFocus={status === "ready"}
-                      disabled={status === "streaming"}
+                      autoFocus={status === 'ready'}
+                      disabled={status === 'streaming'}
                       value={input}
                       onChange={(ev) => {
-                        field.onChange(ev);
-                        onInputChange(ev);
+                        field.onChange(ev)
+                        onInputChange(ev)
                       }}
                     />
                   </FormControl>
@@ -221,16 +221,9 @@ export function ChatForm() {
             >
               <AIInputModelSelectTrigger
                 className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all [&>span]:hidden sm:[&>span]:inline-flex [&>svg]:inline-flex sm:[&>svg]:hidden"
-                disabled={status === "streaming"}
+                disabled={status === 'streaming'}
               >
                 <span className="flex items-center gap-1">
-                  <Image
-                    src={`https://img.logo.dev/${model.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
-                    alt={model.provider}
-                    className="mr-2 inline-flex size-4 rounded-sm"
-                    width={16}
-                    height={16}
-                  />
                   {model.name}
                   <ChevronsUpDown className="size-4 text-muted-foreground" />
                 </span>
@@ -258,7 +251,7 @@ export function ChatForm() {
                     <span
                       className={cn(
                         m.premium &&
-                          "bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent",
+                          'bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent',
                       )}
                     >
                       {m.name}
@@ -270,7 +263,7 @@ export function ChatForm() {
               </AIInputModelSelectContent>
             </AIInputModelSelect>
           </AIInputTools>
-          {status === "streaming" ? (
+          {status === 'streaming' ? (
             <Button
               onClick={onStop}
               type="button"
@@ -299,14 +292,14 @@ export function ChatForm() {
         </AIInputToolbar>
       </AIForm>
     </Form>
-  );
+  )
 }
 
 function TemporaryChatSwitch() {
   const defineChatToGhostMode = useChatStore(
     (state) => state.defineChatToGhostMode,
-  );
-  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode);
+  )
+  const isGhostChatMode = useChatStore((state) => state.isGhostChatMode)
 
   return (
     <div className="flex w-full items-center justify-between rounded-md p-2 text-sm transition-colors hover:bg-accent">
@@ -321,5 +314,5 @@ function TemporaryChatSwitch() {
         aria-label="Conversa temporária"
       />
     </div>
-  );
+  )
 }

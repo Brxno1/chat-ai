@@ -36,6 +36,7 @@ type Actions = {
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>
   onResetChat: () => void
+  onRegenerateResponse: () => void
   onAudioRecorded: (
     audio: Blob | null,
     onSetAudio: (audio: File) => void,

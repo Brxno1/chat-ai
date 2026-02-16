@@ -10,7 +10,7 @@ import {
   findOrCreateChat,
   saveChatResponse,
   saveMessages,
-} from '../../../../actions/chat/chat-operations'
+} from '@/actions/chat/chat-operations'
 import { generateSystemPrompt } from '../prompts'
 import { processToolInvocations } from '../utils/message-filter'
 import { createStreamText } from './create-stream-text'
@@ -43,6 +43,32 @@ export async function processChatAndSaveMessages({
 
   const finalMessages: UIMessage[] = [systemMessage, ...processedMessages]
 
+  const chatId = headerChatId || crypto.randomUUID()
+  const isNewChat = !headerChatId
+
+  if (!isGhostChatMode && userId) {
+    try {
+      const { success, error } = await findOrCreateChat(chatId, userId)
+
+      if (!success) {
+        console.error('Failed to create/find chat:', error)
+      }
+      const { processedAttachments } = await processAttachments(
+        lastMessage,
+        userId,
+        chatId,
+      )
+
+      const messagesToSave = isNewChat
+        ? processedMessages
+        : [lastMessage].filter((msg) => msg?.role === 'user')
+
+      await saveMessages(messagesToSave, chatId, userId, processedAttachments)
+    } catch (error) {
+      console.error('Error in synchronous chat creation/saving:', error)
+    }
+  }
+
   const { streamResult, streamError } = await createStreamText({
     messages: finalMessages,
     modelId,
@@ -62,30 +88,8 @@ export async function processChatAndSaveMessages({
     }
   }
 
-  const chatId = headerChatId || crypto.randomUUID()
-  const isNewChat = !headerChatId
-
   setImmediate(async () => {
     try {
-      const { success, error } = await findOrCreateChat(chatId, userId)
-
-      if (!success) {
-        console.error('Failed to create/find chat:', error)
-        return
-      }
-
-      const { processedAttachments } = await processAttachments(
-        lastMessage,
-        userId,
-        chatId,
-      )
-
-      const messagesToSave = isNewChat
-        ? processedMessages
-        : [lastMessage].filter((msg) => msg?.role === 'user')
-
-      await saveMessages(messagesToSave, chatId, userId, processedAttachments)
-
       const { success: saveSuccess, error: saveError } = await saveChatResponse(
         {
           stream: streamResult,
