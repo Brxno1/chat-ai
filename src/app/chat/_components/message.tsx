@@ -1,10 +1,8 @@
 'use client'
 
 import type { UIMessage } from 'ai'
-import { RefreshCw } from 'lucide-react'
 
 import { ContainerWrapper } from '@/components/container'
-import { CopyTextComponent } from '@/components/copy-text-component'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -27,14 +25,14 @@ import { cn } from '@/utils/utils'
 import { Attachments } from './attachments'
 import { ChatNews } from './chat-news'
 import { ChatWeather } from './chat-weather'
-import { Button } from '@/components/ui/button'
+import { MessageActionFooter } from './message-action-footer'
 
 interface MessageProps {
   message: UIMessage & Partial<ChatMessageType>
 }
 
 export function ChatMessage({ message }: MessageProps) {
-  const { model, status, onRegenerateResponse } = useChatInstance()
+  const { model, status } = useChatInstance()
   const { user } = useSessionUser()
 
   const isStreaming = status === 'streaming'
@@ -125,20 +123,19 @@ export function ChatMessage({ message }: MessageProps) {
                       },
                     )}
                   >
-                    {formatDateToLocaleWithHour(message.createdAt)}
+                    {formatDateToLocaleWithHour(
+                      message.createdAt
+                        ? message.createdAt
+                        : new Date(
+                            (
+                              message.metadata as {
+                                createdAt: string | number | Date
+                              }
+                            )?.createdAt as string | number | Date,
+                          ),
+                    )}
                   </Badge>
-                  <CopyTextComponent
-                    textForCopy={part.text}
-                    iconPosition="right"
-                    className="size-5 cursor-pointer justify-center rounded-md opacity-0 duration-300 hover:bg-muted hover:text-foreground group-hover/container-wrapper:opacity-100"
-                    iconSize={12}
-                  />
-                  <div
-                    onClick={() => onRegenerateResponse()}
-                    className="flex size-5 cursor-pointer items-center justify-center rounded-md opacity-0 duration-300 hover:bg-muted hover:text-foreground group-hover/container-wrapper:opacity-100"
-                  >
-                    <RefreshCw className="size-3.5" />
-                  </div>
+                  <MessageActionFooter message={message} />
                 </div>
               </ContainerWrapper>
             )

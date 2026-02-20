@@ -17,13 +17,17 @@ import { weatherTool } from '../tools/weather'
 import { errorHandler } from '../utils/error-handler'
 
 const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: env.GEMINI_API_KEY,
 })
 
-const compatibleAi = createOpenAICompatible({
-  name: 'qwen/qwen3-4b-thinking-2507',
-  baseURL: env.LM_STUDIO_URL,
+const nvidia = createOpenAICompatible({
+  name: 'nvidia',
+  baseURL: env.NVIDIA_BASE_URL,
+  apiKey: env.NVIDIA_API_KEY,
 })
+
+const isGoogleModel = (id: string) =>
+  id.startsWith('gemini') || id.startsWith('gemma')
 
 type CreateStreamTextParams = {
   messages: UIMessage[]
@@ -35,10 +39,10 @@ export async function createStreamText({
   modelId,
 }: CreateStreamTextParams) {
   const getModel = () => {
-    if (modelId === 'qwen/qwen3-4b-thinking-2507') {
-      return compatibleAi(modelId)
+    if (isGoogleModel(modelId)) {
+      return google(modelId)
     }
-    return google(modelId)
+    return nvidia(modelId)
   }
 
   const model = wrapLanguageModel({
@@ -56,7 +60,7 @@ export async function createStreamText({
       experimental_transform: [
         smoothStream({
           chunking: 'line',
-          delayInMs: 100,
+          delayInMs: 80,
         }),
       ],
       toolChoice: 'auto',

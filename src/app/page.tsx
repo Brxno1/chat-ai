@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 
-import { ChatSidebar } from '@/app/_components/sidebar/chat-sidebar'
+import { ChatSidebar } from '@/components/sidebar/chat-sidebar'
 import { Chat } from '@/app/chat/_components'
 import { ChatFallback } from '@/app/chat/_components/chat-fallback'
 import { ContainerWrapper } from '@/components/container'

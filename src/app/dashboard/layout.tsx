@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { PropsWithChildren } from 'react'
 
-import { DashboardSidebarContent } from '../_components/sidebar/dashboard-sidebar'
+import { DashboardSidebarContent } from '../../components/sidebar/dashboard-sidebar'
 
 export const metadata: Metadata = {
   title: 'Dashboard',

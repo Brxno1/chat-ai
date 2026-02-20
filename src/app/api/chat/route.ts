@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
     const response = processedStream.toUIMessageStreamResponse({
       onError: errorHandler,
       sendReasoning: true,
+      sendStart: true,
       messageMetadata: ({ part }) => {
         if (part.type === 'start') {
           return {
@@ -85,8 +86,10 @@ export async function POST(req: NextRequest) {
           }
         }
         if (part.type === 'finish') {
+          const { totalUsage, finishReason } = part
           return {
-            totalTokens: part.totalUsage?.totalTokens,
+            totalTokens: totalUsage.totalTokens,
+            finishReason,
           }
         }
       },

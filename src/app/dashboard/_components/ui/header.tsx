@@ -1,4 +1,4 @@
-import { SidebarTriggerComponentMobile } from '@/app/_components/sidebar/sidebar-trigger-mobile'
+import { SidebarTriggerComponentMobile } from '@/components/sidebar/sidebar-trigger-mobile'
 import { DashboardPageHeader } from '@/components/dashboard'
 import { Notifications } from '@/components/notifications'
 import { ToggleTheme } from '@/components/theme/toggle-theme'

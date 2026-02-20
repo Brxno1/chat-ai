@@ -9,26 +9,23 @@ import { useChatInstance } from '@/context/chat'
 import { cn } from '@/utils/utils'
 
 interface RecorderAudioProps {
-  visualizerBars?: number
   className?: string
   onSetAudio: (audio: File) => void
   isSubmitting?: boolean
 }
 
 export function RecorderAudio({
-  visualizerBars = 8,
   className,
   onSetAudio,
   isSubmitting,
 }: RecorderAudioProps) {
   const [isRecording, setIsRecording] = React.useState(false)
-  const [time, setTime] = React.useState(0)
 
   const mediaRecorder = React.useRef<MediaRecorder | null>(null)
   const audioStream = React.useRef<MediaStream | null>(null)
   const audioChunks = React.useRef<Blob[]>([])
 
-  const { onAudioRecorded, isTranscribing } = useChatInstance()
+  const { onAudioRecorded } = useChatInstance()
 
   React.useEffect(() => {
     let intervalId: NodeJS.Timeout
@@ -37,7 +34,7 @@ export function RecorderAudio({
       audioChunks.current = []
 
       intervalId = setInterval(() => {
-        setTime((time) => time + 1)
+        // time logic removed
       }, 1000)
 
       if (!mediaRecorder.current) {
@@ -63,7 +60,6 @@ export function RecorderAudio({
 
             onAudioRecorded(audioBlob, onSetAudio)
             // onGenerateTranscribe(audioBlob);
-            setTime(0)
 
             audioStream.current = null
             mediaRecorder.current = null
@@ -78,19 +74,11 @@ export function RecorderAudio({
         if (audioStream.current) {
           audioStream.current.getTracks().forEach((track) => track.stop())
         }
-      } else {
-        setTime(0)
       }
     }
 
     return () => clearInterval(intervalId)
   }, [isRecording, onAudioRecorded])
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
 
   const handleRecordToggle = () => {
     setIsRecording((prev) => !prev)

@@ -50,7 +50,7 @@ export function TodoCreateForm() {
 
   const form = useForm<TodoFormData>({
     resolver: zodResolver(schema),
-    mode: 'onChange',
+    mode: 'onSubmit',
     defaultValues: {
       title: '',
     },

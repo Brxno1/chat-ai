@@ -18,7 +18,7 @@ import { useChatInstance } from '@/context/chat'
 import { useSessionUser } from '@/context/user'
 import { cn } from '@/utils/utils'
 
-import { Historical } from '../../chat/_components/historical'
+import { Historical } from '../../app/chat/_components/historical'
 import { SidebarLinks } from './sidebar-links'
 import { SidebarTriggerComponent } from './sidebar-trigger'
 import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'

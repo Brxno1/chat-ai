@@ -49,7 +49,7 @@ export function ChatProvider({
     status,
     sendMessage,
     stop: onStop,
-    regenerate
+    regenerate,
   } = useChatController({
     initialMessages,
     currentChatId,
@@ -103,8 +103,8 @@ export function ChatProvider({
     resetChatState()
   }
 
-  const onModelChange = (name: string) => {
-    const selectedModel = models.find((m) => m.name === name)
+  const onModelChange = (id: string) => {
+    const selectedModel = models.find((m) => m.id === id)
 
     if (selectedModel) {
       setModel(selectedModel)

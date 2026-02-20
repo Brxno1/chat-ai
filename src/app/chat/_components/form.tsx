@@ -12,7 +12,6 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { TypingText } from '@/components/animate-ui/text/typing'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -27,7 +26,7 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
-import { Separator } from '@/components/ui/separator'
+
 import { Switch } from '@/components/ui/switch'
 import { useChatInstance } from '@/context/chat'
 import { useMultipleUploads } from '@/hooks/use-multiple-uploads'
@@ -142,7 +141,7 @@ export function ChatForm() {
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
         className={cn(
-          '!m-0 items-center overflow-y-auto rounded-md border border-input bg-sidebar px-2',
+          '!m-0 items-center overflow-y-auto rounded-md border border-input bg-sidebar',
           isGhostChatMode && 'border-dashed',
         )}
       >
@@ -153,45 +152,45 @@ export function ChatForm() {
             onRemoveItem={onRemoveItem}
           />
         )}
-        <AIInputToolbar>
-          <AIInputTools className="mr-1 w-full flex-1 items-center">
-            <div className="flex shrink-0 items-center">
-              <FormField
-                control={form.control}
-                name="files"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <AIInputButton
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleThumbnailClick}
-                      >
-                        <Paperclip className="size-4 text-muted-foreground" />
-                        <Input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={(ev) => {
-                            validateAndProcessFileInput(ev)
-                            field.onChange(ev.target.files)
-                          }}
-                          className="absolute inset-0 z-10 hidden"
-                          accept="image/*"
-                          multiple
-                          aria-label="Carregar arquivo de imagem"
-                        />
-                      </AIInputButton>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+        <AIInputToolbar className="gap-2">
+          <AIInputTools className="w-full flex-1 items-center">
+            <FormField
+              control={form.control}
+              name="files"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <AIInputButton
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleThumbnailClick}
+                    >
+                      <Paperclip className="size-4 text-muted-foreground" />
+                      <Input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={(ev) => {
+                          validateAndProcessFileInput(ev)
+                          field.onChange(
+                            ev.target.files ? Array.from(ev.target.files) : [],
+                          )
+                        }}
+                        className="absolute inset-0 z-10 hidden"
+                        accept="image/*"
+                        multiple
+                        aria-label="Carregar arquivo de imagem"
+                      />
+                    </AIInputButton>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="message"
               render={({ field }) => (
-                <FormItem className="relative flex flex-1 items-center">
+                <FormItem className="flex flex-1 items-center">
                   <FormControl>
                     <AIInputTextarea
                       name="message"
@@ -205,64 +204,55 @@ export function ChatForm() {
                       }}
                     />
                   </FormControl>
-                  {!input && (
-                    <TypingText
-                      loop
-                      text="O que você quer saber?"
-                      className="pointer-events-none absolute left-1 top-[1.4375rem] -translate-y-1/2 text-sm text-muted-foreground sm:top-[1.25rem]"
-                    />
-                  )}
                 </FormItem>
               )}
             />
-            <AIInputModelSelect
-              value={model.name}
-              onValueChange={onModelChange}
-            >
-              <AIInputModelSelectTrigger
-                className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all [&>span]:hidden sm:[&>span]:inline-flex [&>svg]:inline-flex sm:[&>svg]:hidden"
-                disabled={status === 'streaming'}
-              >
-                <span className="flex items-center gap-1">
-                  {model.name}
-                  <ChevronsUpDown className="size-4 text-muted-foreground" />
-                </span>
-                <ModelTierIcon
-                  tier={model.tier}
-                  className="size-4 text-muted-foreground"
-                />
-              </AIInputModelSelectTrigger>
-              <AIInputModelSelectContent className="bg-card">
-                {models.map((m) => (
-                  <AIInputModelSelectItem
-                    value={m.name}
-                    key={m.id}
-                    data-active={m.name === model.name}
-                    className="flex cursor-pointer flex-row items-center text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
-                    disabled={m.disabled}
-                  >
-                    <Image
-                      src={`https://img.logo.dev/${m.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
-                      alt={m.provider}
-                      className="mr-2 inline-flex size-4 rounded-sm"
-                      width={16}
-                      height={16}
-                    />
-                    <span
-                      className={cn(
-                        m.premium &&
-                          'bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent',
-                      )}
-                    >
-                      {m.name}
-                    </span>
-                  </AIInputModelSelectItem>
-                ))}
-                <Separator orientation="horizontal" />
-                <TemporaryChatSwitch />
-              </AIInputModelSelectContent>
-            </AIInputModelSelect>
           </AIInputTools>
+          <AIInputModelSelect value={model.id} onValueChange={onModelChange}>
+            <AIInputModelSelectTrigger
+              className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all"
+              disabled={status === 'streaming'}
+            >
+              <p className="hidden max-w-[8rem] items-center gap-0.5 sm:flex">
+                <span className="truncate">{model.name}</span>
+                <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+              </p>
+              <ModelTierIcon
+                tier={model.tier}
+                className="size-4 text-muted-foreground sm:hidden"
+              />
+            </AIInputModelSelectTrigger>
+            <AIInputModelSelectContent
+              className="bg-card"
+              footer={<TemporaryChatSwitch />}
+            >
+              {models.map((m) => (
+                <AIInputModelSelectItem
+                  value={m.id}
+                  key={m.id}
+                  data-active={m.id === model.id}
+                  className="flex cursor-pointer flex-row items-center text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
+                  disabled={m.disabled}
+                >
+                  <Image
+                    src={`https://img.logo.dev/${m.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+                    alt={m.provider}
+                    className="mr-2 inline-flex size-4 rounded-sm"
+                    width={16}
+                    height={16}
+                  />
+                  <span
+                    className={cn(
+                      m.premium &&
+                        'bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent',
+                    )}
+                  >
+                    {m.name}
+                  </span>
+                </AIInputModelSelectItem>
+              ))}
+            </AIInputModelSelectContent>
+          </AIInputModelSelect>
           {status === 'streaming' ? (
             <Button
               onClick={onStop}

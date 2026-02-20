@@ -17,7 +17,6 @@ import { ChevronDown, RefreshCcw, X } from 'lucide-react'
 import React from 'react'
 
 import { getTodosAction } from '@/actions/todo/get-todos'
-import { getTodos } from '@/app/(http)/todo/get-todos'
 import { ContainerWrapper } from '@/components/container'
 import { NumberTicker } from '@/components/magicui/number-ticker'
 import { Button } from '@/components/ui/button'
