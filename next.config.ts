@@ -3,6 +3,33 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   typedRoutes: true,
   allowedDevOrigins: ['*'],
+
+  async redirects() {
+    const sessionCookies = [
+      'authjs.session-token',
+      '__Secure-authjs.session-token',
+    ]
+
+    const protectedRedirects = ['/dashboard', '/chat'].map((path) => ({
+      source: `${path}/:path*`,
+      missing: [
+        { type: 'cookie' as const, key: 'authjs.session-token' },
+        { type: 'cookie' as const, key: '__Secure-authjs.session-token' },
+      ],
+      destination: '/auth',
+      permanent: false,
+    }))
+
+    const authRedirects = sessionCookies.map((cookieName) => ({
+      source: '/auth',
+      has: [{ type: 'cookie' as const, key: cookieName }],
+      destination: '/',
+      permanent: false,
+    }))
+
+    return [...protectedRedirects, ...authRedirects]
+  },
+
   images: {
     remotePatterns: [
       {
@@ -30,6 +57,41 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+
+  serverExternalPackages: [
+    'puppeteer',
+    'puppeteer-core',
+    '@sparticuz/chromium',
+    'sharp',
+    'shiki',
+    '@shikijs/transformers',
+    'cheerio',
+    'nodemailer',
+    '@sendgrid/mail',
+    'prisma',
+    '@prisma/client',
+  ],
+
+  webpack: (config, { dev, isServer }) => {
+    if (dev) {
+      config.parallelism = 1
+
+      config.devtool = 'eval-cheap-source-map'
+    }
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        'node:crypto': false,
+      }
+    }
+
+    return config
   },
 }
 

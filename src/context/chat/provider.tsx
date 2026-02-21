@@ -38,7 +38,8 @@ export function ChatProvider({
   const [input, setInput] = React.useState('')
 
   const model = useChatStore((state) => state.model)
-  const { setModel, resetChatState } = useChatStore()
+  const setModel = useChatStore((state) => state.setModel)
+  const resetChatState = useChatStore((state) => state.resetChatState)
 
   const { mutateAsync: transcribeAudio, isPending: isTranscribing } =
     useTranscribeAudio()

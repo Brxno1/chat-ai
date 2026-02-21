@@ -25,6 +25,7 @@ import { cn } from '@/utils/utils'
 import { Attachments } from './attachments'
 import { ChatNews } from './chat-news'
 import { ChatWeather } from './chat-weather'
+import { ImagePreview } from './image-preview'
 import { MessageActionFooter } from './message-action-footer'
 
 interface MessageProps {
@@ -38,8 +39,29 @@ export function ChatMessage({ message }: MessageProps) {
   const isStreaming = status === 'streaming'
 
   const reasoningParts = extractReasoningParts(message as ChatMessageType)
-
   const resultToolCallIds = getResultToolCallIds(message as ChatMessageType)
+
+  const fileImages = (message.parts ?? [])
+    .filter(
+      (
+        p,
+      ): p is {
+        type: 'file'
+        url: string
+        mediaType: string
+        filename?: string
+      } =>
+        p.type === 'file' &&
+        (p as { mediaType?: string }).mediaType?.startsWith('image/') === true,
+    )
+    .map((p) => ({ url: p.url, name: p.filename }))
+
+  const messageDate = message.createdAt
+    ? message.createdAt
+    : new Date(
+        (message.metadata as { createdAt: string | number | Date })
+          ?.createdAt as string | number | Date,
+      )
 
   return (
     <div className="flex w-full flex-col space-y-1 pr-2">
@@ -64,6 +86,43 @@ export function ChatMessage({ message }: MessageProps) {
           />
           <AIReasoningContent>{reasoningParts}</AIReasoningContent>
         </AIReasoning>
+      )}
+      {fileImages.length > 0 && (
+        <ContainerWrapper
+          className={cn('group/container-wrapper flex flex-col', {
+            'items-end': message.role === 'user',
+            'items-start': message.role === 'assistant',
+          })}
+        >
+          {user && message.role === 'user' && (
+            <Badge
+              variant={'chat'}
+              className="ml-auto flex w-fit items-center justify-center hover:bg-transparent"
+            >
+              <span className="max-w-[10rem] truncate text-ellipsis whitespace-nowrap">
+                {user?.name}
+              </span>
+              <Avatar className="size-6 rounded-sm border-0 bg-transparent max-sm:size-5">
+                <AvatarImage src={user?.image ?? ''} />
+                <AvatarFallback className="rounded-sm">
+                  {user?.name?.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Badge>
+          )}
+          <ImagePreview images={fileImages} noRemove />
+          <div className="mt-1 flex w-full items-center">
+            <Badge
+              variant="chat"
+              className={cn(
+                'text-xs text-muted-foreground hover:bg-transparent',
+                { 'ml-auto': message.role === 'user' },
+              )}
+            >
+              {formatDateToLocaleWithHour(messageDate)}
+            </Badge>
+          </div>
+        </ContainerWrapper>
       )}
       {message.parts?.map((part, partIndex) => {
         switch (part.type) {
@@ -139,6 +198,9 @@ export function ChatMessage({ message }: MessageProps) {
                 </div>
               </ContainerWrapper>
             )
+          }
+          case 'file': {
+            return null
           }
           default: {
             if (!part.type.startsWith('tool-')) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/animate-ui/radix/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/utils/utils';
 import {
   type BundledLanguage,
@@ -15,7 +15,7 @@ import {
   CodeBlockItem,
   type CodeBlockProps,
   CodeBlockSelect,
-  CodeBlockSelectContent,
+  CodeBlockSelectContent, 
   CodeBlockSelectItem,
   CodeBlockSelectTrigger,
   CodeBlockSelectValue,

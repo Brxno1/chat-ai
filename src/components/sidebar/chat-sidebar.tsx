@@ -10,7 +10,7 @@ import {
   SidebarGroup,
   SidebarHeader,
   useSidebar,
-} from '@/components/animate-ui/radix/sidebar'
+} from '@/components/ui/sidebar'
 import { SidebarHeaderTitle } from '@/components/dashboard/sidebar'
 import { Logo } from '@/components/logo'
 import { Separator } from '@/components/ui/separator'

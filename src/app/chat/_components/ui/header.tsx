@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { SidebarTriggerComponentMobile } from '@/components/sidebar/sidebar-trigger-mobile'
-import { useSidebar } from '@/components/animate-ui/radix/sidebar'
+import { useSidebar } from '@/components/ui/sidebar'
 import { DashboardPageHeader } from '@/components/dashboard'
 import { Notifications } from '@/components/notifications'
 import { NotificationsMobile } from '@/components/notifications/notification-mobile'

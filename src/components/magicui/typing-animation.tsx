@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, MotionProps } from 'motion/react'
+import { motion, MotionProps } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
 import { cn } from '@/utils/utils'
@@ -77,11 +77,7 @@ export function TypingAnimation({
   }, [children, duration, started])
 
   return (
-    <MotionComponent
-      ref={elementRef}
-      className={cn(className)}
-      {...props}
-    >
+    <MotionComponent ref={elementRef} className={cn(className)} {...props}>
       {displayedText}
     </MotionComponent>
   )

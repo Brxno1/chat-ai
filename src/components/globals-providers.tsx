@@ -11,7 +11,7 @@ import { UserProvider } from '@/context/user'
 import { createQueryClient } from '@/lib/query-client'
 
 import { ThemeProvider } from './theme/theme-provider'
-import { SidebarProvider } from './animate-ui/radix/sidebar'
+import { SidebarProvider } from '@/components/ui/sidebar'
 import { TooltipProvider } from './ui/tooltip'
 import { ChatProvider } from '@/context/chat'
 import { Notification } from '@/types/notifications'

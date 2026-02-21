@@ -5,11 +5,12 @@ import React from 'react'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/animate-ui/radix/dialog'
-import { useSidebar } from '@/components/animate-ui/radix/sidebar'
+} from '@/components/ui/dialog'
+import { useSidebar } from '@/components/ui/sidebar'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -56,7 +57,7 @@ export function ImagePreview({
       {images.map(({ url, name }, index) => (
         <div
           key={index}
-          className="group relative flex max-w-fit flex-row items-center justify-center rounded-md"
+          className="group/item relative flex max-w-fit flex-row items-center justify-center rounded-md"
         >
           {isMobile ? (
             <Drawer
@@ -115,27 +116,22 @@ export function ImagePreview({
                   <AvatarImage src={url} className="object-cover" />
                 </Avatar>
               </DialogTrigger>
-              <DialogContent
-                className="fixed left-[30%] top-[20%] z-50 -translate-x-1/2 -translate-y-1/2 rounded-md"
-                from="left"
-                transition={{
-                  type: 'spring',
-                  stiffness: 350,
-                  damping: 40,
-                }}
-              >
+              <DialogContent className="w-fit max-w-[90vw] gap-2 overflow-hidden rounded-lg p-3">
                 <DialogHeader>
-                  <DialogTitle>{name || 'Imagem'}</DialogTitle>
+                  <DialogTitle className="text-sm">
+                    {name || 'Imagem'}
+                  </DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Uma prévia da imagem enviada.
+                  </DialogDescription>
                 </DialogHeader>
-                <div>
-                  <Image
-                    src={url}
-                    alt={name || 'Preview'}
-                    width={520}
-                    height={520}
-                    className="size-[30rem] rounded-md object-cover"
-                  />
-                </div>
+                <Image
+                  src={url}
+                  alt={name || 'Preview'}
+                  width={520}
+                  height={520}
+                  className="max-h-[80vh] max-w-[88vw] rounded-md object-contain"
+                />
               </DialogContent>
             </Dialog>
           )}
@@ -144,7 +140,7 @@ export function ImagePreview({
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute -right-1.5 -top-1.5 size-4 rounded-full bg-card p-0.5 text-card-foreground transition-all duration-300 group-hover:flex"
+              className="absolute -right-1.5 -top-1.5 hidden size-4 rounded-full bg-card p-0.5 text-card-foreground transition-all duration-300 group-hover/item:flex"
               onClick={() => onRemoveItem?.(index)}
             >
               <XIcon size={14} />

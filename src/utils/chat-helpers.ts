@@ -17,11 +17,11 @@ export function getResultToolCallIds(message: UIMessage) {
 }
 
 export function extractReasoningParts(message: UIMessage) {
-  const reasoningParts =
-    message.parts
-      .filter((part) => part.type === 'reasoning')
-      .map((p) => (p as { text: string }).text)
-      .join(' ') || ''
-
-  return reasoningParts
+  return message.parts
+    .filter((part) => part.type === 'reasoning')
+    .map((p) => {
+      const part = p as typeof p & { reasoning: string }
+      return part.reasoning
+    })
+    .join(' ')
 }

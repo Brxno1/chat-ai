@@ -2,7 +2,7 @@
 
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
-import { useSidebar } from '@/components/animate-ui/radix/sidebar'
+import { useSidebar } from '@/components/ui/sidebar'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button, ButtonProps } from '@/components/ui/button'
 

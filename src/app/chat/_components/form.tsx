@@ -63,7 +63,7 @@ const schema = z.object({
 export function ChatForm() {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    mode: 'onChange',
+    mode: 'onSubmit',
     defaultValues: {
       message: '',
       files: null,
@@ -136,6 +136,8 @@ export function ChatForm() {
     }
   }, [files, form])
 
+  const hasFile = files.length > 0 || form.watch('audio')
+
   return (
     <Form {...form}>
       <AIForm
@@ -153,132 +155,133 @@ export function ChatForm() {
           />
         )}
         <AIInputToolbar className="gap-2">
-          <AIInputTools className="w-full flex-1 items-center">
-            <FormField
-              control={form.control}
-              name="files"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <AIInputButton
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleThumbnailClick}
-                    >
-                      <Paperclip className="size-4 text-muted-foreground" />
-                      <Input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={(ev) => {
-                          validateAndProcessFileInput(ev)
-                          field.onChange(
-                            ev.target.files ? Array.from(ev.target.files) : [],
-                          )
-                        }}
-                        className="absolute inset-0 z-10 hidden"
-                        accept="image/*"
-                        multiple
-                        aria-label="Carregar arquivo de imagem"
-                      />
-                    </AIInputButton>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem className="flex flex-1 items-center">
-                  <FormControl>
-                    <AIInputTextarea
-                      name="message"
-                      ref={inputRef}
-                      autoFocus={status === 'ready'}
-                      disabled={status === 'streaming'}
-                      value={input}
-                      onChange={(ev) => {
-                        field.onChange(ev)
-                        onInputChange(ev)
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </AIInputTools>
-          <AIInputModelSelect value={model.id} onValueChange={onModelChange}>
-            <AIInputModelSelectTrigger
-              className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all"
-              disabled={status === 'streaming'}
-            >
-              <p className="hidden max-w-[8rem] items-center gap-0.5 sm:flex">
-                <span className="truncate">{model.name}</span>
-                <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
-              </p>
-              <ModelTierIcon
-                tier={model.tier}
-                className="size-4 text-muted-foreground sm:hidden"
-              />
-            </AIInputModelSelectTrigger>
-            <AIInputModelSelectContent
-              className="bg-card"
-              footer={<TemporaryChatSwitch />}
-            >
-              {models.map((m) => (
-                <AIInputModelSelectItem
-                  value={m.id}
-                  key={m.id}
-                  data-active={m.id === model.id}
-                  className="flex cursor-pointer flex-row items-center text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
-                  disabled={m.disabled}
-                >
-                  <Image
-                    src={`https://img.logo.dev/${m.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
-                    alt={m.provider}
-                    className="mr-2 inline-flex size-4 rounded-sm"
-                    width={16}
-                    height={16}
+          <FormField
+            control={form.control}
+            name="message"
+            render={({ field }) => (
+              <FormItem className="flex flex-1 items-center">
+                <FormControl>
+                  <AIInputTextarea
+                    name="message"
+                    ref={inputRef}
+                    autoFocus={status === 'ready'}
+                    disabled={status === 'streaming'}
+                    value={input}
+                    onChange={(ev) => {
+                      field.onChange(ev)
+                      onInputChange(ev)
+                    }}
                   />
-                  <span
-                    className={cn(
-                      m.premium &&
-                        'bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent',
-                    )}
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="files"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <AIInputButton
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleThumbnailClick}
                   >
-                    {m.name}
-                  </span>
-                </AIInputModelSelectItem>
-              ))}
-            </AIInputModelSelectContent>
-          </AIInputModelSelect>
-          {status === 'streaming' ? (
-            <Button
-              onClick={onStop}
-              type="button"
-              variant="default"
-              className="text-md min-w-[3rem] rounded-md font-bold"
-              size="icon"
-            >
-              <StopCircle size={16} />
-            </Button>
-          ) : input ? (
-            <Button
-              ref={buttonSubmitRef}
-              disabled={form.formState.isSubmitting}
-              type="submit"
-              size="icon"
-              className="text-md min-w-[3rem] rounded-md font-bold"
-            >
-              <SendIcon size={16} />
-            </Button>
-          ) : (
-            <RecorderAudio
-              onSetAudio={onSetAudio}
-              isSubmitting={form.formState.isSubmitting}
-            />
-          )}
+                    <Paperclip className="size-4 text-muted-foreground" />
+                    <Input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={(ev) => {
+                        validateAndProcessFileInput(ev)
+                        field.onChange(
+                          ev.target.files ? Array.from(ev.target.files) : [],
+                        )
+                      }}
+                      className="absolute inset-0 z-10 hidden"
+                      accept="image/*"
+                      multiple
+                      aria-label="Carregar arquivo de imagem"
+                    />
+                  </AIInputButton>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <AIInputTools className="flex w-full flex-1 items-center">
+            <AIInputModelSelect value={model.id} onValueChange={onModelChange}>
+              <AIInputModelSelectTrigger
+                className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all"
+                disabled={status === 'streaming'}
+              >
+                <p className="hidden max-w-[8rem] items-center gap-0.5 sm:flex">
+                  <span className="truncate">{model.name}</span>
+                  <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+                </p>
+                <ModelTierIcon
+                  tier={model.tier}
+                  className="size-4 text-muted-foreground sm:hidden"
+                />
+              </AIInputModelSelectTrigger>
+              <AIInputModelSelectContent
+                className="bg-card"
+                footer={<TemporaryChatSwitch />}
+                align="end"
+              >
+                {models.map((m) => (
+                  <AIInputModelSelectItem
+                    value={m.id}
+                    key={m.id}
+                    data-active={m.id === model.id}
+                    className="flex cursor-pointer flex-row items-center text-sm data-[active=true]:cursor-default data-[active=true]:bg-primary/10"
+                    disabled={m.disabled}
+                  >
+                    <Image
+                      src={`https://img.logo.dev/${m.provider}?token=${process.env.NEXT_PUBLIC_LOGO_TOKEN}`}
+                      alt={m.provider}
+                      className="mr-2 inline-flex size-4 rounded-sm"
+                      width={16}
+                      height={16}
+                    />
+                    <span
+                      className={cn(
+                        m.premium &&
+                          'bg-gradient-to-r from-[#fc1789] via-[#751dce] to-[#5bccfc] bg-clip-text font-bold text-transparent',
+                      )}
+                    >
+                      {m.name}
+                    </span>
+                  </AIInputModelSelectItem>
+                ))}
+              </AIInputModelSelectContent>
+            </AIInputModelSelect>
+            {status === 'streaming' ? (
+              <Button
+                onClick={onStop}
+                type="button"
+                variant="default"
+                className="text-md min-w-[3rem] rounded-md font-bold"
+                size="icon"
+              >
+                <StopCircle size={16} />
+              </Button>
+            ) : input || hasFile ? (
+              <Button
+                ref={buttonSubmitRef}
+                disabled={form.formState.isSubmitting}
+                type="submit"
+                size="icon"
+                className="text-md min-w-[3rem] rounded-md font-bold"
+              >
+                <SendIcon size={16} />
+              </Button>
+            ) : (
+              <RecorderAudio
+                onSetAudio={onSetAudio}
+                isSubmitting={form.formState.isSubmitting}
+              />
+            )}
+          </AIInputTools>
         </AIInputToolbar>
       </AIForm>
     </Form>

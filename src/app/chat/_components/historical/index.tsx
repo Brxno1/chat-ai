@@ -10,7 +10,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/animate-ui/radix/collapsible'
+} from '@/components/ui/collapsible'
 import { Button } from '@/components/ui/button'
 import { useChatInstance } from '@/context/chat'
 import { queryKeys } from '@/lib/query-client'
