@@ -9,51 +9,6 @@ function getTextFromParts(message: UIMessage): string {
     .join('')
 }
 
-export function filterValidMessages(messages: UIMessage[]): UIMessage[] {
-  return messages.filter((message) => {
-    const text = getTextFromParts(message)
-    if (!text || text.trim().length === 0) {
-      return false
-    }
-
-    if (!message.role || !['user', 'assistant'].includes(message.role)) {
-      return false
-    }
-
-    return true
-  })
-}
-
-export function validateMessages(messages: UIMessage[]): boolean {
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return false
-  }
-
-  return messages.every((msg) => {
-    const text = getTextFromParts(msg)
-    return text && text.trim().length > 0
-  })
-}
-
-export function removeDuplicateMessages(messages: UIMessage[]): UIMessage[] {
-  if (messages.length <= 1) return messages
-
-  const uniqueMessages: UIMessage[] = []
-  const seenMessages = new Set<string>()
-
-  for (const message of messages) {
-    const text = getTextFromParts(message)
-    const messageKey = `${message.role}:${text}`
-
-    if (!seenMessages.has(messageKey)) {
-      uniqueMessages.push(message)
-      seenMessages.add(messageKey)
-    }
-  }
-
-  return uniqueMessages
-}
-
 export function processToolInvocations(messages: UIMessage[]): UIMessage[] {
   const uniqueMessages = messages.filter((message, index) => {
     if (index === 0) return true

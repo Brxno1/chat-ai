@@ -1,4 +1,9 @@
-import { type StreamTextResult, type UIMessage } from 'ai'
+import {
+  type StreamTextResult,
+  type UIMessage,
+  type StepResult,
+  type ToolSet,
+} from 'ai'
 
 import { newsTool } from '@/app/api/chat/tools/news'
 import { weatherTool } from '@/app/api/chat/tools/weather'
@@ -18,11 +23,6 @@ export type ChatMessage = {
   userId: string | null
   chatId: string
   parts: UIMessage['parts']
-  attachments?: {
-    name: string
-    contentType: string
-    url: string
-  }[]
 }
 
 export type DbMessage = {
@@ -32,30 +32,6 @@ export type DbMessage = {
   role: MessageRole
   chatId: string
   parts: Prisma.JsonValue
-  attachments?: {
-    name: string
-    contentType: string
-    url: string
-  }[]
-}
-
-export type MessagePart = {
-  type: 'text' | 'tool-invocation' | 'reasoning' | 'source' | 'file'
-  text?: string
-  reasoning?: string
-  details?: unknown[]
-  mediaType?: string
-  filename?: string
-  url?: string
-  toolInvocation?: {
-    toolCallId: string
-    toolName: 'getWeather' | 'getNews'
-    args: Record<string, unknown>
-    state: 'call' | 'result'
-    callTimestamp: number
-    resultTimestamp?: number
-    result?: unknown | unknown[] | null
-  }
 }
 
 export type ToolResult = {
@@ -78,4 +54,48 @@ export type ProcessChatAndSaveMessagesResponse = {
   stream: StreamResult | null
   headerChatId?: string
   error?: string
+}
+
+export type SystemPrompt = {
+  name: string
+  isLoggedIn: boolean
+}
+
+export type ChatStreamStatus =
+  | 'thinking'
+  | 'responding'
+  | 'streaming'
+  | 'submitted'
+  | 'ready'
+  | 'error'
+
+export type StoragePart = Extract<
+  UIMessage['parts'][number],
+  { type: 'text' | 'file' }
+>
+
+export type ChatResponsePayload = {
+  content: StepResult<ToolSet>['content']
+  chatId: string
+  userId: string
+}
+
+export interface ChatAttachment {
+  name: string
+  contentType: string
+  url: string
+}
+
+export type ProcessedAttachment = {
+  url: string
+  name: string
+  contentType: string
+}
+
+export type FilePart = Extract<UIMessage['parts'][number], { type: 'file' }>
+
+export type UploadedAttachment = {
+  url: string
+  name: string
+  contentType: string
 }

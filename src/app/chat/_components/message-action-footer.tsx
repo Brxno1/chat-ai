@@ -12,9 +12,8 @@ interface MessageProps {
 export function MessageActionFooter({ message }: MessageProps) {
   const { onRegenerateResponse, messages } = useChatInstance()
 
-  const isLastMessage =
-    messages[messages.length - 1]?.id === message.id &&
-    message.role === 'assistant'
+  const lastAssistantMessage = messages.findLast((m) => m.role === 'assistant')
+  const isLastAssistantMessage = lastAssistantMessage?.id === message.id
 
   const textoForCopy = message.parts
     .map((part) => (part.type === 'text' ? part.text : ''))
@@ -28,7 +27,7 @@ export function MessageActionFooter({ message }: MessageProps) {
         iconSize={12}
         className="flex size-5 cursor-pointer items-center justify-center rounded-md opacity-0 duration-300 hover:bg-muted hover:text-foreground group-hover/container-wrapper:opacity-100"
       />
-      {message.role === 'assistant' && isLastMessage && (
+      {message.role === 'assistant' && isLastAssistantMessage && (
         <div
           onClick={() => onRegenerateResponse()}
           className="flex size-5 cursor-pointer items-center justify-center rounded-md opacity-0 duration-300 hover:bg-muted hover:text-primary group-hover/container-wrapper:opacity-100"

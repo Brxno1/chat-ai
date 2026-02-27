@@ -5,12 +5,7 @@ import type { UIMessage } from 'ai'
 import AudioPlayer from './audio-player'
 import { ImagePreview } from './image-preview'
 
-type FilePart = {
-  type: 'file'
-  url: string
-  mediaType: string
-  filename?: string
-}
+type FilePart = Extract<UIMessage['parts'][number], { type: 'file' }>
 
 type AttachmentsProps = {
   parts: UIMessage['parts']
@@ -40,9 +35,7 @@ export function Attachments({ parts }: AttachmentsProps) {
 
   return (
     <>
-      {images.length > 0 && (
-        <ImagePreview images={images} noRemove className="size-16 rounded-md" />
-      )}
+      {images.length > 0 && <ImagePreview images={images} noRemove />}
 
       {audioAttachments.length > 0 && (
         <div>

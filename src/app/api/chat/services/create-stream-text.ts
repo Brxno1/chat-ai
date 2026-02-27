@@ -10,7 +10,7 @@ import {
 } from 'ai'
 
 import { env } from '@/lib/env'
-import type { Model } from '@/types/model'
+import type { AllTools } from '@/types/chat'
 
 import { newsTool } from '../tools/news'
 import { weatherTool } from '../tools/weather'
@@ -29,14 +29,18 @@ const nvidia = createOpenAICompatible({
 const isGoogleModel = (id: string) =>
   id.startsWith('gemini') || id.startsWith('gemma')
 
+type OnFinishCallback = Parameters<typeof streamText>[0]['onFinish']
+
 type CreateStreamTextParams = {
   messages: UIMessage[]
-  modelId: Model['id']
+  modelId: string
+  onFinish?: OnFinishCallback
 }
 
 export async function createStreamText({
   messages,
   modelId,
+  onFinish,
 }: CreateStreamTextParams) {
   const getModel = () => {
     if (isGoogleModel(modelId)) {
@@ -51,8 +55,6 @@ export async function createStreamText({
   })
 
   try {
-    let errorMessage: string | null = null
-
     const streamResult = streamText({
       model,
       temperature: 0.8,
@@ -60,25 +62,18 @@ export async function createStreamText({
       experimental_transform: [
         smoothStream({
           chunking: 'line',
-          delayInMs: 80,
+          delayInMs: 25,
         }),
       ],
       toolChoice: 'auto',
       tools: {
         getWeather: weatherTool,
         getNews: newsTool,
-      },
+      } as AllTools,
       onError: (error) => {
-        errorMessage = errorHandler(error)
+        console.error('createStreamText onError:', error)
       },
     })
-
-    if (!streamResult) {
-      return {
-        streamResult: null,
-        streamError: errorMessage,
-      }
-    }
 
     return {
       streamResult,

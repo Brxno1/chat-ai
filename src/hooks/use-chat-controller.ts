@@ -10,10 +10,10 @@ import { toast } from 'sonner'
 import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat'
-import type { ChatMessage as ChatMessageType } from '@/types/chat'
+import type { ChatMessage } from '@/types/chat'
 
 type UseChatControllerProps = {
-  initialMessages?: (UIMessage & Partial<ChatMessageType>)[] | undefined
+  initialMessages?: (UIMessage & Partial<ChatMessage>)[] | undefined
   currentChatId?: string | undefined
   initialModel?: string
 }
@@ -49,15 +49,16 @@ export function useChatController({
       headers: () => {
         const { isGhostChatMode, model } = useChatStore.getState()
         return {
-          'x-user-name': user?.name || '',
-          'x-user-id': user?.id || '',
-          'x-chat-id': currentChatId || '',
+          'x-chat-id': stableId,
           'x-ghost-mode': String(isGhostChatMode),
           'x-ai-model': model.id,
         }
       },
       fetch: async (input, init) => {
-        const response = await fetch(input, init)
+        const response = await fetch(input, {
+          ...init,
+          credentials: 'include',
+        })
         const chatId = response.headers.get('x-chat-id')
 
         if (chatId?.trim()) {
@@ -85,8 +86,7 @@ export function useChatController({
       if (metadata?.finishReason === 'stop') {
         const chatKey = getChatInstanceKey()
         if (chatKey) {
-          window.history.pushState(null, '', `/chat/${chatKey}`)
-          router.prefetch(`/chat/${chatKey}`)
+          router.push(`/chat/${chatKey}`)
         }
       }
     },

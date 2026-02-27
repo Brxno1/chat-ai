@@ -4,6 +4,7 @@ import { type UIMessage } from 'ai'
 import { ChangeEvent, createContext, useContext } from 'react'
 
 import { Chat } from '@/services/database/generated'
+import type { ChatStreamStatus } from '@/types/chat'
 import type { Model } from '@/types/model'
 
 type SendMessageOptions = {
@@ -16,6 +17,7 @@ type States = {
   input: string
   messages: UIMessage[]
   status: 'streaming' | 'error' | 'submitted' | 'ready'
+  streamStatus: ChatStreamStatus
   isTranscribing: boolean
   model: Model
 }

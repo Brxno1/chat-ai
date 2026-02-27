@@ -1,19 +1,11 @@
 import { type UIMessage } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { getUserSession } from '@/actions/user/profile/get-user-session'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
 import { errorHandler } from './utils/error-handler'
-
-function getTextFromParts(message: UIMessage): string {
-  return message.parts
-    .filter(
-      (part): part is { type: 'text'; text: string } => part.type === 'text',
-    )
-    .map((part) => part.text)
-    .join('')
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,44 +13,23 @@ export async function POST(req: NextRequest) {
 
     const { messages }: { messages: UIMessage[] } = body
 
-    const headerUserName = req.headers.get('x-user-name') || undefined
-    const headerUserId = req.headers.get('x-user-id') || undefined
+    const { session } = await getUserSession()
+
+    const userId = session?.user?.id || undefined
+    const userName = session?.user?.name || undefined
+
     const headerChatId = req.headers.get('x-chat-id') || undefined
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
     const headerAiModelId = req.headers.get('x-ai-model')
-
-    const processedMessages = messages.map((message) => {
-      const text = getTextFromParts(message)
-      if (
-        message.role === 'assistant' &&
-        text.trim() === '' &&
-        message.parts?.some((part) => part.type === 'tool-invocation')
-      ) {
-        return {
-          ...message,
-          parts: [
-            {
-              type: 'text' as const,
-              text: 'Informações sendo solicitadas via ferramentas...',
-            },
-            ...message.parts.filter(
-              (part) =>
-                part.type !== 'tool-invocation' || Object.keys(part).length > 1,
-            ),
-          ],
-        }
-      }
-      return message
-    })
 
     const {
       stream: processedStream,
       headerChatId: processedChatId,
       error,
     } = await processChatAndSaveMessages({
-      messages: processedMessages,
-      userName: headerUserName,
-      userId: headerUserId,
+      messages,
+      userName,
+      userId,
       headerChatId,
       isGhostChatMode: headerGhostMode,
       modelId: headerAiModelId!,
@@ -95,12 +66,7 @@ export async function POST(req: NextRequest) {
       },
       headers: {
         'x-chat-id': processedChatId ?? '',
-        'x-user-id': headerUserId ?? '',
-        'x-user-name': headerUserName ?? 'Guest',
         'x-ghost-mode': headerGhostMode.toString(),
-        'x-message-count': (processedMessages.length + 1).toString(),
-        'x-context-length': processedMessages.slice(-4).length.toString(),
-        'x-user-tier': headerUserId ? 'premium' : 'free',
         'x-ai-model': headerAiModelId!,
       },
     })
