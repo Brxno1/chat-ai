@@ -137,50 +137,53 @@ export function ChatForm() {
   }, [files, form])
 
   const hasFile = files.length > 0 || form.watch('audio')
+  const hasImageToPreview = images.length > 0
 
   return (
     <Form {...form}>
       <AIForm
         onSubmit={form.handleSubmit(handleSubmit)}
         className={cn(
-          '!m-0 items-center overflow-y-auto rounded-md border border-input bg-sidebar',
+          '!m-0 flex flex-col overflow-y-auto rounded-md border border-input bg-sidebar',
           isGhostChatMode && 'border-dashed',
         )}
       >
-        {images.length > 0 && (
+        {hasImageToPreview && (
           <ImagePreview
-            className="size-14"
+            className="size-14 p-2 pb-0"
             images={images}
             onRemoveItem={onRemoveItem}
           />
         )}
-        <AIInputToolbar className="gap-2">
-          <FormField
-            control={form.control}
-            name="message"
-            render={({ field }) => (
-              <FormItem className="flex flex-1 items-center">
-                <FormControl>
-                  <AIInputTextarea
-                    name="message"
-                    ref={inputRef}
-                    autoFocus={status === 'ready'}
-                    disabled={status === 'streaming'}
-                    value={input}
-                    onChange={(ev) => {
-                      field.onChange(ev)
-                      onInputChange(ev)
-                    }}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="message"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormControl>
+                <AIInputTextarea
+                  name="message"
+                  ref={inputRef}
+                  className="min-h-[40px] resize-none border-none bg-transparent pb-0 pt-4 shadow-none focus-visible:ring-0"
+                  placeholder="Digite sua mensagem..."
+                  autoFocus={status === 'ready'}
+                  disabled={status === 'streaming'}
+                  value={input}
+                  onChange={(ev) => {
+                    field.onChange(ev)
+                    onInputChange(ev)
+                  }}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <AIInputToolbar className="flex w-full items-center justify-between gap-2 pb-2 pt-1">
           <FormField
             control={form.control}
             name="files"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="shrink-0">
                 <FormControl>
                   <AIInputButton
                     type="button"
@@ -208,7 +211,7 @@ export function ChatForm() {
               </FormItem>
             )}
           />
-          <AIInputTools className="flex w-full flex-1 items-center">
+          <AIInputTools className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
             <AIInputModelSelect value={model.id} onValueChange={onModelChange}>
               <AIInputModelSelectTrigger
                 className="w-auto shrink-0 border-none text-sm text-muted-foreground transition-all"

@@ -6,17 +6,18 @@ import { toast } from 'sonner'
 
 import { models } from '@/app/chat/models/definitions'
 import { useChatController } from '@/hooks/use-chat-controller'
+import { useDerivedStreamStatus } from '@/hooks/use-derived-stream-status'
 import { useTranscribeAudio } from '@/hooks/use-transcribe-audio'
 import { Chat } from '@/services/database/generated'
 import { useChatStore } from '@/store/chat'
-import type { ChatMessage as ChatMessageType } from '@/types/chat'
+import type { ChatMessage } from '@/types/chat'
 
 import { ChatContext, ChatContextProps } from './context'
 
 export type ChatProviderProps = {
   children: React.ReactNode
   initialChats?: Chat[]
-  initialMessages?: (UIMessage & Partial<ChatMessageType>)[]
+  initialMessages?: (UIMessage & Partial<ChatMessage>)[]
   currentChatId?: string
   cookieModel?: string | undefined
 }
@@ -56,6 +57,8 @@ export function ChatProvider({
     currentChatId,
     initialModel: cookieModel,
   })
+
+  const streamStatus = useDerivedStreamStatus(status, messages)
 
   const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value)
@@ -145,6 +148,7 @@ export function ChatProvider({
     inputRef,
     messages,
     status,
+    streamStatus,
     isTranscribing,
     setMessages,
     setInput,

@@ -1,4 +1,5 @@
 import { type UIMessage } from 'ai'
+import { after } from 'next/server'
 
 import { generateTitle } from '@/actions/chat/generate-title'
 import {
@@ -54,15 +55,15 @@ export async function processChatAndSaveMessages({
       if (!success) {
         console.error('Failed to create/find chat:', error)
       }
-      const { processedAttachments } = await processAttachments(
-        lastMessage,
-        userId,
-        chatId,
-      )
-
       const messagesToSave = isNewChat
         ? processedMessages
         : [lastMessage].filter((msg) => msg?.role === 'user')
+
+      const { processedAttachments } = await processAttachments(
+        messagesToSave,
+        userId,
+        chatId,
+      )
 
       await saveMessages(messagesToSave, chatId, userId, processedAttachments)
     } catch (error) {
@@ -73,6 +74,30 @@ export async function processChatAndSaveMessages({
   const { streamResult, streamError } = await createStreamText({
     messages: finalMessages,
     modelId,
+    onFinish: (event) => {
+      if (isGhostChatMode || !userId) return
+
+      after(async () => {
+        try {
+          const content = event.content.filter(
+            (part) => part.type !== 'tool-call',
+          )
+
+          const { success: saveSuccess, error: saveError } =
+            await saveChatResponse({ content, chatId, userId })
+
+          if (!saveSuccess) {
+            console.error('Failed to save chat response:', saveError)
+          }
+
+          // if (finalMessages.length >= 2) {
+          //   await generateTitle(chatId, finalMessages)
+          // }
+        } catch (error) {
+          console.error('after background task error:', error)
+        }
+      })
+    },
   })
 
   if (streamError || !streamResult) {
@@ -88,28 +113,6 @@ export async function processChatAndSaveMessages({
       headerChatId: undefined,
     }
   }
-
-  setImmediate(async () => {
-    try {
-      const { success: saveSuccess, error: saveError } = await saveChatResponse(
-        {
-          stream: streamResult,
-          chatId,
-          userId,
-        },
-      )
-
-      if (!saveSuccess) {
-        console.error('Failed to save chat response:', saveError)
-      }
-
-      if (finalMessages.length >= 2) {
-        await generateTitle(chatId, finalMessages)
-      }
-    } catch (error) {
-      console.error('Background task error:', error)
-    }
-  })
 
   return {
     stream: streamResult,

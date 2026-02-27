@@ -34,10 +34,35 @@ export function ChatNews({ toolInvocation, message }: ChatNewsProps) {
 
     const toolCalls = message.parts
       .filter((part) => part.type.startsWith('tool-'))
-      .map(
-        (part) =>
-          part as { toolCallId: string; toolName: string; state: string },
-      )
+      .map((part) => {
+        let toolCallId = ''
+        let toolName = part.type.replace('tool-', '')
+        let state = 'result'
+
+        if ('toolInvocation' in part) {
+          const inv = part.toolInvocation as {
+            toolCallId?: string
+            toolName?: string
+            state?: string
+          }
+          toolCallId = inv.toolCallId ?? ''
+          toolName = inv.toolName ?? toolName
+          state = inv.state ?? state
+        } else {
+          const streamPart = part as {
+            toolCallId?: string
+            toolInvocationId?: string
+            toolName?: string
+            state?: string
+          }
+          toolCallId =
+            streamPart.toolCallId ?? streamPart.toolInvocationId ?? ''
+          toolName = streamPart.toolName ?? toolName
+          state = streamPart.state ?? state
+        }
+
+        return { toolCallId, toolName, state }
+      })
       .filter((tool) => tool.state === 'call' && tool.toolName === 'getNews')
 
     if (toolCalls.length === 0) return

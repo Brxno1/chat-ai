@@ -1,4 +1,4 @@
-import { MessagePart } from '@/types/chat'
+import type { MessagePart } from '@/types/chat'
 
 type ToolArgs = {
   getWeather: { location: string }
@@ -26,7 +26,10 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
   }
 
   const textFromParts = parts
-    .filter((part) => part && part.type === 'text' && part.text)
+    .filter(
+      (part): part is Extract<MessagePart, { type: 'text' }> =>
+        part.type === 'text',
+    )
     .map((part) => part.text)
     .join(' ')
 
@@ -34,20 +37,15 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
     return textFromParts
   }
 
-  const toolInvocationParts = parts.filter((part) =>
-    part.type.startsWith('tool-'),
+  const toolParts = parts.filter(
+    (part): part is Extract<MessagePart, { type: 'tool-invocation' }> =>
+      part.type === 'tool-invocation',
   )
 
-  if (toolInvocationParts.length > 0) {
-    return toolInvocationParts
+  if (toolParts.length > 0) {
+    return toolParts
       .map((part) => {
-        const toolPart = part as {
-          toolName?: string
-          input?: Record<string, unknown>
-          args?: Record<string, unknown>
-        }
-        const toolName = toolPart.toolName
-        const args = toolPart.args ?? toolPart.input
+        const { toolName, args } = part.toolInvocation
 
         switch (toolName) {
           case 'getWeather':

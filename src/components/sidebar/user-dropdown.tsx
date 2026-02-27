@@ -44,7 +44,7 @@ function UserDropdown() {
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: async () => {
       await signOut({
-        redirectTo: `/`,
+        redirectTo: `/`,        
       })
     },
     onSuccess: () => {
@@ -77,6 +77,7 @@ function UserDropdown() {
       <DropdownMenuTrigger asChild>
         <Button
           size="lg"
+          variant="ghost"
           data-dropdown={open ? 'open' : 'closed'}
           className="group relative z-50 mb-2 flex w-full items-center justify-start space-x-2 rounded-xl border border-input px-2 py-6 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:p-6"
         >

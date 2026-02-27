@@ -2,11 +2,9 @@
 
 import { type UIMessage } from 'ai'
 
+import { type ChatResponsePayload } from '@/types/chat'
 import type { MessageRole, Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
-import { StreamResult } from '@/types/chat'
-
-import { processStreamResult } from '../../app/api/chat/services/process-stream-result'
 import { errorHandler } from '../../app/api/chat/utils/error-handler'
 import { formatMessageForStorage } from '../../app/api/chat/utils/message-processor'
 
@@ -53,10 +51,14 @@ async function saveMessages(
   }[],
 ): Promise<OperationResponse<null>> {
   try {
-    for (const message of messagesToSave) {
-      const { role, parts } = formatMessageForStorage(message)
+    for (const [index, message] of messagesToSave.entries()) {
+      const isLastMessage = index === messagesToSave.length - 1
+      const { role, parts } = formatMessageForStorage(
+        message,
+        isLastMessage ? attachments : undefined,
+      )
 
-      if (role === 'USER' && attachments) {
+      if (role === 'USER' && isLastMessage && attachments) {
         await prisma.$transaction(async (tx) => {
           const createdMessage = await tx.message.create({
             data: {
@@ -107,25 +109,19 @@ async function saveMessages(
   }
 }
 
-type ChatResponse = {
-  stream: StreamResult
-  chatId: string
-  userId: string
-}
-
 async function saveChatResponse({
-  stream,
+  content,
   chatId,
   userId,
-}: ChatResponse): Promise<{ success: boolean; error?: string }> {
+}: ChatResponsePayload): Promise<{ success: boolean; error?: string }> {
   try {
-    const { parts } = await processStreamResult(stream)
-
     await prisma.message.create({
       data: {
         role: 'ASSISTANT',
         chatId,
-        parts: JSON.stringify(parts),
+        parts: JSON.stringify(content, (key, value) =>
+          key === 'providerMetadata' ? undefined : value,
+        ),
         userId,
       },
     })

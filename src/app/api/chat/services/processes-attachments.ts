@@ -1,34 +1,18 @@
 import { type UIMessage } from 'ai'
 
-import { uploadChatImage } from './upload-chat-image'
+import { type FilePart, type ProcessedAttachment } from '@/types/chat'
 
-type ProcessedAttachment = {
-  url: string
-  name: string
-  contentType: string
-}
-
-type FilePart = {
-  type: 'file'
-  url: string
-  mediaType: string
-  filename?: string
-}
+import { uploadChatAttachment } from './upload-chat-attachment'
 
 export async function processAttachments(
-  lastMessage: UIMessage,
+  messages: UIMessage[],
   userId: string,
   chatId: string,
 ): Promise<{ processedAttachments: ProcessedAttachment[] }> {
-  const { role, parts } = lastMessage
-
-  if (role !== 'user') {
-    return { processedAttachments: [] }
-  }
-
-  const fileParts = parts.filter(
-    (part): part is FilePart => part.type === 'file',
-  )
+  const fileParts = messages
+    .filter((message) => message.role === 'user')
+    .flatMap((message) => message.parts)
+    .filter((part): part is FilePart => part.type === 'file')
 
   if (fileParts.length === 0) {
     return { processedAttachments: [] }
@@ -38,20 +22,9 @@ export async function processAttachments(
 
   for await (const attach of fileParts) {
     try {
-      const isAudio = attach.mediaType?.startsWith('audio/')
-
-      if (isAudio) {
-        processedAttachments.push({
-          url: attach.url,
-          name: attach.filename || `audio-${new Date().getTime()}.webm`,
-          contentType: attach.mediaType || 'audio/webm',
-        })
-        continue
-      }
-
-      const result = await uploadChatImage(userId, chatId, {
-        name: attach.filename || new Date().getTime().toString(),
-        contentType: attach.mediaType || 'image/webp',
+      const result = await uploadChatAttachment(userId, chatId, {
+        name: attach.filename ?? '',
+        contentType: attach.mediaType ?? 'image/webp',
         url: attach.url,
       })
 
