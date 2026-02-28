@@ -1,5 +1,6 @@
-import { Session, User } from 'next-auth'
 import { createStore, StoreApi } from 'zustand'
+
+import type { Session, User } from '@/types/auth'
 
 interface State {
   session: Session | null

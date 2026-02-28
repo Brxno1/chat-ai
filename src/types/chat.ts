@@ -1,13 +1,15 @@
 import {
-  type StreamTextResult,
-  type UIMessage,
   type StepResult,
+  type StreamTextResult,
   type ToolSet,
+  type UIMessage,
 } from 'ai'
 
 import { newsTool } from '@/app/api/chat/tools/news'
 import { weatherTool } from '@/app/api/chat/tools/weather'
 import type { MessageRole, Prisma } from '@/services/database/generated'
+
+export type MessagePart = NonNullable<UIMessage['parts']>[number]
 
 export type AllTools = {
   getWeather: typeof weatherTool

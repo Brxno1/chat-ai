@@ -3,14 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiGoogleFill } from '@remixicon/react'
 import { useMutation } from '@tanstack/react-query'
-import { LoaderCircle, Mail, Undo2 } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { LoaderCircle, Mail } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { getUserByEmail } from '@/actions/user/login/get-user-by-email'
 import { InteractiveHoverButton } from '@/components/magicui/interactive-hover-button'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { TypingAnimation } from '@/components/magicui/typing-animation'
@@ -34,6 +32,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { env } from '@/lib/env'
 import { loginSchema } from '@/schemas'
+import { signIn } from '@/services/auth/auth-client'
 import { cn } from '@/utils/utils'
 
 type FormValue = z.infer<typeof loginSchema>
@@ -55,55 +54,55 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
   const magicLinkRef = React.useRef<HTMLAnchorElement>(null)
 
   const { mutateAsync: sendMagicLink } = useMutation({
-    mutationFn: getUserByEmail,
-    onSuccess: async ({ user, success }) => {
-      if (!success || !user) {
-        toast('Verifique seu e-mail ou tente novamente', {
-          action: (
-            <Button className="ml-2" size="icon" form="login-form">
-              <Undo2 size={16} />
-            </Button>
-          ),
-        })
-        return
+    mutationFn: async ({ email }: { email: string }) => {
+      const result = await signIn.magicLink({
+        email,
+        callbackURL: '/',
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message || 'MAGIC_LINK_ERROR')
       }
 
-      toast('Verifique seu e-mail para acessar a sua conta', {
-        action: (
-          <a
-            href={env.MAILHOG_UI}
-            target="_blank"
-            rel="noopener noreferrer"
-            ref={magicLinkRef}
-          >
-            <Button className="ml-2" size="icon">
-              <Mail size={16} />
-            </Button>
-          </a>
-        ),
-        duration: 10000,
-      })
+      return result
+    },
+    onSuccess: () => {
+      toast(
+        'Se o e-mail estiver cadastrado, você receberá um link de acesso.',
+        {
+          action: (
+            <a
+              href={env.MAILHOG_UI}
+              target="_blank"
+              rel="noopener noreferrer"
+              ref={magicLinkRef}
+            >
+              <Button className="ml-2" size="icon">
+                <Mail size={16} />
+              </Button>
+            </a>
+          ),
+          duration: 10000,
+        },
+      )
 
       setTimeout(() => {
         if (magicLinkRef.current) {
           magicLinkRef.current.focus()
         }
       }, 100)
-
-      await signIn('email', {
-        email: user.email,
-        redirect: false,
-        redirectTo: '/',
-      })
     },
     onError: () => {
-      toast.error('Ocorreu um erro ao enviar o e-mail. Tente novamente.')
-      onChangeMode(form.getValues('email'))
-      form.reset()
+      toast(
+        'Se o e-mail estiver cadastrado, você receberá um link de acesso.',
+        {
+          duration: 5000,
+        },
+      )
     },
   })
 
-  React.useEffect(() => {
+React.useEffect(() => {
     form.setFocus('email')
   }, [form])
 
@@ -183,7 +182,9 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
           <Button
             variant="outline"
             className="mx-auto w-[12rem] rounded-2xl font-semibold"
-            onClick={() => signIn('google', { redirectTo: '/dashboard' })}
+            onClick={() =>
+              signIn.social({ provider: 'google', callbackURL: '/dashboard' })
+            }
           >
             <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
             Google

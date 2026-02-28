@@ -38,14 +38,14 @@ export function extractTextFromParts(parts: MessagePart[] | undefined): string {
   }
 
   const toolParts = parts.filter(
-    (part): part is Extract<MessagePart, { type: 'tool-invocation' }> =>
-      part.type === 'tool-invocation',
+    (part): part is Extract<MessagePart, { type: 'tool-call' }> =>
+      part.type === 'tool-call',
   )
 
   if (toolParts.length > 0) {
     return toolParts
       .map((part) => {
-        const { toolName, args } = part.toolInvocation
+        const { toolName, args } = part
 
         switch (toolName) {
           case 'getWeather':

@@ -1,14 +1,20 @@
 import 'dotenv/config'
 
-import { PrismaClient } from './generated'
+import { PrismaPg } from '@prisma/adapter-pg'
+
+import { PrismaClient } from './generated/client'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
 function createPrismaClient() {
   try {
+    const adapter = new PrismaPg({
+      connectionString: process.env.DIRECT_URL!,
+    })
+
     return new PrismaClient({
       log: ['error'],
-      datasourceUrl: process.env.DATABASE_URL,
+      adapter,
     })
   } catch (error) {
     console.error('Failed to create Prisma client:', error)

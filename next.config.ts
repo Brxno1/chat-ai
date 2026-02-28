@@ -6,15 +6,15 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     const sessionCookies = [
-      'authjs.session-token',
-      '__Secure-authjs.session-token',
+      'better-auth.session_token',
+      '__Secure-better-auth.session_token',
     ]
 
     const protectedRedirects = ['/dashboard', '/chat'].map((path) => ({
       source: `${path}/:path*`,
       missing: [
-        { type: 'cookie' as const, key: 'authjs.session-token' },
-        { type: 'cookie' as const, key: '__Secure-authjs.session-token' },
+        { type: 'cookie' as const, key: 'better-auth.session_token' },
+        { type: 'cookie' as const, key: '__Secure-better-auth.session_token' },
       ],
       destination: '/auth',
       permanent: false,
@@ -71,6 +71,7 @@ const nextConfig: NextConfig = {
     '@sendgrid/mail',
     'prisma',
     '@prisma/client',
+    '@prisma/client-runtime-utils',
   ],
 
   webpack: (config, { dev, isServer }) => {

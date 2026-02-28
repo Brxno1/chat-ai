@@ -1,8 +1,8 @@
 'use client'
 
-import { Session, User } from 'next-auth'
 import { ReactNode, useReducer } from 'react'
 
+import type { Session, User } from '@/types/auth'
 import { Notification } from '@/types/notifications'
 
 import { UserContext } from './context'

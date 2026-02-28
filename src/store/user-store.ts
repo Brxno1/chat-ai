@@ -1,5 +1,6 @@
-import { Session, User } from 'next-auth'
 import { create } from 'zustand'
+
+import type { Session, User } from '@/types/auth'
 
 type State = {
   session: Session | null

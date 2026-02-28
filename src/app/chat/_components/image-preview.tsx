@@ -2,6 +2,8 @@ import { XIcon } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,9 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { useSidebar } from '@/components/ui/sidebar'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import {
   Drawer,
   DrawerClose,
@@ -21,6 +20,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
+import { useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/utils/utils'
 
 type ImageItem = {

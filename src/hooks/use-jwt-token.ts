@@ -1,13 +1,13 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/services/auth/auth-client'
 
 export function useJwtToken() {
-  const { data: session } = useSession()
+  const session = useSession()
 
   return {
-    token: session?.accessToken || null,
-    isLoading: !session,
-    isAuthenticated: !!session?.accessToken,
+    token: session.data?.session?.token || null,
+    isLoading: session.isPending,
+    isAuthenticated: !!session.data?.session?.token,
   }
 }

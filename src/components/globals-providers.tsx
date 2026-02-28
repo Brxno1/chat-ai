@@ -2,8 +2,7 @@
 
 import { AppProgressProvider as ProgressProvider } from '@bprogress/next'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { SessionProvider as NextAuthSessionProvider } from 'next-auth/react'
-import { Session, User } from 'next-auth'
+import type { Session, User } from '@/types/auth'
 import React from 'react'
 import { Toaster as ToasterSonner } from 'sonner'
 
@@ -15,7 +14,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { TooltipProvider } from './ui/tooltip'
 import { ChatProvider } from '@/context/chat'
 import { Notification } from '@/types/notifications'
-import { Chat } from '@/services/database/generated'
+import { Chat } from '@/services/database/generated/client'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -60,9 +59,7 @@ export function Providers({
             >
               <TooltipProvider>
                 <SidebarProvider defaultOpen={defaultOpen}>
-                  <NextAuthSessionProvider session={initialSession}>
-                    {children}
-                  </NextAuthSessionProvider>
+                  {children}
                 </SidebarProvider>
               </TooltipProvider>
               <ToasterSonner

@@ -24,7 +24,7 @@ import { SidebarTriggerComponent } from './sidebar-trigger'
 import { SidebarTriggerComponentMobile } from './sidebar-trigger-mobile'
 import { UserDropdown } from './user-dropdown'
 
-export function ChatSidebar({ className }: { className: string }) {
+export function ChatSidebar({ className }: { className?: string }) {
   const pathname = usePathname()
   const isActivePath = (path: string) => pathname.startsWith(path)
 

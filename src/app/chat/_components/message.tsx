@@ -152,7 +152,7 @@ export function ChatMessage({ message }: MessageProps) {
             let toolName = part.type.replace('tool-', '')
             let state = 'result'
             let rawArgs: unknown = {}
-            let rawResult: unknown = undefined
+            let rawResult: unknown
 
             if ('toolInvocation' in part) {
               const inv = part.toolInvocation as {

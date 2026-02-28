@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { toast } from 'sonner'
 
-import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
 import { useChatStore } from '@/store/chat'
 import type { ChatMessage } from '@/types/chat'
@@ -31,7 +30,6 @@ export function useChatController({
 }: UseChatControllerProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
-  const { user } = useSessionUser()
 
   const setSuggestions = useChatStore((state) => state.setSuggestions)
 

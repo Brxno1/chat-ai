@@ -40,16 +40,6 @@ export const createAccountSchema = z.object({
     .string()
     .nonempty('Email não pode estar vazio')
     .email('Insira um email válido'),
-  avatar: z.union([
-    z
-      .instanceof(File, { message: 'Por favor, selecione um arquivo válido' })
-      .refine(
-        (file) => file.size <= MAX_SIZE_FOR_FILE,
-        `O avatar deve ter no máximo 10MB`,
-      ),
-    z.null(),
-    z.undefined(),
-  ]),
 })
 
 export const loginSchema = z.object({

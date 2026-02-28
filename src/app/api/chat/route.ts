@@ -2,6 +2,7 @@ import { type UIMessage } from 'ai'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { getUserSession } from '@/actions/user/profile/get-user-session'
+
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
