@@ -2,8 +2,9 @@
 
 import sharp from 'sharp'
 
-import { type ChatAttachment } from '@/types/chat'
 import { supabase } from '@/lib/supabase'
+import { type ChatAttachment } from '@/types/chat'
+
 import {
   generateAttachmentName,
   getAttachmentConfig,

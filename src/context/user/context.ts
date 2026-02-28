@@ -1,8 +1,8 @@
 'use client'
 
-import { Session, User } from 'next-auth'
 import { createContext, useContext } from 'react'
 
+import type { Session, User } from '@/types/auth'
 import { Notification } from '@/types/notifications'
 
 type UserContextType = {

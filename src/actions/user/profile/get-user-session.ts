@@ -1,8 +1,7 @@
 'use server'
 
-import { Session } from 'next-auth'
-
-import { auth } from '@/services/auth'
+import { getSession } from '@/services/auth'
+import type { Session } from '@/types/auth'
 
 type GetUserSessionResponse = {
   session: Session | null
@@ -11,7 +10,7 @@ type GetUserSessionResponse = {
 
 export async function getUserSession(): Promise<GetUserSessionResponse> {
   try {
-    const session = await auth()
+    const session = await getSession()
 
     if (!session) {
       return {

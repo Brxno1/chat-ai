@@ -1,4 +1,4 @@
-import { User } from 'next-auth'
+import type { User } from '@/types/auth'
 
 const UPDATE_USER = 'UPDATE_USER' as const
 

@@ -1,8 +1,7 @@
 'use server'
 
 import { supabase } from '@/lib/supabase'
-import { signIn } from '@/services/auth'
-import { User } from '@/services/database/generated'
+import type { User } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { processImage } from '@/utils/process-image'
 
@@ -72,11 +71,8 @@ export async function createUserAndSendMagicLink(
       })
     }
 
-    await signIn('email', {
-      email: createdUser.email,
-      redirect: false,
-      redirectTo: '/chat',
-    })
+    // Magic link is now sent via the client-side auth client
+    // The server action only creates the user; the client handles signIn.magicLink()
 
     return {
       user: createdUser,

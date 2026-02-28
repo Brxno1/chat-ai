@@ -3,15 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiGoogleFill } from '@remixicon/react'
 import { useMutation } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
-import { LoaderCircle, Mail, RotateCw } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { LoaderCircle, Mail } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createAccount } from '@/app/(http)/user/login-account'
 import { InteractiveHoverButton } from '@/components/magicui/interactive-hover-button'
 import { ShineBorder } from '@/components/magicui/shine-border'
 import { Button } from '@/components/ui/button'
@@ -31,11 +28,21 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { UploadAvatar } from '@/components/upload-avatar'
 import { env } from '@/lib/env'
-import { createAccountSchema } from '@/schemas'
+import { signIn } from '@/services/auth/auth-client'
 import { useSessionStore } from '@/store/user-store'
 import { cn } from '@/utils/utils'
+
+const createAccountSchema = z.object({
+  name: z
+    .string()
+    .nonempty('Nome não pode estar vazio')
+    .min(3, 'Nome deve ter no mínimo 3 carácteres'),
+  email: z
+    .string()
+    .nonempty('Email não pode estar vazio')
+    .email('Insira um email válido'),
+})
 
 type FormValues = z.infer<typeof createAccountSchema>
 
@@ -48,12 +55,23 @@ export function CreateAccountForm() {
     defaultValues: {
       name: '',
       email: email || '',
-      avatar: null,
     },
   })
 
   const { mutateAsync: createAccountFn } = useMutation({
-    mutationFn: createAccount,
+    mutationFn: async ({ name, email }: FormValues) => {
+      const result = await signIn.magicLink({
+        email,
+        name,
+        callbackURL: '/',
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message || 'SIGNUP_ERROR')
+      }
+
+      return result
+    },
     onSuccess: () => {
       toast('Verifique seu e-mail para acessar a sua conta', {
         action: (
@@ -65,53 +83,23 @@ export function CreateAccountForm() {
         ),
         duration: 10000,
       })
+
       form.reset({
         name: '',
         email: '',
-        avatar: null,
       })
     },
-    onError: (err) => {
-      if (err instanceof AxiosError) {
-        toast.error('Erro ao logar com o link mágico', {
-          action: (
-            <Button
-              form="form-auth"
-              variant={'ghost'}
-              type="submit"
-              className="ml-auto transition-all hover:bg-red-950/40"
-            >
-              <RotateCw className="h-4 w-4 text-rose-300" />
-            </Button>
-          ),
-        })
-        form.reset({
-          name: '',
-          email: '',
-          avatar: null,
-        })
-      }
+    onError: () => {
+      toast.error('Erro ao criar conta. Tente novamente.')
+      form.reset({
+        name: '',
+        email: '',
+      })
     },
   })
 
-  const onFileChange = (name: 'avatar', file: File | FileList | null) => {
-    form.setValue(name, file as File)
-    form.clearErrors(name)
-
-    if (file) {
-      form.trigger(name)
-    }
-  }
-
-  const onCreateAccount = async ({ name, email, avatar }: FormValues) => {
-    const formData = new FormData()
-
-    formData.append('name', name)
-    formData.append('email', email)
-
-    if (avatar) formData.append('avatar', avatar)
-
-    await createAccountFn(formData)
+  const onCreateAccount = async ({ name, email }: FormValues) => {
+    await createAccountFn({ name, email })
   }
 
   React.useEffect(() => {
@@ -189,21 +177,6 @@ export function CreateAccountForm() {
                 </FormItem>
               )}
             />
-            <FormField
-              name="avatar"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <UploadAvatar
-                      className="mt-6"
-                      onFileChange={onFileChange}
-                      value={field.value}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
           </CardContent>
           <CardFooter>
             <InteractiveHoverButton
@@ -232,7 +205,9 @@ export function CreateAccountForm() {
         <Button
           variant="outline"
           className="mx-auto w-[12rem] rounded-2xl font-semibold"
-          onClick={() => signIn('google', { redirectTo: '/dashboard' })}
+          onClick={() =>
+            signIn.social({ provider: 'google', callbackURL: '/' })
+          }
         >
           <RiGoogleFill className="me-1" size={16} aria-hidden="true" />
           Google

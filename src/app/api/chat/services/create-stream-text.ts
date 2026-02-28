@@ -40,7 +40,6 @@ type CreateStreamTextParams = {
 export async function createStreamText({
   messages,
   modelId,
-  onFinish,
 }: CreateStreamTextParams) {
   const getModel = () => {
     if (isGoogleModel(modelId)) {

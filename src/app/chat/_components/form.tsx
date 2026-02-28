@@ -26,7 +26,6 @@ import {
   AIInputToolbar,
   AIInputTools,
 } from '@/components/ui/kibo-ui/ai/input'
-
 import { Switch } from '@/components/ui/switch'
 import { useChatInstance } from '@/context/chat'
 import { useMultipleUploads } from '@/hooks/use-multiple-uploads'

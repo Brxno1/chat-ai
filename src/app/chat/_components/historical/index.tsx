@@ -6,12 +6,12 @@ import React from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { fetchChats } from '@/app/(http)/chat/fetch-chats'
+import { Button } from '@/components/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
-import { Button } from '@/components/ui/button'
 import { useChatInstance } from '@/context/chat'
 import { queryKeys } from '@/lib/query-client'
 import { Chat } from '@/services/database/generated'

@@ -2,9 +2,10 @@
 
 import { type UIMessage } from 'ai'
 
-import { type ChatResponsePayload } from '@/types/chat'
 import type { MessageRole, Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
+import { type ChatResponsePayload } from '@/types/chat'
+
 import { errorHandler } from '../../app/api/chat/utils/error-handler'
 import { formatMessageForStorage } from '../../app/api/chat/utils/message-processor'
 

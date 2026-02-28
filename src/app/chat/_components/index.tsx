@@ -2,11 +2,11 @@
 
 import React from 'react'
 
+import { TypingIndicator } from '@/components/ui/typing-indicator'
 import { useChatInstance } from '@/context/chat'
 
 import { ChatForm } from './form'
 import { ChatMessage } from './message'
-import { TypingIndicator } from '@/components/ui/typing-indicator'
 
 export function Chat() {
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null)

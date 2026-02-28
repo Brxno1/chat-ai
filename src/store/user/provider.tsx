@@ -1,8 +1,9 @@
 'use client'
 
-import { Session, User } from 'next-auth'
 import { createContext, ReactNode, useContext } from 'react'
 import { StoreApi, useStore } from 'zustand'
+
+import type { Session, User } from '@/types/auth'
 
 import { createUserStore, UserState } from './index'
 

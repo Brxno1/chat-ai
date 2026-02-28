@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { updateProfile } from '@/actions/user/profile/update-profile'
 import { errorHandler } from '@/app/api/chat/utils/error-handler'
 import { updateProfileSchema } from '@/schemas'
-import { auth } from '@/services/auth'
+import { getSession } from '@/services/auth'
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await getSession()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

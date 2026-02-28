@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { UserPen } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -48,8 +48,6 @@ export function EditProfileMobile() {
   const id = React.useId()
   const [open, setOpen] = React.useState(false)
 
-  const { update } = useSession()
-
   const form = useForm<z.infer<typeof updateProfileSchema>>({
     resolver: zodResolver(updateProfileSchema),
     mode: 'onChange',
@@ -90,12 +88,7 @@ export function EditProfileMobile() {
       return { previousUser }
     },
 
-    onSuccess: async (data) => {
-      await update({
-        trigger: 'update',
-        data,
-      })
-
+    onSuccess: async () => {
       toast.success('Perfil atualizado com sucesso!', {
         duration: 3000,
         position: 'top-center',

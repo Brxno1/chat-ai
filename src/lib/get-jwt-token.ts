@@ -1,7 +1,6 @@
 'use server'
 
 import * as jwt from 'jsonwebtoken'
-import { decode } from 'next-auth/jwt'
 
 type TokenCache = {
   token: string
@@ -32,25 +31,17 @@ export async function getJwtToken(
       return { token: cached.token }
     }
 
-    const decoded = await decode({
-      token: value,
-      secret: process.env.AUTH_SECRET!,
-      salt: 'authjs.session-token',
-    })
-
-    if (!decoded) return { token: null }
-
+    // Better Auth uses session tokens stored in cookies,
+    // we create a JWT from the session token for external use
     const now = Math.floor(Date.now() / 1000)
     const expiresIn = 7 * 24 * 60 * 60
 
     const token = jwt.sign(
       {
-        sub: decoded.id || decoded.sub,
-        email: decoded.email,
-        name: decoded.name,
+        sessionToken: value,
         iat: now,
       },
-      process.env.AUTH_SECRET!,
+      process.env.BETTER_AUTH_SECRET!,
       { expiresIn: '7d' },
     )
 

@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { UserPen } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -45,7 +45,6 @@ export function EditProfile() {
   const id = React.useId()
 
   const { user, setUser } = useSessionUser()
-  const { update } = useSession()
 
   if (!user) return null
 
@@ -89,12 +88,7 @@ export function EditProfile() {
       return { previousUser }
     },
 
-    onSuccess: async (data) => {
-      await update({
-        trigger: 'update',
-        data,
-      })
-
+    onSuccess: async () => {
       toast.success('Perfil atualizado com sucesso!', {
         duration: 3000,
         position: 'top-center',

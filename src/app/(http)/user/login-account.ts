@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios'
-import { User } from 'next-auth'
 
 import { api } from '@/lib/axios'
+import type { User } from '@/types/auth'
 
 type FormValues = {
   name: string

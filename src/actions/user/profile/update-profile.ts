@@ -1,10 +1,9 @@
 'use server'
 
-import { type User } from 'next-auth'
-
 import { errorHandler } from '@/app/api/chat/utils/error-handler'
-import { auth } from '@/services/auth'
+import { getSession } from '@/services/auth'
 import { prisma } from '@/services/database/prisma'
+import type { User } from '@/types/auth'
 
 import { uploadImage } from './upload-image'
 
@@ -23,7 +22,7 @@ type EditProfileResponse = {
 export async function updateProfile(
   data: ProfileUpdateData,
 ): Promise<EditProfileResponse> {
-  const session = await auth()
+  const session = await getSession()
 
   if (!session?.user) {
     return {

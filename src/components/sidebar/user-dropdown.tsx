@@ -12,7 +12,7 @@ import {
   UserPlus,
 } from 'lucide-react'
 import Link from 'next/link'
-import { signOut } from 'next-auth/react'
+import { signOut } from '@/services/auth/auth-client'
 import React from 'react'
 import { toast } from 'sonner'
 
@@ -43,9 +43,8 @@ function UserDropdown() {
 
   const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: async () => {
-      await signOut({
-        redirectTo: `/`,        
-      })
+      await signOut()
+      window.location.href = '/'
     },
     onSuccess: () => {
       toast('Deslogado com sucesso!', {

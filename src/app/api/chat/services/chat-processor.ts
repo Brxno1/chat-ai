@@ -1,17 +1,15 @@
 import { type UIMessage } from 'ai'
 import { after } from 'next/server'
 
-import { generateTitle } from '@/actions/chat/generate-title'
-import {
-  ProcessChatAndSaveMessagesProps,
-  ProcessChatAndSaveMessagesResponse,
-} from '@/types/chat'
-
 import {
   findOrCreateChat,
   saveChatResponse,
   saveMessages,
 } from '@/actions/chat/chat-operations'
+import {
+  ProcessChatAndSaveMessagesProps,
+  ProcessChatAndSaveMessagesResponse,
+} from '@/types/chat'
 
 import { generateSystemPrompt } from '../prompts'
 import { processToolInvocations } from '../utils/message-filter'
