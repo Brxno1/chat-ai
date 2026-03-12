@@ -61,7 +61,7 @@ export function Notifications() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button size="icon" className="relative border border-input" variant="ghost">
+        <Button size="icon" disabled className="relative border border-input" variant="ghost">
           <Bell size={16} />
           <CountNotifications total={unreadNotifications.length} />
         </Button>

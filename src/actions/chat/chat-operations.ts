@@ -2,7 +2,6 @@
 
 import { type UIMessage } from 'ai'
 
-import type { MessageRole, Prisma } from '@/services/database/generated'
 import { prisma } from '@/services/database/prisma'
 import { type ChatResponsePayload } from '@/types/chat'
 
@@ -52,53 +51,38 @@ async function saveMessages(
   }[],
 ): Promise<OperationResponse<null>> {
   try {
-    for (const [index, message] of messagesToSave.entries()) {
-      const isLastMessage = index === messagesToSave.length - 1
-      const { role, parts } = formatMessageForStorage(
-        message,
-        isLastMessage ? attachments : undefined,
-      )
+    await prisma.$transaction(async (tx) => {
+      for (const [index, message] of messagesToSave.entries()) {
+        const isLastMessage = index === messagesToSave.length - 1
+        const { role, parts } = formatMessageForStorage(
+          message,
+          isLastMessage ? attachments : undefined,
+        )
 
-      if (role === 'USER' && isLastMessage && attachments) {
-        await prisma.$transaction(async (tx) => {
-          const createdMessage = await tx.message.create({
-            data: {
-              userId,
-              role,
-              chatId,
-              parts,
-            },
-          })
-
-          const validAttachments: Prisma.AttachmentCreateManyInput[] = []
-
-          for (const attachment of attachments) {
-            validAttachments.push({
-              name: attachment.name,
-              contentType: attachment.contentType,
-              url: attachment.url,
-              createdAt: new Date(),
-              messageId: createdMessage.id,
-            })
-          }
-
-          if (validAttachments.length > 0) {
-            await tx.attachment.createMany({
-              data: validAttachments,
-            })
-          }
-        })
-      } else {
-        await prisma.message.create({
+        const createdMessage = await tx.message.create({
           data: {
             userId,
-            role: role as MessageRole,
+            role,
             chatId,
-            parts,
+            parts: JSON.stringify(parts),
           },
         })
+
+        if (role === 'USER' && isLastMessage && attachments?.length) {
+          const validAttachments = attachments.map((att) => ({
+            name: att.name,
+            contentType: att.contentType,
+            url: att.url,
+            createdAt: new Date(),
+            messageId: createdMessage.id,
+          }))
+
+          await tx.attachment.createMany({
+            data: validAttachments,
+          })
+        }
       }
-    }
+    })
 
     return { success: true, data: null }
   } catch (error) {
@@ -114,16 +98,24 @@ async function saveChatResponse({
   content,
   chatId,
   userId,
+  metadata,
 }: ChatResponsePayload): Promise<{ success: boolean; error?: string }> {
   try {
+    const hasChat = await prisma.chat.findUnique({
+      where: { id: chatId },
+    })
+
+    if (!hasChat) {
+      return { success: false, error: 'Chat not found' }
+    }
+
     await prisma.message.create({
       data: {
         role: 'ASSISTANT',
         chatId,
-        parts: JSON.stringify(content, (key, value) =>
-          key === 'providerMetadata' ? undefined : value,
-        ),
         userId,
+        parts: JSON.stringify(content),
+        metadata: JSON.stringify(metadata),
       },
     })
 
@@ -134,4 +126,39 @@ async function saveChatResponse({
   }
 }
 
-export { findOrCreateChat, saveChatResponse, saveMessages }
+async function updateAssistantMessage({
+  messageId,
+  chatId,
+  content,
+  metadata,
+}: {
+  messageId: string
+  chatId: string
+  content: ChatResponsePayload['content']
+  metadata?: Record<string, unknown>
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    await prisma.message.update({
+      where: { id: messageId, chatId },
+      data: {
+        parts: JSON.stringify(content),
+        metadata: JSON.stringify({
+          ...metadata,
+          regeneratedAt: Date.now(),
+        }),
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error(`Error updating assistant message ${messageId}:`, error)
+    return { success: false, error: errorHandler(error) }
+  }
+}
+
+export {
+  findOrCreateChat,
+  saveChatResponse,
+  saveMessages,
+  updateAssistantMessage,
+}

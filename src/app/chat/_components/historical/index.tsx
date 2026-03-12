@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/collapsible'
 import { useChatInstance } from '@/context/chat'
 import { queryKeys } from '@/lib/query-client'
-import { Chat } from '@/services/database/generated'
+import { Chat } from '@/services/database/generated/client'
 import { groupItemsByDate } from '@/utils/format'
 
 import { HistoricalItem } from './item'

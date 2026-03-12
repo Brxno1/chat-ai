@@ -14,6 +14,7 @@ interface State {
   model: Model
   chatInstanceKey: string
   isRateLimitReached: boolean
+  newChatEpoch: number
 }
 
 interface Actions {
@@ -51,6 +52,7 @@ const createChatStore = (props?: UseChatStoreProps) =>
         isCreatingNewChat: false,
         model: props?.initialModel || defaultModel,
         chatInstanceKey: '',
+        newChatEpoch: 0,
         suggestions: [],
         isLoadingSuggestions: false,
         setChatId: (id) => set({ chatId: id }),
@@ -79,13 +81,14 @@ const createChatStore = (props?: UseChatStoreProps) =>
         getChatInstanceKey: () => get().chatInstanceKey,
 
         resetChatState: () => {
-          set({
+          set((state) => ({
             chatId: undefined,
             isCreatingNewChat: false,
             isGhostChatMode: false,
             chatInstanceKey: '',
             suggestions: [],
-          })
+            newChatEpoch: state.newChatEpoch + 1,
+          }))
         },
 
         resetModel: () => {

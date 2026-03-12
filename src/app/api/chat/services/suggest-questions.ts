@@ -8,7 +8,7 @@ import { env } from '@/lib/env'
 import { systemInstructionQuestionSuggestions } from '../utils/system-Instruction'
 
 const genAI = new GoogleGenAI({
-  apiKey: env.GEMINI_API_KEY_GENERATE,
+  apiKey: env.GEMINI_API_KEY_GENERATE_TITLE,
 })
 
 const model = 'gemini-2.5-flash'

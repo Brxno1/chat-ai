@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { queryKeys } from '@/lib/query-client'
-import { Todo } from '@/services/database/generated'
+import { Todo } from '@/services/database/generated/client'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({
@@ -90,15 +90,15 @@ function TodoUpdateForm({ todo, onCloseDropdown }: TodoUpdateProps) {
         /* eslint-disable */
         const optimisticTodo: Todo = previousTodo
           ? {
-            ...previousTodo,
-            title: variables.title,
-            updatedAt: new Date(),
-          }
+              ...previousTodo,
+              title: variables.title,
+              updatedAt: new Date(),
+            }
           : {
-            ...todo,
-            title: variables.title,
-            updatedAt: new Date(),
-          }
+              ...todo,
+              title: variables.title,
+              updatedAt: new Date(),
+            }
         /* eslint-enable */
 
         queryClient.setQueryData(

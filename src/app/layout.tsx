@@ -19,7 +19,18 @@ export const metadata: Metadata = {
   title: 'Chat',
   description: 'Chat com IA',
   icons: {
-    icon: '/favi.ico',
+    icon: [
+      {
+        url: `${process.env.R2_PUBLIC_URL}/favicon-next-app.png?v=2`,
+        type: 'image/png',
+      },
+    ],
+    apple: [
+      {
+        url: `${process.env.R2_PUBLIC_URL}/favicon-next-app.png?v=2`,
+        type: 'image/png',
+      },
+    ],
   },
 }
 

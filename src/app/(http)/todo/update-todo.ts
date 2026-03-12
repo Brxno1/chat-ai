@@ -1,6 +1,6 @@
 'use server'
 
-import { Todo } from '@/services/database/generated'
+import { Todo } from '@/services/database/generated/client'
 import { prisma } from '@/services/database/prisma'
 
 export async function updateTodoAction(todo: Todo) {

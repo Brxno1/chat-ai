@@ -39,10 +39,10 @@ type FormValue = z.infer<typeof loginSchema>
 
 interface LoginFormProps {
   name: string
-  onChangeMode: (email: string) => void
+  onChangeMode?: (email: string) => void
 }
 
-export function LoginForm({ name, onChangeMode }: LoginFormProps) {
+export function LoginForm({ name }: LoginFormProps) {
   const form = useForm<FormValue>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
@@ -50,8 +50,6 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
       email: '',
     },
   })
-
-  const magicLinkRef = React.useRef<HTMLAnchorElement>(null)
 
   const { mutateAsync: sendMagicLink } = useMutation({
     mutationFn: async ({ email }: { email: string }) => {
@@ -71,12 +69,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
         'Se o e-mail estiver cadastrado, você receberá um link de acesso.',
         {
           action: (
-            <a
-              href={env.MAILHOG_UI}
-              target="_blank"
-              rel="noopener noreferrer"
-              ref={magicLinkRef}
-            >
+            <a href={env.MAILHOG_UI} target="_blank" rel="noopener noreferrer">
               <Button className="ml-2" size="icon">
                 <Mail size={16} />
               </Button>
@@ -85,12 +78,6 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
           duration: 10000,
         },
       )
-
-      setTimeout(() => {
-        if (magicLinkRef.current) {
-          magicLinkRef.current.focus()
-        }
-      }, 100)
     },
     onError: () => {
       toast(
@@ -102,11 +89,7 @@ export function LoginForm({ name, onChangeMode }: LoginFormProps) {
     },
   })
 
-React.useEffect(() => {
-    form.setFocus('email')
-  }, [form])
-
-  async function handleSentMagicLink({ email }: FormValue) {
+  async function handleSendMagicLink({ email }: FormValue) {
     await sendMagicLink({ email })
   }
 
@@ -114,7 +97,7 @@ React.useEffect(() => {
     <Card className="relative overflow-hidden">
       <ShineBorder shineColor={'#7a41ff'} borderWidth={1} />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSentMagicLink)} id="login-form">
+        <form onSubmit={form.handleSubmit(handleSendMagicLink)} id="login-form">
           <CardHeader className="gap-1 text-center">
             {name && (
               <CardTitle className="flex items-center justify-center text-lg font-bold">

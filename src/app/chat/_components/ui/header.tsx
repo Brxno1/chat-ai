@@ -36,12 +36,12 @@ function ChatHeader() {
   useHotkeys('shift+n', () => {
     if (!hasMessages) return
 
-    router.push('/')
     handleCreateNewChat()
+    router.push('/')
   })
 
   return (
-    <DashboardPageHeader className="flex w-full items-center justify-between border-b border-input bg-sidebar pb-[1rem]">
+    <DashboardPageHeader className="flex w-full items-center justify-between">
       <div className="ml-2 flex items-center gap-3 transition-all">
         <SidebarTriggerComponentMobile size="icon" variant="ghost" />
       </div>

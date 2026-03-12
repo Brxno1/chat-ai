@@ -69,8 +69,11 @@ export function ChatMessage({ message }: MessageProps) {
         switch (part.type) {
           case 'text': {
             const hasFiles = message.parts.some((part) => part.type === 'file')
+            const hasText = message.parts.some(
+              (part) => part.type === 'text' && part.text.trim() !== '',
+            )
 
-            if ((!part.text || part.text.trim() === '') && !hasFiles) {
+            if (!hasText && !hasFiles) {
               return null
             }
 
@@ -100,7 +103,8 @@ export function ChatMessage({ message }: MessageProps) {
                     </Badge>
                   </>
                 )}
-                {part.text && part.text.trim() !== '' && (
+                {hasFiles && <Attachments parts={message.parts} />}
+                {hasText && (
                   <div
                     className={cn(
                       'group relative inline-flex items-center justify-center gap-1 overflow-y-auto rounded-lg border border-input p-1 text-sm text-accent transition-all dark:text-accent-foreground max-md:max-w-[95%] md:max-w-[80%] md:text-base lg:max-w-[70%]',
@@ -115,7 +119,6 @@ export function ChatMessage({ message }: MessageProps) {
                     <AIResponse>{part.text}</AIResponse>
                   </div>
                 )}
-                {hasFiles && <Attachments parts={message.parts} />}
                 <div className="mt-1 flex w-full items-center">
                   <Badge
                     variant="chat"

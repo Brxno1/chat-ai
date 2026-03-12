@@ -5,7 +5,7 @@ import { ContainerWrapper } from '@/components/container'
 import { TooltipWrapper } from '@/components/tooltip-wrapper'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Todo } from '@/services/database/generated'
+import { Todo } from '@/services/database/generated/client'
 import { formatDateToLocale, formatDistanceToNow } from '@/utils/format'
 
 import { ActionsForTodo } from './actions-components/actions'

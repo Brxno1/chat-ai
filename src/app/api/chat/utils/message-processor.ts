@@ -1,6 +1,7 @@
 import { type UIMessage } from 'ai'
 
-import { type StoragePart, type UploadedAttachment } from '@/types/chat'
+import type { MessageRole } from '@/services/database/generated/client'
+import type { StoragePart, UploadedAttachment } from '@/types/chat'
 
 export function extractTextFromMessage(message: UIMessage): string {
   return message.parts
@@ -11,8 +12,9 @@ export function extractTextFromMessage(message: UIMessage): string {
 export function formatMessageForStorage(
   message: UIMessage,
   uploadedAttachments?: UploadedAttachment[],
-) {
-  const role = message.role.toLowerCase() === 'user' ? 'USER' : 'ASSISTANT'
+): { role: MessageRole; parts: StoragePart[] } {
+  const role: MessageRole =
+    message.role.toLowerCase() === 'user' ? 'USER' : 'ASSISTANT'
   const pendingAttachments = uploadedAttachments ? [...uploadedAttachments] : []
 
   const parts = message.parts.reduce<StoragePart[]>((acc, part) => {
@@ -40,6 +42,6 @@ export function formatMessageForStorage(
 
   return {
     role,
-    parts: JSON.stringify(parts),
+    parts,
   }
 }

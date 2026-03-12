@@ -1,4 +1,4 @@
-import { Todo } from '@/services/database/generated'
+import { Todo } from '@/services/database/generated/client'
 
 export type ActionsForTodoProps<T = unknown> = {
   todo: Todo

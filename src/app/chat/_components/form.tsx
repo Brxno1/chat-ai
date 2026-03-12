@@ -164,7 +164,11 @@ export function ChatForm() {
                   name="message"
                   ref={inputRef}
                   className="min-h-[40px] resize-none border-none bg-transparent pb-0 pt-4 shadow-none focus-visible:ring-0"
-                  placeholder="Digite sua mensagem..."
+                  placeholder={
+                    status === 'streaming'
+                      ? 'Enviando...'
+                      : `Envia uma mensagem para ${model.name}`
+                  }
                   autoFocus={status === 'ready'}
                   disabled={status === 'streaming'}
                   value={input}

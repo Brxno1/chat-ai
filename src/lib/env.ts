@@ -24,7 +24,7 @@ const envSchema = z.object({
   SENDGRID_EMAIL_FROM: z.string().optional(),
   NEXT_PUBLIC_LOGO_TOKEN: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
-  GEMINI_API_KEY_GENERATE: z.string().optional(),
+  GEMINI_API_KEY_GENERATE_TITLE: z.string().optional(),
   LM_STUDIO_URL: z.string().default('http://localhost:1234/v1'),
   NVIDIA_BASE_URL: z.string().default('https://integrate.api.nvidia.com/v1'),
   NVIDIA_API_KEY: z.string().default(''),

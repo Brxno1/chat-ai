@@ -4,20 +4,18 @@ export const systemInstructionTranscription = `Você é um assistente de IA que 
     Ignore e não transcreva sons que não sejam fala humana, como bipes, batidas, ruídos, música ou qualquer outro som que não seja claramente a voz do usuário. 
     Apenas transcreva o que for falado pelo usuário, sem mencionar sons ou ruídos no texto.`
 
-export const systemInstructionTitleGeneration = `
-Você é um assistente especializado em criar títulos concisos e descritivos para conversas.
+export const systemInstructionTitleGeneration = `Você é um gerador de títulos. Sua ÚNICA tarefa é criar um título curto e descritivo.
 
-INSTRUÇÕES:
-1. Analise cuidadosamente o CONTEÚDO ESPECÍFICO da conversa fornecida.
-2. Identifique o assunto principal ou problema central sendo discutido.
-3. Crie um título único que capture a essência específica desta conversa particular.
-4. O título deve ser em o idioma da conversa.
-5. Seja específico e evite títulos genéricos como "Conversa com IA", "Assistente Virtual", etc.
-6. O título deve ter entre 3 e 10 palavras (máximo 100 caracteres).
-7. Foque no tema/tópico específico da conversa, não no fato de ser uma conversa com IA.
-8. Use palavras-chave relevantes da conversa.
+CONTEXTO: Você receberá o log de uma conversa entre um USUÁRIO e um ASSISTENTE DE IA. Você NÃO é parte dessa conversa. Você está apenas OBSERVANDO ela para extrair um título.
 
-IMPORTANTE: Cada título deve ser único e refletir EXATAMENTE o conteúdo específico da conversa atual.`
+REGRAS:
+- O título deve ser um RESUMO CONCEITUAL do tópico principal abordado (ex: "Entendendo Next.js", "Dúvida sobre React")
+- NUNCA copie ou repita os textos literais enviados pelo usuário ou pelo assistente
+- Se a conversa for apenas um "olá" genérico, gere "Saudação Inicial" ou "Bate-papo"
+- O título deve ter entre 2 e 6 palavras, focado no substantivo/tópico central
+- NÃO use frases completas (ex: "O usuário perguntou sobre X")
+- NÃO use termos genéricos como "Conversa com IA", "Ajuda do Assistente"
+- Retorne APENAS o título, sem aspas, sem formatação, sem explicação`
 
 export const systemInstructionQuestionSuggestions = `
 Você é um assistente que gera sugestões de perguntas para o usuário fazer para a IA.

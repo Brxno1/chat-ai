@@ -7,21 +7,30 @@ import { extractTextFromMessage } from '../utils/message-processor'
 import { systemInstructionTitleGeneration } from '../utils/system-Instruction'
 
 const genAI = new GoogleGenAI({
-  apiKey: env.GEMINI_API_KEY_GENERATE,
+  apiKey: env.GEMINI_API_KEY_GENERATE_TITLE,
 })
 
-const model = 'gemini-2.5-flash'
+const model = 'gemini-2.5-flash-lite'
 
-export async function generateChatTitleWIthAI(
+function getFallbackTitle(messages: UIMessage[]): string {
+  const firstUserMessage = messages.find((msg) => msg.role === 'user')
+  if (!firstUserMessage) return 'Nova conversa'
+  return extractTextFromMessage(firstUserMessage).substring(0, 50)
+}
+
+function sanitizeTitle(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^["'`]+|["'`]+$/g, '')
+    .replace(/\n/g, ' ')
+    .substring(0, 100)
+}
+
+export async function generateChatTitleWithAI(
   messages: UIMessage[],
 ): Promise<{ title: string }> {
   try {
-    const firstUserMessage = messages.find((msg) => msg.role === 'user')
-    const fallbackTitle = firstUserMessage
-      ? extractTextFromMessage(firstUserMessage)
-      : 'Nova conversa'
-
-    const conversationContext = messages
+    const conversationLog = messages
       .map((msg) => {
         const role = msg.role === 'user' ? 'Usuário' : 'Assistente'
         const text = extractTextFromMessage(msg)
@@ -32,28 +41,16 @@ export async function generateChatTitleWIthAI(
       .join('\n\n')
       .substring(0, 2000)
 
-    const prompt = `
-Analise esta conversa e crie um título específico e descritivo em pt-BR:
-
-${conversationContext}
-
-O título deve:
-1. Capturar o tema específico da conversa
-2. Ser único e informativo
-3. NÃO usar termos genéricos
-4. Focar no assunto específico discutido
-`
-
     const response = await genAI.models.generateContent({
       model,
       contents: [
         {
           role: 'user',
-          parts: [{ text: prompt }],
+          parts: [{ text: conversationLog }],
         },
       ],
       config: {
-        maxOutputTokens: 30,
+        maxOutputTokens: 50,
         systemInstruction: {
           role: 'system',
           parts: [{ text: systemInstructionTitleGeneration }],
@@ -62,18 +59,12 @@ O título deve:
     })
 
     if (response.text) {
-      return { title: response.text }
+      return { title: sanitizeTitle(response.text) }
     }
 
-    return { title: fallbackTitle }
-  } catch (apiError) {
-    console.error('Erro na API do Gemini para geração de título:', apiError)
-
-    const firstUserMessage = messages.find((msg) => msg.role === 'user')
-    const fallbackTitle = firstUserMessage
-      ? extractTextFromMessage(firstUserMessage).substring(0, 50)
-      : 'Novo Chat'
-
-    return { title: fallbackTitle }
+    return { title: getFallbackTitle(messages) }
+  } catch (error) {
+    console.error('Erro na API do Gemini para geração de título:', error)
+    return { title: getFallbackTitle(messages) }
   }
 }

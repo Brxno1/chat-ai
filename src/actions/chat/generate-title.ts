@@ -1,9 +1,9 @@
 import { type UIMessage } from 'ai'
 
-import { generateChatTitleWIthAI } from '@/app/api/chat/services/generate-chat-title'
+import { generateChatTitleWithAI } from '@/app/api/chat/services/generate-chat-title'
 import { prisma } from '@/services/database/prisma'
 
-export async function generateTitle(
+export async function updateChatTitle(
   finalChatId: string,
   finalMessages: UIMessage[],
 ) {
@@ -11,8 +11,13 @@ export async function generateTitle(
     const messageCount = await prisma.message.count({
       where: { chatId: finalChatId },
     })
-    if (messageCount % 3 === 0) {
-      const { title } = await generateChatTitleWIthAI(finalMessages)
+    const shouldGenerate =
+      messageCount === 2 ||
+      messageCount === 4 ||
+      (messageCount > 4 && (messageCount - 4) % 6 === 0)
+
+    if (shouldGenerate) {
+      const { title } = await generateChatTitleWithAI(finalMessages)
 
       await prisma.chat.update({
         where: { id: finalChatId },

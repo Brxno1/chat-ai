@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { createStore } from 'zustand/vanilla'
 
 import { models } from '@/app/chat/models/definitions'
-import { Chat } from '@/services/database/generated'
+import { Chat } from '@/services/database/generated/client'
 import { Model } from '@/types/model'
 
 export interface StateChatStore {

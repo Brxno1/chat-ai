@@ -28,6 +28,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { createUser } from '@/actions/user/login/create-user'
 import { env } from '@/lib/env'
 import { signIn } from '@/services/auth/auth-client'
 import { useSessionStore } from '@/store/user-store'
@@ -60,6 +61,11 @@ export function CreateAccountForm() {
 
   const { mutateAsync: createAccountFn } = useMutation({
     mutationFn: async ({ name, email }: FormValues) => {
+      const createResponse = await createUser({ name, email })
+      if (createResponse.error) {
+        throw new Error(createResponse.error)
+      }
+
       const result = await signIn.magicLink({
         email,
         name,

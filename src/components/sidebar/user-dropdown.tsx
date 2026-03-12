@@ -78,7 +78,7 @@ function UserDropdown() {
           size="lg"
           variant="ghost"
           data-dropdown={open ? 'open' : 'closed'}
-          className="group relative z-50 mb-2 flex w-full items-center justify-start space-x-2 rounded-xl border border-input px-2 py-6 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:p-6"
+          className="group relative z-50 mb-2 flex w-full items-center justify-start space-x-2 px-2 py-6 group-data-[sidebar=closed]/sidebar:justify-center group-data-[sidebar=closed]/sidebar:p-6"
         >
           <Avatar className="size-9 cursor-grab rounded-md">
             <AvatarImage src={user.image || ''} alt="user avatar" />

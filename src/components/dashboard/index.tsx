@@ -10,7 +10,7 @@ export function DashboardPage({
   children,
 }: DashboardPageGenericProps) {
   return (
-    <section className={cn(['flex min-h-0 overflow-auto flex-col', className])}>
+    <section className={cn(['flex min-h-0 flex-col overflow-auto', className])}>
       {children}
     </section>
   )
@@ -55,7 +55,7 @@ export function DashboardPageMain({
   children,
 }: DashboardPageGenericProps) {
   return (
-    <main className={cn(['flex-1 overflow-auto p-2 md:p-6', className])}>
+    <main className={cn(['flex-1 overflow-auto p-2', className])}>
       {children}
     </main>
   )

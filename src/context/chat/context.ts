@@ -3,7 +3,7 @@
 import { type UIMessage } from 'ai'
 import { ChangeEvent, createContext, useContext } from 'react'
 
-import { Chat } from '@/services/database/generated'
+import { Chat } from '@/services/database/generated/client'
 import type { ChatStreamStatus } from '@/types/chat'
 import type { Model } from '@/types/model'
 

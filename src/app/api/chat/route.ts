@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
     const headerChatId = req.headers.get('x-chat-id') || undefined
     const headerGhostMode = req.headers.get('x-ghost-mode') === 'true'
     const headerAiModelId = req.headers.get('x-ai-model')
+    const headerRegenerateResponseId =
+      req.headers.get('x-regenerate-id') || undefined
 
     const {
       stream: processedStream,
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
       headerChatId,
       isGhostChatMode: headerGhostMode,
       modelId: headerAiModelId!,
+      regenerateResponseId: headerRegenerateResponseId,
     })
 
     if (error || !processedStream) {

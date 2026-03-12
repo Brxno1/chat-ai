@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios'
-import { Todo } from '@/services/database/generated'
+import { Todo } from '@/services/database/generated/client'
 
 export async function getTodos() {
   const response = await api.get<Todo[]>(`/todo`)

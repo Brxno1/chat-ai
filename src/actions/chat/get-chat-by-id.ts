@@ -3,7 +3,7 @@
 import type { UIMessage } from 'ai'
 
 import { extractTextFromParts } from '@/app/api/chat/utils/message-parts'
-import { Chat } from '@/services/database/generated'
+import { Chat } from '@/services/database/generated/client'
 import { prisma } from '@/services/database/prisma'
 import type { ChatMessage } from '@/types/chat'
 
@@ -93,6 +93,16 @@ export async function getChatById(
         parts.unshift({ type: 'text', text: textContent || '' })
       }
 
+      let metadata: Record<string, unknown> | undefined
+
+      try {
+        if (message.metadata) {
+          metadata = JSON.parse(message.metadata as string)
+        }
+      } catch {
+        metadata = undefined
+      }
+
       return {
         id: message.id,
         createdAt: message.createdAt,
@@ -100,6 +110,7 @@ export async function getChatById(
         role: String(message.role).toLowerCase() as UIMessage['role'],
         chatId: message.chatId,
         parts,
+        metadata,
       } as UIMessage & ChatMessage
     },
   )

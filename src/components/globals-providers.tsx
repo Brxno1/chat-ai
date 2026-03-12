@@ -15,6 +15,7 @@ import { TooltipProvider } from './ui/tooltip'
 import { ChatProvider } from '@/context/chat'
 import { Notification } from '@/types/notifications'
 import { Chat } from '@/services/database/generated/client'
+import { useChatStore } from '@/store/chat'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -37,6 +38,8 @@ export function Providers({
 }: ProvidersProps) {
   const [queryClient] = React.useState(() => createQueryClient())
 
+  const newChatEpoch = useChatStore((state) => state.newChatEpoch)
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
@@ -50,7 +53,11 @@ export function Providers({
           session={initialSession}
           notifications={notifications}
         >
-          <ChatProvider initialChats={initialChats} cookieModel={model}>
+          <ChatProvider
+            key={newChatEpoch}
+            initialChats={initialChats}
+            cookieModel={model}
+          >
             <ProgressProvider
               height=".10rem"
               color="#556eff"

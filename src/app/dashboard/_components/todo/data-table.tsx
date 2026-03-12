@@ -36,7 +36,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { queryKeys } from '@/lib/query-client'
-import { Todo } from '@/services/database/generated'
+import { Todo } from '@/services/database/generated/client'
 import { cn } from '@/utils/utils'
 
 import { columns } from './columns'

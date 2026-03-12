@@ -1,26 +1,34 @@
 'use client'
 
-import { useSessionUser } from "@/context/user"
-import React from "react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Bell, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetHeader } from "@/components/ui/sheet"
-import { UnreadNotification } from "./unread"
-import { ReadNotification } from "./read"
-import { CountNotifications } from "./count"
+import { useSessionUser } from '@/context/user'
+import React from 'react'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Bell, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetTitle,
+  SheetHeader,
+} from '@/components/ui/sheet'
+import { UnreadNotification } from './unread'
+import { ReadNotification } from './read'
+import { CountNotifications } from './count'
 import {
   ColumnFiltersState,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Input } from "../ui/input"
+import { Input } from '../ui/input'
 
 export function NotificationsMobile() {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [globalFilter, setGlobalFilter] = React.useState("")
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  )
+  const [globalFilter, setGlobalFilter] = React.useState('')
 
   const { notifications, user } = useSessionUser()
 
@@ -48,14 +56,20 @@ export function NotificationsMobile() {
     getFilteredRowModel: getFilteredRowModel(),
   })
 
-  const filteredNotifications = table.getFilteredRowModel().rows.map(row => row.original)
+  const filteredNotifications = table
+    .getFilteredRowModel()
+    .rows.map((row) => row.original)
 
-  const unreadNotifications = filteredNotifications.filter((notification) => !notification.readAt)
-  const readNotifications = filteredNotifications.filter((notification) => notification.readAt)
+  const unreadNotifications = filteredNotifications.filter(
+    (notification) => !notification.readAt,
+  )
+  const readNotifications = filteredNotifications.filter(
+    (notification) => notification.readAt,
+  )
 
   const [unreadCount, readCount] = [
     unreadNotifications.length > 0 && `(${unreadNotifications.length})`,
-    readNotifications.length > 0 && `(${readNotifications.length})`
+    readNotifications.length > 0 && `(${readNotifications.length})`,
   ]
 
   return (
@@ -66,29 +80,34 @@ export function NotificationsMobile() {
         aria-hidden="true"
       />
       <SheetTrigger asChild>
-        <Button size="icon" className="relative border border-input" variant="ghost">
+        <Button
+          size="icon"
+          disabled
+          className="relative border border-input"
+          variant="ghost"
+        >
           <Bell size={16} />
           <CountNotifications total={unreadNotifications.length} />
         </Button>
       </SheetTrigger>
       <SheetContent
         side="top"
-        className="max-h-[100svh] rounded-2xl p-1 border border-input"
+        className="max-h-[100svh] rounded-2xl border border-input p-1"
       >
-        <SheetHeader className="mt-1.5 pb-2 flex flex-col items-center justify-center">
+        <SheetHeader className="mt-1.5 flex flex-col items-center justify-center pb-2">
           <SheetTitle className="text-base sm:text-lg">Notificações</SheetTitle>
-          <div className="px-2 py-1 w-full">
+          <div className="w-full px-2 py-1">
             <div className="relative flex items-center justify-center">
               <Input
                 type="text"
                 placeholder="Pesquisar..."
-                className="w-full bg-transparent py-1.5 px-2 text-sm rounded-md border border-input placeholder:text-muted-foreground pr-8"
-                value={globalFilter ?? ""}
+                className="w-full rounded-md border border-input bg-transparent px-2 py-1.5 pr-8 text-sm placeholder:text-muted-foreground"
+                value={globalFilter ?? ''}
                 onChange={(ev) => setGlobalFilter(ev.target.value)}
               />
               {globalFilter && globalFilter.length > 0 && (
                 <button
-                  onClick={() => setGlobalFilter("")}
+                  onClick={() => setGlobalFilter('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   aria-label="Limpar filtro"
                 >
@@ -99,17 +118,25 @@ export function NotificationsMobile() {
           </div>
         </SheetHeader>
         <Tabs defaultValue="unread">
-          <TabsList className="grid w-full mt-1 grid-cols-2 bg-card [&>button[data-state=active]]:bg-primary [&>button[data-state=active]]:text-primary-foreground">
+          <TabsList className="mt-1 grid w-full grid-cols-2 bg-card [&>button[data-state=active]]:bg-primary [&>button[data-state=active]]:text-primary-foreground">
             <TabsTrigger value="unread" className="text-sm">
               Novas {unreadCount}
             </TabsTrigger>
-            <TabsTrigger value="read" className="text-sm">Lidas {readCount}</TabsTrigger>
+            <TabsTrigger value="read" className="text-sm">
+              Lidas {readCount}
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="unread">
-            <UnreadNotification unreadNotifications={unreadNotifications} setIsOpen={setIsOpen} />
+            <UnreadNotification
+              unreadNotifications={unreadNotifications}
+              setIsOpen={setIsOpen}
+            />
           </TabsContent>
           <TabsContent value="read">
-            <ReadNotification readNotifications={readNotifications} setIsOpen={setIsOpen} />
+            <ReadNotification
+              readNotifications={readNotifications}
+              setIsOpen={setIsOpen}
+            />
           </TabsContent>
         </Tabs>
       </SheetContent>

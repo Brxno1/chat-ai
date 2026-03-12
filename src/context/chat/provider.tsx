@@ -8,7 +8,7 @@ import { models } from '@/app/chat/models/definitions'
 import { useChatController } from '@/hooks/use-chat-controller'
 import { useDerivedStreamStatus } from '@/hooks/use-derived-stream-status'
 import { useTranscribeAudio } from '@/hooks/use-transcribe-audio'
-import { Chat } from '@/services/database/generated'
+import { Chat } from '@/services/database/generated/client'
 import { useChatStore } from '@/store/chat'
 import type { ChatMessage } from '@/types/chat'
 
@@ -98,7 +98,13 @@ export function ChatProvider({
   }
 
   const onRegenerateResponse = () => {
-    regenerate()
+    const lastAssistantMsg = messages.findLast((m) => m.role === 'assistant')
+
+    regenerate({
+      headers: {
+        'x-regenerate-id': lastAssistantMsg?.id ?? '',
+      },
+    })
   }
 
   const onResetChat = () => {

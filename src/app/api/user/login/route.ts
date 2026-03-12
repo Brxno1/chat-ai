@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createUserAndSendMagicLink } from '@/actions/user/login/create-user-and-send-magic-link'
+import { createUser } from '@/actions/user/login/create-user'
 import { createAccountSchema } from '@/schemas'
 
 export async function POST(req: NextRequest) {
@@ -9,17 +9,15 @@ export async function POST(req: NextRequest) {
   const { data, error: schemaError } = createAccountSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
-    avatar: formData.get('avatar'),
   })
 
   if (schemaError) {
     return NextResponse.json({ error: schemaError.message }, { status: 400 })
   }
 
-  const { user, error, userExists } = await createUserAndSendMagicLink({
+  const { user, error, userExists } = await createUser({
     name: data.name,
     email: data.email,
-    avatar: data.avatar,
   })
 
   if (userExists) {

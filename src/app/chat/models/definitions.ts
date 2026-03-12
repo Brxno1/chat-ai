@@ -2,20 +2,6 @@ import { Model } from '@/types/model'
 
 export const models: Model[] = [
   {
-    id: 'gemini-2.0-flash-lite',
-    name: 'Gemini 2.0 Flash Lite',
-    provider: 'google.com',
-    premium: false,
-    tier: 'lite',
-  },
-  {
-    id: 'gemini-2.0-flash',
-    name: 'Gemini 2.0 Flash',
-    provider: 'google.com',
-    premium: false,
-    tier: 'flash',
-  },
-  {
     id: 'gemini-2.5-flash',
     name: 'Gemini 2.5 Flash',
     provider: 'google.com',
@@ -29,33 +15,26 @@ export const models: Model[] = [
     premium: false,
     tier: 'lite',
   },
-  // {
-  //   id: 'gemini-2.0-flash-exp',
-  //   name: 'Gemini 2.0 Flash Exp',
-  //   premium: false,
-  //   provider: 'google.com',
-  //   tier: 'flash',
-  // },
-  // {
-  //   id: 'gemini-2.0-flash-thinking-exp',
-  //   name: 'Gemini 2.0 Flash Thinking Exp',
-  //   premium: true,
-  //   provider: 'google.com',
-  //   tier: 'thinking',
-  // },
-  // {
-  //   id: 'gemini-2.0-flash-thinking-exp-01-21',
-  //   name: 'Gemini 2.0 Flash Thinking Exp 01 21',
-  //   premium: true,
-  //   provider: 'google.com',
-  //   tier: 'thinking',
-  // },
   {
     id: 'gemini-2.5-pro',
     name: 'Gemini 2.5 Pro',
     provider: 'google.com',
     premium: true,
     tier: 'pro',
+  },
+  {
+    id: 'gemini-3-flash-preview',
+    name: 'Gemini 3 Flash Preview',
+    provider: 'google.com',
+    premium: false,
+    tier: 'flash',
+  },
+  {
+    id: 'gemini-3.1-flash-lite-preview',
+    name: 'Gemini 3.1 Flash Lite Preview',
+    provider: 'google.com',
+    premium: false,
+    tier: 'lite',
   },
   {
     id: 'moonshotai/kimi-k2.5',
@@ -70,13 +49,6 @@ export const models: Model[] = [
     provider: 'qwen.ai',
     premium: true,
     tier: 'pro',
-  },
-  {
-    id: 'z-ai/glm5',
-    name: 'GLM-5 744B',
-    provider: 'z-ai.com',
-    premium: true,
-    tier: 'thinking',
   },
   {
     id: 'deepseek-ai/deepseek-v3.2',

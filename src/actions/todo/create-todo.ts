@@ -1,6 +1,6 @@
 'use server'
 
-import type { Todo } from '@/services/database/generated'
+import type { Todo } from '@/services/database/generated/client'
 import { prisma } from '@/services/database/prisma'
 
 type CreateTodoDataProps = {

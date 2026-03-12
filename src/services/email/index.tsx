@@ -1,4 +1,4 @@
-import { User } from '@/services/database/generated'
+import { User } from '@/services/database/generated/client'
 import { Button, Html } from '@react-email/components'
 
 interface EmailProps {

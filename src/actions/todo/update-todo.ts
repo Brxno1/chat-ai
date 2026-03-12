@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 
-import { Todo } from '@/services/database/generated'
+import { Todo } from '@/services/database/generated/client'
 import { prisma } from '@/services/database/prisma'
 
 const updateTodoSchema = z.object({

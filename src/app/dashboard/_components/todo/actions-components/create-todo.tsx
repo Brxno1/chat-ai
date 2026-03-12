@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/sheet'
 import { useSessionUser } from '@/context/user'
 import { queryKeys } from '@/lib/query-client'
-import type { Todo } from '@/services/database/generated'
+import type { Todo } from '@/services/database/generated/client'
 import { cn } from '@/utils/utils'
 
 const schema = z.object({

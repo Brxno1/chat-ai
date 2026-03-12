@@ -7,7 +7,7 @@ import {
 
 import { newsTool } from '@/app/api/chat/tools/news'
 import { weatherTool } from '@/app/api/chat/tools/weather'
-import type { MessageRole, Prisma } from '@/services/database/generated'
+import type { MessageRole, Prisma } from '@/services/database/generated/client'
 
 export type MessagePart = NonNullable<UIMessage['parts']>[number]
 
@@ -25,6 +25,7 @@ export type ChatMessage = {
   userId: string | null
   chatId: string
   parts: UIMessage['parts']
+  metadata?: UIMessage['metadata']
 }
 
 export type DbMessage = {
@@ -34,6 +35,7 @@ export type DbMessage = {
   role: MessageRole
   chatId: string
   parts: Prisma.JsonValue
+  metadata?: Prisma.JsonValue
 }
 
 export type ToolResult = {
@@ -50,6 +52,7 @@ export type ProcessChatAndSaveMessagesProps = {
   isGhostChatMode?: boolean
   userId?: string
   modelId: string
+  regenerateResponseId?: string
 }
 
 export type ProcessChatAndSaveMessagesResponse = {
@@ -80,6 +83,7 @@ export type ChatResponsePayload = {
   content: StepResult<ToolSet>['content']
   chatId: string
   userId: string
+  metadata?: Record<string, unknown>
 }
 
 export interface ChatAttachment {

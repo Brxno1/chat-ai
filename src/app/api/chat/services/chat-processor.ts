@@ -5,7 +5,9 @@ import {
   findOrCreateChat,
   saveChatResponse,
   saveMessages,
+  updateAssistantMessage,
 } from '@/actions/chat/chat-operations'
+import { updateChatTitle } from '@/actions/chat/generate-title'
 import {
   ProcessChatAndSaveMessagesProps,
   ProcessChatAndSaveMessagesResponse,
@@ -23,6 +25,7 @@ export async function processChatAndSaveMessages({
   userId,
   isGhostChatMode,
   modelId,
+  regenerateResponseId,
 }: ProcessChatAndSaveMessagesProps): Promise<ProcessChatAndSaveMessagesResponse> {
   const processedMessages = processToolInvocations(messages)
   const lastMessage = processedMessages[processedMessages.length - 1]
@@ -45,6 +48,7 @@ export async function processChatAndSaveMessages({
 
   const chatId = headerChatId || crypto.randomUUID()
   const isNewChat = !headerChatId
+  const hasResponseToRegenerate = !!regenerateResponseId
 
   if (!isGhostChatMode && userId) {
     try {
@@ -53,17 +57,20 @@ export async function processChatAndSaveMessages({
       if (!success) {
         console.error('Failed to create/find chat:', error)
       }
-      const messagesToSave = isNewChat
-        ? processedMessages
-        : [lastMessage].filter((msg) => msg?.role === 'user')
 
-      const { processedAttachments } = await processAttachments(
-        messagesToSave,
-        userId,
-        chatId,
-      )
+      if (!hasResponseToRegenerate) {
+        const messagesToSave = isNewChat
+          ? processedMessages
+          : [lastMessage].filter((msg) => msg?.role === 'user')
 
-      await saveMessages(messagesToSave, chatId, userId, processedAttachments)
+        const { processedAttachments } = await processAttachments(
+          messagesToSave,
+          userId,
+          chatId,
+        )
+
+        await saveMessages(messagesToSave, chatId, userId, processedAttachments)
+      }
     } catch (error) {
       console.error('Error in synchronous chat creation/saving:', error)
     }
@@ -77,20 +84,57 @@ export async function processChatAndSaveMessages({
 
       after(async () => {
         try {
-          const content = event.content.filter(
-            (part) => part.type !== 'tool-call',
-          )
+          const content = event.content
+            .filter((part) => part.type !== 'tool-call')
+            .map((part) => {
+              const cleanPart = { ...part }
 
-          const { success: saveSuccess, error: saveError } =
-            await saveChatResponse({ content, chatId, userId })
+              if ('providerMetadata' in cleanPart) {
+                delete cleanPart.providerMetadata
+              }
+              if (cleanPart.type === 'text') {
+                cleanPart.text = cleanPart.text.trim()
+              }
+              return cleanPart
+            })
 
-          if (!saveSuccess) {
-            console.error('Failed to save chat response:', saveError)
+          if (hasResponseToRegenerate) {
+            const { success, error } = await updateAssistantMessage({
+              messageId: regenerateResponseId,
+              chatId,
+              content,
+              metadata: {
+                totalTokens: event.totalUsage.totalTokens,
+              },
+            })
+
+            if (!success) {
+              console.error('Failed to update assistant message:', error)
+            }
+          } else {
+            const { success: saveSuccess, error: saveError } =
+              await saveChatResponse({
+                content,
+                chatId,
+                userId,
+                metadata: {
+                  totalTokens: event.totalUsage.totalTokens,
+                },
+              })
+
+            if (!saveSuccess) {
+              console.error('Failed to save chat response:', saveError)
+            }
           }
 
-          // if (finalMessages.length >= 2) {
-          //   await generateTitle(chatId, finalMessages)
-          // }
+          await updateChatTitle(chatId, [
+            ...finalMessages,
+            {
+              id: crypto.randomUUID(),
+              role: 'assistant',
+              parts: content as UIMessage['parts'],
+            },
+          ])
         } catch (error) {
           console.error('after background task error:', error)
         }

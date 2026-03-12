@@ -1,6 +1,6 @@
 'use server'
 
-import { User } from '@/services/database/generated'
+import { User } from '@/services/database/generated/client'
 import { prisma } from '@/services/database/prisma'
 
 interface GetUserByEmailResponse {
