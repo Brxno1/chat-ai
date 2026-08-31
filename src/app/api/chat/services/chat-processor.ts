@@ -77,15 +77,29 @@ export async function processChatAndSaveMessages({
           confirmedChatId,
         )
 
-        await saveMessages(
+        const { success: messagesSaved, error: saveError } = await saveMessages(
           messagesToSave,
           confirmedChatId,
           userId,
           processedAttachments,
         )
+
+        if (!messagesSaved) {
+          console.error('Failed to save user messages:', saveError)
+          return {
+            stream: null,
+            error: 'Failed to persist user messages',
+            headerChatId: undefined,
+          }
+        }
       }
     } catch (error) {
       console.error('Error in synchronous chat creation/saving:', error)
+      return {
+        stream: null,
+        error: 'Failed to persist user messages',
+        headerChatId: undefined,
+      }
     }
   }
 
