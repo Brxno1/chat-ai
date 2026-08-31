@@ -73,7 +73,8 @@ export function ChatProvider({
 
     if (
       isSendingRef.current ||
-      status !== 'ready' ||
+      status === 'submitted' ||
+      status === 'streaming' ||
       (!input.trim() && !options?.files?.length)
     ) {
       return

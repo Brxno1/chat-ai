@@ -170,7 +170,7 @@ export function ChatForm() {
                       : `Envia uma mensagem para ${model.name}`
                   }
                   autoFocus={status === 'ready'}
-                  disabled={status !== 'ready'}
+                  disabled={status === 'submitted' || status === 'streaming'}
                   value={input}
                   onChange={(ev) => {
                     field.onChange(ev)
@@ -274,7 +274,7 @@ export function ChatForm() {
             ) : input || hasFile ? (
               <Button
                 ref={buttonSubmitRef}
-                disabled={status !== 'ready' || form.formState.isSubmitting}
+                disabled={status === 'submitted' || form.formState.isSubmitting}
                 type="submit"
                 size="icon"
                 className="text-md min-w-[3rem] rounded-md font-bold"
