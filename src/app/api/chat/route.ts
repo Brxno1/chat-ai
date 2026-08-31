@@ -6,7 +6,6 @@ import { getUserSession } from '@/actions/user/profile/get-user-session'
 import { defaultErrorMessage } from './config'
 import { logChatError } from './logger'
 import { processChatAndSaveMessages } from './services/chat-processor'
-import { errorHandler } from './utils/error-handler'
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,7 +49,10 @@ export async function POST(req: NextRequest) {
     }
 
     const response = processedStream.toUIMessageStreamResponse({
-      onError: errorHandler,
+      onError: (error) => {
+        logChatError(error)
+        return defaultErrorMessage
+      },
       sendReasoning: true,
       sendStart: true,
       messageMetadata: ({ part }) => {
