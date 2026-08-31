@@ -19,7 +19,7 @@ async function findOrCreateChat(
   userId: string,
 ): Promise<OperationResponse<string>> {
   try {
-    const { id } = await prisma.chat.upsert({
+    const chat = await prisma.chat.upsert({
       where: { id: chatId },
       update: {},
       create: {
@@ -27,10 +27,18 @@ async function findOrCreateChat(
         title: 'Nova conversa',
         userId,
       },
-      select: { id: true },
+      select: { id: true, userId: true },
     })
 
-    return { success: true, data: id }
+    if (chat.userId !== userId) {
+      return {
+        success: false,
+        error: 'Unauthorized chat access',
+        data: '',
+      }
+    }
+
+    return { success: true, data: chat.id }
   } catch (error) {
     return {
       success: false,
@@ -52,6 +60,15 @@ async function saveMessages(
 ): Promise<OperationResponse<null>> {
   try {
     await prisma.$transaction(async (tx) => {
+      const chat = await tx.chat.findFirst({
+        where: { id: chatId, userId },
+        select: { id: true },
+      })
+
+      if (!chat) {
+        throw new Error('Unauthorized chat access')
+      }
+
       for (const [index, message] of messagesToSave.entries()) {
         const isLastMessage = index === messagesToSave.length - 1
         const { role, parts } = formatMessageForStorage(
@@ -101,8 +118,9 @@ async function saveChatResponse({
   metadata,
 }: ChatResponsePayload): Promise<{ success: boolean; error?: string }> {
   try {
-    const hasChat = await prisma.chat.findUnique({
-      where: { id: chatId },
+    const hasChat = await prisma.chat.findFirst({
+      where: { id: chatId, userId },
+      select: { id: true },
     })
 
     if (!hasChat) {
@@ -129,17 +147,24 @@ async function saveChatResponse({
 async function updateAssistantMessage({
   messageId,
   chatId,
+  userId,
   content,
   metadata,
 }: {
   messageId: string
   chatId: string
+  userId: string
   content: ChatResponsePayload['content']
   metadata?: Record<string, unknown>
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    await prisma.message.update({
-      where: { id: messageId, chatId },
+    const { count } = await prisma.message.updateMany({
+      where: {
+        id: messageId,
+        chatId,
+        userId,
+        role: 'ASSISTANT',
+      },
       data: {
         parts: JSON.stringify(content),
         metadata: JSON.stringify({
@@ -148,6 +173,10 @@ async function updateAssistantMessage({
         }),
       },
     })
+
+    if (count === 0) {
+      return { success: false, error: 'Assistant message not found' }
+    }
 
     return { success: true }
   } catch (error) {

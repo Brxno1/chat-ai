@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: 'Chat processing failed',
-          message: error || defaultErrorMessage,
+          message: defaultErrorMessage,
         },
         { status: 500 },
       )
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     logChatError(error)
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: 'Internal server error',
         message: defaultErrorMessage,
       },
       { status: 500 },

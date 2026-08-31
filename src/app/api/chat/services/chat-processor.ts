@@ -52,10 +52,18 @@ export async function processChatAndSaveMessages({
 
   if (!isGhostChatMode && userId) {
     try {
-      const { success, error } = await findOrCreateChat(chatId, userId)
+      const {
+        success,
+        data: confirmedChatId,
+        error,
+      } = await findOrCreateChat(chatId, userId)
 
       if (!success) {
-        console.error('Failed to create/find chat:', error)
+        return {
+          stream: null,
+          error: error || 'Failed to create/find chat',
+          headerChatId: undefined,
+        }
       }
 
       if (!hasResponseToRegenerate) {
@@ -66,10 +74,15 @@ export async function processChatAndSaveMessages({
         const { processedAttachments } = await processAttachments(
           messagesToSave,
           userId,
-          chatId,
+          confirmedChatId,
         )
 
-        await saveMessages(messagesToSave, chatId, userId, processedAttachments)
+        await saveMessages(
+          messagesToSave,
+          confirmedChatId,
+          userId,
+          processedAttachments,
+        )
       }
     } catch (error) {
       console.error('Error in synchronous chat creation/saving:', error)
@@ -102,6 +115,7 @@ export async function processChatAndSaveMessages({
             const { success, error } = await updateAssistantMessage({
               messageId: regenerateResponseId,
               chatId,
+              userId,
               content,
               metadata: {
                 totalTokens: event.totalUsage.totalTokens,
