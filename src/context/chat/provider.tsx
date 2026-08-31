@@ -36,6 +36,7 @@ export function ChatProvider({
 }: ChatProviderProps) {
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const buttonSubmitRef = React.useRef<HTMLButtonElement | null>(null)
+  const isSendingRef = React.useRef(false)
   const [input, setInput] = React.useState('')
 
   const model = useChatStore((state) => state.model)
@@ -70,31 +71,43 @@ export function ChatProvider({
   ) => {
     event?.preventDefault?.()
 
-    if (!input.trim() && !options?.files?.length) return
-
-    const fileParts: FileUIPart[] = []
-
-    if (options?.files) {
-      for (const file of options.files) {
-        const base64 = await fileToBase64(file)
-        fileParts.push({
-          type: 'file',
-          mediaType: file.type,
-          filename: file.name,
-          url: base64,
-        })
-      }
+    if (
+      isSendingRef.current ||
+      status !== 'ready' ||
+      (!input.trim() && !options?.files?.length)
+    ) {
+      return
     }
 
-    sendMessage({
-      text: input,
-      files: fileParts.length > 0 ? fileParts : undefined,
-      metadata: {
-        createdAt: Date.now(),
-      },
-    })
+    isSendingRef.current = true
 
-    setInput('')
+    try {
+      const fileParts: FileUIPart[] = []
+
+      if (options?.files) {
+        for (const file of options.files) {
+          const base64 = await fileToBase64(file)
+          fileParts.push({
+            type: 'file',
+            mediaType: file.type,
+            filename: file.name,
+            url: base64,
+          })
+        }
+      }
+
+      setInput('')
+
+      await sendMessage({
+        text: input,
+        files: fileParts.length > 0 ? fileParts : undefined,
+        metadata: {
+          createdAt: Date.now(),
+        },
+      })
+    } finally {
+      isSendingRef.current = false
+    }
   }
 
   const onRegenerateResponse = () => {

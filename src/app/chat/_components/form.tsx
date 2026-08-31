@@ -106,7 +106,7 @@ export function ChatForm() {
     form.setValue('files', remainingFiles)
   }
 
-  const handleSubmit = ({ files, audio }: z.infer<typeof schema>) => {
+  const handleSubmit = async ({ files, audio }: z.infer<typeof schema>) => {
     const allFiles: File[] = []
 
     if (files && files.length > 0) {
@@ -118,7 +118,7 @@ export function ChatForm() {
       allFiles.push(audio)
     }
 
-    onSubmitChat(undefined, {
+    await onSubmitChat(undefined, {
       files: allFiles.length > 0 ? allFiles : undefined,
     })
 
@@ -170,7 +170,7 @@ export function ChatForm() {
                       : `Envia uma mensagem para ${model.name}`
                   }
                   autoFocus={status === 'ready'}
-                  disabled={status === 'streaming'}
+                  disabled={status !== 'ready'}
                   value={input}
                   onChange={(ev) => {
                     field.onChange(ev)
@@ -274,7 +274,7 @@ export function ChatForm() {
             ) : input || hasFile ? (
               <Button
                 ref={buttonSubmitRef}
-                disabled={form.formState.isSubmitting}
+                disabled={status !== 'ready' || form.formState.isSubmitting}
                 type="submit"
                 size="icon"
                 className="text-md min-w-[3rem] rounded-md font-bold"

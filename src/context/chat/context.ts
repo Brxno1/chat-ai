@@ -33,7 +33,7 @@ type Actions = {
       preventDefault?: () => void
     },
     options?: SendMessageOptions,
-  ) => void
+  ) => Promise<void>
   onModelChange: (value: string) => void
   onStop: () => void
   onGenerateTranscribe: (audio: Blob | null) => Promise<void>
